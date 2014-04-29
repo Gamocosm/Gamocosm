@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  minecraft_server_id: 
+  remote_id: 1
+  remote_size_id: 1
+  remote_region_id: 1
+  ip_address: 
+  remote_status: MyString
+  last_synced: 2014-04-29 03:22:02
+
+two:
+  minecraft_server_id: 
+  remote_id: 1
+  remote_size_id: 1
+  remote_region_id: 1
+  ip_address: 
+  remote_status: MyString
+  last_synced: 2014-04-29 03:22:02
