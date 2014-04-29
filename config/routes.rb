@@ -2,11 +2,24 @@ require 'sidekiq/web'
 
 Rails.application.routes.draw do
 
-  resource :minecraft_servers
+  get 'pages/about'
+
+  get 'pages/contact'
+
+  get 'pages/help'
 
   mount Sidekiq::Web => '/sidekiq'
 
   devise_for :users
+
+  unauthenticated do
+    root to: 'pages#landing', as: 'landing'
+  end
+
+  authenticated :user do
+    resource :minecraft_servers, path: '/server/'
+  end
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
