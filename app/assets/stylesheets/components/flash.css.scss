@@ -1,0 +1,25 @@
+.flash-container {
+	width: 100%;
+	margin-top: -20px;
+	text-align: center;
+	font-size: 14px;
+	position: relative;
+
+	.flash-notice {
+		background: #49C;
+		text-shadow: 0 1px 1px #178;
+		padding: 10px;
+	}
+
+	.flash-alert {
+		background: #C67;
+		text-shadow: 0 1px 1px #945;
+		padding: 10px;
+	}
+
+	.flash-error {
+		background: #D2322D;
+		text-shadow: 0 1px 1px #178;
+		padding: 10px;
+	}
+}

@@ -4,14 +4,16 @@
   <title>Gamocosm</title>
   <%= stylesheet_link_tag    'application', media: 'all' %>
   <%= javascript_include_tag 'application' %>
+  <%= stylesheet_link_tag 'application', 'http://fonts.googleapis.com/css?family=Droid+Sans' %>
+  <%= stylesheet_link_tag 'application', 'http://fonts.googleapis.com/css?family=Droid+Sans+Mono' %>
   <%= csrf_meta_tags %>
 </head>
 <body>
 
   <%= render partial: 'layouts/components/navbar' %>
+  <%= render partial: 'layouts/components/flash' %>
   <div class="container"><%= yield %></div>
   <%= render partial: 'layouts/components/footer' %>
-  <%= render partial: 'layouts/components/flash' %>
 
 </body>
 </html>

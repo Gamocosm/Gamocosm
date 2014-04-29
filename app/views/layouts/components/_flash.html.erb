@@ -1,5 +1,5 @@
 <% flash.each do |name, msg| %>
-  <div class="flash-container">
-    <div class="flash-<%= name %>"><%= msg %></div>
+  <div class="flash-container row">
+    <div class="flash-<%= name %> col-lg-12"><%= msg %></div>
   </div>
 <% end %>

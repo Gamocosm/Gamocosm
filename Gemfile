@@ -48,3 +48,4 @@ gem 'digital_ocean'
 gem 'httparty'
 gem 'sinatra', :require => nil
 gem 'font-awesome-sass'
+gem 'simple_form'

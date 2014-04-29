@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: minecraft_servers
+#
+#  id                :uuid             not null, primary key
+#  user_id           :integer
+#  name              :string(255)
+#  saved_snapshot_id :integer
+#  pending_operation :string(255)
+#  created_at        :datetime
+#  updated_at        :datetime
+#
+
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
