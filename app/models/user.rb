@@ -18,6 +18,7 @@
 #  digital_ocean_client_id             :string(255)
 #  digital_ocean_api_key               :string(255)
 #  digital_ocean_minecraft_snapshot_id :integer
+#  digital_ocean_event_id              :integer
 #
 
 class User < ActiveRecord::Base
@@ -27,6 +28,7 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable
 
   has_many :minecraft_servers, dependent: :destroy
+  has_and_belongs_to_many :friend_minecraft_servers, foreign_key: 'user_id', class_name: 'MinecraftServer'
 
   def minecraft_snapshot_id
     if digital_ocean_minecraft_snapshot_id.nil?

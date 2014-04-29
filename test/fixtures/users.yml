@@ -18,6 +18,7 @@
 #  digital_ocean_client_id             :string(255)
 #  digital_ocean_api_key               :string(255)
 #  digital_ocean_minecraft_snapshot_id :integer
+#  digital_ocean_event_id              :integer
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html

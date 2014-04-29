@@ -1,3 +1,19 @@
+# == Schema Information
+#
+# Table name: droplets
+#
+#  id                  :integer          not null, primary key
+#  minecraft_server_id :integer
+#  remote_id           :integer
+#  remote_size_id      :integer
+#  remote_region_id    :integer
+#  ip_address          :inet
+#  remote_status       :string(255)
+#  last_synced         :datetime
+#  created_at          :datetime
+#  updated_at          :datetime
+#
+
 class DigitalOcean::Droplet
 
   def initialize(local_droplet)
@@ -15,7 +31,7 @@ class DigitalOcean::Droplet
     end
     response = connection.droplets.create({
       name: local_droplet.host_name,
-      size_id: local_droplet.minecraft_server.droplet_size_id,
+      size_id: local_droplet.minecraft_server.digital_ocean_droplet_size_id,
       image_id: user.minecraft_snapshot_id,
       region_id: 4, # TODO
     })

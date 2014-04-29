@@ -1,2 +1,45 @@
-<h1>MinecraftServers#index</h1>
-<p>Find me in app/views/minecraft_servers/index.html.erb</p>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="page-header">
+			<h1>Servers <small>for <%= current_user.email %></small></h1>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-lg-8">
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<td>Name</td>
+					<td>Domain / IP</td>
+					<td>Status</td>
+				</tr>
+			</thead>
+			<tbody>
+			<% if @servers.empty? %>
+				<%= render 'empty' %>
+			<% else %>
+				<%= render partial: 'minecraft_servers/server', collection: @servers %>
+			<% end %>
+			</tbody>
+		</table>
+	</div>
+	<div class="col-lg-4">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">New Server</h3>
+			</div>
+			<div class="panel-body">
+				<%= simple_form_for @server, as: :minecraft_server, url: minecraft_servers_path do |f| %>
+					<%= f.input :digital_ocean_droplet_size_id, collection: DigitalOcean::DropletSize.new.available.collect { |x| [x.descriptor, x.id] }, as: :select, include_blank: false %>
+					<p class="text-center">
+						<button class="btn btn-invert" type="submit">
+							Next <i class="fa fa-chevron-right"></i>
+						</button>
+					</p>
+				<% end %>
+			</div>
+		</div>
+	</div>
+</div>

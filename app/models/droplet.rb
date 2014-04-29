@@ -16,4 +16,8 @@
 
 class Droplet < ActiveRecord::Base
   belongs_to :minecraft_server
+
+  def host_name
+    return "gamocosm-minecraft-#{minecraft_server.name}"
+  end
 end

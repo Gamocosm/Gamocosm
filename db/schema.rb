@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140429185010) do
+ActiveRecord::Schema.define(version: 20140429222327) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,9 +38,17 @@ ActiveRecord::Schema.define(version: 20140429185010) do
     t.string   "pending_operation"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "digital_ocean_droplet_size_id"
   end
 
   add_index "minecraft_servers", ["user_id"], name: "index_minecraft_servers_on_user_id", using: :btree
+
+  create_table "minecraft_servers_users", force: true do |t|
+    t.uuid    "minecraft_server_id"
+    t.integer "user_id"
+  end
+
+  add_index "minecraft_servers_users", ["user_id"], name: "index_minecraft_servers_users_on_user_id", using: :btree
 
   create_table "users", force: true do |t|
     t.string   "email",                               default: "", null: false
@@ -58,6 +66,7 @@ ActiveRecord::Schema.define(version: 20140429185010) do
     t.string   "digital_ocean_client_id"
     t.string   "digital_ocean_api_key"
     t.integer  "digital_ocean_minecraft_snapshot_id"
+    t.integer  "digital_ocean_event_id"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

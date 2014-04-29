@@ -17,8 +17,8 @@ Rails.application.routes.draw do
   end
 
   authenticated :user do
-    resource :minecraft_servers, path: '/server/'
-    root to: 'minecraft_servers#show'
+    resources :minecraft_servers, path: '/server'
+    root to: 'minecraft_servers#index'
   end
 
   # The priority is based upon order of creation: first created -> highest priority.
