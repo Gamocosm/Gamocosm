@@ -2,11 +2,11 @@ require 'sidekiq/web'
 
 Rails.application.routes.draw do
 
-  get 'pages/about'
+  get 'pages/about', as: 'about'
 
-  get 'pages/contact'
+  get 'pages/contact', as: 'contact'
 
-  get 'pages/help'
+  get 'pages/help', as: 'help'
 
   mount Sidekiq::Web => '/sidekiq'
 
@@ -18,6 +18,7 @@ Rails.application.routes.draw do
 
   authenticated :user do
     resource :minecraft_servers, path: '/server/'
+    root to: 'minecraft_servers#index'
   end
 
   # The priority is based upon order of creation: first created -> highest priority.

@@ -8,7 +8,10 @@
 </head>
 <body>
 
-<%= yield %>
+  <%= render partial: 'layouts/components/navbar' %>
+  <div class="container"><%= yield %></div>
+  <%= render partial: 'layouts/components/footer' %>
+  <%= render partial: 'layouts/components/flash' %>
 
 </body>
 </html>

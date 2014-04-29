@@ -63,6 +63,8 @@ GEM
       multipart-post (>= 1.2, < 3)
     faraday_middleware (0.9.1)
       faraday (>= 0.7.4, < 0.10)
+    font-awesome-sass (4.0.3.1)
+      sass (~> 3.2)
     hashie (2.0.5)
     hike (1.2.3)
     httparty (0.13.1)
@@ -168,6 +170,7 @@ DEPENDENCIES
   devise
   digital_ocean
   econfig
+  font-awesome-sass
   httparty
   jbuilder (~> 2.0)
   jquery-rails

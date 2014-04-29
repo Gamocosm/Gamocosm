@@ -47,3 +47,4 @@ gem 'annotate'
 gem 'digital_ocean'
 gem 'httparty'
 gem 'sinatra', :require => nil
+gem 'font-awesome-sass'
