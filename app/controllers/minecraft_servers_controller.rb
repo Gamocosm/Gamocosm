@@ -4,6 +4,8 @@ class MinecraftServersController < ApplicationController
   def index
     @servers = current_user.minecraft_servers
     @server = MinecraftServer.new
+    @droplets = current_user.digital_ocean_droplets
+    @snapshots = current_user.digital_ocean_snapshots
   end
 
   def new
@@ -20,6 +22,7 @@ class MinecraftServersController < ApplicationController
   end
 
   def show
+    @server = current_user.minecraft_servers.find(params[:id])
   end
 
   def edit

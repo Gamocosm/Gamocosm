@@ -17,7 +17,7 @@ Rails.application.routes.draw do
   end
 
   authenticated :user do
-    resources :minecraft_servers, path: '/server'
+    resources :minecraft_servers, path: '/servers'
     root to: 'minecraft_servers#index'
   end
 
