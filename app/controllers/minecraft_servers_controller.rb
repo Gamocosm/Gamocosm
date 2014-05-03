@@ -14,10 +14,19 @@ class MinecraftServersController < ApplicationController
   def create
     @server = current_user.minecraft_servers.new(minecraft_server_params)
     if @server.save
-      redirect_to minecraft_server_path(@server), notice: 'Server created'
+      @server.create_droplet
+      digital_ocean_droplet = DigitalOcean::Droplet.new(@server.droplet)
+      response = digital_ocean_droplet.create
+      if response.nil?
+        # TODO: delete server?
+        flash.now[:error] = 'Something went wrong. Please try again'
+        return render :index
+      end
+      WaitForStartingServerWorker.perform_in(32.seconds, current_user.id, @server.droplet.id, response.droplet.event_id)
+      return redirect_to minecraft_server_path(@server), notice: 'Server created'
     else
       flash.now[:error] = 'Something went wrong. Please try again'
-      render :index
+      return render :index
     end
   end
 
@@ -25,13 +34,33 @@ class MinecraftServersController < ApplicationController
     @server = current_user.minecraft_servers.find(params[:id])
   end
 
+  def start
+  end
+
+  def stop
+  end
+
+  def resume
+  end
+
+  def pause
+  end
+
   def edit
   end
 
   def update
+    @server = current_user.minecraft_servers.find(params[:id])
+    if @server.update_attributes(params.require(:minecraft_server).permit(:name))
+      return redirect_to minecraft_server_path(@server), notice: 'Server updated'
+    end
+    flash.now[:error] = 'Unable to update server'
+    return render :show
   end
 
   def destroy
+    @server = current_user.minecraft_servers.find(params[:id])
+    # TODO: destroy
   end
 
   def minecraft_server_params

@@ -9,25 +9,31 @@
 <div class="row">
 	<div class="col-lg-9">
 		<ul class="nav nav-tabs">
-			<%= active_link_to 'Profile', minecraft_server_path(@server), active: :exclusive, wrap_tag: :li %>
-			<%= active_link_to 'Minecraft Settings', minecraft_server_settings_path(@server), wrap_tag: :li %>
-			<%= active_link_to 'FTP and SSH Access', minecraft_server_ftp_ssh_access_path(@server), wrap_tag: :li %>
+			<li class="active"><%= link_to 'Profile', minecraft_server_path(@server, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
+			<li><%= link_to 'Minecraft Settings', minecraft_server_path(@server, anchor: 'settings'), 'data-toggle' => 'tab' %></li>
+			<li><%= link_to 'FTP and SSH Access', minecraft_server_path(@server, anchor: 'ftp_ssh'), 'data-toggle' => 'tab' %></li>
 		</ul>
 
-		<div>
-			<% if is_active_link?(minecraft_server_path(@server), :exclusive) %>
+		<div class="tab-content">
+			<div class="tab-pane active" id="profile">
 				<%= render partial: 'profile' %>
-			<% elsif is_active_link?(minecraft_server_settings_path(@server)) %>
+			</div>
+			<div class="tab-pane" id="settings">
 				<%= render partial: 'settings' %>
-			<% elsif is_active_link?(minecraft_server_ftp_ssh_access_path(@server)) %>
+			</div>
+			<div class="tab-pane" id="ftp_ssh">
 				<%= render partial: 'ftp_ssh' %>
-			<% end %>
+			</div>
 		</div>
 	</div>
 
 	<div class="col-lg-3">
 		<%= panel_with_heading 'Control Panel' do %>
-
+			<%= link_to 'Stop', stop_minecraft_server_path(@server), class: 'btn btn-danger btn-block' %>
+			<%= link_to 'Start', start_minecraft_server_path(@server), class: 'btn btn-success btn-block' %>
+			<%= link_to 'Pause', pause_minecraft_server_path(@server), class: 'btn btn-info btn-block' %>
+			<%= link_to 'Resume', resume_minecraft_server_path(@server), class: 'btn btn-success btn-block' %>
+			<%= link_to 'Delete', minecraft_server_path(@server), method: :delete, class: 'btn btn-danger btn-block', data: { confirm: 'Are you sure you want to delete this server forever? (A really long time!)' } %>
 		<% end %>
 	</div>
 </div>

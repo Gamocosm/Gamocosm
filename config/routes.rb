@@ -17,7 +17,14 @@ Rails.application.routes.draw do
   end
 
   authenticated :user do
-    resources :minecraft_servers, path: '/servers'
+    resources :minecraft_servers, path: '/servers' do
+      member do
+        get 'start'
+        get 'stop'
+        get 'pause'
+        get 'resume'
+      end
+    end
     root to: 'minecraft_servers#index'
   end
 

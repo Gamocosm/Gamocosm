@@ -17,7 +17,7 @@
 				</tr>
 			</thead>
 			<tbody>
-			<% if @servers.empty? %>
+			<% if @servers.blank? %>
 				<%= render 'empty' %>
 			<% else %>
 				<%= render partial: 'minecraft_servers/server', collection: @servers %>
@@ -32,6 +32,7 @@
 			</div>
 			<div class="panel-body">
 				<%= simple_form_for @server, as: :minecraft_server, url: minecraft_servers_path do |f| %>
+					<%= f.input :name, input_html: { size: 32 } %>
 					<%= f.input :digital_ocean_droplet_size_id, collection: DigitalOcean::DropletSize.new.available.collect { |x| [x.descriptor, x.id] }, as: :select, include_blank: false %>
 					<p class="text-center">
 						<button class="btn btn-invert" type="submit">
@@ -52,7 +53,7 @@
 			</div>
 			<div class="panel-body">
 				<table class="table table-striped">
-					<% if @droplets.empty? %>
+					<% if @droplets.blank? %>
 						<tr><td><em>You have no droplets on Digital Ocean</em></td></tr>
 					<% else %>
 						<% @droplets.each do |x| %>
@@ -70,7 +71,7 @@
 			</div>
 			<div class="panel-body">
 				<table class="table table-striped">
-					<% if @snapshots.empty? %>
+					<% if @snapshots.blank? %>
 						<tr><td><em>You have no snapshots on Digital Ocean</em></td></tr>
 					<% else %>
 						<% @snapshots.each do |x| %>

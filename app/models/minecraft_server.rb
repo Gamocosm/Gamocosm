@@ -17,6 +17,9 @@ class MinecraftServer < ActiveRecord::Base
   has_one :droplet
   has_and_belongs_to_many :friends, foreign_key: 'minecraft_server_id', class_name: 'User'
 
+  validates :name, format: { with: /\A[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,63})*\z/ }
+  validates :name, length: { in: 3..255 }
+
   def start
   end
 

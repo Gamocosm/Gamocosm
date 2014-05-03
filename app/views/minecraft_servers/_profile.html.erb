@@ -1,6 +1,12 @@
-<% panel_with_heading 'IP Address' do %>
-	Ip Adress
+<%= panel_with_heading 'IP Address' do %>
+	<%= render_server_ip_address(@server) %>
 <% end %>
 
 <%= panel_with_heading 'Server Info' do %>
-
+		<%= simple_form_for @server, url: minecraft_server_path(@server) do |f| %>
+		<%= f.input :name %>
+		<button class="btn btn-invert" type="submit">
+			Update <i class="fa fa-check"></i>
+		</button>
+	<% end %>
+<% end %>
