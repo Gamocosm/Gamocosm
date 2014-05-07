@@ -1,7 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
+yum -y update
 yum -y install java-1.7.0-openjdk-headless python3 python3-devel python3-pip supervisor proftpd
 
 adduser mcuser

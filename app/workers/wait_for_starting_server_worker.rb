@@ -15,6 +15,7 @@ class WaitForStartingServerWorker
 		end
 		if event.is_done?
 			# TODO: setup server
+			droplet.minecraft_server.update_columns(pending_operation: nil)
 		else
 			WaitForStartingServerWorker.perform_in(4.seconds, user_id, droplet_id, digital_ocean_event_id)
 		end

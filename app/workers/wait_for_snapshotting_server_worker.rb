@@ -17,8 +17,15 @@ class WaitForSnapshottingServerWorker
 			snapshots = user.digital_ocean_snapshots
 			snapshots.sort! { |a, b| a.id <=> b.id }
 			droplet.minecraft_server.update_columns(saved_snapshot_id: snapshots[-1].id)
-			droplet.destroy
-			# TODO: digital ocean destroy droplet, update pending operation
+			response = user.digital_ocean.destroy(droplet.remote_id)
+			if response.status != 'OK'
+				# TODO: error
+			end
+			if droplet.minecraft_server.should_destroy
+				droplet.minecraft_server.destroy
+			else
+				droplet.minecraft_server.update_columns(pending_operation: nil)
+			end
 		else
 			WaitForSnapshottingServerWorker.perform_in(4.seconds, droplet_id, digital_ocean_event_id)
 		end

@@ -23,6 +23,8 @@ Rails.application.routes.draw do
         get 'stop'
         get 'pause'
         get 'resume'
+        get 'backup'
+        get 'download'
       end
     end
     root to: 'minecraft_servers#index'

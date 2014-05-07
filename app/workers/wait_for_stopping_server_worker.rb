@@ -18,6 +18,7 @@ class WaitForStoppingServerWorker
 			if response.status != 'OK'
 				raise "Error making snapshot for server #{droplet.minecraft_server_id} on droplet #{droplet_id}, response was #{response}"
 			end
+			droplet.minecraft_server.update_columns(pending_operation: 'saving')
 			WaitForSnapshottingServerWorker.perform_in(4.seconds, user_id, droplet_id, response.event_id)
 		else
 			WaitForStoppingServerWorker.perform_in(4.seconds, user_id, droplet_id, digital_ocean_event_id)

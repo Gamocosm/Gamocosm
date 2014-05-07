@@ -26,16 +26,22 @@ class DigitalOcean::Droplet
     if connection.nil?
       return nil
     end
+    ssh_key_id = user.digital_ocean_gamocosm_ssh_key_id
+    if ssh_key_id.nil?
+      # TODO error
+      return nil
+    end
     response = connection.droplets.create({
       name: @local_droplet.host_name,
       size_id: @local_droplet.minecraft_server.digital_ocean_droplet_size_id,
-      image_id: Gamocosm.digital_ocean_base_snapshot_id,
+      image_id: @local_droplet.minecraft_server.saved_snapshot_id || Gamocosm.digital_ocean_base_snapshot_id,
       region_id: 4, # TODO
+      ssh_key_ids: "#{ssh_key_id}",
     })
     if response.status == 'OK'
-      return response
+      return response.droplet.event_id
     end
-    Rails.logger.error "Response was #{response}"
+    Rails.logger.error "Response was #{response}" # TODO: error
     return nil
   end
 
@@ -48,6 +54,7 @@ class DigitalOcean::Droplet
     if response.status == 'OK'
       return response.event_id
     end
+    Rails.logger.error "Response was #{response}" # TODO: error
     return nil
   end
 
@@ -60,6 +67,7 @@ class DigitalOcean::Droplet
     if response.status == 'OK'
       return response.event_id
     end
+    Rails.logger.error "Response was #{response}" # TODO: error
     return nil
   end
 

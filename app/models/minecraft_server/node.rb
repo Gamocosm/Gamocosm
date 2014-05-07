@@ -18,12 +18,19 @@ class MinecraftServer::Node
   end
 
   def pid
+    response = do_get(:pid)
+    if response
+      if response['status'] == 0
+        return response['pid']
+      end
+    end
+    return nil
   end
 
-  def start
+  def resume
   end
 
-  def stop
+  def pause
   end
 
   def backup

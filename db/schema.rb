@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140430011718) do
+ActiveRecord::Schema.define(version: 20140504193512) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,6 +39,7 @@ ActiveRecord::Schema.define(version: 20140430011718) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "digital_ocean_droplet_size_id"
+    t.boolean  "should_destroy",                default: false, null: false
   end
 
   add_index "minecraft_servers", ["user_id"], name: "index_minecraft_servers_on_user_id", using: :btree
