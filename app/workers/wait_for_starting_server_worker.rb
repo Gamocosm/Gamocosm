@@ -1,6 +1,5 @@
 class WaitForStartingServerWorker
 	include Sidekiq::Worker
-	sidekiq_options queue: 'high'
 	sidekiq_options retry: 3
 
 	def perform(user_id, droplet_id, digital_ocean_event_id)
@@ -15,6 +14,10 @@ class WaitForStartingServerWorker
 		end
 		if event.is_done?
 			# TODO: setup server
+			droplet.update_columns(remote_id: event.data['droplet_id'])
+			if !droplet.remote.sync
+				raise "Error syncing droplet #{droplet.id}"
+			end
 			droplet.minecraft_server.update_columns(pending_operation: nil)
 		else
 			WaitForStartingServerWorker.perform_in(4.seconds, user_id, droplet_id, digital_ocean_event_id)

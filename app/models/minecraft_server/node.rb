@@ -31,6 +31,7 @@ class MinecraftServer::Node
   end
 
   def pause
+    return true
   end
 
   def backup

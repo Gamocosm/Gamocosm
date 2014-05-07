@@ -1,1 +1,10 @@
-Busy
+<div>
+	Your server is <%= @server.pending_operation %>. Please wait while the operation completes.
+	<% if @server.pending_operation == 'starting' %>
+		This should take about a minute.
+	<% elsif @server.pending_operation = 'stopping' %>
+		This should take about 15 seconds.
+	<% elsif @server.pending_operation == 'saving' %>
+		This should take about a minute.
+	<% end %>
+</div>

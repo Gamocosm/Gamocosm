@@ -19,4 +19,14 @@ module ApplicationHelper
 		end
 		return 'Not available'
 	end
+
+	def render_server_status(server)
+		if server.pending_operation
+			return server.pending_operation
+		end
+		if server.droplet_running?
+			return server.droplet.remote_status
+		end
+		return 'Not available'
+	end
 end

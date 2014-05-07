@@ -27,7 +27,7 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable
 
   has_many :minecraft_servers, dependent: :destroy
-  has_and_belongs_to_many :friend_minecraft_servers, foreign_key: 'user_id', class_name: 'MinecraftServer'
+  has_and_belongs_to_many :friend_minecraft_servers, foreign_key: 'user_id', class_name: 'MinecraftServer', dependent: :destroy
 
   def digital_ocean
     if digital_ocean_client_id.nil? || digital_ocean_api_key.nil?

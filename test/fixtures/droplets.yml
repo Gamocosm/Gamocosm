@@ -3,7 +3,6 @@
 # Table name: droplets
 #
 #  id                  :integer          not null, primary key
-#  minecraft_server_id :integer
 #  remote_id           :integer
 #  remote_size_id      :integer
 #  remote_region_id    :integer
@@ -12,6 +11,7 @@
 #  last_synced         :datetime
 #  created_at          :datetime
 #  updated_at          :datetime
+#  minecraft_server_id :uuid
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html

@@ -14,7 +14,6 @@ class MinecraftServersController < ApplicationController
   def create
     @server = current_user.minecraft_servers.new(minecraft_server_params)
     if @server.save
-      @server.create_droplet
       return redirect_to minecraft_server_path(@server), notice: 'Server created'
     else
       flash.now[:error] = 'Something went wrong. Please try again'
@@ -41,7 +40,7 @@ class MinecraftServersController < ApplicationController
     if @server.stop
       return redirect_to minecraft_servers_path, notice: 'Server is stopping'
     end
-    return redirect_to minecraft_servers_path(@server), notice: 'Unable to stop server'
+    return redirect_to minecraft_server_path(@server), notice: 'Unable to stop server'
   end
 
   def resume
@@ -92,8 +91,10 @@ class MinecraftServersController < ApplicationController
   def destroy
     @server = current_user.minecraft_servers.find(params[:id])
     @server.update_columns(should_destroy: true)
-    @server.stop
-    return redirect_to minecraft_servres_path, notice: 'Server is deleting'
+    if @server.stop
+      return redirect_to minecraft_servers_path, notice: 'Server is deleting'
+    end
+    return redirect_to minecraft_server_path(@server), notice: 'Unable to delete server'
   end
 
   def minecraft_server_params

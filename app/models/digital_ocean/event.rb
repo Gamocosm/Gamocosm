@@ -16,6 +16,10 @@ class DigitalOcean::Event
     return !(@body['status'] == 'OK' && @body['error_message'].nil?)
   end
 
+  def data
+    return @body['event']
+  end
+
   def is_done?
     if has_error?
       raise "Digital ocean event #{@event_id} for user #{@user.id} had error #{@body}"

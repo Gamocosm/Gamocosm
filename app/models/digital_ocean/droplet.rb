@@ -3,7 +3,6 @@
 # Table name: droplets
 #
 #  id                  :integer          not null, primary key
-#  minecraft_server_id :integer
 #  remote_id           :integer
 #  remote_size_id      :integer
 #  remote_region_id    :integer
@@ -12,6 +11,7 @@
 #  last_synced         :datetime
 #  created_at          :datetime
 #  updated_at          :datetime
+#  minecraft_server_id :uuid
 #
 
 class DigitalOcean::Droplet
@@ -69,6 +69,38 @@ class DigitalOcean::Droplet
     end
     Rails.logger.error "Response was #{response}" # TODO: error
     return nil
+  end
+
+  def sync
+    connection = @local_droplet.minecraft_server.user.digital_ocean
+    if connection.nil?
+      return false
+    end
+    response = connection.droplets.show(@local_droplet.remote_id)
+    if response.status == 'OK'
+      @local_droplet.update_columns({
+        remote_size_id: response.droplet.size_id,
+        remote_region_id: response.droplet.region_id,
+        ip_address: response.droplet.ip_address,
+        remote_status: response.droplet.status,
+        last_synced: DateTime.now
+      })
+      return true
+    end
+    Rails.logger.error "Response was #{response}" # TODO: error
+    return false
+  end
+
+  # having snapshot and snapshots is asking for badness
+  def list_snapshots
+    connection = @local_droplet.minecraft_server.user.digital_ocean
+    if connection.nil?
+      return false
+    end
+    response = connection.droplets.show(@local_droplet.remote_id)
+    if response.status == 'OK'
+      return response.droplet.snapshots
+    end
   end
 
 end

@@ -1,5 +1,5 @@
 <tr>
 	<td><%= link_to server.name, minecraft_server_path(server) %></td>
-	<td>IP address</td>
-	<td>Status</td>
+	<td><%= render_server_ip_address(server) %></td>
+	<td><%= render_server_status(server) %></td>
 </tr>

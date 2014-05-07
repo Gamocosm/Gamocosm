@@ -11,14 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140504193512) do
+ActiveRecord::Schema.define(version: 20140507135739) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
   create_table "droplets", force: true do |t|
-    t.integer  "minecraft_server_id"
     t.integer  "remote_id"
     t.integer  "remote_size_id"
     t.integer  "remote_region_id"
@@ -27,9 +26,8 @@ ActiveRecord::Schema.define(version: 20140504193512) do
     t.datetime "last_synced"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.uuid     "minecraft_server_id"
   end
-
-  add_index "droplets", ["minecraft_server_id"], name: "index_droplets_on_minecraft_server_id", using: :btree
 
   create_table "minecraft_servers", id: :uuid, default: "uuid_generate_v4()", force: true do |t|
     t.integer  "user_id"

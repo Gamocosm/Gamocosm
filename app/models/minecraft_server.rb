@@ -15,8 +15,8 @@
 
 class MinecraftServer < ActiveRecord::Base
   belongs_to :user
-  has_one :droplet
-  has_and_belongs_to_many :friends, foreign_key: 'minecraft_server_id', class_name: 'User'
+  has_one :droplet, dependent: :destroy
+  has_and_belongs_to_many :friends, foreign_key: 'minecraft_server_id', class_name: 'User', dependent: :destroy
 
   validates :name, format: { with: /\A[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,63})*\z/ }
   validates :name, length: { in: 3..128 }
@@ -40,6 +40,10 @@ class MinecraftServer < ActiveRecord::Base
     if droplet_running?
       return true
     end
+    if busy?
+      return false
+    end
+    self.create_droplet
     if user.digital_ocean.nil?
       # TODO: error
       return false
@@ -57,6 +61,9 @@ class MinecraftServer < ActiveRecord::Base
   def stop
     if !droplet_running?
       return true
+    end
+    if busy?
+      return false
     end
     if !node.pause
       # TODO: error
