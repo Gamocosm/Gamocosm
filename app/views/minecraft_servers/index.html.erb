@@ -46,40 +46,40 @@
 </div>
 
 <div class="row">
-	<div class="col-lg-6">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<h3 class="panel-title">Digital Ocean Droplets</h3>
+	<div class="col-lg-12">
+		<%= panel_with_heading 'Digital Ocean' do %>
+			<div class="row">
+				<div class="col-lg-8 col-lg-offset-2">
+					This information is provided for you to make it easy to monitor your Digital Ocean account.
+					<br />If you see orphaned servers or snapshots, you should log into <%= link_to 'Digital Ocean\'s control panel', 'https://cloud.digitalocean.com/login' %> and delete them.
+				</div>
 			</div>
-			<div class="panel-body">
-				<table class="table table-striped">
-					<% if @droplets.blank? %>
-						<tr><td><em>You have no droplets on Digital Ocean</em></td></tr>
-					<% else %>
-						<% @droplets.each do |x| %>
-							<tr><td><%= x.name %></td></tr>
+			<div class="row">
+				<div class="col-lg-6">
+					<h4>Droplets</h4>
+					<table class="table table-striped">
+						<% if @droplets.blank? %>
+							<tr><td><em>You have no droplets on Digital Ocean</em></td></tr>
+						<% else %>
+							<% @droplets.each do |x| %>
+								<tr><td><%= x.name %></td></tr>
+							<% end %>
 						<% end %>
-					<% end %>
-				</table>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-6">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<h3 class="panel-title">Digital Ocean Snapshots</h3>
-			</div>
-			<div class="panel-body">
-				<table class="table table-striped">
-					<% if @snapshots.blank? %>
-						<tr><td><em>You have no snapshots on Digital Ocean</em></td></tr>
-					<% else %>
-						<% @snapshots.each do |x| %>
-							<tr><td><%= x.name %></td></tr>
+					</table>
+				</div>
+				<div class="col-lg-6">
+					<h4>Snapshots</h4>
+					<table class="table table-striped">
+						<% if @snapshots.blank? %>
+							<tr><td><em>You have no snapshots on Digital Ocean</em></td></tr>
+						<% else %>
+							<% @snapshots.each do |x| %>
+								<tr><td><%= x.name %></td></tr>
+							<% end %>
 						<% end %>
-					<% end %>
-				</table>
+					</table>
+				</div>
 			</div>
-		</div>
+		<% end %>
 	</div>
 </div>

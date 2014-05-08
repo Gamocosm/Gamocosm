@@ -31,14 +31,14 @@
 
 		<div class="col-lg-3">
 			<%= panel_with_heading 'Control Panel' do %>
-				<%= link_to 'Start', start_minecraft_server_path(@server), class: 'btn btn-success btn-block' %>
-				<%= link_to 'Stop', stop_minecraft_server_path(@server), class: 'btn btn-danger btn-block' %>
+				<%= link_to 'Start', start_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? ? 'disabled' : ''}" %>
+				<%= link_to 'Stop', stop_minecraft_server_path(@server), class: "btn btn-danger btn-block #{@server.droplet_running? ? '' : 'disabled'}" %>
 				<hr />
-				<%= link_to 'Resume', resume_minecraft_server_path(@server), class: 'btn btn-success btn-block' %>
-				<%= link_to 'Pause', pause_minecraft_server_path(@server), class: 'btn btn-info btn-block' %>
+				<%= link_to 'Resume', resume_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? ? '' : 'disabled'}" %>
+				<%= link_to 'Pause', pause_minecraft_server_path(@server), class: "btn btn-info btn-block #{@server.droplet_running? ? '' : 'disabled'}" %>
 				<hr />
-				<%= link_to 'Backup', backup_minecraft_server_path(@server), class: 'btn btn-success btn-block' %>
-				<%= link_to 'Download world', download_minecraft_server_path(@server), class: 'btn btn-info btn-block' %>
+				<%= link_to 'Backup', backup_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? ? '' : 'disabled'}" %>
+				<%= link_to 'Download world', download_minecraft_server_path(@server), class: "btn btn-info btn-block #{@server.droplet_running? ? '' : 'disabled'}" %>
 				<hr />
 				<%= link_to 'Delete', minecraft_server_path(@server), method: :delete, class: 'btn btn-danger btn-block', data: { confirm: 'Are you sure you want to delete this server forever? (A really long time!)' } %>
 			<% end %>

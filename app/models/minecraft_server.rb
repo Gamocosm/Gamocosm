@@ -11,6 +11,7 @@
 #  updated_at                    :datetime
 #  digital_ocean_droplet_size_id :integer
 #  should_destroy                :boolean          default(FALSE), not null
+#  remote_setup_stage            :integer          default(0)
 #
 
 class MinecraftServer < ActiveRecord::Base

@@ -1,6 +1,16 @@
-<%= panel_with_heading 'IP Address' do %>
-	<%= render_server_ip_address(@server) %>
-<% end %>
+<br />
+<div class="row">
+	<div class="col-lg-6">
+		<%= panel_with_heading 'IP Address' do %>
+			<%= render_server_ip_address(@server) %>
+		<% end %>
+	</div>
+	<div class="col-lg-6">
+		<%=panel_with_heading 'Status' do %>
+			<%= render_server_status(@server) %>
+		<% end %>
+	</div>
+</div>
 
 <%= panel_with_heading 'Server Info' do %>
 		<%= simple_form_for @server, url: minecraft_server_path(@server) do |f| %>

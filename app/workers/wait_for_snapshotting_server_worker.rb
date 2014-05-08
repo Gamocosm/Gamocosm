@@ -1,6 +1,9 @@
 class WaitForSnapshottingServerWorker
 	include Sidekiq::Worker
-	sidekiq_options retry: 3
+	sidekiq_options retry: 4
+	sidekiq_retry_in do |count|
+		4
+	end
 
 	def perform(user_id, droplet_id, digital_ocean_event_id)
 		user = User.find(user_id)
@@ -21,14 +24,11 @@ class WaitForSnapshottingServerWorker
 				# TODO: error
 				raise "Error deleting droplet #{droplet.id} for minecraft server #{droplet.minecraft_server_id} on digital ocean, response was #{response}"
 			end
-			if droplet.minecraft_server.should_destroy
-				droplet.minecraft_server.destroy
-			else
-				if !droplet.remote.sync
-					raise "Error syncing droplet #{droplet.id}"
-				end
-				droplet.minecraft_server.update_columns(pending_operation: nil)
+			if !droplet.remote.sync
+				raise "Error syncing droplet #{droplet.id}"
 			end
+			droplet.minecraft_server.update_columns(pending_operation: nil)
+			droplet.destroy
 		else
 			WaitForSnapshottingServerWorker.perform_in(4.seconds, droplet_id, digital_ocean_event_id)
 		end
