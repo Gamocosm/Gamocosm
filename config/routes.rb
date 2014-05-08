@@ -27,7 +27,7 @@ Rails.application.routes.draw do
         get 'download'
       end
     end
-    root to: 'minecraft_servers#index'
+    root to: 'pages#landing'
   end
 
   # The priority is based upon order of creation: first created -> highest priority.

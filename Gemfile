@@ -50,3 +50,4 @@ gem 'sinatra', :require => nil
 gem 'font-awesome-sass'
 gem 'simple_form'
 gem 'sshkit'
+gem 'dalli'

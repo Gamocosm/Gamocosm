@@ -15,7 +15,7 @@
 <%= panel_with_heading 'Server Info' do %>
 		<%= simple_form_for @server, url: minecraft_server_path(@server) do |f| %>
 		<%= f.input :name %>
-		<button class="btn btn-invert" type="submit">
+		<button class="btn btn-default" type="submit">
 			Update <i class="fa fa-check"></i>
 		</button>
 	<% end %>

@@ -21,6 +21,7 @@ class SetupServerWorker
 			within '/' do
 				execute :adduser, '-m', 'mcuser'
 				execute :echo, droplet.minecraft_server.name, '|', :passwd, '--stdin', 'mcuser'
+				execute :usermod, '-aG', 'wheel', 'mcuser'
 			end
 		end
 		droplet.minecraft_server.update_columns(remote_setup_stage: 1, pending_operation: nil)

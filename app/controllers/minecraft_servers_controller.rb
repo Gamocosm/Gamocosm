@@ -82,7 +82,10 @@ class MinecraftServersController < ApplicationController
 
   def update
     @server = current_user.minecraft_servers.find(params[:id])
-    if @server.update_attributes(params.require(:minecraft_server).permit(:name)) # TODO hmmm
+    if params.require(:minecraft_server).has_key? :remote_setup_stage
+      params[:minecraft_server][:remote_setup_stage] = 2
+    end
+    if @server.update_attributes(params.require(:minecraft_server).permit(:name, :remote_setup_stage))
       return redirect_to minecraft_server_path(@server), notice: 'Server updated'
     end
     return redirect_to minecraft_server_path(@server), error: 'Unable to update server'
