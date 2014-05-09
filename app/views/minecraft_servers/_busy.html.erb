@@ -1,7 +1,11 @@
 <div>
 	Your server is <%= @server.pending_operation %>. Please wait while the operation completes.
 	<% if @server.pending_operation == 'starting' %>
-		This should take about a minute.
+		<% if @server.remote_setup_stage == 0 %>
+			This should take about four minutes (first time only).
+		<% else %>
+			This should take about a minute.
+		<% end %>
 	<% elsif @server.pending_operation = 'stopping' %>
 		This should take about 15 seconds.
 	<% elsif @server.pending_operation == 'saving' %>

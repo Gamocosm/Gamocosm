@@ -18,10 +18,37 @@ class SetupServerWorker
 		host.key = Gamocosm.digital_ocean_ssh_private_key_path
 		host.ssh_options = { passphrase: Gamocosm.digital_ocean_ssh_private_key_passphrase, user_known_hosts_file: '/dev/null', timeout: 4 }
 		on host do
-			within '/' do
-				execute :adduser, '-m', 'mcuser'
+			within '/opt/' do
+				if test '! id -u mcuser'
+					execute :adduser, '-m', 'mcuser'
+				end
 				execute :echo, droplet.minecraft_server.name, '|', :passwd, '--stdin', 'mcuser'
 				execute :usermod, '-aG', 'wheel', 'mcuser'
+				execute :yum, '-y', 'update'
+				execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'supervisor', 'proftpd'
+				execute 'python3-pip', 'install', 'flask'
+				execute :mkdir, '-p', 'gamocosm'
+				within :gamocosm do
+					execute :rm, '-f', 'minecraft-flask.py'
+					execute :wget, '-O', 'minecraft-flask.py', 'https://raw.github.com/Raekye/minecraft-server_wrapper/master/minecraft-flask-minified.py'
+					execute :echo, "\"#{Gamocosm.minecraft_wrapper_username}\"", '>', 'minecraft-flask-auth.txt'
+					execute :echo, "\"#{droplet.minecraft_server.minecraft_wrapper_password}\"", '>>', 'minecraft-flask-auth.txt'
+				end
+			end
+			within '/home/mcuser/' do
+				execute :mkdir, '-p', 'minecraft'
+				within :minecraft do
+					execute :rm, '-f', 'minecraft_server-run.jar'
+					execute :wget, '-O', 'minecraft_server-run.jar', Gamocosm.minecraft_jar_default_url
+				end
+			end
+			within '/etc/supervisord.d/' do
+				execute :rm, '-f', 'minecraft_wrapper.conf'
+				execute :wget, '-O', 'minecraft_wrapper.conf', 'https://raw.github.com/Raekye/minecraft-server_wrapper/master/supervisor.conf'
+				execute :systemctl, 'start', 'supervisord'
+				execute :systemctl, 'enable', 'supervisord'
+				execute :supervisorctl, 'reread'
+				execute :supervisorctl, 'update'
 			end
 		end
 		droplet.minecraft_server.update_columns(remote_setup_stage: 1, pending_operation: nil)

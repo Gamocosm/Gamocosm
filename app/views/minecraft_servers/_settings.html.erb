@@ -1,1 +1,17 @@
-Some stuff
+<br />
+<% if @server.properties.nil? %>
+	<p>Start droplet to edit Minecraft properties</p>
+<% else %>
+	<%= simple_form_for @server.properties, url: update_properties_minecraft_server_path(@server), method: :put do |f| %>
+		<%= panel_with_heading 'Minecraft Properties' do %>
+		<% end %>
+
+		<%= panel_with_heading 'Whitelist' do %>
+		<% end %>
+
+		<%= panel_with_heading 'Ops' do %>
+		<% end %>
+
+		<%= f.button :submit, 'Save', class: 'btn btn-default' %>
+	<% end %>
+<% end %>
