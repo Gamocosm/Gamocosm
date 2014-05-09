@@ -103,4 +103,16 @@ class DigitalOcean::Droplet
     end
   end
 
+  def destroy
+    connection = @local_droplet.minecraft_server.user.digital_ocean
+    if connection.nil?
+      return false
+    end
+    list_snapshots.each do |x|
+      connection.images.delete(x.id)
+    end
+    response = connection.droplets.delete(@local_droplet.remote_id)
+    return response.status == 'OK'
+  end
+
 end

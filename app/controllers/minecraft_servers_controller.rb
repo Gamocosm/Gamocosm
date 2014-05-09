@@ -74,7 +74,8 @@ class MinecraftServersController < ApplicationController
   end
 
   def download
-    return redirect_to minecraft_server_path(@server), notice: 'Hmmmm'
+    @server = current_user.minecraft_servers.find(params[:id])
+    return redirect_to @server.world_download_url
   end
 
   def edit
@@ -91,10 +92,23 @@ class MinecraftServersController < ApplicationController
     return redirect_to minecraft_server_path(@server), error: 'Unable to update server'
   end
 
+  def update_minecraft_properties
+    @server = current_user.minecraft_servers.find(params[:id])
+    properties = @server.properties
+    if properties.nil?
+      return redirect_to minecraft_server_path(@server), error: 'Unable to update server properties; droplet is off'
+    end
+    if properties.update(minecraft_server_properties_params)
+      return redirect_to minecraft_server_path(@server), notice: 'Minecraft properties updated'
+    end
+    return redirect_to minecraft_server_path(@server), notice: 'Unable to update Minecraft properties'
+  end
+
   def destroy
     @server = current_user.minecraft_servers.find(params[:id])
-    @server.update_columns(should_destroy: true)
-    if @server.stop
+    response = @server.droplet.remote.destroy
+    if response
+      @server.destroy
       return redirect_to minecraft_servers_path, notice: 'Server is deleting'
     end
     return redirect_to minecraft_server_path(@server), notice: 'Unable to delete server'
@@ -102,5 +116,33 @@ class MinecraftServersController < ApplicationController
 
   def minecraft_server_params
     return params.require(:minecraft_server).permit(:name, :digital_ocean_droplet_size_id)
+  end
+
+  def minecraft_server_properties_params
+    return params.require(:minecraft_server_properties).permit(:allow_flight,
+      :allow_nether,
+      :announce_player_achievements,
+      :difficulty,
+      :enable_command_block,
+      :force_gamemode,
+      :gamemode,
+      :generate_structures,
+      :generator_settings,
+      :hardcore,
+      :level_seed,
+      :level_type,
+      :max_build_height,
+      :motd,
+      :online_mode,
+      :op_permission_level,
+      :player_idle_timeout,
+      :pvp,
+      :spawn_animals,
+      :spawn_monsters,
+      :spawn_npcs,
+      :spawn_protection,
+      :white_list,
+      :whitelist,
+      :ops)
   end
 end

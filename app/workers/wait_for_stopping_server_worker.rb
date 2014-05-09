@@ -16,25 +16,15 @@ class WaitForStoppingServerWorker
 			raise "Error getting digital ocean event #{digital_ocean_event_id}, #{event}"
 		end
 		if event.is_done?
-			if droplet.minecraft_server.should_destroy
-				droplet.remote.list_snapshots.each do |x|
-					response = user.digital_ocean.droplets.shutdown(x.id)
-					if response.status != 'OK'
-						# TODO: log error
-					end
-				end
-				droplet.minecraft_server.destroy
-			else
-				response = user.digital_ocean.droplets.snapshot(droplet.remote_id, name: droplet.host_name)
-				if response.status != 'OK'
-					raise "Error making snapshot for server #{droplet.minecraft_server_id} on droplet #{droplet_id}, response was #{response}"
-				end
-				if !droplet.remote.sync
-					raise "Error syncing droplet #{droplet.id}"
-				end
-				droplet.minecraft_server.update_columns(pending_operation: 'saving')
-				WaitForSnapshottingServerWorker.perform_in(4.seconds, user_id, droplet_id, response.event_id)
+			response = user.digital_ocean.droplets.snapshot(droplet.remote_id, name: droplet.host_name)
+			if response.status != 'OK'
+				raise "Error making snapshot for server #{droplet.minecraft_server_id} on droplet #{droplet_id}, response was #{response}"
 			end
+			if !droplet.remote.sync
+				raise "Error syncing droplet #{droplet.id}"
+			end
+			droplet.minecraft_server.update_columns(pending_operation: 'saving')
+			WaitForSnapshottingServerWorker.perform_in(4.seconds, user_id, droplet_id, response.event_id)
 		else
 			WaitForStoppingServerWorker.perform_in(4.seconds, user_id, droplet_id, digital_ocean_event_id)
 		end

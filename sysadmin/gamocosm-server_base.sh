@@ -2,21 +2,20 @@
 
 set -e
 
-yum -y update
-yum -y install java-1.7.0-openjdk-headless python3 python3-devel python3-pip supervisor proftpd
+echo "Please update your password"
+passwd
 
-adduser mcuser
-echo "minecraft" | passwd --stdin mcuser
-su - mcuser -c "mkdir minecraft"
+sudo yum -y update
+sudo yum -y install java-1.7.0-openjdk-headless python3 python3-devel python3-pip supervisor proftpd
 
-pip-python3 install flask
+sudo pip-python3 install flask
 
 cd /opt/
-mkdir gamocosm
+sudo mkdir gamocosm
 cd gamocosm
-wget -O minecraft-flask.py https://raw.github.com/Raekye/minecraft-server_wrapper/master/minecraft-flask.py
+sudo wget -O minecraft-flask.py https://raw.github.com/Raekye/minecraft-server_wrapper/master/minecraft-flask.py
 
-cat << 'EOF' > "/etc/supervisord.d/minecraft_wrapper.conf"
+sudo cat << 'EOF' > "/etc/supervisord.d/minecraft_wrapper.conf"
 [program:minecraft_wrapper]
 command=python3 /opt/gamocosm/minecraft-flask.py
 autostart=true
@@ -27,3 +26,6 @@ directory=/home/mcuser/minecraft/
 stopasgroup=true
 user=mcuser
 EOF
+
+sudo supervisorctl reread
+sudo supervisorctl update

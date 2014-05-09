@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140508153524) do
+ActiveRecord::Schema.define(version: 20140509034655) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,6 +39,7 @@ ActiveRecord::Schema.define(version: 20140508153524) do
     t.integer  "digital_ocean_droplet_size_id"
     t.boolean  "should_destroy",                default: false, null: false
     t.integer  "remote_setup_stage",            default: 0
+    t.string   "minecraft_wrapper_password"
   end
 
   add_index "minecraft_servers", ["user_id"], name: "index_minecraft_servers_on_user_id", using: :btree

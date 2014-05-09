@@ -12,6 +12,7 @@
 #  digital_ocean_droplet_size_id :integer
 #  should_destroy                :boolean          default(FALSE), not null
 #  remote_setup_stage            :integer          default(0)
+#  minecraft_wrapper_password    :string(255)
 #
 
 class MinecraftServer < ActiveRecord::Base
@@ -22,12 +23,21 @@ class MinecraftServer < ActiveRecord::Base
   validates :name, format: { with: /\A[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,63})*\z/ }
   validates :name, length: { in: 3..128 }
 
+  after_initialize :after_initialize_callback
+
+  def after_initialize_callback
+    self.minecraft_wrapper_password = SecureRandom.hex
+  end
+
   def droplet_running?
     return droplet && droplet.remote_status == 'active'
   end
 
   def game_running?
-    return droplet_running? && !node.pid.nil?
+    if @game_running.nil?
+      @game_running = droplet_running? && !node.pid.nil?
+    end
+    return @game_running
   end
 
   def busy?
@@ -105,13 +115,38 @@ class MinecraftServer < ActiveRecord::Base
     return node.backup
   end
 
+  def ram
+    droplet_size = DigitalOcean::DropletSize.new.find(digital_ocean_droplet_size_id)
+    if droplet_size.nil?
+      # TODO: error
+      return 512
+    end
+    return droplet_size.memory
+  end
+
+  def world_download_url
+    if droplet_running?
+      return "http://#{Gamocosm.minecraft_wrapper_username}:#{minecraft_wrapper_password}@#{droplet.ip_address}:5000/download_world"
+    end
+    return minecraft_server_path(self)
+  end
+
   def node
     if @node.nil?
       if droplet_running?
-        @node = MinecraftServer::Node.new(droplet.ip_address, 5000) # TODO config
+        @node = MinecraftServer::Node.new(self, droplet.ip_address, 5000) # TODO config
       end
     end
     return @node
+  end
+
+  def properties
+    if @properties.nil?
+      if droplet_running?
+        @properties = MinecraftServer::Properties.new(self)
+      end
+    end
+    return @properties
   end
 
 end

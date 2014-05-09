@@ -25,6 +25,7 @@ Rails.application.routes.draw do
         get 'resume'
         get 'backup'
         get 'download'
+        put 'update_properties'
       end
     end
     root to: 'pages#landing'
