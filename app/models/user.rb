@@ -29,8 +29,12 @@ class User < ActiveRecord::Base
   has_many :minecraft_servers, dependent: :destroy
   has_and_belongs_to_many :friend_minecraft_servers, foreign_key: 'user_id', class_name: 'MinecraftServer', dependent: :destroy
 
+  def missing_digital_ocean?
+    return digital_ocean_client_id.nil? || digital_ocean_api_key.nil?
+  end
+
   def digital_ocean
-    if digital_ocean_client_id.nil? || digital_ocean_api_key.nil?
+    if missing_digital_ocean?
       return nil
     end
     if @digital_ocean_connection.nil?

@@ -12,26 +12,30 @@ class MinecraftServer::Node
         'Content-Type' => 'application/json'
       },
       basic_auth: {
-        username: 'foo',
-        password: 'bar'
+        username: Gamocosm.minecraft_wrapper_username,
+        password: @local_minecraft_server.minecraft_wrapper_password
       }
     }
   end
 
   def pid
-    response = do_get(:pid)
-    return nil if response.nil?
-    return response['pid']
+    if @pid.nil?
+      response = do_get(:pid)
+      @pid = response.nil? ? false : response['pid']
+    end
+    return @pid == false ? nil : @pid
   end
 
   def resume
     response = do_post(:start, { ram: @local_minecraft_server.ram })
+    invalidate
     return false if response.nil? # yes I know I can do return !response.nil? (or even return response)
     return true
   end
 
   def pause
     response = do_get(:stop)
+    invalidate
     return false if response.nil?
     if response['retcode'] != 0
       # TODO: log
@@ -131,6 +135,10 @@ class MinecraftServer::Node
       return nil
     end
     return response
+  end
+
+  def invalidate
+    @pid = nil
   end
 
 end

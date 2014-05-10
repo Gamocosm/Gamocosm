@@ -15,6 +15,7 @@
 #
 
 class DigitalOcean::Droplet
+  include HTTParty
 
   def initialize(local_droplet)
     @local_droplet = local_droplet
@@ -113,6 +114,16 @@ class DigitalOcean::Droplet
     end
     response = connection.droplets.delete(@local_droplet.remote_id)
     return response.status == 'OK'
+  end
+
+  def rename
+    user = @local_droplet.minecraft_server.user
+    if user.missing_digital_ocean?
+      return false
+    end
+    response = self.class.get("https://api.digitalocean.com/droplets/#{@local_droplet.remote_id}/?client_id=#{user.digital_ocean_client_id}&api_key=#{user.digital_ocean_api_key}&name=gamocosm-minecraft-#{@local_droplet.minecraft_server.name}")
+    body = JSON.parse(response.body)
+    return !body.nil? && body['status'] == 'OK'
   end
 
 end

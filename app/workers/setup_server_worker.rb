@@ -27,6 +27,10 @@ class SetupServerWorker
 				execute :yum, '-y', 'update'
 				execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'supervisor', 'proftpd'
 				execute 'python3-pip', 'install', 'flask'
+				if test '! iptables -nL | grep -q 5000'
+					execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '5000', '-j', 'ACCEPT'
+					execute 'iptables-save'
+				end
 				execute :mkdir, '-p', 'gamocosm'
 				within :gamocosm do
 					execute :rm, '-f', 'minecraft-flask.py'
@@ -43,14 +47,15 @@ class SetupServerWorker
 				end
 			end
 			within '/etc/supervisord.d/' do
-				execute :rm, '-f', 'minecraft_wrapper.conf'
-				execute :wget, '-O', 'minecraft_wrapper.conf', 'https://raw.github.com/Raekye/minecraft-server_wrapper/master/supervisor.conf'
+				execute :rm, '-f', 'minecraft_wrapper.ini'
+				execute :wget, '-O', 'minecraft_wrapper.ini', 'https://raw.github.com/Raekye/minecraft-server_wrapper/master/supervisor.conf'
 				execute :systemctl, 'start', 'supervisord'
 				execute :systemctl, 'enable', 'supervisord'
 				execute :supervisorctl, 'reread'
 				execute :supervisorctl, 'update'
 			end
 		end
+		droplet.minecraft_server.resume
 		droplet.minecraft_server.update_columns(remote_setup_stage: 1, pending_operation: nil)
 	end
 end

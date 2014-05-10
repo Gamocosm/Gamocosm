@@ -26,7 +26,7 @@ class MinecraftServer < ActiveRecord::Base
   after_initialize :after_initialize_callback
 
   def after_initialize_callback
-    self.minecraft_wrapper_password = SecureRandom.hex
+    self.minecraft_wrapper_password ||= SecureRandom.hex
   end
 
   def droplet_running?
@@ -34,10 +34,7 @@ class MinecraftServer < ActiveRecord::Base
   end
 
   def game_running?
-    if @game_running.nil?
-      @game_running = droplet_running? && !node.pid.nil?
-    end
-    return @game_running
+    return droplet_running? && !node.pid.nil? && node.pid > 0
   end
 
   def busy?

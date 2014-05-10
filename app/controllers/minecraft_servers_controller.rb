@@ -6,6 +6,7 @@ class MinecraftServersController < ApplicationController
     @server = MinecraftServer.new
     @droplets = current_user.digital_ocean_droplets
     @snapshots = current_user.digital_ocean_snapshots
+    @friend_minecraft_servers = current_user.friend_minecraft_servers
   end
 
   def new
@@ -83,10 +84,10 @@ class MinecraftServersController < ApplicationController
 
   def update
     @server = current_user.minecraft_servers.find(params[:id])
-    if params.require(:minecraft_server).has_key? :remote_setup_stage
-      params[:minecraft_server][:remote_setup_stage] = 2
-    end
-    if @server.update_attributes(params.require(:minecraft_server).permit(:name, :remote_setup_stage))
+    if @server.update_attributes(params.require(:minecraft_server).permit(:name))
+      if @server.droplet_running?
+        @server.droplet.remote.rename
+      end
       return redirect_to minecraft_server_path(@server), notice: 'Server updated'
     end
     return redirect_to minecraft_server_path(@server), error: 'Unable to update server'

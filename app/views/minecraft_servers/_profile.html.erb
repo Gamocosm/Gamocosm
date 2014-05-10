@@ -12,6 +12,7 @@
 	</div>
 </div>
 
+<% if false %>
 <%= panel_with_heading 'Server Info' do %>
 		<%= simple_form_for @server, url: minecraft_server_path(@server) do |f| %>
 		<%= f.input :name %>
@@ -19,4 +20,5 @@
 			Update <i class="fa fa-check"></i>
 		</button>
 	<% end %>
+<% end %>
 <% end %>
