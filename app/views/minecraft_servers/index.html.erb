@@ -1,3 +1,6 @@
+<% if current_user.missing_digital_ocean? %>
+	<%= render partial: 'missing_digital_ocean' %>
+<% end %>
 <div class="row">
 	<div class="col-lg-12">
 		<div class="page-header">
@@ -36,7 +39,7 @@
 					<%= f.input :name, input_html: { size: 32 } %>
 					<%= f.input :digital_ocean_droplet_size_id, collection: DigitalOcean::DropletSize.new.all.collect { |x| [x.descriptor, x.id] }, as: :select, include_blank: false %>
 					<p class="text-center">
-						<button class="btn btn-default" type="submit">
+					<button class="btn btn-default <%= current_user.missing_digital_ocean? ? 'disabled' : '' %>" type="submit">
 							Next <i class="fa fa-chevron-right"></i>
 						</button>
 					</p>

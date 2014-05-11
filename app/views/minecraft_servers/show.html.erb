@@ -1,3 +1,6 @@
+<% if @server.user.missing_digital_ocean? %>
+	<%= render partial: 'missing_digital_ocean' %>
+<% end %>
 <div class="row">
 	<div class="col-lg-12">
 		<div class="page-header">

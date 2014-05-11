@@ -32,6 +32,17 @@ class MinecraftServersController < ApplicationController
 
   def start
     @server = find_minecraft_server(params[:id])
+    if !@server.user.missing_digital_ocean?
+      if @server.is_owner?(current_user)
+        return redirect_to minecraft_server_path(@server), flash: {
+          error: "You have not entered your Digital Ocean keys.<br />Instructions/enter it #{view_context.link_to('here', edit_user_registration_path)}"
+        }
+      else
+        return redirect_to minecraft_server_path(@server), flash: {
+          error: "The owner of this server did not enter his/her Digital Ocean keys.<br />Read more #{view_context.link_to('here', edit_user_registration_path)}"
+        }
+      end
+    end
     if @server.start
       flash_message = 'Server starting'
     else
@@ -41,6 +52,17 @@ class MinecraftServersController < ApplicationController
   end
 
   def stop
+    if @server.user.missing_digital_ocean?
+      if @server.is_owner?(current_user)
+        return redirect_to minecraft_server_path(@server), flash: {
+          error: "You have not entered your Digital Ocean keys.<br />Instructions/enter it #{view_context.link_to('here', edit_user_registration_path)}"
+        }
+      else
+        return redirect_to minecraft_server_path(@server), flash: {
+          error: "The owner of this server did not enter his/her Digital Ocean keys.<br />Read more #{view_context.link_to('here', edit_user_registration_path)}"
+        }
+      end
+    end
     @server = find_minecraft_server(params[:id])
     if @server.stop
       return redirect_to minecraft_servers_path, notice: 'Server is stopping'
@@ -110,6 +132,17 @@ class MinecraftServersController < ApplicationController
   end
 
   def destroy
+    if @server.user.missing_digital_ocean?
+      if @server.is_owner?(current_user)
+        return redirect_to minecraft_server_path(@server), flash: {
+          error: "You have not entered your Digital Ocean keys.<br />Instructions/enter it #{view_context.link_to('here', edit_user_registration_path)}"
+        }
+      else
+        return redirect_to minecraft_server_path(@server), flash: {
+          error: "The owner of this server did not enter his/her Digital Ocean keys.<br />Read more #{view_context.link_to('here', edit_user_registration_path)}"
+        }
+      end
+    end
     @server = find_minecraft_server_only_owner(params[:id])
     response = @server.droplet.remote.destroy
     if response

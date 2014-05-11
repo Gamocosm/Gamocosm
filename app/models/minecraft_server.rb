@@ -147,6 +147,9 @@ class MinecraftServer < ActiveRecord::Base
   end
 
   def is_owner?(someone)
+    if user.nil?
+      return true
+    end
     return someone.id == user.id
   end
 

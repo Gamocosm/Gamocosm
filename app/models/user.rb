@@ -30,6 +30,7 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :friend_minecraft_servers, foreign_key: 'user_id', class_name: 'MinecraftServer', dependent: :destroy
 
   def missing_digital_ocean?
+    return true
     return digital_ocean_client_id.nil? || digital_ocean_api_key.nil?
   end
 
