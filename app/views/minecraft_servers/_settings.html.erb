@@ -4,14 +4,39 @@
 <% else %>
 	<%= simple_form_for @server.properties, url: update_properties_minecraft_server_path(@server), method: :put do |f| %>
 		<%= panel_with_heading 'Minecraft Properties' do %>
+			<%= f.input :allow_flight %>
+			<%= f.input :allow_nether %>
+			<%= f.input :announce_player_achievements %>
+			<%= f.input :difficulty %>
+			<%= f.input :enable_command_block %>
+			<%= f.input :force_gamemode %>
+			<%= f.input :gamemode %>
+			<%= f.input :generate_structures %>
+			<%= f.input :generator_settings %>
+			<%= f.input :hardcore %>
+			<%= f.input :level_seed %>
+			<%= f.input :level_type %>
+			<%= f.input :max_build_height %>
+			<%= f.input :motd %>
+			<%= f.input :online_mode %>
+			<%= f.input :op_permission_level %>
+			<%= f.input :player_idle_timeout %>
+			<%= f.input :pvp %>
+			<%= f.input :spawn_animals %>
+			<%= f.input :spawn_monsters %>
+			<%= f.input :spawn_npcs %>
+			<%= f.input :spawn_protection %>
+			<%= f.input :white_list %>
 		<% end %>
 
+		<% if false %>
 		<%= panel_with_heading 'Whitelist' do %>
 		<% end %>
 
 		<%= panel_with_heading 'Ops' do %>
 		<% end %>
+		<% end %>
 
-		<%= f.button :submit, 'Save', class: 'btn btn-default' %>
+		<%= f.button :submit, 'Save', class: 'btn btn-success' %>
 	<% end %>
 <% end %>

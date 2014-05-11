@@ -41,9 +41,11 @@ class SetupServerWorker
 			end
 			within '/home/mcuser/' do
 				execute :mkdir, '-p', 'minecraft'
+				execute :chown, 'mcuser:mcuser', 'minecraft'
 				within :minecraft do
 					execute :rm, '-f', 'minecraft_server-run.jar'
 					execute :wget, '-O', 'minecraft_server-run.jar', Gamocosm.minecraft_jar_default_url
+					execute :chown, 'mcuser:mcuser', 'minecraft'
 				end
 			end
 			within '/etc/supervisord.d/' do

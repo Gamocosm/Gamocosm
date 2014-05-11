@@ -27,7 +27,7 @@ class MinecraftServer::Node
   end
 
   def resume
-    response = do_post(:start, { ram: @local_minecraft_server.ram })
+    response = do_post(:start, { ram: "#{@local_minecraft_server.ram}M" })
     invalidate
     return false if response.nil? # yes I know I can do return !response.nil? (or even return response)
     return true

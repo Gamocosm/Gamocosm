@@ -38,6 +38,7 @@ class MinecraftServer::Properties
       return
     end
     refresh_properties(response)
+=begin
     response = @minecraft_server.node.ops
     if response.nil?
       # TODO: error
@@ -50,6 +51,7 @@ class MinecraftServer::Properties
       return
     end
     self.whitelist = response
+=end
   end
 
   def refresh_properties(response)
@@ -89,6 +91,7 @@ class MinecraftServer::Properties
       return false
     end
     refresh_properties(response)
+=begin
     whitelist = properties[:whitelist].gsub(' ', '').scan(/[^,]+/)
     self.whitelist = @minecraft_server.node.update_whitelist(whitelist)
     if self.whitelist.nil?
@@ -101,5 +104,6 @@ class MinecraftServer::Properties
       return false
     end
     return true
+=end
   end
 end
