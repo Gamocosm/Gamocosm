@@ -146,4 +146,12 @@ class MinecraftServer < ActiveRecord::Base
     return @properties
   end
 
+  def is_owner?(someone)
+    return someone.id == user.id
+  end
+
+  def is_friend?(someone)
+    return friends.exists?(someone.id)
+  end
+
 end

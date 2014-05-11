@@ -1,4 +1,3 @@
-<br />
 <div class="row">
 	<div class="col-lg-6">
 		<%= panel_with_heading 'IP Address' do %>
@@ -11,6 +10,23 @@
 		<% end %>
 	</div>
 </div>
+<% if @server.is_owner?(current_user) %>
+	<div class="row">
+		<div class="col-lg-6">
+			<%= panel_with_heading 'Friends' do %>
+				<table class="table table-striped">
+					<tbody>
+						<%= render partial: 'minecraft_servers/friend', collection: @server.friends %>
+					</tbody>
+				</table>
+				<%= simple_form_for :minecraft_server_friend, url: add_friend_minecraft_server_path(@server), method: :post do |f| %>
+					<%= f.input :email %>
+					<%= f.button :submit, 'Add', class: 'btn btn-default' %>
+				<% end %>
+			<% end %>
+		</div>
+	</div>
+<% end %>
 
 <% if false %>
 <%= panel_with_heading 'Server Info' do %>

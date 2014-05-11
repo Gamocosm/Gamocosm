@@ -8,40 +8,41 @@
 <% if @server.busy? %>
 	<%= render partial: 'busy' %>
 <% else %>
-	<div class="row">
-		<div class="col-lg-9">
-			<ul class="nav nav-tabs">
-				<li class="active"><%= link_to 'Profile', minecraft_server_path(@server, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
-				<li><%= link_to 'Minecraft Settings', minecraft_server_path(@server, anchor: 'settings'), 'data-toggle' => 'tab' %></li>
-				<li><%= link_to 'FTP and SSH Access', minecraft_server_path(@server, anchor: 'ftp_ssh'), 'data-toggle' => 'tab' %></li>
-			</ul>
+	<% if @server.is_owner?(current_user) %>
+		<div class="row">
+			<div class="col-lg-9">
+				<ul class="nav nav-tabs">
+					<li class="active"><%= link_to 'Profile', minecraft_server_path(@server, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
+					<li><%= link_to 'Minecraft Settings', minecraft_server_path(@server, anchor: 'settings'), 'data-toggle' => 'tab' %></li>
+					<li><%= link_to 'FTP and SSH Access', minecraft_server_path(@server, anchor: 'ftp_ssh'), 'data-toggle' => 'tab' %></li>
+				</ul>
 
-			<div class="tab-content">
-				<div class="tab-pane active" id="profile">
-					<%= render partial: 'profile' %>
-				</div>
-				<div class="tab-pane" id="settings">
-					<%= render partial: 'settings' %>
-				</div>
-				<div class="tab-pane" id="ftp_ssh">
-					<%= render partial: 'ftp_ssh' %>
+				<div class="tab-content">
+					<div class="tab-pane active" id="profile">
+						<br />
+						<%= render partial: 'profile' %>
+					</div>
+					<div class="tab-pane" id="settings">
+						<%= render partial: 'settings' %>
+					</div>
+					<div class="tab-pane" id="ftp_ssh">
+						<%= render partial: 'ftp_ssh' %>
+					</div>
 				</div>
 			</div>
-		</div>
 
-		<div class="col-lg-3">
-			<%= panel_with_heading 'Control Panel' do %>
-				<%= link_to 'Start', start_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? ? 'disabled' : ''}" %>
-				<%= link_to 'Stop', stop_minecraft_server_path(@server), class: "btn btn-danger btn-block #{@server.droplet_running? ? '' : 'disabled'}" %>
-				<hr />
-				<%= link_to 'Resume', resume_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? && !@server.game_running? ? '' : 'disabled'}" %>
-				<%= link_to 'Pause', pause_minecraft_server_path(@server), class: "btn btn-info btn-block #{@server.droplet_running? && @server.game_running? ? '' : 'disabled'}" %>
-				<hr />
-				<%= link_to 'Backup', backup_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? && !@server.game_running? ? '' : 'disabled'}" %>
-				<%= link_to 'Download world', download_minecraft_server_path(@server), class: "btn btn-info btn-block #{@server.droplet_running? && !@server.game_running? ? '' : 'disabled'}" %>
-				<hr />
-				<%= link_to 'Delete', minecraft_server_path(@server), method: :delete, class: 'btn btn-danger btn-block', data: { confirm: 'Are you sure you want to delete this server forever? (A really long time!)' } %>
-			<% end %>
+			<div class="col-lg-3">
+				<%= render partial: 'control_panel' %>
+			</div>
 		</div>
-	</div>
+	<% else %>
+		<div class="row">
+			<div class="col-lg-9">
+				<%= render partial: 'profile' %>
+			</div>
+			<div class="col-lg-3">
+				<%= render partial: 'control_panel' %>
+			</div>
+		</div>
+	<% end %>
 <% end %>

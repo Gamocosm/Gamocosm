@@ -23,11 +23,15 @@ class MinecraftServersController < ApplicationController
   end
 
   def show
-    @server = current_user.minecraft_servers.find(params[:id])
+    @server = find_minecraft_server(params[:id])
+    if @server.is_owner?(current_user) || @server.is_friend?(current_user)
+    else
+      raise ActionController::RoutingError.new('Not found')
+    end
   end
 
   def start
-    @server = current_user.minecraft_servers.find(params[:id])
+    @server = find_minecraft_server(params[:id])
     if @server.start
       flash_message = 'Server starting'
     else
@@ -37,7 +41,7 @@ class MinecraftServersController < ApplicationController
   end
 
   def stop
-    @server = current_user.minecraft_servers.find(params[:id])
+    @server = find_minecraft_server(params[:id])
     if @server.stop
       return redirect_to minecraft_servers_path, notice: 'Server is stopping'
     end
@@ -45,7 +49,7 @@ class MinecraftServersController < ApplicationController
   end
 
   def resume
-    @server = current_user.minecraft_servers.find(params[:id])
+    @server = find_minecraft_server(params[:id])
     if @server.resume
       flash_message = 'Server resumed'
     else
@@ -55,7 +59,7 @@ class MinecraftServersController < ApplicationController
   end
 
   def pause
-    @server = current_user.minecraft_servers.find(params[:id])
+    @server = find_minecraft_server(params[:id])
     if @server.pause
       flash_message = 'Server paused'
     else
@@ -65,7 +69,7 @@ class MinecraftServersController < ApplicationController
   end
 
   def backup
-    @server = current_user.minecraft_servers.find(params[:id])
+    @server = find_minecraft_server(params[:id])
     if @server.backup
       flash_message = 'World backed up locally on your droplet'
     else
@@ -75,7 +79,7 @@ class MinecraftServersController < ApplicationController
   end
 
   def download
-    @server = current_user.minecraft_servers.find(params[:id])
+    @server = find_minecraft_server(params[:id])
     return redirect_to @server.world_download_url
   end
 
@@ -83,7 +87,7 @@ class MinecraftServersController < ApplicationController
   end
 
   def update
-    @server = current_user.minecraft_servers.find(params[:id])
+    @server = find_minecraft_server_only_owner(params[:id])
     if @server.update_attributes(params.require(:minecraft_server).permit(:name))
       if @server.droplet_running?
         @server.droplet.remote.rename
@@ -94,7 +98,7 @@ class MinecraftServersController < ApplicationController
   end
 
   def update_minecraft_properties
-    @server = current_user.minecraft_servers.find(params[:id])
+    @server = find_minecraft_server_only_owner(params[:id])
     properties = @server.properties
     if properties.nil?
       return redirect_to minecraft_server_path(@server), error: 'Unable to update server properties; droplet is off'
@@ -106,13 +110,53 @@ class MinecraftServersController < ApplicationController
   end
 
   def destroy
-    @server = current_user.minecraft_servers.find(params[:id])
+    @server = find_minecraft_server_only_owner(params[:id])
     response = @server.droplet.remote.destroy
     if response
       @server.destroy
       return redirect_to minecraft_servers_path, notice: 'Server is deleting'
     end
     return redirect_to minecraft_server_path(@server), notice: 'Unable to delete server'
+  end
+
+  def add_friend
+    @server = find_minecraft_server_only_owner(params[:id])
+    email = minecraft_server_friend_params[:email]
+    friend = User.find_by_email(email)
+    if friend.nil?
+      return redirect_to minecraft_server_path(@server), flash: { error: "User #{email} does not exist" }
+    end
+    if @server.is_owner?(friend)
+      return redirect_to minecraft_server_path(@server), notice: 'You are already the owner of the server'
+    end
+    if @server.is_friend?(friend)
+      return redirect_to minecraft_server_path(@server), notice: "User #{email} is already on this server"
+    end
+    @server.friends << friend
+    return redirect_to minecraft_server_path(@server), notice: "User #{email} added to the server"
+  end
+
+  def remove_friend
+    @server = find_minecraft_server_only_owner(params[:id])
+    email = minecraft_server_friend_params[:email]
+    friend = User.find_by_email(email)
+    if friend.nil?
+      return redirect_to minecraft_server_path(@server), flash: { error: "User #{email} does not exist" }
+    end
+    @server.friends.destroy(friend)
+    return redirect_to minecraft_server_path(@server), notice: "User #{email} removed from the server"
+  end
+
+  def find_minecraft_server(id)
+    server = MinecraftServer.find(id)
+    if server.is_owner?(current_user) || server.is_friend?(current_user)
+      return server
+    end
+    return nil
+  end
+
+  def find_minecraft_server_only_owner(id)
+    return current_user.minecraft_servers.find(id)
   end
 
   def minecraft_server_params
@@ -145,5 +189,9 @@ class MinecraftServersController < ApplicationController
       :white_list,
       :whitelist,
       :ops)
+  end
+
+  def minecraft_server_friend_params
+    return params.require(:minecraft_server_friend).permit(:email)
   end
 end

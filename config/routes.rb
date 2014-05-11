@@ -26,6 +26,8 @@ Rails.application.routes.draw do
         get 'backup'
         get 'download'
         put 'update_properties'
+        post 'add_friend'
+        post 'remove_friend'
       end
     end
     root to: 'pages#landing'
