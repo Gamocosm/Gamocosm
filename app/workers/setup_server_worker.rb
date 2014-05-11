@@ -45,7 +45,7 @@ class SetupServerWorker
 				within :minecraft do
 					execute :rm, '-f', 'minecraft_server-run.jar'
 					execute :wget, '-O', 'minecraft_server-run.jar', Gamocosm.minecraft_jar_default_url
-					execute :chown, 'mcuser:mcuser', 'minecraft'
+					execute :chown, 'mcuser:mcuser', 'minecraft_server-run.jar'
 				end
 			end
 			within '/etc/supervisord.d/' do
@@ -59,5 +59,7 @@ class SetupServerWorker
 		end
 		droplet.minecraft_server.resume
 		droplet.minecraft_server.update_columns(remote_setup_stage: 1, pending_operation: nil)
+	rescue ActiveRecord::RecordNotFound => e
+		Rails.logger.info "Record in worker not found #{e.message}"
 	end
 end

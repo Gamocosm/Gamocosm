@@ -32,7 +32,7 @@ class MinecraftServersController < ApplicationController
 
   def start
     @server = find_minecraft_server(params[:id])
-    if !@server.user.missing_digital_ocean?
+    if @server.user.missing_digital_ocean?
       if @server.is_owner?(current_user)
         return redirect_to minecraft_server_path(@server), flash: {
           error: "You have not entered your Digital Ocean keys.<br />Instructions/enter it #{view_context.link_to('here', edit_user_registration_path)}"
@@ -52,6 +52,7 @@ class MinecraftServersController < ApplicationController
   end
 
   def stop
+    @server = find_minecraft_server(params[:id])
     if @server.user.missing_digital_ocean?
       if @server.is_owner?(current_user)
         return redirect_to minecraft_server_path(@server), flash: {
@@ -63,7 +64,6 @@ class MinecraftServersController < ApplicationController
         }
       end
     end
-    @server = find_minecraft_server(params[:id])
     if @server.stop
       return redirect_to minecraft_servers_path, notice: 'Server is stopping'
     end
@@ -132,6 +132,7 @@ class MinecraftServersController < ApplicationController
   end
 
   def destroy
+    @server = find_minecraft_server_only_owner(params[:id])
     if @server.user.missing_digital_ocean?
       if @server.is_owner?(current_user)
         return redirect_to minecraft_server_path(@server), flash: {
@@ -143,7 +144,6 @@ class MinecraftServersController < ApplicationController
         }
       end
     end
-    @server = find_minecraft_server_only_owner(params[:id])
     response = @server.droplet.remote.destroy
     if response
       @server.destroy
@@ -193,7 +193,7 @@ class MinecraftServersController < ApplicationController
   end
 
   def minecraft_server_params
-    return params.require(:minecraft_server).permit(:name, :digital_ocean_droplet_size_id)
+    return params.require(:minecraft_server).permit(:name, :digital_ocean_droplet_size_id, :digital_ocean_droplet_region_id)
   end
 
   def minecraft_server_properties_params

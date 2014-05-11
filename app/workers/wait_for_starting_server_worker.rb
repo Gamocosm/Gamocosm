@@ -30,6 +30,8 @@ class WaitForStartingServerWorker
 		else
 			WaitForStartingServerWorker.perform_in(4.seconds, user_id, droplet_id, digital_ocean_event_id)
 		end
+	rescue ActiveRecord::RecordNotFound => e
+		Rails.logger.info "Record in worker not found #{e.message}"
 	end
 
 end
