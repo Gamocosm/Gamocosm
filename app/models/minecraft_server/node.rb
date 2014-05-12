@@ -38,7 +38,7 @@ class MinecraftServer::Node
     invalidate
     return false if response.nil?
     if response['retcode'] != 0
-      # TODO: log
+      Rails.logger.warn "MC::Node#pause: response #{response}, mc #{@local_minecraft_server.id}"
     end
     return true
   end
@@ -101,10 +101,11 @@ class MinecraftServer::Node
   def do_get(endpoint)
     begin
       response = self.class.get(full_url(endpoint), @options)
-      response = parse_response(response)
+      response = parse_response(response, endpoint)
       return response
-    rescue
-      # TODO: log
+    rescue => e
+      Rails.logger.warn "Exception: #{e}, endpoint #{endpoint}, MC #{@local_minecraft_server.id}"
+      Rails.logger.warn e.backtrace.join("\n")
     end
     return nil
   end
@@ -113,10 +114,11 @@ class MinecraftServer::Node
     begin
       options = @options.dup
       options[:body] = data.to_json
-      response = parse_response(self.class.post(full_url(endpoint), options))
+      response = parse_response(self.class.post(full_url(endpoint), options), endpoint, data)
       return response
-    rescue
-      # TODO: log
+    rescue => e
+      Rails.logger.warn "Exception: #{e}, endpoint #{endpoint}, data #{data}, MC #{@local_minecraft_server.id}"
+      Rails.logger.warn e.backtrace.join("\n")
     end
     return nil
   end
@@ -125,13 +127,9 @@ class MinecraftServer::Node
     return "http://#{@ip_address}:#{@port}/#{endpoint}"
   end
 
-  def parse_response(response)
-    if response.nil?
-      # TODO: log
-      return nil
-    end
+  def parse_response(response, endpoint, data = nil)
     if response['status'] != 0
-      # TODO: log
+      Rails.logger.warn "MC::Node#parse_response: response #{response}, endpoint #{endpoint}, data #{data}, MC #{@local_minecraft_server.id}"
       return nil
     end
     return response

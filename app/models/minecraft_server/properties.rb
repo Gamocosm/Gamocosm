@@ -29,29 +29,15 @@ class MinecraftServer::Properties
   def initialize(minecraft_server)
     @minecraft_server = minecraft_server
     if @minecraft_server.node.nil?
-      # TODO: error
+      Rails.logger.warn "MC::Properties#initialize: node was nil, MC #{@minecraft_server.id}"
       return
     end
     response = @minecraft_server.node.properties
     if response.nil?
-      # TODO: error
+      Rails.logger.warn "MC::Properties#initialize: node.properties response was nil, MC #{@minecraft_server.id}"
       return
     end
     refresh_properties(response)
-=begin
-    response = @minecraft_server.node.ops
-    if response.nil?
-      # TODO: error
-      return
-    end
-    self.ops = response
-    response = @minecraft_server.node.whitelist
-    if response.nil?
-      # TODO: error
-      return
-    end
-    self.whitelist = response
-=end
   end
 
   def refresh_properties(response)
@@ -82,28 +68,14 @@ class MinecraftServer::Properties
 
   def update(properties)
     if @minecraft_server.node.nil?
-      # TODO: error
+      Rails.logger.warn "MC::Properties#update: node was nil, MC #{@minecraft_server.id}"
       return false
     end
     response = @minecraft_server.node.update_properties(properties)
     if response.nil?
-      # TODO: error
+      Rails.logger.warn "MC::Properties#update: node.properties response was nil, MC #{@minecraft_server.id}"
       return false
     end
     refresh_properties(response)
-=begin
-    whitelist = properties[:whitelist].gsub(' ', '').scan(/[^,]+/)
-    self.whitelist = @minecraft_server.node.update_whitelist(whitelist)
-    if self.whitelist.nil?
-      # TODO: error
-      return false
-    end
-    self.ops = @minecraft_server.node.update_ops(ops)
-    if self.ops.nil?
-      # TODO: error
-      return false
-    end
-    return true
-=end
   end
 end

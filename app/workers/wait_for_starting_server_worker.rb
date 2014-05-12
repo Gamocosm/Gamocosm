@@ -20,12 +20,12 @@ class WaitForStartingServerWorker
 			if !droplet.remote.sync
 				raise "Error syncing droplet #{droplet.id}"
 			end
-			#droplet.remote.rename
 			if droplet.minecraft_server.remote_setup_stage == 0
+				droplet.minecraft_server.update_columns(pending_operation: 'preparing')
 				SetupServerWorker.perform_in(4.seconds, user_id, droplet_id)
 			else
 				droplet.minecraft_server.resume
-				droplet.minecraft_server.update_columns(pending_operation: nil)
+				droplet.minecraft_server.update_columns(pending_operation: nil, digital_ocean_pending_event_id: nil)
 			end
 		else
 			WaitForStartingServerWorker.perform_in(4.seconds, user_id, droplet_id, digital_ocean_event_id)

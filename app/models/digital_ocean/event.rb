@@ -22,11 +22,18 @@ class DigitalOcean::Event
 
   def is_done?
     if has_error?
-      raise "Digital ocean event #{@event_id} for user #{@user.id} had error #{@body}"
+      raise "DO::Event#is_done?: response #{@body}, event #{@event_id}"
     end
-    if @body['event'].nil?
+    if data.nil?
       return false
     end
-    return @body['event']['action_status'] == 'done'
+    return data['action_status'] == 'done'
+  end
+
+  def percentage
+    if has_error?
+      return nil
+    end
+    return data['percentage']
   end
 end

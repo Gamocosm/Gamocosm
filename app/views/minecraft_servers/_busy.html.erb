@@ -1,15 +1,56 @@
 <div>
-	Your server is <%= @server.pending_operation %>. Please wait while the operation completes.
 	<% if @server.pending_operation == 'starting' %>
+		Your server is being created.
 		<% if @server.remote_setup_stage == 0 %>
 			This should take about four minutes (first time only).
 		<% else %>
 			This should take about a minute.
 		<% end %>
-	<% elsif @server.pending_operation = 'stopping' %>
+		<br />
+		Digital Ocean status:
+		<% if @server.digital_ocean_event.try(:percentage).nil? %>
+			Error - Please contact support (TODO)
+		<% else %>
+			<%= @server.digital_ocean_event.percentage %>%
+		<% end %>
+	<% elsif @server.pending_operation == 'preparing' %>
+		Your server is being set up.
+		<% if @server.remote_setup_stage == 0 %>
+			This should take about four minutes (first time only).
+		<% else %>
+			This should take about a minute.
+		<% end %>
+		<br />
+		Status:
+		<% if @server.remote_ssh_setup_stage == 1 %>
+			Connected
+		<% elsif @server.remote_ssh_setup_stage == 2 %>
+			Installing software
+		<% elsif @server.remote_ssh_setup_stage == 3 %>
+			Downloading vanilla Minecraft
+		<% elsif @server.remote_ssh_setup_stage == 4 %>
+			Finishing up
+		<% end %>
+	<% elsif @server.pending_operation == 'stopping' %>
+		Your server is stopping.
 		This should take about 15 seconds.
+		<br />
+		Digital Ocean status:
+		<% if @server.digital_ocean_event.try(:percentage).nil? %>
+			Error - Please contact support (TODO)
+		<% else %>
+			<%= @server.digital_ocean_event.percentage %>%
+		<% end %>
 	<% elsif @server.pending_operation == 'saving' %>
+		Your server is being backed up.
 		This should take about a minute.
+		<br />
+		Digital Ocean status:
+		<% if @server.digital_ocean_event.try(:percentage).nil? %>
+			Error - Please contact support (TODO)
+		<% else %>
+			<%= @server.digital_ocean_event.percentage %>%
+		<% end %>
 	<% end %>
 	<hr />
 	<%= link_to 'Delete', minecraft_server_path(@server), method: :delete, class: "btn btn-danger #{@server.user.missing_digital_ocean? ? 'disabled' : ''}" %>

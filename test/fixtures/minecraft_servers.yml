@@ -14,6 +14,8 @@
 #  remote_setup_stage              :integer          default(0)
 #  minecraft_wrapper_password      :string(255)
 #  digital_ocean_droplet_region_id :integer
+#  remote_ssh_setup_stage          :integer          default(0), not null
+#  digital_ocean_pending_event_id  :integer
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html

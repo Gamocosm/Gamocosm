@@ -23,7 +23,7 @@ class WaitForStoppingServerWorker
 			if !droplet.remote.sync
 				raise "Error syncing droplet #{droplet.id}"
 			end
-			droplet.minecraft_server.update_columns(pending_operation: 'saving')
+			droplet.minecraft_server.update_columns(pending_operation: 'saving', digital_ocean_pending_event_id: response.event_id)
 			WaitForSnapshottingServerWorker.perform_in(4.seconds, user_id, droplet_id, response.event_id)
 		else
 			WaitForStoppingServerWorker.perform_in(4.seconds, user_id, droplet_id, digital_ocean_event_id)

@@ -29,20 +29,21 @@ class DigitalOcean::Droplet
     end
     ssh_key_id = user.digital_ocean_gamocosm_ssh_key_id
     if ssh_key_id.nil?
-      # TODO error
+      Rails.logger.warn "DO::Droplet#create: ssh key id was null, user #{user.id}"
       return nil
     end
-    response = connection.droplets.create({
+    params = {
       name: @local_droplet.host_name,
       size_id: @local_droplet.minecraft_server.digital_ocean_droplet_size_id,
       image_id: @local_droplet.minecraft_server.saved_snapshot_id || Gamocosm.digital_ocean_base_snapshot_id,
       region_id: @local_droplet.minecraft_server.digital_ocean_droplet_region_id,
       ssh_key_ids: "#{ssh_key_id}",
-    })
+    }
+    response = connection.droplets.create(params)
     if response.status == 'OK'
       return response.droplet.event_id
     end
-    Rails.logger.error "Response was #{response}" # TODO: error
+    Rails.logger.error "DO::Droplet#create: response #{response}, params #{params}, MC #{@local_droplet.minecraft_server_id}, droplet #{@local_droplet.id}"
     return nil
   end
 
@@ -55,7 +56,7 @@ class DigitalOcean::Droplet
     if response.status == 'OK'
       return response.event_id
     end
-    Rails.logger.error "Response was #{response}" # TODO: error
+    Rails.logger.warn "DO::Droplet#shutdown: response #{response}, MC #{@local_droplet.minecraft_server_id}, droplet #{@local_droplet.id}"
     return nil
   end
 
@@ -68,7 +69,7 @@ class DigitalOcean::Droplet
     if response.status == 'OK'
       return response.event_id
     end
-    Rails.logger.error "Response was #{response}" # TODO: error
+    Rails.logger.warn "DO::Droplet#snapshot: response #{response}, MC #{@local_droplet.minecraft_server_id}, droplet #{@local_droplet.id}"
     return nil
   end
 
@@ -88,7 +89,7 @@ class DigitalOcean::Droplet
       })
       return true
     end
-    Rails.logger.error "Response was #{response}" # TODO: error
+    Rails.logger.warn "DO::Droplet#sync: response #{response}, MC #{@local_droplet.minecraft_server_id}, droplet #{@local_droplet.id}"
     return false
   end
 
@@ -96,12 +97,14 @@ class DigitalOcean::Droplet
   def list_snapshots
     connection = @local_droplet.minecraft_server.user.digital_ocean
     if connection.nil?
-      return false
+      return nil
     end
     response = connection.droplets.show(@local_droplet.remote_id)
     if response.status == 'OK'
       return response.droplet.snapshots
     end
+    Rails.logger.warn "DO::Droplet#list_snapshots: response #{response}, MC #{@local_droplet.minecraft_server_id}, droplet #{@local_droplet.id}"
+    return nil
   end
 
   def destroy
@@ -113,7 +116,11 @@ class DigitalOcean::Droplet
       connection.images.delete(x.id)
     end
     response = connection.droplets.delete(@local_droplet.remote_id)
-    return response.status == 'OK'
+    if response.status == 'OK'
+      return true
+    end
+    Rails.logger.warn "DO::Droplet#destroy: response #{response}, MC #{@local_droplet.minecraft_server_id}, droplet #{@local_droplet.id}"
+    return false
   end
 
   def rename

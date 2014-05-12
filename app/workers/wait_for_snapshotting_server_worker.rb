@@ -21,13 +21,9 @@ class WaitForSnapshottingServerWorker
 			droplet.minecraft_server.update_columns(saved_snapshot_id: snapshots[-1].id)
 			response = user.digital_ocean.droplets.delete(droplet.remote_id)
 			if response.status != 'OK'
-				# TODO: error
 				raise "Error deleting droplet #{droplet.id} for minecraft server #{droplet.minecraft_server_id} on digital ocean, response was #{response}"
 			end
-			if !droplet.remote.sync
-				raise "Error syncing droplet #{droplet.id}"
-			end
-			droplet.minecraft_server.update_columns(pending_operation: nil)
+			droplet.minecraft_server.update_columns(pending_operation: nil, digital_ocean_pending_event_id: nil)
 			droplet.destroy
 		else
 			WaitForSnapshottingServerWorker.perform_in(4.seconds, droplet_id, digital_ocean_event_id)

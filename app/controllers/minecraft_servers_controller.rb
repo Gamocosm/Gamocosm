@@ -1,5 +1,5 @@
 class MinecraftServersController < ApplicationController
-  before_filter :authenticate_user!
+  before_action :authenticate_user!
 
   def index
     @servers = current_user.minecraft_servers
@@ -144,7 +144,7 @@ class MinecraftServersController < ApplicationController
         }
       end
     end
-    response = @server.droplet.remote.destroy
+    response = @server.destroy_remote
     if response
       @server.destroy
       return redirect_to minecraft_servers_path, notice: 'Server is deleting'

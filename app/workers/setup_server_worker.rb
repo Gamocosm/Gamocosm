@@ -16,7 +16,12 @@ class SetupServerWorker
 		host = SSHKit::Host.new(droplet.ip_address.to_s)
 		host.user = 'root'
 		host.key = Gamocosm.digital_ocean_ssh_private_key_path
-		host.ssh_options = { passphrase: Gamocosm.digital_ocean_ssh_private_key_passphrase, user_known_hosts_file: '/dev/null', timeout: 4 }
+		host.ssh_options = {
+			passphrase: Gamocosm.digital_ocean_ssh_private_key_passphrase,
+			paranoid: false,
+			timeout: 4
+		}
+		droplet.minecraft_server.update_columns(remote_ssh_setup_stage: 1)
 		on host do
 			within '/opt/' do
 				if test '! id -u mcuser'
@@ -24,13 +29,17 @@ class SetupServerWorker
 				end
 				execute :echo, droplet.minecraft_server.name, '|', :passwd, '--stdin', 'mcuser'
 				execute :usermod, '-aG', 'wheel', 'mcuser'
+				droplet.minecraft_server.update_columns(remote_ssh_setup_stage: 2)
 				execute :yum, '-y', 'update'
 				execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'supervisor', 'proftpd'
 				execute 'python3-pip', 'install', 'flask'
 				if test '! iptables -nL | grep -q 5000'
 					execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '5000', '-j', 'ACCEPT'
-					execute 'iptables-save'
 				end
+				if test '! iptables -nL | grep -q 25565'
+					execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '25565', '-j', 'ACCEPT'
+				end
+				execute 'iptables-save'
 				execute :mkdir, '-p', 'gamocosm'
 				within :gamocosm do
 					execute :rm, '-f', 'minecraft-flask.py'
@@ -39,6 +48,7 @@ class SetupServerWorker
 					execute :echo, "\"#{droplet.minecraft_server.minecraft_wrapper_password}\"", '>>', 'minecraft-flask-auth.txt'
 				end
 			end
+			droplet.minecraft_server.update_columns(remote_ssh_setup_stage: 3)
 			within '/home/mcuser/' do
 				execute :mkdir, '-p', 'minecraft'
 				execute :chown, 'mcuser:mcuser', 'minecraft'
@@ -48,6 +58,7 @@ class SetupServerWorker
 					execute :chown, 'mcuser:mcuser', 'minecraft_server-run.jar'
 				end
 			end
+			droplet.minecraft_server.update_columns(remote_ssh_setup_stage: 4)
 			within '/etc/supervisord.d/' do
 				execute :rm, '-f', 'minecraft_wrapper.ini'
 				execute :wget, '-O', 'minecraft_wrapper.ini', 'https://raw.github.com/Raekye/minecraft-server_wrapper/master/supervisor.conf'

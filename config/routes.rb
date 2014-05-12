@@ -8,29 +8,27 @@ Rails.application.routes.draw do
 
   get 'pages/help', as: 'help'
 
+  Sidekiq::Web.use Rack::Auth::Basic, 'Protected Area' do |u, p|
+    u == Gamocosm.sidekiq_admin_username && p == Gamocosm.sidekiq_admin_password
+  end
   mount Sidekiq::Web => '/sidekiq'
 
   devise_for :users
 
-  unauthenticated do
-    root to: 'pages#landing', as: 'landing'
-  end
+  root to: 'pages#landing'
 
-  authenticated :user do
-    resources :minecraft_servers, path: '/servers' do
-      member do
-        get 'start'
-        get 'stop'
-        get 'pause'
-        get 'resume'
-        get 'backup'
-        get 'download'
-        put 'update_properties'
-        post 'add_friend'
-        post 'remove_friend'
-      end
+  resources :minecraft_servers, path: '/servers' do
+    member do
+      get 'start'
+      get 'stop'
+      get 'pause'
+      get 'resume'
+      get 'backup'
+      get 'download'
+      put 'update_properties'
+      post 'add_friend'
+      post 'remove_friend'
     end
-    root to: 'pages#landing'
   end
 
   # The priority is based upon order of creation: first created -> highest priority.
