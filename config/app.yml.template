@@ -8,7 +8,7 @@ development:
   <<: *default
   digital_ocean_client_id: "$digital_ocean_client_id"
   digital_ocean_api_key: "$digital_ocean_api_key"
-  digital_ocean_ssh_public_key: "$digital_ocean_ssh_public_key"
+  digital_ocean_ssh_public_key_path: "$digital_ocean_ssh_public_key_path"
   digital_ocean_ssh_private_key_path: "$digital_ocean_ssh_private_key_path"
   digital_ocean_ssh_private_key_passphrase: "$digital_ocean_ssh_private_key_passphrase"
   sidekiq_admin_username: "$sidekiq_admin_username"
@@ -18,7 +18,7 @@ test:
   <<: *default
   digital_ocean_client_id: "$digital_ocean_client_id"
   digital_ocean_api_key: "$digital_ocean_api_key"
-  digital_ocean_ssh_public_key: "$digital_ocean_ssh_public_key"
+  digital_ocean_ssh_public_key_path: "$digital_ocean_ssh_public_key_path"
   digital_ocean_ssh_private_key_path: "$digital_ocean_ssh_private_key_path"
   digital_ocean_ssh_private_key_passphrase: "$digital_ocean_ssh_private_key_passphrase"
   sidekiq_admin_username: "$sidekiq_admin_username"
@@ -28,7 +28,7 @@ production:
   <<: *default
   digital_ocean_client_id: "$digital_ocean_client_id"
   digital_ocean_api_key: "$digital_ocean_api_key"
-  digital_ocean_ssh_public_key: "$digital_ocean_ssh_public_key"
+  digital_ocean_ssh_public_key_path: "$digital_ocean_ssh_public_key_path"
   digital_ocean_ssh_private_key_path: "$digital_ocean_ssh_private_key_path"
   digital_ocean_ssh_private_key_passphrase: "$digital_ocean_ssh_private_key_passphrase"
   sidekiq_admin_username: "$sidekiq_admin_username"

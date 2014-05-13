@@ -82,4 +82,4 @@ production:
   <<: *default
   database: gamocosm_production
   username: gamocosm
-  password: <%= Gamocosm.gamocosm_database_password %>
+  password: <%= ENV['GAMOCOSM_DATABASE_PASSWORD'] || Gamocosm.gamocosm_database_password %>

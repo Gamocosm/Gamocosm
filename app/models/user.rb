@@ -73,7 +73,17 @@ class User < ActiveRecord::Base
         return x.id
       end
     end
-    response = digital_ocean.ssh_keys.add(name: 'gamocosm', ssh_pub_key: Gamocosm.digital_ocean_ssh_public_key)
+    public_key = nil
+    begin
+      public_key = File.read(Gamocosm.digital_ocean_ssh_public_key_path).chomp
+    rescue
+      Rails.logger.warn "User#digital_ocean_gamocosm_ssh_key_id: exception #{e.message}"
+      Rails.logger.warn e.backtrace.join("\n")
+    end
+    if public_key.nil?
+      raise "Unable to get gamocosm ssh key"
+    end
+    response = digital_ocean.ssh_keys.add(name: 'gamocosm', ssh_pub_key: public_key)
     if response.status == 'OK'
       return response.ssh_key.id
     end

@@ -15,6 +15,7 @@ wget -O /etc/systemd/system/gamocosm-sidekiq.service https://raw.githubuserconte
 
 sed -i "1s/^/user http;\\n/" /opt/nginx/conf/nginx.conf
 sed -i "$ s/}/include \\/opt\\/nginx\\/sites-enabled\\/\\*.conf;\\n}/" /opt/nginx/conf/nginx.conf
+sed -i "0,/listen[[:space:]]*80;/{s/80/8000/}" /opt/nginx/conf/nginx.conf
 
 mkdir /opt/nginx/sites-enabled;
 mkdir /opt/nginx/sites-available;
@@ -50,6 +51,7 @@ iptables-save
 adduser -m http
 
 echo "Run: ssh-keygen -t rsa"
+echo "Note: set path to /home/http/.ssh/id_rsa-gamocosm"
 echo "Run: exit"
 su - http
 
@@ -59,13 +61,16 @@ chown http:http /run/http
 mkdir /var/www
 cd /var/www
 git clone https://github.com/Raekye/Gamocosm.git gamocosm
+cd gamocosm
 git checkout master
 cp gamocosm/config/app.yml.template gamocosm/config/app.yml
-mkdir gampcosm/tmp
-touch gamocosm/tmp/restart.txt
-chown -R http:http gamocosm
+mkdir tmp
+touch tmp/restart.txt
+chown -R http:http .
 
-cd gamocosm
+sudo -u http gem install bundler
+su - http -c "cd $(pwd) && bundle install --deployment"
+
 DEVISE_SECRET_KEY="$(su - http -c "cd $(pwd)" && bundle exec rake secret)"
 echo "Generated devise secret key $DEVISE_SECRET_KEY"
 PRODUCTION_SECRET_KEY="$(su - http -c "cd $(pwd)" && bundle exec rake secret)"
@@ -73,30 +78,27 @@ echo "Generated secret key base $PRODUCTION_SECRET_KEY"
 read -p "Enter gamocosm database password: " GAMOCOSM_DATABASE_PASSWORD
 read -p "Enter digital ocean client id: " DIGITAL_OCEAN_CLIENT_ID
 read -p "Enter digital ocean api key: " DIGITAL_OCEAN_API_KEY
-DIGITAL_OCEAN_PUBLIC_KEY=$(cat /home/http/.ssh/id_rsa-gamocosm.pub)
-echo "Found public key $DIGITAL_OCEAN_PUBLIC_KEY"
-DIGITAL_OCEAN_PRIVATE_KEY_PATH="/home/http/.ssh/id_rsa-gamocosm"
+DIGITAL_OCEAN_PUBLIC_KEY="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm\\.pub"
+echo "Found public key path $DIGITAL_OCEAN_PUBLIC_KEY_PATH"
+DIGITAL_OCEAN_PRIVATE_KEY_PATH="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm"
 echo "Found private key path $DIGITAL_OCEAN_PRIVATE_KEY_PATH"
 read -p "Enter private key passphrase: " DIGITAL_OCEAN_PRIVATE_KEY_PASSPHRASE
 read -p "Enter Sidekiq admin username: " SIDEKIQ_ADMIN_USERNAME
 read -p "Enter Sidekiq admin password: " SIDEKIQ_ADMIN_PASSWORD
 
 cp config/app.yml.template config/app.yml
-sed -i "s/\\$devise_secret_key/$DEVISE_SECRET_KEY/" config/app.yml
-sed -i "s/\\$secret_key_base/$PRODUCTION_SECRET_KEY/" config/app.yml
-sed -i "s/\\$gamocosm_database_password/$GAMOCOSM_DATABASE_PASSWORD/" config/app.yml
-sed -i "s/\\$digital_ocean_client_id/$DIGITAL_OCEAN_CLIENT_ID/" config/app.yml
-sed -i "s/\\$digital_ocean_api_key/$DIGITAL_OCEAN_API_KEY/" config/app.yml
-sed -i "s/\\$digital_ocean_public_key/$DIGITAL_OCEAN_PUBLIC_KEY/" config/app.yml
-sed -i "s/\\$digital_ocean_private_key_path/$DIGITAL_OCEAN_PRIVATE_KEY_PATH/" config/app.yml
-sed -i "s/\\$digital_ocean_private_key_passphrase/$DIGITAL_OCEAN_PRIVATE_KEY_PASSPHRASE/" config/app.yml
-sed -i "s/\\$sidekiq_admin_username/$SIDEKIQ_ADMIN_USERNAME/" config/app.yml
-sed -i "s/\\$sidekiq_admin_password/$SIDEKIQ_ADMIN_PASSWORD/" config/app.yml
+sed -i "s/\$devise_secret_key/$DEVISE_SECRET_KEY/" config/app.yml
+sed -i "s/\$secret_key_base/$PRODUCTION_SECRET_KEY/" config/app.yml
+sed -i "s/\$gamocosm_database_password/$GAMOCOSM_DATABASE_PASSWORD/" config/app.yml
+sed -i "s/\$digital_ocean_client_id/$DIGITAL_OCEAN_CLIENT_ID/" config/app.yml
+sed -i "s/\$digital_ocean_api_key/$DIGITAL_OCEAN_API_KEY/" config/app.yml
+sed -i "s/\$digital_ocean_ssh_public_key_path/$DIGITAL_OCEAN_PUBLIC_KEY_PATH/" config/app.yml
+sed -i "s/\$digital_ocean_ssh_private_key_path/$DIGITAL_OCEAN_PRIVATE_KEY_PATH/" config/app.yml
+sed -i "s/\$digital_ocean_ssh_private_key_passphrase/$DIGITAL_OCEAN_PRIVATE_KEY_PASSPHRASE/" config/app.yml
+sed -i "s/\$sidekiq_admin_username/$SIDEKIQ_ADMIN_USERNAME/" config/app.yml
+sed -i "s/\$sidekiq_admin_password/$SIDEKIQ_ADMIN_PASSWORD/" config/app.yml
 
-sudo -u http gem install bundler
-su - http -c "cd $(pwd) && bundle install --deployment"
-
-su - http -c "cd $(pwd) && RAILS_ENV=production bundle exec rake db:setup"
+su - http -c "cd $(pwd) && RAILS_ENV=production GAMOCOSM_DATABASE_PASSWORD=$GAMOCOSM_DATABASE_PASSWORD bundle exec rake db:setup"
 
 su - http -c "cd $(pwd) && RAILS_ENV=production bundle exec rake assets:precompile"
 
