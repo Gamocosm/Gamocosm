@@ -47,7 +47,7 @@ systemctl restart postgresql
 iptables -I INPUT -p tcp --dport 80 -j ACCEPT
 iptables-save
 
-adduser http
+adduser -m http
 
 echo "Run: ssh-keygen -t rsa"
 echo "Run: exit"
@@ -59,24 +59,40 @@ chown http:http /run/http
 mkdir /var/www
 cd /var/www
 git clone https://github.com/Raekye/Gamocosm.git gamocosm
+git checkout master
 cp gamocosm/config/app.yml.template gamocosm/config/app.yml
 mkdir gampcosm/tmp
 touch gamocosm/tmp/restart.txt
 chown -R http:http gamocosm
 
-DEVISE_SECRET_KEY=$(ruby -e "require 'securerandom'; puts(SecureRandom.hex(64))")
-
-PRODUCTION_SECRET_KEY=$(ruby -e "require 'securerandom'; puts(SecureRandom.hex(64))")
-
-echo "Set database password"
-read -n 1 -p "Press anything to continue... "
-vi /var/www/gamocosm/config/database.yml
-
-echo "Edit app.yml"
-read -n 1 -p "Press anything to continue... "
-vi /var/www/gamocosm/config/app.yml
-
 cd gamocosm
+DEVISE_SECRET_KEY="$(su - http -c "cd $(pwd)" && bundle exec rake secret)"
+echo "Generated devise secret key $DEVISE_SECRET_KEY"
+PRODUCTION_SECRET_KEY="$(su - http -c "cd $(pwd)" && bundle exec rake secret)"
+echo "Generated secret key base $PRODUCTION_SECRET_KEY"
+read -p "Enter gamocosm database password: " GAMOCOSM_DATABASE_PASSWORD
+read -p "Enter digital ocean client id: " DIGITAL_OCEAN_CLIENT_ID
+read -p "Enter digital ocean api key: " DIGITAL_OCEAN_API_KEY
+DIGITAL_OCEAN_PUBLIC_KEY=$(cat /home/http/.ssh/id_rsa-gamocosm.pub)
+echo "Found public key $DIGITAL_OCEAN_PUBLIC_KEY"
+DIGITAL_OCEAN_PRIVATE_KEY_PATH="/home/http/.ssh/id_rsa-gamocosm"
+echo "Found private key path $DIGITAL_OCEAN_PRIVATE_KEY_PATH"
+read -p "Enter private key passphrase: " DIGITAL_OCEAN_PRIVATE_KEY_PASSPHRASE
+read -p "Enter Sidekiq admin username: " SIDEKIQ_ADMIN_USERNAME
+read -p "Enter Sidekiq admin password: " SIDEKIQ_ADMIN_PASSWORD
+
+cp config/app.yml.template config/app.yml
+sed -i "s/\\$devise_secret_key/$DEVISE_SECRET_KEY/" config/app.yml
+sed -i "s/\\$secret_key_base/$PRODUCTION_SECRET_KEY/" config/app.yml
+sed -i "s/\\$gamocosm_database_password/$GAMOCOSM_DATABASE_PASSWORD/" config/app.yml
+sed -i "s/\\$digital_ocean_client_id/$DIGITAL_OCEAN_CLIENT_ID/" config/app.yml
+sed -i "s/\\$digital_ocean_api_key/$DIGITAL_OCEAN_API_KEY/" config/app.yml
+sed -i "s/\\$digital_ocean_public_key/$DIGITAL_OCEAN_PUBLIC_KEY/" config/app.yml
+sed -i "s/\\$digital_ocean_private_key_path/$DIGITAL_OCEAN_PRIVATE_KEY_PATH/" config/app.yml
+sed -i "s/\\$digital_ocean_private_key_passphrase/$DIGITAL_OCEAN_PRIVATE_KEY_PASSPHRASE/" config/app.yml
+sed -i "s/\\$sidekiq_admin_username/$SIDEKIQ_ADMIN_USERNAME/" config/app.yml
+sed -i "s/\\$sidekiq_admin_password/$SIDEKIQ_ADMIN_PASSWORD/" config/app.yml
+
 sudo -u http gem install bundler
 su - http -c "cd $(pwd) && bundle install --deployment"
 
@@ -84,10 +100,11 @@ su - http -c "cd $(pwd) && RAILS_ENV=production bundle exec rake db:setup"
 
 su - http -c "cd $(pwd) && RAILS_ENV=production bundle exec rake assets:precompile"
 
+OUTDOORS_IP_ADDRESS=$(ifconfig | grep -m 1 "inet" | awk "{ print \$2 }")
+echo "$OUTDOORS_IP_ADDRESS gamocosm.com" >> /etc/hosts
+
 systemctl start nginx
 systemctl start gamocosm-sidekiq
 
-# - hosts file?
 # - scripts for: update, assets, restart
 # - release branch
-# - rails envs
