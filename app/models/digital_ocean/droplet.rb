@@ -37,7 +37,7 @@ class DigitalOcean::Droplet
       size_id: @local_droplet.minecraft_server.digital_ocean_droplet_size_id,
       image_id: @local_droplet.minecraft_server.saved_snapshot_id || Gamocosm.digital_ocean_base_snapshot_id,
       region_id: @local_droplet.minecraft_server.digital_ocean_droplet_region_id,
-      ssh_key_ids: "#{ssh_key_id}",
+      ssh_key_ids: ssh_key_id.to_s,
     }
     response = connection.droplets.create(params)
     if response.status == 'OK'

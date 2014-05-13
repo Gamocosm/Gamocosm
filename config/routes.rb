@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   end
   mount Sidekiq::Web => '/sidekiq'
 
-  devise_for :users
+  devise_for :users, controllers: { registrations: 'registrations' }
 
   root to: 'pages#landing'
 

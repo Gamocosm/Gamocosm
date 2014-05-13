@@ -1,0 +1,15 @@
+[Unit]
+Description=Gamocosm Sidekiq
+
+[Service]
+Type=forking
+PIDFile=/run/http/gamocosm-sidekiq.pid
+User=http
+Group=http
+WorkingDirectory=/var/www/gamocosm
+Environment=RAILS_ENV=production
+ExecStart=/usr/local/bin/bundle exec sidekiq -d -L /var/www/gamocosm/log/sidekiq.log -P /run/http/gamocosm-sidekiq.pid
+ExecStop=/usr/local/bin/bundle exec sidekiqctl stop /run/http/gamocosm-sidekiq.pid >> /var/www/gamocosm/log/sidekiq.log 2>&1
+
+[Install]
+WantedBy=multi-user.target

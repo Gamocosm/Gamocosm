@@ -1,0 +1,14 @@
+[Unit]
+Description=nginx
+After=syslog.target network.target
+
+[Service]
+Type=forking
+PIDFile=/run/nginx.pid
+ExecStartPre=/opt/nginx/sbin/nginx -t -g 'pid /run/nginx.pid; daemon on; master_process on;' -c /opt/nginx/conf/nginx.conf
+ExecStart=/opt/nginx/sbin/nginx -g 'pid /run/nginx.pid; daemon on; master_process on;' -c /opt/nginx/conf/nginx.conf
+ExecReload=/opt/nginx/sbin/nginx -g 'pid /run/nginx.pid; daemon on; master_process on;' -c /opt/nginx/conf/nginx.conf -s reload
+ExecStop=/opt/nginx/sbin/nginx -g 'pid /run/nginx.pid; daemon on; master_process on;' -c /opt/nginx/conf/nginx.conf -s stop
+
+[Install]
+WantedBy=multi-user.target
