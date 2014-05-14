@@ -24,8 +24,7 @@ class WaitForStartingServerWorker
 				droplet.minecraft_server.update_columns(pending_operation: 'preparing')
 				SetupServerWorker.perform_in(4.seconds, user_id, droplet_id)
 			else
-				droplet.minecraft_server.resume
-				droplet.minecraft_server.update_columns(pending_operation: nil, digital_ocean_pending_event_id: nil)
+				StartServerWorker.perform_in(4.seconds, droplet.minecraft_server_id)
 			end
 		else
 			WaitForStartingServerWorker.perform_in(4.seconds, user_id, droplet_id, digital_ocean_event_id)

@@ -26,7 +26,7 @@ class WaitForSnapshottingServerWorker
 			droplet.minecraft_server.update_columns(pending_operation: nil, digital_ocean_pending_event_id: nil)
 			droplet.destroy
 		else
-			WaitForSnapshottingServerWorker.perform_in(4.seconds, droplet_id, digital_ocean_event_id)
+			WaitForSnapshottingServerWorker.perform_in(4.seconds, user_id, droplet_id, digital_ocean_event_id)
 		end
 	rescue ActiveRecord::RecordNotFound => e
 		Rails.logger.info "Record in #{self.class} not found #{e.message}"

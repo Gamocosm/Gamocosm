@@ -22,7 +22,9 @@
 		<% end %>
 		<br />
 		Status:
-		<% if @server.remote_ssh_setup_stage == 1 %>
+		<% if @server.remote_ssh_setup_stage == 0 %>
+			Connecting
+		<% elsif @server.remote_ssh_setup_stage == 1 %>
 			Connected
 		<% elsif @server.remote_ssh_setup_stage == 2 %>
 			Installing software

@@ -4,7 +4,7 @@ class SetupServerWorker
 	include Sidekiq::Worker
 	sidekiq_options retry: 8
 	sidekiq_retry_in do |count|
-		4
+		8
 	end
 
 	def perform(user_id, droplet_id)
@@ -21,9 +21,9 @@ class SetupServerWorker
 			paranoid: false,
 			timeout: 4
 		}
-		droplet.minecraft_server.update_columns(remote_ssh_setup_stage: 1)
 		on host do
-			within '/opt/' do
+			within '/tmp/' do
+				droplet.minecraft_server.update_columns(remote_ssh_setup_stage: 1)
 				if test '! id -u mcuser'
 					execute :adduser, '-m', 'mcuser'
 				end
@@ -32,6 +32,7 @@ class SetupServerWorker
 				droplet.minecraft_server.update_columns(remote_ssh_setup_stage: 2)
 				execute :yum, '-y', 'update'
 				execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'supervisor', 'proftpd'
+				execute :rm, '-rf', 'pip_build_root'
 				execute 'python3-pip', 'install', 'flask'
 				if test '! iptables -nL | grep -q 5000'
 					execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '5000', '-j', 'ACCEPT'
@@ -40,6 +41,8 @@ class SetupServerWorker
 					execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '25565', '-j', 'ACCEPT'
 				end
 				execute 'iptables-save'
+			end
+			within '/opt/' do
 				execute :mkdir, '-p', 'gamocosm'
 				within :gamocosm do
 					execute :rm, '-f', 'minecraft-flask.py'
@@ -68,8 +71,7 @@ class SetupServerWorker
 				execute :supervisorctl, 'update'
 			end
 		end
-		droplet.minecraft_server.resume
-		droplet.minecraft_server.update_columns(remote_setup_stage: 1, pending_operation: nil)
+		StartServerWorker.perform_in(4.seconds, droplet.minecraft_server_id)
 	rescue ActiveRecord::RecordNotFound => e
 		Rails.logger.info "Record in #{self.class} not found #{e.message}"
 	end
