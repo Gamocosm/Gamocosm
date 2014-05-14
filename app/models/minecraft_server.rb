@@ -130,7 +130,7 @@ class MinecraftServer < ActiveRecord::Base
       Rails.logger.warn "MC#ram: droplet size was nil, MC #{id}"
       return 512
     end
-    return droplet_size.memory
+    return droplet_size[:memory]
   end
 
   def world_download_url

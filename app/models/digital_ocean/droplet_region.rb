@@ -1,4 +1,5 @@
 class DigitalOcean::DropletRegion
+  # id
   # name
   # slug
 
@@ -9,7 +10,7 @@ class DigitalOcean::DropletRegion
         connection = DigitalOcean::Connection.new(Gamocosm.digital_ocean_client_id, Gamocosm.digital_ocean_api_key).request
         response = connection.regions.list
         if response.status == 'OK'
-          @all = response.regions
+          @all = response.regions.map { |x| { id: x.id, name: x.name, slug: x.slug } }
         end
       rescue
       end
@@ -18,10 +19,10 @@ class DigitalOcean::DropletRegion
       Rails.cache.write(:digital_ocean_regions, @all)
     end
     @all ||= [
-      Hashie::Rash.new(id: 3, name: "San Francisco 1", slug: "sfo1"),
-      Hashie::Rash.new(id: 4, name: "New York 2", slug: "nyc2"),
-      Hashie::Rash.new(id: 5, name: "Amsterdam 2", slug: "ams2"),
-      Hashie::Rash.new(id: 6, name: "Singapore 1", slug: "sgp1")]
+      { id: 3, name: "San Francisco 1", slug: "sfo1" },
+      { id: 4, name: "New York 2", slug: "nyc2" },
+      { id: 5, name: "Amsterdam 2", slug: "ams2" },
+      { id: 6, name: "Singapore 1", slug: "sgp1" }]
   end
 
   def all
@@ -33,7 +34,7 @@ class DigitalOcean::DropletRegion
   end
 
   def find(digital_ocean_region_id)
-    i = @all.index { |x| x.id == digital_ocean_region_id }
+    i = @all.index { |x| x[:id] == digital_ocean_region_id }
     if i
       return @all[i]
     end

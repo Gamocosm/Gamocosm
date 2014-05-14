@@ -71,6 +71,6 @@ class SetupServerWorker
 		droplet.minecraft_server.resume
 		droplet.minecraft_server.update_columns(remote_setup_stage: 1, pending_operation: nil)
 	rescue ActiveRecord::RecordNotFound => e
-		Rails.logger.info "Record in worker not found #{e.message}"
+		Rails.logger.info "Record in #{self.class} not found #{e.message}"
 	end
 end

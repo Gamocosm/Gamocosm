@@ -63,7 +63,7 @@ cd /var/www
 git clone https://github.com/Raekye/Gamocosm.git gamocosm
 cd gamocosm
 git checkout master
-cp gamocosm/config/app.yml.template gamocosm/config/app.yml
+cp config/app.yml.template config/app.yml
 mkdir tmp
 touch tmp/restart.txt
 chown -R http:http .
@@ -71,14 +71,14 @@ chown -R http:http .
 sudo -u http gem install bundler
 su - http -c "cd $(pwd) && bundle install --deployment"
 
-DEVISE_SECRET_KEY="$(su - http -c "cd $(pwd)" && bundle exec rake secret)"
+DEVISE_SECRET_KEY="$(su - http -c "cd $(pwd) && bundle exec rake secret")"
 echo "Generated devise secret key $DEVISE_SECRET_KEY"
-PRODUCTION_SECRET_KEY="$(su - http -c "cd $(pwd)" && bundle exec rake secret)"
+PRODUCTION_SECRET_KEY="$(su - http -c "cd $(pwd) && bundle exec rake secret")"
 echo "Generated secret key base $PRODUCTION_SECRET_KEY"
 read -p "Enter gamocosm database password: " GAMOCOSM_DATABASE_PASSWORD
 read -p "Enter digital ocean client id: " DIGITAL_OCEAN_CLIENT_ID
 read -p "Enter digital ocean api key: " DIGITAL_OCEAN_API_KEY
-DIGITAL_OCEAN_PUBLIC_KEY="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm\\.pub"
+DIGITAL_OCEAN_PUBLIC_KEY_PATH="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm\\.pub"
 echo "Found public key path $DIGITAL_OCEAN_PUBLIC_KEY_PATH"
 DIGITAL_OCEAN_PRIVATE_KEY_PATH="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm"
 echo "Found private key path $DIGITAL_OCEAN_PRIVATE_KEY_PATH"
@@ -107,6 +107,8 @@ echo "$OUTDOORS_IP_ADDRESS gamocosm.com" >> /etc/hosts
 
 systemctl start nginx
 systemctl start gamocosm-sidekiq
+
+echo "Done!"
 
 # - scripts for: update, assets, restart
 # - release branch
