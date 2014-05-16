@@ -22,7 +22,7 @@ class WaitForStartingServerWorker
 			end
 			if droplet.minecraft_server.remote_setup_stage == 0
 				droplet.minecraft_server.update_columns(pending_operation: 'preparing')
-				SetupServerWorker.perform_in(4.seconds, user_id, droplet_id)
+				WaitForSSHServerWorker.perform_in(4.seconds, user_id, droplet_id)
 			else
 				StartServerWorker.perform_in(4.seconds, droplet.minecraft_server_id)
 			end

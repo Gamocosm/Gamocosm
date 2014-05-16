@@ -48,7 +48,7 @@ gem 'digital_ocean'
 gem 'httparty'
 gem 'sinatra', :require => nil
 gem 'font-awesome-sass'
-gem 'simple_form'
+gem 'simple_form', '~> 3.1.0.rc1'
 gem 'sshkit'
 gem 'dalli'
 gem 'foreigner'

@@ -35,11 +35,11 @@ class MinecraftServersController < ApplicationController
     if @server.user.missing_digital_ocean?
       if @server.is_owner?(current_user)
         return redirect_to minecraft_server_path(@server), flash: {
-          error: "You have not entered your Digital Ocean keys.<br />Instructions/enter it #{view_context.link_to('here', edit_user_registration_path)}"
+          error: "You have not entered your Digital Ocean keys.<br />Instructions/enter it #{view_context.link_to('here', edit_user_registration_path)}".html_safe
         }
       else
         return redirect_to minecraft_server_path(@server), flash: {
-          error: "The owner of this server did not enter his/her Digital Ocean keys.<br />Read more #{view_context.link_to('here', edit_user_registration_path)}"
+          error: "The owner of this server did not enter his/her Digital Ocean keys.<br />Read more #{view_context.link_to('here', edit_user_registration_path)}".html_safe
         }
       end
     end
@@ -56,11 +56,11 @@ class MinecraftServersController < ApplicationController
     if @server.user.missing_digital_ocean?
       if @server.is_owner?(current_user)
         return redirect_to minecraft_server_path(@server), flash: {
-          error: "You have not entered your Digital Ocean keys.<br />Instructions/enter it #{view_context.link_to('here', edit_user_registration_path)}"
+          error: "You have not entered your Digital Ocean keys.<br />Instructions/enter it #{view_context.link_to('here', edit_user_registration_path)}".html_safe
         }
       else
         return redirect_to minecraft_server_path(@server), flash: {
-          error: "The owner of this server did not enter his/her Digital Ocean keys.<br />Read more #{view_context.link_to('here', edit_user_registration_path)}"
+          error: "The owner of this server did not enter his/her Digital Ocean keys.<br />Read more #{view_context.link_to('here', edit_user_registration_path)}".html_safe
         }
       end
     end
@@ -133,16 +133,15 @@ class MinecraftServersController < ApplicationController
 
   def destroy
     @server = find_minecraft_server_only_owner(params[:id])
+    if !@server.is_owner?(current_user)
+      return redirect_to minecraft_server_path(@server), flash: {
+        error: 'Only the owner can destroy a server'
+      }
+    end
     if @server.user.missing_digital_ocean?
-      if @server.is_owner?(current_user)
-        return redirect_to minecraft_server_path(@server), flash: {
-          error: "You have not entered your Digital Ocean keys.<br />Instructions/enter it #{view_context.link_to('here', edit_user_registration_path)}"
-        }
-      else
-        return redirect_to minecraft_server_path(@server), flash: {
-          error: "The owner of this server did not enter his/her Digital Ocean keys.<br />Read more #{view_context.link_to('here', edit_user_registration_path)}"
-        }
-      end
+      return redirect_to minecraft_server_path(@server), flash: {
+        error: "You have not entered your Digital Ocean keys"
+      }
     end
     response = @server.destroy_remote
     if response

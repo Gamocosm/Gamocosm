@@ -3,7 +3,7 @@
     <div class="flash-container row">
       <div class="alert alert-dismissable alert-<%= if name == 'error' then 'danger' elsif name == 'notice' then 'info' elsif name == 'alert' then 'warning' else name end %>">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <%= raw msg %>
+        <%= msg %>
       </div>
     </div>
   <% end %>

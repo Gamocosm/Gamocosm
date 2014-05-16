@@ -1,4 +1,5 @@
 require 'sshkit/dsl'
+require 'timeout'
 
 class WaitForSSHServerWorker
 	include Sidekiq::Worker
@@ -13,6 +14,7 @@ class WaitForSSHServerWorker
 		if times > 16
 			Rails.logger.warn "WaitForSSHServerWorker#perform: cannot ssh into droplet, user #{user_id}, droplet #{droplet_id}"
 			droplet.minecraft_server.destroy_remote
+			droplet.minecraft_server.update_columns(remote_setup_stage: 1, pending_operation: nil, digital_ocean_pending_event_id: nil)
 			droplet.destroy
 			return
 		end
@@ -33,7 +35,7 @@ class WaitForSSHServerWorker
 					execute :touch, 'test.txt'
 				end
 			end
-		rescue Net::SSH::ConnectionTimeout => e
+		rescue Timeout::Error => e
 			WaitForSSHServerWorker.perform_in(16.seconds, user_id, droplet_id, times + 1)
 			return
 		end

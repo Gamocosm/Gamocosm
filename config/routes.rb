@@ -2,11 +2,11 @@ require 'sidekiq/web'
 
 Rails.application.routes.draw do
 
-  get 'pages/about', as: 'about'
+  get '/about', to: 'pages#about', as: 'about'
 
-  get 'pages/contact', as: 'contact'
+  get '/contact', to: 'pages#contact', as: 'contact'
 
-  get 'pages/help', as: 'help'
+  get '/help', to: 'pages#help', as: 'help'
 
   Sidekiq::Web.use Rack::Auth::Basic, 'Protected Area' do |u, p|
     u == Gamocosm.sidekiq_admin_username && p == Gamocosm.sidekiq_admin_password
