@@ -4,8 +4,6 @@ Rails.application.routes.draw do
 
   get '/about', to: 'pages#about', as: 'about'
 
-  get '/contact', to: 'pages#contact', as: 'contact'
-
   get '/help', to: 'pages#help', as: 'help'
 
   Sidekiq::Web.use Rack::Auth::Basic, 'Protected Area' do |u, p|

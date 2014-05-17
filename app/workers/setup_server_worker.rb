@@ -31,7 +31,7 @@ class SetupServerWorker
 				execute :usermod, '-aG', 'wheel', 'mcuser'
 				droplet.minecraft_server.update_columns(remote_ssh_setup_stage: 2)
 				execute :yum, '-y', 'update'
-				execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'supervisor', 'proftpd'
+				execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'supervisor', 'tmux'
 				execute :rm, '-rf', 'pip_build_root'
 				execute 'python3-pip', 'install', 'flask'
 				if test '! iptables -nL | grep -q 5000'

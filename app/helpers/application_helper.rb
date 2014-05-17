@@ -13,11 +13,11 @@ module ApplicationHelper
 		result.html_safe
 	end
 
-	def render_server_ip_address(server)
+	def render_server_ip_address(server, fallback = nil)
 		if server.droplet && server.droplet.ip_address
 			return server.droplet.ip_address.to_s
 		end
-		return 'Not available'
+		return fallback || 'Not available'
 	end
 
 	def render_server_status(server)
