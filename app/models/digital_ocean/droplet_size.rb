@@ -43,6 +43,7 @@ class DigitalOcean::DropletSize
     @all.map! do |x|
       x[:price] = "#{(x[:cost_per_hour] * 100).round(1)} cents/hour"
       x[:descriptor] = "#{x[:name]} at #{x[:price]} (up to $#{x[:cost_per_month]}/month)"
+      x[:players] = (x[:memory] / 100).round.to_s
       x
     end
   end

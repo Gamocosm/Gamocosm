@@ -1,4 +1,13 @@
 <h2>Edit <%= resource_name.to_s.humanize %></h2>
+<div class="row">
+  <div class="alert alert-warning">
+    <% if current_user.digital_ocean_missing? %>
+      You have not entered your Digital Ocean keys.
+    <% else %>
+      Your Digital Ocean keys are invalid.
+    <% end %>
+  </div>
+</div>
 
 <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
   <%= f.error_notification %>
@@ -12,10 +21,11 @@
 
     <%= f.input :password, autocomplete: "off", hint: "leave it blank if you don't want to change it", required: false %>
     <%= f.input :password_confirmation, required: false %>
-    <%= f.input :current_password, hint: "we need your current password to confirm your changes", required: true %>
 
     <%= f.input :digital_ocean_client_id, input_html: { size: 36 } %>
     <%= f.input :digital_ocean_api_key, input_html: { size: 36 } %>
+
+    <%= f.input :current_password, hint: "we need your current password to confirm your changes", required: true %>
   </div>
 
   <div class="form-actions">
@@ -23,13 +33,34 @@
   </div>
 <% end %>
 
-<h3>Digital Ocean Instructions</h3>
-<ol>
-  <li>Sign up on <%= link_to 'Digital Ocean', Gamocosm.digital_ocean_referral_link %></li>
-  <li>Click on API</li>
-  <li>Click on Generate New Key</li>
-  <li>Copy the Client ID and API Key here</li>
-</ol>
+<div class="row">
+  <div class="col-lg-8">
+    <h2>Digital Ocean Instructions</h2>
+    <p>Gamocosm doesn't charge you for hosting servers (it's free).
+    Your servers are hosted on Digital Ocean, a cloud hosting services.
+    Gamocosm requires API access to do stuff such as setting up a new server or backing up stopping servers.
+    To learn more, see the <%= link_to 'About page', about_path %>.
+    <ol>
+      <li>Sign up on <%= link_to 'Digital Ocean', digital_ocean_index_path %></li>
+      <li>Click on Billing</li>
+      <li>Click on Manage Payments</li>
+      <li>Add billing information for Digital Ocean</li>
+      <li>Click on API</li>
+      <li>Click on Generate New Key</li>
+      <li>Copy the Client ID and API Key here</li>
+    </ol>
+  </div>
+  <div class="col-lg-4">
+    <%= image_tag 'digital_ocean-sign_up.png', size: '300x300', class: 'img-thumbnail' %>
+  </div>
+</div>
+<br />
+<div class="row text-center">
+  <%= image_tag 'digital_ocean-billing.png', size: '900x580', class: 'img-thumbnail' %>
+  <br />
+  <br />
+  <%= image_tag 'digital_ocean-api.png', size: '900x580', class: 'img-thumbnail' %>
+</div>
 
 <h3>Cancel my account</h3>
 

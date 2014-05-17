@@ -2,10 +2,30 @@
 	<div class="col-lg-12">
 		<div class="jumbotron">
 			<h1>Minecraft servers for friends.</h1>
-			<p>Hosting charged by the hour.</p>
-			<p>Pay <%= link_to 'Digital Ocean', digital_ocean_index_path %>, the server provider, directly. No extra costs.</p>
+			<p>Cloud hosting charged by the hour.</p>
+			<p>Only pay <%= link_to 'Digital Ocean', digital_ocean_index_path %>, the server provider. No middleman, no extra costs.</p>
 			<p>Gamocosm is <%= link_to 'Free, Open Source Software', source_path %>.</p>
-			<p><%= link_to 'Sign up for Gamocosm', new_user_registration_path, class: 'btn btn-primary btn-lg' %></p>
+			<div class="row">
+				<div class="col-lg-4">
+					<p><%= link_to 'Sign up for Gamocosm', new_user_registration_path, class: 'btn btn-primary btn-lg' %></p>
+				</div>
+				<div class="col-lg-4">
+					<p><%= link_to 'See what it looks like', '#TODO', class: 'btn btn-success btn-lg' %></p>
+				</div>
+				<div class="col-lg-4">
+					<p><%= link_to 'Gamocosm on Minecraft Forums', '#TODO', class: 'btn btn-primary btn-lg' %></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-4"><p>Solid State Drives</p></div>
+				<div class="col-lg-4"><p>64 bit Fedora 20 (Linux)</p></div>
+				<div class="col-lg-4"><p>OpenJDK 7 Java</p></div>
+			</div>
+			<div class="row">
+				<div class="col-lg-4"><p>Full FTP access</p></div>
+				<div class="col-lg-4"><p>Full SSH access</p></div>
+				<div class="col-lg-4"><p>Mods and Plugins compatible</p></div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -16,6 +36,7 @@
 			<%= render partial: 'pages/droplet_size', locals: { droplet_size: x } %>
 		</div>
 	<% end %>
+	<h3 class="text-muted text-center">You are charged hourly until the monthly max. If you exceed that ammount, you only pay the max.</h3>
 	<h3 class="text-muted text-center">More details on <%= link_to 'Digital Ocean', digital_ocean_pricing_path %></h3>
 </div>
 <br />
@@ -38,10 +59,10 @@
 <br />
 <div class="row">
 	<div class="col-lg-6 text-center">
-		<h3>What does per hour hosting mean?</h3>
-		<p>Per hour hosting requires you to stop you server when no-one is playing.<br />
-		If you play 2 hours a day with your friends every day,<br />
-		you pay about 40 cents a month, instead of $5.
+		<h3>Start and stop your servers anytime</h3>
+		<p>You can stop your server when no-one is online.<br />
+		You can give your friends access to start the server too.<br />
+		When your server is stopped, you aren't charged anything.
 		</p>
 	</div>
 	<div class="col-lg-6 text-center">
@@ -49,6 +70,22 @@
 		<p>It takes longer to start and stop servers (about a minute),<br />
 		and your IP address may change from time to time.<br />
 		However, you can save a lot of money using per hour hosting!
+		</p>
+	</div>
+</div>
+<br />
+<br />
+<div class="row">
+	<div class="col-lg-6 text-center">
+		<h3>What does per hour hosting mean?</h3>
+		<p>If you play 2 hours a day with your friends every day,<br />
+		you pay about 40 cents a month, instead of $5.
+		</p>
+	</div>
+	<div class="col-lg-6 text-center">
+		<h3>You own these servers</h3>
+		<p>You don't pay us anything; you only pay Digital Ocean for the server costs.<br />
+		You have full access to computer so you can do whatever you want with it.
 		</p>
 	</div>
 </div>
