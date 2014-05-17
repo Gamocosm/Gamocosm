@@ -2,9 +2,19 @@ require 'sidekiq/web'
 
 Rails.application.routes.draw do
 
-  get '/about', to: 'pages#about', as: 'about'
+  get '/about', to: 'pages#about', as: :about
 
-  get '/help', to: 'pages#help', as: 'help'
+  get '/help', to: 'pages#help', as: :help
+
+  match '/wiki' => redirect('https://github.com/Raekye/Gamocosm/wiki'), as: :wiki, via: :get
+  match '/issues' => redirect('https://github.com/Raekye/Gamocosm/issues'), as: :issues, via: :get
+  match '/source' => redirect('https://github.com/Raekye/Gamocosm'), as: :source, via: :get
+
+  scope '/digital_ocean' do
+    match '/pricing' => redirect('https://www.digitalocean.com/pricing/'), as: :digital_ocean_pricing, via: :get
+    match '/index' => redirect(Gamocosm.digital_ocean_referral_link), as: :digital_ocean_index, via: :get
+    match '/help' => redirect('https://www.digitalocean.com/help/'), as: :digital_ocean_help, via: :get
+  end
 
   Sidekiq::Web.use Rack::Auth::Basic, 'Protected Area' do |u, p|
     u == Gamocosm.sidekiq_admin_username && p == Gamocosm.sidekiq_admin_password

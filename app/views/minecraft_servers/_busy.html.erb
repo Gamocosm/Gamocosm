@@ -55,5 +55,5 @@
 		<% end %>
 	<% end %>
 	<hr />
-	<%= link_to 'Delete', minecraft_server_path(@server), method: :delete, class: "btn btn-danger #{@server.user.missing_digital_ocean? ? 'disabled' : ''}" %>
+	<%= link_to 'Delete', minecraft_server_path(@server), method: :delete, class: 'btn btn-danger' %>
 </div>

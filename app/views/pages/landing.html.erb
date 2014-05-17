@@ -1,5 +1,60 @@
 <div class="row">
 	<div class="col-lg-12">
-		<p>Hmmmmmmmmmm</p>
+		<div class="jumbotron">
+			<h1>Minecraft servers for friends.</h1>
+			<p>Hosting charged by the hour.</p>
+			<p>Pay <%= link_to 'Digital Ocean', digital_ocean_index_path %>, the server provider, directly. No extra costs.</p>
+			<p>Gamocosm is <%= link_to 'Free, Open Source Software', source_path %>.</p>
+			<p><%= link_to 'Sign up for Gamocosm', new_user_registration_path, class: 'btn btn-primary btn-lg' %></p>
+		</div>
 	</div>
 </div>
+<div class="row">
+	<h1 class="text-center">Popular Servers</h1>
+	<% @droplet_sizes.each do |x| %>
+		<div class="col-lg-3">
+			<%= render partial: 'pages/droplet_size', locals: { droplet_size: x } %>
+		</div>
+	<% end %>
+	<h3 class="text-muted text-center">More details on <%= link_to 'Digital Ocean', digital_ocean_pricing_path %></h3>
+</div>
+<br />
+<br />
+<div class="row">
+	<div class="col-lg-6 text-center">
+		<h3>Digital Ocean is a cloud hosting provider</h3>
+		<p>They allow users to create and destroy servers at any time.<br />
+		They only charge per hour use.
+		</p>
+	</div>
+	<div class="col-lg-6 text-center">
+		<h3>Gamocosm makes it easy to host Minecraft servers</h3>
+		<p>There is a lot of work to set up and manage cloud servers.<br />
+		Gamocosm hides this from you. You just start and stop your server.
+		</p>
+	</div>
+</div>
+<br />
+<br />
+<div class="row">
+	<div class="col-lg-6 text-center">
+		<h3>What does per hour hosting mean?</h3>
+		<p>Per hour hosting requires you to stop you server when no-one is playing.<br />
+		If you play 2 hours a day with your friends every day,<br />
+		you pay about 40 cents a month, instead of $5.
+		</p>
+	</div>
+	<div class="col-lg-6 text-center">
+		<h3>What are the downsides?</h3>
+		<p>It takes longer to start and stop servers (about a minute),<br />
+		and your IP address may change from time to time.<br />
+		However, you can save a lot of money using per hour hosting!
+		</p>
+	</div>
+</div>
+<div class="row">
+	<h3 class="text-center">Want to learn more? Read the <%= link_to 'About page', about_path %>, or view the <%= link_to 'repository on GitHub', source_path %>.</h3>
+</div>
+<br />
+<br />
+<br />

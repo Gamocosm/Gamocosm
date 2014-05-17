@@ -29,12 +29,19 @@ class User < ActiveRecord::Base
   has_many :minecraft_servers, dependent: :destroy
   has_and_belongs_to_many :friend_minecraft_servers, foreign_key: 'user_id', class_name: 'MinecraftServer'
 
-  def missing_digital_ocean?
+  def digital_ocean_missing?
     return digital_ocean_client_id.nil? || digital_ocean_api_key.nil?
   end
 
+  def digital_ocean_invalid?
+    if digital_ocean_missing?
+      return true
+    end
+    return digital_ocean.droplets.list.status != 'OK'
+  end
+
   def digital_ocean
-    if missing_digital_ocean?
+    if digital_ocean_missing?
       return nil
     end
     if @digital_ocean_connection.nil?
@@ -44,28 +51,28 @@ class User < ActiveRecord::Base
   end
 
   def digital_ocean_snapshots
-    if digital_ocean.nil?
+    if digital_ocean_invalid?
       return nil
     end
     return digital_ocean.images.list(filter: :my_images).images
   end
 
   def digital_ocean_snapshot_exists?(snapshot_id)
-    if digital_ocean.nil?
+    if digital_ocean_invalid?
       return nil
     end
     return !digital_ocean_snapshots.index { |x| x.image_id == snapshot_id }.nil?
   end
 
   def digital_ocean_droplets
-    if digital_ocean.nil?
+    if digital_ocean_invalid?
       return nil
     end
     return digital_ocean.droplets.list.droplets
   end
 
   def digital_ocean_gamocosm_ssh_key_id
-    if digital_ocean.nil?
+    if digital_ocean_invalid?
       return nil
     end
     for x in digital_ocean.ssh_keys.list.ssh_keys

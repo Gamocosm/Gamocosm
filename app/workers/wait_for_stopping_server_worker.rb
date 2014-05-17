@@ -7,7 +7,7 @@ class WaitForStoppingServerWorker
 
 	def perform(user_id, droplet_id, digital_ocean_event_id)
 		user = User.find(user_id)
-		if user.digital_ocean.nil?
+		if user.digital_ocean_invalid?
 			raise "Error getting digital ocean for user #{user_id}"
 		end
 		droplet = Droplet.find(droplet_id)

@@ -41,7 +41,8 @@ class DigitalOcean::DropletSize
       { cost_per_hour: 0.71429, cost_per_month: "480.0", cpu: 16, disk: 480, id: 70, memory: 49152, name: "48GB", slug: "48gb" },
       { cost_per_hour: 0.95238, cost_per_month: "640.0", cpu: 20, disk: 640, id: 69, memory: 65536, name: "64GB", slug: "64gb" }]
     @all.map! do |x|
-      x[:descriptor] = "#{x[:name]} at #{(x[:cost_per_hour] * 100).round(1)} cents/hour (up to $#{x[:cost_per_month]}/month)"
+      x[:price] = "#{(x[:cost_per_hour] * 100).round(1)} cents/hour"
+      x[:descriptor] = "#{x[:name]} at #{x[:price]} (up to $#{x[:cost_per_month]}/month)"
       x
     end
   end

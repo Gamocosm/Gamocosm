@@ -1,6 +1,6 @@
 <%= panel_with_heading 'Control Panel' do %>
-	<%= link_to 'Start', start_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? || @server.user.missing_digital_ocean? ? 'disabled' : ''}" %>
-	<%= link_to 'Stop', stop_minecraft_server_path(@server), class: "btn btn-danger btn-block #{@server.droplet_running? && !@server.user.missing_digital_ocean? ? '' : 'disabled'}" %>
+	<%= link_to 'Start', start_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? || @server.user.digital_ocean_invalid? ? 'disabled' : ''}" %>
+	<%= link_to 'Stop', stop_minecraft_server_path(@server), class: "btn btn-danger btn-block #{@server.droplet_running? && !@server.user.digital_ocean_invalid? ? '' : 'disabled'}" %>
 	<hr />
 	<%= link_to 'Resume', resume_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? && !@server.game_running? ? '' : 'disabled'}" %>
 	<%= link_to 'Pause', pause_minecraft_server_path(@server), class: "btn btn-info btn-block #{@server.droplet_running? && @server.game_running? ? '' : 'disabled'}" %>
@@ -9,6 +9,6 @@
 	<%= link_to 'Download world', download_minecraft_server_path(@server), class: "btn btn-info btn-block #{@server.droplet_running? && !@server.game_running? ? '' : 'disabled'}" %>
 	<% if @server.is_owner?(current_user) %>
 		<hr />
-		<%= link_to 'Delete', minecraft_server_path(@server), method: :delete, class: "btn btn-danger btn-block #{@server.user.missing_digital_ocean? ? 'disabled' : ''}", data: { confirm: 'Are you sure you want to delete this server forever? (A really long time!)' } %>
+		<%= link_to 'Delete', minecraft_server_path(@server), method: :delete, class: "btn btn-danger btn-block #{@server.user.digital_ocean_invalid? ? 'disabled' : ''}", data: { confirm: 'Are you sure you want to delete this server forever? (A really long time!)' } %>
 	<% end %>
 <% end %>

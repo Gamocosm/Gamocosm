@@ -59,10 +59,10 @@ class MinecraftServer < ActiveRecord::Base
     if busy?
       return false
     end
-    self.create_droplet
-    if user.digital_ocean.nil?
+    if user.digital_ocean_invalid?
       return false
     end
+    self.create_droplet
     event_id = DigitalOcean::Droplet.new(droplet).create
     if event_id.nil?
       Rails.logger.warn "MC#start: event was nil, MC #{id}"
@@ -80,11 +80,11 @@ class MinecraftServer < ActiveRecord::Base
     if busy?
       return false
     end
+    if user.digital_ocean_invalid?
+      return false
+    end
     if !node.pause
       Rails.logger.warn "MC#stop: node.pause return false, MC #{id}"
-    end
-    if user.digital_ocean.nil?
-      return false
     end
     event_id = DigitalOcean::Droplet.new(droplet).shutdown
     if event_id.nil?
@@ -99,6 +99,9 @@ class MinecraftServer < ActiveRecord::Base
   def destroy_remote
     if droplet.nil?
       return true
+    end
+    if user.digital_ocean_invalid?
+      return false
     end
     return droplet.remote.destroy
   end
