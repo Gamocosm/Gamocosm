@@ -52,7 +52,7 @@
 				(a terminal multiplexer; think having tabs when you SSH into your server)
 			</li>
 			<li>Creates an "mcuser" account (you shouldn't run your Minecraft server as root)</li>
-			<li>Opens ports 5000 (for the Minecraft server wrapper) and 25565 (for the Minecraft instance)</li>
+			<li>Opens iptables ports 5000 (for the Minecraft server wrapper) and 25565 (for the Minecraft instance)</li>
 			<li>Downloads the latest vanilla Minecraft jar</li>
 			<li>Configures <%= link_to 'Supervisor', 'http://supervisord.org/' %> to watch the Minecraft daemon</li>
 		</ul>
@@ -70,7 +70,8 @@
 
 		<h4>Starting a server</h4>
 		<p>If Gamocosm finds a snapshot id for your server (meaning it has already existed),
-		Gamocosm sends a Digital Ocean API request to create a droplet from the snapshot, and waits for it to complete.
+		Gamocosm sends a Digital Ocean API request to create a droplet from the snapshot, waits for it to complete,
+		and opens iptables ports 5000 and 25565 (as these are reset when a server is created).
 		Supervisor will start the Minecraft server wrapper on boot, and Gamocosm will tell the wrapper to start the Minecraft instance.</p>
 		<p>If the server is new, Gamocosm will run the setup above and finally tell the wrapper to start the Minecraft instance.</p>
 		<p>You can see the code for this starting in <%= link_to 'minecraft_server.rb', 'https://github.com/Raekye/Gamocosm/blob/master/app/models/minecraft_server.rb' %>.</p>

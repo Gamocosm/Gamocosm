@@ -34,10 +34,13 @@ class User < ActiveRecord::Base
   end
 
   def digital_ocean_invalid?
-    if digital_ocean_missing?
-      return true
+    if @digital_ocean_invalid.nil?
+      if digital_ocean_missing?
+        @digital_ocean_invalid = true
+      end
+      @digital_ocean_invalid = digital_ocean.droplets.list.status != 'OK'
     end
-    return digital_ocean.droplets.list.status != 'OK'
+    return @digital_ocean_invalid
   end
 
   def digital_ocean

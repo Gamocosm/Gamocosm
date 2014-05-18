@@ -14,7 +14,11 @@
 			<%= @server.digital_ocean_event.percentage %>%
 		<% end %>
 	<% elsif @server.pending_operation == 'preparing' %>
-		Your server is being set up.
+		<% if @server.remote_setup_stage == 0 %>
+			Your server is being set up.
+		<% else %>
+			Your server is being started.
+		<% end %>
 		<% if @server.remote_setup_stage == 0 %>
 			This should take about four minutes (first time only).
 		<% else %>

@@ -44,7 +44,7 @@ class MinecraftServer::Node
   end
 
   def backup
-    response = do_get(:backup)
+    response = do_post(:backup, {})
     return false if response.nil?
     return true
   end

@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     match '/pricing' => redirect('https://www.digitalocean.com/pricing/'), as: :digital_ocean_pricing, via: :get
     match '/index' => redirect(Gamocosm.digital_ocean_referral_link), as: :digital_ocean_index, via: :get
     match '/help' => redirect('https://www.digitalocean.com/help/'), as: :digital_ocean_help, via: :get
+    match '/control_panel' => redirect('https://cloud.digitalocean.com/login'), as: :digital_ocean_control_panel, via: :get
   end
 
   Sidekiq::Web.use Rack::Auth::Basic, 'Protected Area' do |u, p|

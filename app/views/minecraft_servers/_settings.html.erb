@@ -27,16 +27,7 @@
 			<%= f.input :spawn_npcs %>
 			<%= f.input :spawn_protection %>
 			<%= f.input :white_list %>
+			<%= f.button :submit, 'Save', class: 'btn btn-success' %>
 		<% end %>
-
-		<% if false %>
-		<%= panel_with_heading 'Whitelist' do %>
-		<% end %>
-
-		<%= panel_with_heading 'Ops' do %>
-		<% end %>
-		<% end %>
-
-		<%= f.button :submit, 'Save', class: 'btn btn-success' %>
 	<% end %>
 <% end %>

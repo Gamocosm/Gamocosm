@@ -18,9 +18,6 @@ class WaitForSSHServerWorker
       droplet.destroy
       return
     end
-    if droplet.minecraft_server.remote_setup_stage > 0
-      return
-    end
     host = SSHKit::Host.new(droplet.ip_address.to_s)
     host.user = 'root'
     host.key = Gamocosm.digital_ocean_ssh_private_key_path

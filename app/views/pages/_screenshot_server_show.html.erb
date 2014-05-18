@@ -1,0 +1,317 @@
+<div id="demo-server_show" class="row">
+	<div class="col-lg-12">
+		<h1>terrafirmacraft</h1>
+	</div>
+</div>
+<br />
+<div class="row">
+	<div class="col-lg-9">
+		<ul class="nav nav-tabs">
+			<li class="active"><a data-toggle="tab" href="#profile">Profile</a>
+			</li>
+			<li><a data-toggle="tab" href="#settings">Minecraft Settings</a>
+			</li>
+			<li><a data-toggle="tab" href="#ftp_ssh">FTP and SSH Access</a>
+			</li>
+		</ul>
+
+		<div class="tab-content">
+			<div class="tab-pane active" id="profile">
+				<br />
+				<div class="row">
+					<div class="col-lg-6">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">IP Address</h3>
+							</div>
+							<div class="panel-body">
+								107.170.74.8
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-6">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Status</h3>
+							</div>
+							<div class="panel-body">
+								active
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-6">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Friends</h3>
+							</div>
+							<div class="panel-body">
+								<table class="table table-striped">
+									<tbody>
+										<tr>
+											<td colspan="2"><em>Add friends to your server to give them access to start and stop it when you're offline.</em>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+								<form class="simple_form minecraft_server_friend" onsubmit="return false;">
+									<div class="form-group email required minecraft_server_friend_email">
+										<label class="email required control-label" for="minecraft_server_friend_email"><abbr title="required">*</abbr> Email</label>
+										<div>
+											<input class="string email required form-control" id="minecraft_server_friend_email" name="minecraft_server_friend[email]" type="email" />
+										</div>
+									</div>
+									<input class="btn btn-default btn btn-default" name="commit" type="button" value="Add" />
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<div class="tab-pane" id="settings">
+				<br />
+				<form class="simple_form new_minecraft_server_properties" id="new_minecraft_server_properties" onsubmit="return false;">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Minecraft Properties</h3>
+						</div>
+						<div class="panel-body">
+							<div class="form-group string optional minecraft_server_properties_allow_flight">
+								<label class="string optional control-label" for="minecraft_server_properties_allow_flight">Allow flight</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_allow_flight" name="minecraft_server_properties[allow_flight]" type="text" value="false" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_allow_nether">
+								<label class="string optional control-label" for="minecraft_server_properties_allow_nether">Allow nether</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_allow_nether" name="minecraft_server_properties[allow_nether]" type="text" value="true" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_announce_player_achievements">
+								<label class="string optional control-label" for="minecraft_server_properties_announce_player_achievements">Announce player achievements</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_announce_player_achievements" name="minecraft_server_properties[announce_player_achievements]" type="text" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_difficulty">
+								<label class="string optional control-label" for="minecraft_server_properties_difficulty">Difficulty</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_difficulty" name="minecraft_server_properties[difficulty]" type="text" value="1" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_enable_command_block">
+								<label class="string optional control-label" for="minecraft_server_properties_enable_command_block">Enable command block</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_enable_command_block" name="minecraft_server_properties[enable_command_block]" type="text" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_force_gamemode">
+								<label class="string optional control-label" for="minecraft_server_properties_force_gamemode">Force gamemode</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_force_gamemode" name="minecraft_server_properties[force_gamemode]" type="text" value="false" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_gamemode">
+								<label class="string optional control-label" for="minecraft_server_properties_gamemode">Gamemode</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_gamemode" name="minecraft_server_properties[gamemode]" type="text" value="0" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_generate_structures">
+								<label class="string optional control-label" for="minecraft_server_properties_generate_structures">Generate structures</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_generate_structures" name="minecraft_server_properties[generate_structures]" type="text" value="true" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_generator_settings">
+								<label class="string optional control-label" for="minecraft_server_properties_generator_settings">Generator settings</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_generator_settings" name="minecraft_server_properties[generator_settings]" type="text" value="" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_hardcore">
+								<label class="string optional control-label" for="minecraft_server_properties_hardcore">Hardcore</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_hardcore" name="minecraft_server_properties[hardcore]" type="text" value="false" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_level_seed">
+								<label class="string optional control-label" for="minecraft_server_properties_level_seed">Level seed</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_level_seed" name="minecraft_server_properties[level_seed]" type="text" value="" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_level_type">
+								<label class="string optional control-label" for="minecraft_server_properties_level_type">Level type</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_level_type" name="minecraft_server_properties[level_type]" type="text" value="DEFAULT" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_max_build_height">
+								<label class="string optional control-label" for="minecraft_server_properties_max_build_height">Max build height</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_max_build_height" name="minecraft_server_properties[max_build_height]" type="text" value="256" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_motd">
+								<label class="string optional control-label" for="minecraft_server_properties_motd">Motd</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_motd" name="minecraft_server_properties[motd]" type="text" value="A Minecraft Server" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_online_mode">
+								<label class="string optional control-label" for="minecraft_server_properties_online_mode">Online mode</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_online_mode" name="minecraft_server_properties[online_mode]" type="text" value="true" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_op_permission_level">
+								<label class="string optional control-label" for="minecraft_server_properties_op_permission_level">Op permission level</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_op_permission_level" name="minecraft_server_properties[op_permission_level]" type="text" value="4" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_player_idle_timeout">
+								<label class="string optional control-label" for="minecraft_server_properties_player_idle_timeout">Player idle timeout</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_player_idle_timeout" name="minecraft_server_properties[player_idle_timeout]" type="text" value="0" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_pvp">
+								<label class="string optional control-label" for="minecraft_server_properties_pvp">Pvp</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_pvp" name="minecraft_server_properties[pvp]" type="text" value="true" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_spawn_animals">
+								<label class="string optional control-label" for="minecraft_server_properties_spawn_animals">Spawn animals</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_spawn_animals" name="minecraft_server_properties[spawn_animals]" type="text" value="true" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_spawn_monsters">
+								<label class="string optional control-label" for="minecraft_server_properties_spawn_monsters">Spawn monsters</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_spawn_monsters" name="minecraft_server_properties[spawn_monsters]" type="text" value="true" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_spawn_npcs">
+								<label class="string optional control-label" for="minecraft_server_properties_spawn_npcs">Spawn npcs</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_spawn_npcs" name="minecraft_server_properties[spawn_npcs]" type="text" value="true" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_spawn_protection">
+								<label class="string optional control-label" for="minecraft_server_properties_spawn_protection">Spawn protection</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_spawn_protection" name="minecraft_server_properties[spawn_protection]" type="text" value="16" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_properties_white_list">
+								<label class="string optional control-label" for="minecraft_server_properties_white_list">White list</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_properties_white_list" name="minecraft_server_properties[white_list]" type="text" value="false" />
+								</div>
+							</div>
+							<input class="btn btn-default btn btn-success" name="commit" type="button" value="Save" />
+						</div>
+					</div>
+
+				</form>
+			</div>
+			<div class="tab-pane" id="ftp_ssh">
+				<br />
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Server Credentials</h3>
+					</div>
+					<div class="panel-body">
+						<dl>
+							<dt>Host</dt>
+							<dd>107.170.74.8</dd>
+							<dt>Port</dt>
+							<dd>22 (default for SSH/SFTP)</dd>
+							<dt>User</dt>
+							<dd>mcuser</dd>
+							<dt>Password</dt>
+							<dd>Default: name of your server (<strong>you should change this!</strong>)</dd>
+							<dt>FTP Protocol</dt>
+							<dd>SFTP</dd>
+							<dt>FTP Logon Type</dt>
+							<dd>Normal (saves password) or Ask for password (every time)</dd>
+						</dl>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Instructions</h3>
+					</div>
+					<div class="panel-body">
+						<ul>
+							<li>FTP instructions on the <a href="#TODO">wiki</a>
+							</li>
+							<li>SSH instructions on the <a href="#TODO">wiki</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Changing your server password</h3>
+					</div>
+					<div class="panel-body">
+						<ol>
+							<li>SSH into your server</li>
+							<li>Run <code>passwd</code>
+							</li>
+							<li>Enter your new password into the prompt</li>
+							<li>Exit (run <code>exit</code>)</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-lg-3">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">Control Panel</h3>
+			</div>
+			<div class="panel-body">
+				<a class="btn btn-success btn-block disabled">Start</a>
+				<a class="btn btn-danger btn-block ">Stop</a>
+				<hr />
+				<a class="btn btn-success btn-block disabled">Resume</a>
+				<a class="btn btn-info btn-block ">Pause</a>
+				<hr />
+				<a class="btn btn-success btn-block disabled">Backup</a>
+				<a class="btn btn-info btn-block disabled">Download world</a>
+				<hr />
+				<a class="btn btn-danger btn-block ">Delete</a>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-lg-9">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">Tips</h3>
+			</div>
+			<div class="panel-body">
+				<ul>
+					<li>Stop the server when no-one is playing. Digital Ocean charges you when the server is running (started).
+					</li>
+					<li>Pausing the server only stops the Minecraft instance. Use this when you want backup or download your world, or to edit Minecraft files (configuration, mods, plugins, etc.)
+					</li>
+					<li>For more information read the <a href="/help">Help page</a> or the <a href="/wiki">wiki</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
