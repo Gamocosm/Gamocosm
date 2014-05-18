@@ -39,11 +39,10 @@
 					<%= f.input :name, input_html: { size: 32 } %>
 					<%= f.input :digital_ocean_droplet_size_id, collection: DigitalOcean::DropletSize.new.all.collect { |x| [x[:descriptor], x[:id]] }, as: :select, include_blank: false %>
 					<%= f.input :digital_ocean_droplet_region_id, collection: DigitalOcean::DropletRegion.new.all.collect { |x| [x[:name], x[:id]] }, as: :select, include_blank: false %>
-					<p class="text-center">
-					<button class="btn btn-default <%= current_user.digital_ocean_invalid? ? 'disabled' : '' %>" type="submit">
-							Next <i class="fa fa-chevron-right"></i>
-						</button>
-					</p>
+					<%= link_to 'Digital Ocean pricing', digital_ocean_pricing_path %>
+					<button class="btn btn-default pull-right<%= current_user.digital_ocean_invalid? ? 'disabled' : '' %>" type="submit">
+						Next <i class="fa fa-chevron-right"></i>
+					</button>
 				<% end %>
 			</div>
 		</div>

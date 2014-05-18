@@ -3,15 +3,66 @@
 		<div class="page-header">
 			<h1>FAQ</h1>
 		</div>
-		<dl>
+		<dl class="faq">
 			<dt>There's a bug!</dt>
 			<dd>Do one of the following:<ul>
 				<li>File an <%= link_to 'issue on GitHub', 'https://github.com/Raekye/Gamocosm/issues' %></li>
 				<li>Send an email to contact at gamocosm daught com</li>
 				<li>Discuss it on IRC at <code>#gamocosm</code> on <code>irc.esper.net</code>
 			</ul></dd>
+
 			<dt>Why does it take so long to start/stop a server?</dt>
-				<dd>Cloud hosting providers continue to charge you when your server is off, because resources are still allocated for you. What you can do is backup the server, destroy it, and restore the server from the backup the next time you need it. This is one of the things Gamocosm does for you automatically. It is a tradeoff so you can have the insanely low prices :)</dd>
+			<dd>Cloud hosting providers continue to charge you when your server is off, because resources are still allocated for you.
+			What you can do is backup the server, destroy it, and restore the server from the backup the next time you need it.
+			This is one of the things Gamocosm does for you automatically. It is a tradeoff so you can have the insanely low prices.
+			Read more about how this works in the <%= link_to 'About page', about_path %>.
+			</dd>
+
+			<dt>What's the difference between start, stop, pause, and resume?</dt>
+			<dd><ul>
+				<li>Start runs the Digital Ocean server, and subsequently does resume</li>
+				<li>Stop does pause, then shuts down the Digital Ocean server</li>
+				<li>Pause stops the Minecraft instance</li>
+				<li>Resume starts the Minecraft instance</li>
+				<li>
+					You only have access to a server while it has started (Digital Ocean server is running).
+					When your server is stopped, it only exists as a snapshot to be restored when you start it again
+				</li>
+			</ul></dd>
+
+			<dt>Where is Minecraft on my server?</dt>
+			<dd>Your home directory is <code>/home/mcuser/</code>.
+			Sometimes this is shortened as a tilda (<code>~</code>).
+			Minecraft is installed in <code>~/minecraft/</code></dd>
+
+			<dt>How do I edit ops or the whitelist?</dt>
+			<dd><ul>
+				<li>Pause your server</li>
+				<li>FTP or SSH into your server</li>
+				<li>If you are using FTP, download the file you want to edit locally. Upload the changed file when you are done</li>
+				<li>If you are using SSH, you can use a command line editor such as vi or emacs</li>
+				<li>Resume your server</li>
+			</ul></dd>
+
+			<dt>Where are my server backups?</dt>
+			<dd>Backups are saved on your server in <code>~/minecraft/backups/</code>.
+			However, it is recommended that you download backups (e.g. via FTP) from time to time,
+			and keep your own local backups</dd>
+
+			<dt>How do I change the version of Minecraft I'm running?</dt>
+			<dd>See this <%= link_to 'wiki page', '#TODO' %></dd>
+
+			<dt>How to I install Forge (and mods)?</dt>
+			<dd>See this <%= link_to 'wiki page', '#TODO' %>.</dd>
+
+			<dt>How do I install Bukkit (and plugins)?</dt>
+			<dd>See this <%= link_to 'wiki page', '#TODO' %>.</dd>
+
+			<dt>How do I FTP?</dt>
+			<dd>See this <%= link_to 'wiki page', '#TODO' %>.</dd>
+
+			<dt>How do I SSH?</dt>
+			<dd>See this <%= link_to 'wiki page', '#TODO' %>.</dd>
 		</dl>
 	</div>
 </div>

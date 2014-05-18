@@ -1,13 +1,15 @@
 <h2>Edit <%= resource_name.to_s.humanize %></h2>
-<div class="row">
-  <div class="alert alert-warning">
-    <% if current_user.digital_ocean_missing? %>
-      You have not entered your Digital Ocean keys.
-    <% else %>
-      Your Digital Ocean keys are invalid.
-    <% end %>
+<% if current_user.digital_ocean_invalid? %>
+  <div class="row">
+    <div class="alert alert-warning">
+      <% if current_user.digital_ocean_missing? %>
+        You have not entered your Digital Ocean keys.
+      <% else %>
+        Your Digital Ocean keys are invalid.
+      <% end %>
+    </div>
   </div>
-</div>
+<% end %>
 
 <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
   <%= f.error_notification %>

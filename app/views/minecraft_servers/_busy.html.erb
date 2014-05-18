@@ -9,7 +9,7 @@
 		<br />
 		Digital Ocean status:
 		<% if @server.digital_ocean_event.try(:percentage).nil? %>
-			Error - Please contact support (TODO)
+			0%
 		<% else %>
 			<%= @server.digital_ocean_event.percentage %>%
 		<% end %>
@@ -39,7 +39,7 @@
 		<br />
 		Digital Ocean status:
 		<% if @server.digital_ocean_event.try(:percentage).nil? %>
-			Error - Please contact support (TODO)
+			0%
 		<% else %>
 			<%= @server.digital_ocean_event.percentage %>%
 		<% end %>
@@ -49,7 +49,7 @@
 		<br />
 		Digital Ocean status:
 		<% if @server.digital_ocean_event.try(:percentage).nil? %>
-			Error - Please contact support (TODO)
+			0%
 		<% else %>
 			<%= @server.digital_ocean_event.percentage %>%
 		<% end %>

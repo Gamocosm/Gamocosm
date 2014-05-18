@@ -20,12 +20,9 @@ class WaitForStartingServerWorker
 			if !droplet.remote.sync
 				raise "Error syncing droplet #{droplet.id}"
 			end
-			if droplet.minecraft_server.remote_setup_stage == 0
-				droplet.minecraft_server.update_columns(pending_operation: 'preparing')
-				WaitForSSHServerWorker.perform_in(4.seconds, user_id, droplet_id)
-			else
-				StartServerWorker.perform_in(4.seconds, droplet.minecraft_server_id)
-			end
+			user.digital_ocean.images.delete(droplet.minecraft_server.saved_snapshot_id)
+			droplet.minecraft_server.update_columns(pending_operation: 'preparing')
+			WaitForSSHServerWorker.perform_in(4.seconds, user_id, droplet_id)
 		else
 			WaitForStartingServerWorker.perform_in(4.seconds, user_id, droplet_id, digital_ocean_event_id)
 		end

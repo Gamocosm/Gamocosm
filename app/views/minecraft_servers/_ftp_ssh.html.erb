@@ -1,7 +1,7 @@
 <br />
 <%= panel_with_heading 'Server Credentials' do %>
 	<dl>
-		<dt>Host</dt><dd><%= render_server_ip_address(@server, 'Your server\'s IP address while running') %></dd>
+		<dt>Host</dt><dd><%= render_server_ip_address(@server, 'Your server\'s IP address when running') %></dd>
 		<dt>Port</dt><dd>22 (default for SSH/SFTP)</dd>
 		<dt>User</dt><dd>mcuser</dd>
 		<dt>Password</dt><dd>Default: name of your server (<strong>you should change this!</strong>)</dd>
@@ -10,66 +10,11 @@
 	</dl>
 <% end %>
 
-<%= panel_with_heading 'FTP Instructions' do %>
-	<p>FTP is a method of transferring files between computers.
-	This is useful for uploading Minecraft server jars, Bukkit plugins, Forge mods, downloading world backups, and so on.
-	To use FTP, you first need an <%= link_to 'FTP client', 'http://en.wikipedia.org/wiki/Comparison_of_FTP_client_software' %>.
-	We recommend <%= link_to 'FileZilla', 'https://filezilla-project.org/' %>, which is open source, free, and cross platform.
-	FileZilla is relatively commonly used, so it's also easy to find help online.</p>
-
-	<h4>OSX</h4>
-	<p>FileZilla is available as a download as a compressed file (the download link is on SourceForge, an open source code repository).
-	OSX will unzip it automatically when you try to open it, and you can drag <code>FileZilla.app</code> into <code>/Applications</code></p>
-	
-	<h4>Unix/Linux</h4>
-	<p>FileZilla is usually available in Linux distros' official repositories.
-	Try <code>(sudo) apt-get install filezilla</code> on Debian systems or <code>(sudo) yum install filezilla</code> on Fedora systems
-	(or search for it using your package manager).
-	FileZilla is also available on its website for Debian Wheezy, and as source (compile it yourself).</p>
-
-	<h4>Windows</h4>
-	<p>FileZilla is available as a zip and installer</p.>
-
-	<h4>Steps after installing FileZilla</h4>
-	<ol>
-		<li>Click "File" -> "Site Manager", and click "New Site"</li>
-		<li>Fill in the information under the "General" tab as listed above. Ignore the other tabs</li>
-		<li>You may be prompted about a "fingerprint". Choose "Trust", but don't check "Always trust this host"</li>
-		<li>You can now connect! Your Minecraft data is in the "minecraft" folder in your home directory</li>
-	</ol>
-	<p class="text-danger"><strong>Note</strong>: it is recommended you do not change files outside of your home directory (and do not rename the "minecraft" folder).
-	You should also not edit your server while it is running (pause it).
-	If you do so, you may break components Gamocosm relies on to automate your server.
-	For more information on how servers are set up, see the <%= link_to 'wiki', '#TODO' %>, or read the <%= link_to 'source', '#TODO' %>.</p>
-<% end %>
-
-<%= panel_with_heading 'SSH Instructions' do %>
-	<h4>SSH Command</h4>
-	<code>ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null mcuser@<%= render_server_ip_address(@server, '<server IP address>') %></code>
-
-	<h4>OSX</h4>
-	<ol>
-		<li>Open Terminal.app (by default in the "Other" folder in the Launchpad)</li>
-		<li>Run the command</li>
-		<li>You're in!</li>
-	</ol>
-	
-	<h4>Unix/Linux</h4>
-	<ol>
-		<li>Open your terminal (gnome-terminal, xterm, konsole, etc.)</li>
-		<li>Run the command</li>
-		<li>You're in!</li>
-	</ol>
-
-	<h4>Windows</h4>
-	<p>Windows does not have SSH built in, but several SSH clients are available.
-	We recommend <%= link_to 'PuTTY', 'http://www.putty.org/' %>.
-	Download "putty.exe" somewhere convenient such as your Desktop.</p>
-	<ol>
-		<li>Get an SSH client such as PuTTY</li>
-		<li>Enter the credentials as above</li>
-		<li>You're in!</li>
-	</ol>
+<%= panel_with_heading 'Instructions' do %>
+	<ul>
+		<li>FTP instructions on the <%= link_to 'wiki', '#TODO' %></li>
+		<li>SSH instructions on the <%= link_to 'wiki', '#TODO' %></li>
+	</ul>
 <% end %>
 
 <%= panel_with_heading 'Changing your server password' do %>
@@ -79,21 +24,4 @@
 		<li>Enter your new password into the prompt</li>
 		<li>Exit (run <code>exit</code>)</li>
 	</ol>
-<% end %>
-
-<%= panel_with_heading 'About SSH Fingerprints' do %>
-	<p>SSH uses public keys and private keys to encrypt and decrypt data.
-	These can be used to identify entities (such as whether a server you connected to really is who it claims to be).
-	Gamocosm/cloud hosting works by creating/destroying servers on the go.
-	Gamocosm manages the process of snapshotting servers and restoring them.
-	When you "start" your server, you are really creating a new server on your Digital Ocean account from the last snapshot.
-	Because of this, the server's identity changes, and the SSH library complains that the server is different.
-	This is why you shouldn't save the host's fingerprint in Filezilla (because it will always change).
-	These flags <code>-oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null</code> tell SSH not to save the fingerprint when you connect.</p>
-
-	<h4>Disable host key checking on OSX and Unix/Linux</h4>
-	<p>If you want to disable host key checking, add the following to <code>~/.ssh/config</code> (create the file if it doesn't exist)</p>
-	<pre><code>Host *
-	StrictHostKeyChecking no
-	UserKnownHostsFile=/dev/null</code></pre>
 <% end %>

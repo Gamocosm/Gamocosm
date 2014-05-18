@@ -16,7 +16,11 @@
 			<%= panel_with_heading 'Friends' do %>
 				<table class="table table-striped">
 					<tbody>
-						<%= render partial: 'minecraft_servers/friend', collection: @server.friends %>
+						<% if @server.friends.blank? %>
+							<tr><td colspan="2"><em>Add friends to your server to give them access to start and stop it when you're offline.</em></td></tr>
+						<% else %>
+							<%= render partial: 'minecraft_servers/friend', collection: @server.friends %>
+						<% end %>
 					</tbody>
 				</table>
 				<%= simple_form_for :minecraft_server_friend, url: add_friend_minecraft_server_path(@server), method: :post do |f| %>
