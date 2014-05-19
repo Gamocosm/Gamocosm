@@ -10,6 +10,14 @@ Rails.application.routes.draw do
   match '/issues' => redirect('https://github.com/Raekye/Gamocosm/issues'), as: :issues, via: :get
   match '/source' => redirect('https://github.com/Raekye/Gamocosm'), as: :source, via: :get
 
+  scope '/wiki' do
+    match '/ftp' => redirect('https://github.com/Raekye/Gamocosm/wiki/How-to-FTP'), as: :wiki_ftp, via: :get
+    match '/ssh' => redirect('https://github.com/Raekye/Gamocosm/wiki/How-to-SSH'), as: :wiki_ssh, via: :get
+    match '/bukkit' => redirect('https://github.com/Raekye/Gamocosm/wiki/Installing-CraftBukkit-and-Plugins'), as: :wiki_bukkit, via: :get
+    match '/forge' => redirect('https://github.com/Raekye/Gamocosm/wiki/Installing-Minecraft-Forge-and-Mods'), as: :wiki_forge, via: :get
+    match '/minecraft_versions' => redirect('https://github.com/Raekye/Gamocosm/wiki/Installing-different-versions-of-Minecraft'), as: :wiki_minecraft_versions, via: :get
+  end
+
   scope '/digital_ocean' do
     match '/pricing' => redirect('https://www.digitalocean.com/pricing/'), as: :digital_ocean_pricing, via: :get
     match '/index' => redirect(Gamocosm.digital_ocean_referral_link), as: :digital_ocean_index, via: :get

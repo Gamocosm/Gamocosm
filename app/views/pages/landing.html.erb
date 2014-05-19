@@ -1,19 +1,20 @@
 <div class="row">
 	<div class="col-lg-12">
 		<div class="jumbotron">
-			<h1>Minecraft servers for friends.</h1>
-			<p>Cloud hosting charged by the hour.</p>
-			<p>Only pay <%= link_to 'Digital Ocean', digital_ocean_index_path %>, the server provider. No middleman, no extra costs.</p>
+			<h1>Minecraft for friends.</h1>
+			<p>Gamocosm is a server management tool. It helps you host cloud servers.</p>
+			<p>Cloud servers are charged by the hour. You only pay the hosting company.</p>
 			<p>Gamocosm is <%= link_to 'Free, Open Source Software', source_path %>.</p>
+			<br />
 			<div class="row">
 				<div class="col-lg-4">
 					<p><%= link_to 'Sign up for Gamocosm', new_user_registration_path, class: 'btn btn-primary btn-lg' %></p>
 				</div>
 				<div class="col-lg-4">
-					<p><%= link_to 'See what it looks like', '#demo-servers', class: 'btn btn-success btn-lg anchor-page' %></p>
+					<p><%= link_to 'Learn more', about_path, class: 'btn btn-success btn-lg' %></p>
 				</div>
 				<div class="col-lg-4">
-					<p><%= link_to 'Gamocosm on Minecraft Forums', '#TODO', class: 'btn btn-primary btn-lg' %></p>
+					<p><%= link_to 'See what it looks like', '#demo-servers', class: 'btn btn-primary btn-lg anchor-page' %></p>
 				</div>
 			</div>
 			<div class="row">
@@ -24,11 +25,17 @@
 			<div class="row">
 				<div class="col-lg-4"><p>Full FTP and SSH access</p></div>
 				<div class="col-lg-4"><p>Gigabit Ethernet</p></div>
-				<div class="col-lg-4"><p>Mods and Plugins compatible</p></div>
+				<div class="col-lg-4"><p>Mods and Plugins</p></div>
 			</div>
 		</div>
 	</div>
 </div>
+<% if false %>
+<blockquote>
+	<p>If you run your server 24/7, hosting on Gamocosm/Digital Ocean is the same price as other Minecraft hosts.</p>
+	<p>However, on Gamocosm you can stop your server when no-one is online, and you only pay for what you use!</p>
+</blockquote>
+<% end %>
 <div class="row">
 	<h1 class="text-center">Popular Servers</h1>
 	<% @droplet_sizes.each do |x| %>
@@ -37,70 +44,12 @@
 		</div>
 	<% end %>
 	<h3 class="text-muted text-center">You are charged hourly until the monthly max. If you exceed that ammount, you only pay the max.</h3>
-	<h3 class="text-muted text-center">More details on <%= link_to 'Digital Ocean', digital_ocean_pricing_path %>.</h3>
 </div>
 <br />
-<br />
-<div class="row">
-	<div class="col-lg-6 text-center">
-		<h3>Digital Ocean is a cloud hosting provider</h3>
-		<p>They allow users to create and destroy servers at any time.<br />
-		They only charge per hour use.
-		</p>
-	</div>
-	<div class="col-lg-6 text-center">
-		<h3>Gamocosm makes it easy to host Minecraft servers</h3>
-		<p>There is a lot of work to set up and manage cloud servers.<br />
-		Gamocosm hides this from you. You just start and stop your server.
-		</p>
-	</div>
-</div>
-<br />
-<br />
-<div class="row">
-	<div class="col-lg-6 text-center">
-		<h3>Start and stop your servers anytime</h3>
-		<p>You can stop your server when no-one is online.<br />
-		You can give your friends access to start the server too.<br />
-		When your server is stopped, you aren't charged anything.
-		</p>
-	</div>
-	<div class="col-lg-6 text-center">
-		<h3>What are the downsides?</h3>
-		<p>It takes longer to start and stop servers (about a minute),<br />
-		and your IP address may change from time to time.<br />
-		However, you can save a lot of money using per hour hosting!
-		</p>
-	</div>
-</div>
-<br />
-<br />
-<div class="row">
-	<div class="col-lg-6 text-center">
-		<h3>What does per hour hosting mean?</h3>
-		<p>If you play 2 hours a day with your friends every day,<br />
-		you pay about 40 cents a month, instead of $5.
-		</p>
-	</div>
-	<div class="col-lg-6 text-center">
-		<h3>You own these servers</h3>
-		<p>You don't pay us anything; you only pay Digital Ocean for the server costs.<br />
-		You have full access to computer so you can do whatever you want with it.
-		</p>
-	</div>
-</div>
-<div class="row">
-	<h3 class="text-center">Want to learn more? Read the <%= link_to 'About page', about_path %>, or view the <%= link_to 'repository on GitHub', source_path %>.</h3>
-</div>
 <br />
 <br />
 <div id="demo-servers" class="row">
 	<h1 class="text-center">Demo</h1>
-</div>
-<div class="row">
-	<div class="col-lg-12 well">
-		<%= render partial: 'pages/screenshot_servers' %>
-	</div>
 </div>
 <div class="row">
 	<div class="col-lg-12 well">

@@ -1,20 +1,52 @@
+<div class="page-header">
+	<h1>About</h1>
+</div>
 <div class="row">
-	<div class="col-lg-12">
-		<div class="page-header">
-			<h1>About</h1>
-		</div>
-		<p>Gamocosm is a free, open source project to simplify the process of hosting cloud Minecraft servers.
-		It is meant for friends who want to play on a server together (e.g. people who would use Realms),
-		but don't want to pay expensive monthly costs when they only play a few hours a day/week.
+	<div class="col-lg-6 text-center">
+		<h3>Digital Ocean is a cloud hosting provider</h3>
+		<p>They allow users to create and destroy servers at any time.<br />
+		They only charge per hour use. Gamocosm runs your servers on Digital Ocean.
 		</p>
-		<p>Cloud hosts allow users to create and destroy servers at any time, and only charge per hour use.
-		Powered off servers still cost money, so Gamocosm automates the process of shutting down a server,
-		saving a backup of the server (called a snapshot), destroying the server, and restoring the server.
-		It also sets up new servers, which you normally have to do yourself for cloud servers.
+	</div>
+	<div class="col-lg-6 text-center">
+		<h3>Gamocosm makes it easy to run Minecraft servers</h3>
+		<p>There is a lot of work to set up and manage cloud servers.<br />
+		Gamocosm hides this from you. You just start and stop your server.
 		</p>
-		<p>The result is that you can host a Minecraft server for friends for a few cents an hour!
-		If you and your friends play 2 hours every day, and stop your server when you are done,
-		You might be paying <strong>40 cents</strong> a month, instead of $5 per month.
+	</div>
+</div>
+<br />
+<br />
+<div class="row">
+	<div class="col-lg-6 text-center">
+		<h3>Start and stop your servers anytime</h3>
+		<p>You can stop your server when no-one is online.<br />
+		When your server is stopped, you aren't charged anything.<br />
+		You can give your friends access to start and stop the server too.
+		</p>
+	</div>
+	<div class="col-lg-6 text-center">
+		<h3>What are the downsides?</h3>
+		<p>It takes longer to start and stop servers (about a minute),<br />
+		and your IP address may change from time to time.<br />
+		However, you can save a lot of money using per hour hosting!<br />
+		</p>
+	</div>
+</div>
+<br />
+<br />
+<div class="row">
+	<div class="col-lg-6 text-center">
+		<h3>What does per hour hosting mean?</h3>
+		<p>If you play 2 hours a day with your friends every day,<br />
+		you pay about 40 cents a month, instead of $5.
+		</p>
+	</div>
+	<div class="col-lg-6 text-center">
+		<h3>You own these servers</h3>
+		<p>You don't pay us anything; you only pay Digital Ocean for the server costs.<br />
+		You have full access to the server so you can do whatever you want with it.
+		</p>
 	</div>
 </div>
 <div class="row">
@@ -30,58 +62,5 @@
 	<div class="col-lg-12">
 		<h2>Source</h3>
 		<p>The source code is on <%= link_to 'GitHub', source_path %>. Feel free to fork and send a pull request!</p>
-	</div>
-</div>
-<div class="row">
-	<div class="col-lg-12">
-		<h2>How Gamocosm works</h2>
-		<p>Because Gamocosm is FOSS (free open source software), we try to be as transparent as possible.
-		Here we will try to explain everything Gamocosm does behind the scenes.
-		The source code for Gamocosm is also publically available, so you can see exactly what happens.
-		Gamocosm consists of two key parts: setting up a new server, and starting and stopping existing servers.
-		</p>
-
-		<h4>Setting up a new server</h4>
-		<p>When you create a new cloud server, only the operating system is installed.
-		There's a lot to do to prepare a new server before it's ready to (conveniently) run Minecraft!
-		When you start a new server, Gamocosm performs the following:</p>
-		<ul>
-			<li>
-				Installs Java, a <%= link_to 'Minecraft server wrapper', 'https://github.com/Raekye/minecraft-server_wrapper' %>
-				(to remotely and safely start/stop the actual Minecraft instance), and <%= link_to 'tmux', 'http://tmux.sourceforge.net/' %>
-				(a terminal multiplexer; think having tabs when you SSH into your server)
-			</li>
-			<li>Creates an "mcuser" account (you shouldn't run your Minecraft server as root)</li>
-			<li>Opens iptables ports 5000 (for the Minecraft server wrapper) and 25565 (for the Minecraft instance)</li>
-			<li>Downloads the latest vanilla Minecraft jar</li>
-			<li>Configures <%= link_to 'Supervisor', 'http://supervisord.org/' %> to watch the Minecraft daemon</li>
-		</ul>
-		<p>You can see the code for this in <%= link_to 'setup_server_worker.rb', 'https://github.com/Raekye/Gamocosm/blob/master/app/workers/setup_server_worker.rb' %>.</p>
-
-		<h4>Stopping a server</h4>
-		<ul>
-			<li>Stops the Minecraft instance through the Minecraft server wrapper</li>
-			<li>Sends a Digital Ocean API request to shutdown the droplet, and waits for this to complete</li>
-			<li>Sends a Digital Ocean API request to snapshot the droplet, and waits for this to complete</li>
-			<li>Saves the snapshot id</li>
-			<li>Sends a Digital Ocean API request to destroy the droplet</li>
-		</ul>
-		<p>You can see the code for this starting in <%= link_to 'minecraft_server.rb', 'https://github.com/Raekye/Gamocosm/blob/master/app/models/minecraft_server.rb' %>.</p>
-
-		<h4>Starting a server</h4>
-		<p>If Gamocosm finds a snapshot id for your server (meaning it has already existed),
-		Gamocosm sends a Digital Ocean API request to create a droplet from the snapshot, waits for it to complete,
-		and opens iptables ports 5000 and 25565 (as these are reset when a server is created).
-		Supervisor will start the Minecraft server wrapper on boot, and Gamocosm will tell the wrapper to start the Minecraft instance.</p>
-		<p>If the server is new, Gamocosm will run the setup above and finally tell the wrapper to start the Minecraft instance.</p>
-		<p>You can see the code for this starting in <%= link_to 'minecraft_server.rb', 'https://github.com/Raekye/Gamocosm/blob/master/app/models/minecraft_server.rb' %>.</p>
-
-		<h4>What is the Minecraft server wrapper?</h4>
-		<p>You can view the project and source also on <%= link_to 'GitHub', 'https://github.com/Raekye/minecraft-server_wrapper' %>, but we will summarize it here.
-		The Minecraft server wrapper is a mini HTTP server that provides a REST API for some basic Minecraft server management.
-		This includes starting and stopping a Minecraft server (as used above), monitoring a running server, and editing the <code>server.properties</code> file.
-		You could also do this via <%= link_to 'FTP or SSH', '#TODO' %>.
-		We are looking into supporting <code>ops.txt</code> and <code>white-list.txt</code> but the format is changing due to Mojang/Minecraft's new UUIDs.
-		</p>
 	</div>
 </div>
