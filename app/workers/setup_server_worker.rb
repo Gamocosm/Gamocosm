@@ -18,8 +18,8 @@ class SetupServerWorker
       paranoid: false,
       timeout: 4
     }
-    on host do
-      if droplet.minecraft_server.remote_setup_stage == 0
+    if droplet.minecraft_server.remote_setup_stage == 0
+      on host do
         within '/tmp/' do
           droplet.minecraft_server.update_columns(remote_ssh_setup_stage: 1)
           if test '! id -u mcuser'
@@ -29,7 +29,7 @@ class SetupServerWorker
           execute :usermod, '-aG', 'wheel', 'mcuser'
           droplet.minecraft_server.update_columns(remote_ssh_setup_stage: 2)
           execute :yum, '-y', 'update'
-          execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'supervisor', 'tmux'
+          execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'supervisor', 'tmux', 'iptables-services'
           execute :rm, '-rf', 'pip_build_root'
           execute 'python3-pip', 'install', 'flask'
         end
@@ -61,11 +61,15 @@ class SetupServerWorker
           execute :supervisorctl, 'reread'
           execute :supervisorctl, 'update'
         end
-      end
-      within '/tmp/' do
-        execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '5000', '-j', 'ACCEPT'
-        execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '25565', '-j', 'ACCEPT'
-        execute 'iptables-save'
+        within '/tmp/' do
+          execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '5000', '-j', 'ACCEPT'
+          execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '25565', '-j', 'ACCEPT'
+          execute 'iptables-save'
+          execute :systemctl, 'mask', 'firewalld.service'
+          execute :systemctl, 'enable', 'iptables.service'
+          execute :systemctl, 'enable', 'ip6tables.service'
+          execute :service, 'iptables', 'save'
+        end
       end
     end
     StartServerWorker.perform_in(4.seconds, droplet.minecraft_server_id)

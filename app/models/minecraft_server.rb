@@ -65,6 +65,7 @@ class MinecraftServer < ActiveRecord::Base
     self.create_droplet
     event_id = DigitalOcean::Droplet.new(droplet).create
     if event_id.nil?
+      self.droplet.destroy
       Rails.logger.warn "MC#start: event was nil, MC #{id}"
       return false
     end
