@@ -2,7 +2,7 @@
 	<%= render partial: 'digital_ocean_invalid' %>
 <% end %>
 <div class="row">
-	<div class="col-lg-12">
+	<div class="col-sm-12">
 		<div class="page-header">
 			<h1><%= @server.name %></h1>
 		</div>
@@ -13,7 +13,7 @@
 <% else %>
 	<% if @server.is_owner?(current_user) %>
 		<div class="row">
-			<div class="col-lg-9">
+			<div class="col-sm-9">
 				<ul class="nav nav-tabs">
 					<li class="active"><%= link_to 'Profile', minecraft_server_path(@server, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
 					<li><%= link_to 'Minecraft Settings', minecraft_server_path(@server, anchor: 'settings'), 'data-toggle' => 'tab' %></li>
@@ -34,16 +34,16 @@
 				</div>
 			</div>
 
-			<div class="col-lg-3">
+			<div class="col-sm-3">
 				<%= render partial: 'control_panel' %>
 			</div>
 		</div>
 	<% else %>
 		<div class="row">
-			<div class="col-lg-9">
+			<div class="col-sm-9">
 				<%= render partial: 'profile' %>
 			</div>
-			<div class="col-lg-3">
+			<div class="col-sm-3">
 				<%= render partial: 'control_panel' %>
 			</div>
 		</div>

@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="col-lg-12">
+	<div class="col-sm-12">
 		<div class="jumbotron">
 			<h1>Minecraft for friends.</h1>
 			<p>Gamocosm is a server management tool. It helps you host cloud servers.</p>
@@ -7,42 +7,38 @@
 			<p>Gamocosm is <%= link_to 'Free, Open Source Software', source_path %>.</p>
 			<br />
 			<div class="row">
-				<div class="col-lg-4">
+				<div class="col-sm-4">
 					<p><%= link_to 'Sign up for Gamocosm', new_user_registration_path, class: 'btn btn-primary btn-lg' %></p>
 				</div>
-				<div class="col-lg-4">
+				<div class="col-sm-4">
 					<p><%= link_to 'Learn more', about_path, class: 'btn btn-success btn-lg' %></p>
 				</div>
-				<div class="col-lg-4">
+				<div class="col-sm-4">
 					<p><%= link_to 'See what it looks like', '#demo-servers', class: 'btn btn-primary btn-lg anchor-page' %></p>
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-lg-4"><p>Solid State Drives</p></div>
-				<div class="col-lg-4"><p>64 bit Fedora 20 (Linux)</p></div>
-				<div class="col-lg-4"><p>OpenJDK 7 Java</p></div>
+				<div class="col-sm-4"><p>Solid State Drives</p></div>
+				<div class="col-sm-4"><p>64 bit Fedora 20 (Linux)</p></div>
+				<div class="col-sm-4"><p>OpenJDK 7 Java</p></div>
 			</div>
 			<div class="row">
-				<div class="col-lg-4"><p>Full FTP and SSH access</p></div>
-				<div class="col-lg-4"><p>Gigabit Ethernet</p></div>
-				<div class="col-lg-4"><p>Mods and Plugins</p></div>
+				<div class="col-sm-4"><p>Full FTP and SSH access</p></div>
+				<div class="col-sm-4"><p>Gigabit Ethernet</p></div>
+				<div class="col-sm-4"><p>Mods and Plugins</p></div>
 			</div>
 		</div>
 	</div>
 </div>
-<% if false %>
-<blockquote>
-	<p>If you run your server 24/7, hosting on Gamocosm/Digital Ocean is the same price as other Minecraft hosts.</p>
-	<p>However, on Gamocosm you can stop your server when no-one is online, and you only pay for what you use!</p>
-</blockquote>
-<% end %>
 <div class="row">
 	<h1 class="text-center">Popular Servers</h1>
 	<% @droplet_sizes.each do |x| %>
-		<div class="col-lg-3">
+		<div class="col-sm-3">
 			<%= render partial: 'pages/droplet_size', locals: { droplet_size: x } %>
 		</div>
 	<% end %>
+</div>
+<div class="row">
 	<h3 class="text-muted text-center">You are charged hourly until the monthly max. If you exceed that ammount, you only pay the max.</h3>
 </div>
 <br />
@@ -52,7 +48,7 @@
 	<h1 class="text-center">Demo</h1>
 </div>
 <div class="row">
-	<div class="col-lg-12 well">
+	<div class="col-sm-12 well">
 		<%= render partial: 'pages/screenshot_server_show' %>
 	</div>
 </div>

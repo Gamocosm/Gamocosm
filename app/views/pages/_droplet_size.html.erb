@@ -2,6 +2,6 @@
 	<h3 style="margin-top: 0;"><%= droplet_size[:name] %> RAM</h3>
 	<h4><%= droplet_size[:cpu] %> Core Processor</h4>
 	<h4><%= droplet_size[:disk] %>GB SSD Disk</h4>
-	<h4>Recommended for<br />up to <%= droplet_size[:players] %> players </h4>
-	<h4>Max $<%= droplet_size[:cost_per_month] %>/month</h4>
+	<h4><%= droplet_size[:players] %> recommended players </h4>
+	<h4>$<%= droplet_size[:cost_per_month] %>/month max</h4>
 <% end %>

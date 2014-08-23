@@ -2,7 +2,7 @@
 	<%= render partial: 'digital_ocean_invalid' %>
 <% end %>
 <div class="row">
-	<div class="col-lg-12">
+	<div class="col-sm-12">
 		<div class="page-header">
 			<h1>Servers <small>for <%= current_user.email %></small></h1>
 		</div>
@@ -10,7 +10,7 @@
 </div>
 
 <div class="row">
-	<div class="col-lg-8">
+	<div class="col-sm-8">
 		<table class="table table-striped">
 			<thead>
 				<tr>
@@ -29,7 +29,7 @@
 			</tbody>
 		</table>
 	</div>
-	<div class="col-lg-4">
+	<div class="col-sm-4">
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">New Server</h3>
@@ -50,16 +50,16 @@
 </div>
 
 <div class="row">
-	<div class="col-lg-12">
+	<div class="col-sm-12">
 		<%= panel_with_heading 'Digital Ocean' do %>
 			<div class="row">
-				<div class="col-lg-8 col-lg-offset-2">
+				<div class="col-sm-8 col-sm-offset-2">
 					This information is provided for you to make it easy to monitor your Digital Ocean account.
 					<br />If you see orphaned servers or snapshots, you should log into <%= link_to 'Digital Ocean\'s control panel', digital_ocean_control_panel_path %> and delete them.
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-lg-6">
+				<div class="col-sm-6">
 					<h4>Droplets</h4>
 					<table class="table table-striped">
 						<% if @droplets.blank? %>
@@ -71,7 +71,7 @@
 						<% end %>
 					</table>
 				</div>
-				<div class="col-lg-6">
+				<div class="col-sm-6">
 					<h4>Snapshots</h4>
 					<table class="table table-striped">
 						<% if @snapshots.blank? %>
