@@ -1,2 +1,0 @@
-class DigitalOcean::Sync
-end

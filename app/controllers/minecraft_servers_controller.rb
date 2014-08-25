@@ -192,7 +192,7 @@ class MinecraftServersController < ApplicationController
   end
 
   def minecraft_server_params
-    return params.require(:minecraft_server).permit(:name, :digital_ocean_droplet_size_id, :digital_ocean_droplet_region_id)
+    return params.require(:minecraft_server).permit(:name, :digital_ocean_size_slug, :digital_ocean_region_slug)
   end
 
   def minecraft_server_properties_params

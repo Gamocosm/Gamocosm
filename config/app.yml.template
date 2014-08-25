@@ -6,7 +6,6 @@ default: &default
 
 development:
   <<: *default
-  digital_ocean_client_id: "$digital_ocean_client_id"
   digital_ocean_api_key: "$digital_ocean_api_key"
   digital_ocean_ssh_public_key_path: "$digital_ocean_ssh_public_key_path"
   digital_ocean_ssh_private_key_path: "$digital_ocean_ssh_private_key_path"
@@ -16,7 +15,6 @@ development:
 
 test:
   <<: *default
-  digital_ocean_client_id: "$digital_ocean_client_id"
   digital_ocean_api_key: "$digital_ocean_api_key"
   digital_ocean_ssh_public_key_path: "$digital_ocean_ssh_public_key_path"
   digital_ocean_ssh_private_key_path: "$digital_ocean_ssh_private_key_path"
@@ -26,7 +24,6 @@ test:
 
 production:
   <<: *default
-  digital_ocean_client_id: "$digital_ocean_client_id"
   digital_ocean_api_key: "$digital_ocean_api_key"
   digital_ocean_ssh_public_key_path: "$digital_ocean_ssh_public_key_path"
   digital_ocean_ssh_private_key_path: "$digital_ocean_ssh_private_key_path"

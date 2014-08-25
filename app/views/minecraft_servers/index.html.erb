@@ -37,8 +37,8 @@
 			<div class="panel-body">
 				<%= simple_form_for @server, as: :minecraft_server, url: minecraft_servers_path do |f| %>
 					<%= f.input :name, input_html: { size: 32 } %>
-					<%= f.input :digital_ocean_droplet_size_id, collection: DigitalOcean::DropletSize.new.all.collect { |x| [x[:descriptor], x[:id]] }, as: :select, include_blank: false %>
-					<%= f.input :digital_ocean_droplet_region_id, collection: DigitalOcean::DropletRegion.new.all.collect { |x| [x[:name], x[:id]] }, as: :select, include_blank: false %>
+					<%= f.input :digital_ocean_size_slug, collection: DigitalOcean::DropletSize.new.all.collect { |x| [x[:descriptor], x[:slug]] }, as: :select, include_blank: false %>
+					<%= f.input :digital_ocean_region_slug, collection: DigitalOcean::DropletRegion.new.all.collect { |x| [x[:name], x[:slug]] }, as: :select, include_blank: false %>
 					<%= link_to 'Digital Ocean pricing', digital_ocean_pricing_path %>
 					<button class="btn btn-default pull-right<%= current_user.digital_ocean_invalid? ? 'disabled' : '' %>" type="submit">
 						Next <i class="fa fa-chevron-right"></i>

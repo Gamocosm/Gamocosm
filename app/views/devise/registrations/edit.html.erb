@@ -24,8 +24,7 @@
     <%= f.input :password, autocomplete: "off", hint: "leave it blank if you don't want to change it", required: false %>
     <%= f.input :password_confirmation, required: false %>
 
-    <%= f.input :digital_ocean_client_id, input_html: { size: 36 } %>
-    <%= f.input :digital_ocean_api_key, input_html: { size: 36 } %>
+    <%= f.input :digital_ocean_api_key, label: 'Digital Ocean Access Token', input_html: { size: 36 } %>
 
     <%= f.input :current_password, hint: "we need your current password to confirm your changes", required: true %>
   </div>
@@ -47,9 +46,10 @@
       <li>Click on Billing</li>
       <li>Click on Manage Payments</li>
       <li>Add billing information for Digital Ocean</li>
-      <li>Click on API</li>
-      <li>Click on Generate New Key</li>
-      <li>Copy the Client ID and API Key here</li>
+      <li>Click on Apps &amp; API</li>
+      <li>Under "Personal Access Tokens", click "Generate new token"</li>
+      <li>Check both "Read" and "Write" for the scope of the token, and click "Generate Token"</li>
+      <li>Copy the token and save it here</li>
     </ol>
   </div>
   <div class="col-sm-4">

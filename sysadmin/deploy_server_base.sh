@@ -76,8 +76,7 @@ echo "Generated devise secret key $DEVISE_SECRET_KEY"
 PRODUCTION_SECRET_KEY="$(su - http -c "cd $(pwd) && bundle exec rake secret")"
 echo "Generated secret key base $PRODUCTION_SECRET_KEY"
 read -p "Enter gamocosm database password: " GAMOCOSM_DATABASE_PASSWORD
-read -p "Enter digital ocean client id: " DIGITAL_OCEAN_CLIENT_ID
-read -p "Enter digital ocean api key: " DIGITAL_OCEAN_API_KEY
+read -p "Enter digital ocean access token: " DIGITAL_OCEAN_API_KEY
 DIGITAL_OCEAN_PUBLIC_KEY_PATH="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm\\.pub"
 echo "Found public key path $DIGITAL_OCEAN_PUBLIC_KEY_PATH"
 DIGITAL_OCEAN_PRIVATE_KEY_PATH="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm"
@@ -90,7 +89,6 @@ cp config/app.yml.template config/app.yml
 sed -i "s/\$devise_secret_key/$DEVISE_SECRET_KEY/" config/app.yml
 sed -i "s/\$secret_key_base/$PRODUCTION_SECRET_KEY/" config/app.yml
 sed -i "s/\$gamocosm_database_password/$GAMOCOSM_DATABASE_PASSWORD/" config/app.yml
-sed -i "s/\$digital_ocean_client_id/$DIGITAL_OCEAN_CLIENT_ID/" config/app.yml
 sed -i "s/\$digital_ocean_api_key/$DIGITAL_OCEAN_API_KEY/" config/app.yml
 sed -i "s/\$digital_ocean_ssh_public_key_path/$DIGITAL_OCEAN_PUBLIC_KEY_PATH/" config/app.yml
 sed -i "s/\$digital_ocean_ssh_private_key_path/$DIGITAL_OCEAN_PRIVATE_KEY_PATH/" config/app.yml

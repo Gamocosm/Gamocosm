@@ -11,20 +11,20 @@ class WaitForStoppingServerWorker
       raise "Error getting digital ocean for user #{user_id}"
     end
     droplet = Droplet.find(droplet_id)
-    event = DigitalOcean::Event.new(digital_ocean_event_id, user)
+    event = DigitalOcean::DropletAction.new(droplet.remote_id, digital_ocean_event_id, user)
     if event.has_error?
       raise "Error getting digital ocean event #{digital_ocean_event_id}, #{event}"
     end
     if event.is_done?
-      response = user.digital_ocean.droplets.snapshot(droplet.remote_id, name: droplet.host_name)
-      if response.status != 'OK'
+      response = user.digital_ocean.droplet.snapshot(droplet.remote_id, name: droplet.host_name)
+      if !response.success?
         raise "Error making snapshot for server #{droplet.minecraft_server_id} on droplet #{droplet_id}, response was #{response}"
       end
       if !droplet.remote.sync
         raise "Error syncing droplet #{droplet.id}"
       end
-      droplet.minecraft_server.update_columns(pending_operation: 'saving', digital_ocean_pending_event_id: response.event_id)
-      WaitForSnapshottingServerWorker.perform_in(4.seconds, user_id, droplet_id, response.event_id)
+      droplet.minecraft_server.update_columns(pending_operation: 'saving', digital_ocean_pending_event_id: response.action.id)
+      WaitForSnapshottingServerWorker.perform_in(4.seconds, user_id, droplet_id, response.action.id)
     else
       WaitForStoppingServerWorker.perform_in(4.seconds, user_id, droplet_id, digital_ocean_event_id)
     end

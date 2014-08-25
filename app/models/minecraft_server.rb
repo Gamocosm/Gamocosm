@@ -2,20 +2,20 @@
 #
 # Table name: minecraft_servers
 #
-#  id                              :uuid             not null, primary key
-#  user_id                         :integer
-#  name                            :string(255)
-#  saved_snapshot_id               :integer
-#  pending_operation               :string(255)
-#  created_at                      :datetime
-#  updated_at                      :datetime
-#  digital_ocean_droplet_size_id   :integer
-#  should_destroy                  :boolean          default(FALSE), not null
-#  remote_setup_stage              :integer          default(0)
-#  minecraft_wrapper_password      :string(255)
-#  digital_ocean_droplet_region_id :integer
-#  remote_ssh_setup_stage          :integer          default(0), not null
-#  digital_ocean_pending_event_id  :integer
+#  id                             :uuid             not null, primary key
+#  user_id                        :integer
+#  name                           :string(255)
+#  saved_snapshot_id              :integer
+#  pending_operation              :string(255)
+#  created_at                     :datetime
+#  updated_at                     :datetime
+#  should_destroy                 :boolean          default(FALSE), not null
+#  remote_setup_stage             :integer          default(0)
+#  minecraft_wrapper_password     :string(255)
+#  remote_ssh_setup_stage         :integer          default(0), not null
+#  digital_ocean_pending_event_id :integer
+#  digital_ocean_region_slug      :string(255)
+#  digital_ocean_size_slug        :string(255)
 #
 
 class MinecraftServer < ActiveRecord::Base
@@ -129,7 +129,7 @@ class MinecraftServer < ActiveRecord::Base
   end
 
   def ram
-    droplet_size = DigitalOcean::DropletSize.new.find(digital_ocean_droplet_size_id)
+    droplet_size = DigitalOcean::DropletSize.new.find(digital_ocean_size_slug)
     if droplet_size.nil?
       Rails.logger.warn "MC#ram: droplet size was nil, MC #{id}"
       return 512
@@ -177,7 +177,7 @@ class MinecraftServer < ActiveRecord::Base
     if digital_ocean_pending_event_id.nil?
       return nil
     end
-    event = DigitalOcean::Event.new(digital_ocean_pending_event_id, user)
+    event = DigitalOcean::DropletAction.new(droplet.remote_id, digital_ocean_pending_event_id, user)
     if event.has_error?
       Rails.logger.warn "MC#digital_ocean_event: event #{event.show}, MC #{id}, DO event #{digital_ocean_pending_event_id}"
       return false

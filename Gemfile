@@ -44,7 +44,7 @@ gem 'econfig', :require => 'econfig/rails'
 gem 'sidekiq'
 gem 'bootstrap-sass', '~> 3.1.1'
 gem 'annotate'
-gem 'digital_ocean'
+gem 'barge'
 gem 'httparty'
 gem 'sinatra', :require => nil
 gem 'font-awesome-sass'
