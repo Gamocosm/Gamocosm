@@ -7,14 +7,8 @@
 			<p>Gamocosm is <%= link_to 'Free, Open Source Software', source_path %>.</p>
 			<br />
 			<div class="row">
-				<div class="col-sm-4">
+				<div class="col-sm-4 col-sm-offset-4">
 					<p><%= link_to 'Sign up for Gamocosm', new_user_registration_path, class: 'btn btn-primary btn-lg' %></p>
-				</div>
-				<div class="col-sm-4">
-					<p><%= link_to 'Learn more', about_path, class: 'btn btn-success btn-lg' %></p>
-				</div>
-				<div class="col-sm-4">
-					<p><%= link_to 'See what it looks like', '#demo-servers', class: 'btn btn-primary btn-lg anchor-page' %></p>
 				</div>
 			</div>
 			<div class="row">
@@ -31,21 +25,20 @@
 	</div>
 </div>
 <div class="row">
-	<h1 class="text-center">Popular Servers</h1>
-	<% @droplet_sizes.each do |x| %>
-		<div class="col-sm-3">
-			<%= render partial: 'pages/droplet_size', locals: { droplet_size: x } %>
-		</div>
-	<% end %>
+	<h1 class="text-center">1. Sign up on Digital Ocean</h1>
+	<p>
+		Digital Ocean is the cloud hosting provider.
+	</p>
 </div>
 <div class="row">
-	<h3 class="text-muted text-center">You are charged hourly up to a monthly maximum.</h3>
+	<h1 class="text-center">2. Setup your account</h1>
+	<p>
+		Allow us to automate your servers on Digital Ocean.
+	</p>
 </div>
 <br />
-<br />
-<br />
 <div id="demo-servers" class="row">
-	<h1 class="text-center">Demo</h1>
+	<h1 class="text-center">3. Play!</h1>
 </div>
 <div class="row">
 	<div class="col-sm-12 well">

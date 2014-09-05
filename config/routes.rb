@@ -42,9 +42,11 @@ Rails.application.routes.draw do
       get 'resume'
       get 'backup'
       get 'download'
+      get 'reboot'
       put 'update_properties'
       post 'add_friend'
       post 'remove_friend'
+      put 'advanced'
     end
   end
 

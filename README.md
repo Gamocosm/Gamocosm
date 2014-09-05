@@ -33,8 +33,7 @@ This is for Econfig. Values added here are available in ruby from `Gamocosm.foo`
 - `minecraft_wrapper_username`: username used for HTTP basic auth when communicating with the Minecraft server wrapper
 - `digital_ocean_base_snapshot_id`: Digital Ocean image for new servers (default: Fedora 20 x64)
 - `digital_ocean_referral_link`: help pay for server costs :)
-- `digital_ocean_client_id`: your Digital Ocean client id. Used for general queries (e.g. available regions) and development/test user
-- `digital_ocean_api_key`: your Digital Ocean api key
+- `digital_ocean_api_key`: your Digital Ocean api token
 - `digital_ocean_ssh_public_key_path`: ssh key to be added to new servers to SSH into
 - `digital_ocean_ssh_private_key_path`: see above
 - `digital_ocean_ssh_private_key_passphrase`: see above
@@ -63,7 +62,7 @@ Depending on what method you want to use, add the following under the line that 
 You could replace "gamocosm" under the "user" column with "all".
 
 ##### Other useful stuff
-- Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean client id and api key from `config/app.yml`
+- Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `config/app.yml`
 - The Sidekiq web interface is mounted at `/sidekiq`
 - Run the console: `bundle exec rails c`
 - Reset the database: `bundle exec rake db:reset`

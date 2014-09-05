@@ -151,6 +151,14 @@ class MinecraftServersController < ApplicationController
     return redirect_to minecraft_server_path(@server), notice: 'Unable to delete server'
   end
 
+  def reboot
+    @server = find_minecraft_server(params[:id])
+    if @server.droplet.remote.reboot
+      return redirect_to minecraft_server_path(@server), notice: 'Server is rebooting'
+    end
+    return redirect_to minecraft_server_path(@sever), notice: 'Unable to reboot server'
+  end
+
   def add_friend
     @server = find_minecraft_server_only_owner(params[:id])
     email = minecraft_server_friend_params[:email]
@@ -177,6 +185,14 @@ class MinecraftServersController < ApplicationController
     end
     @server.friends.destroy(friend)
     return redirect_to minecraft_server_path(@server), notice: "User #{email} removed from the server"
+  end
+
+  def advanced
+    @server = find_minecraft_server_only_owner(params[:id])
+    if @server.update_attributes(minecraft_server_advanced_params)
+      return redirect_to minecraft_server_path(@server), notice: 'Server advanced configuration updated'
+    end
+    return redirect_to minecraft_server_path(@server), error: 'Unable to update server\'s advanced configuration'
   end
 
   def find_minecraft_server(id)
@@ -225,5 +241,9 @@ class MinecraftServersController < ApplicationController
 
   def minecraft_server_friend_params
     return params.require(:minecraft_server_friend).permit(:email)
+  end
+
+  def minecraft_server_advanced_params
+    return params.require(:minecraft_server).permit(:saved_snapshot_id, :digital_ocean_region_slug, :digital_ocean_size_slug)
   end
 end

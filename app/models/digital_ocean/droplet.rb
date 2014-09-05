@@ -42,7 +42,11 @@ class DigitalOcean::Droplet
     response = connection.droplet.create(params)
     if response.success?
       @local_droplet.update_columns(remote_id: response.droplet.id)
-      return response.droplet.action_ids[-1]
+      response = connection.droplet.actions(response.droplet.id)
+      if response.success?
+        return response.actions[-1].id
+      end
+      Rails.logger.error "DO::Droplet#create: response #{response}, params #{params}, MC #{@local_droplet.minecraft_server_id}, droplet #{@local_droplet.id}"
     end
     Rails.logger.error "DO::Droplet#create: response #{response}, params #{params}, MC #{@local_droplet.minecraft_server_id}, droplet #{@local_droplet.id}"
     return nil
@@ -92,6 +96,15 @@ class DigitalOcean::Droplet
     end
     Rails.logger.warn "DO::Droplet#sync: response #{response}, MC #{@local_droplet.minecraft_server_id}, droplet #{@local_droplet.id}"
     return false
+  end
+
+  def reboot
+    connection = @local_droplet.minecraft_server.user.digital_ocean
+    if connection.nil?
+      return false
+    end
+    response = connection.droplet.reboot(@local_droplet.remote_id)
+    return response.success?
   end
 
   # having snapshot and snapshots is asking for badness

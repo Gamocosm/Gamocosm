@@ -50,6 +50,9 @@ class SetupServerWorker
             execute :rm, '-f', 'minecraft_server-run.jar'
             execute :wget, '-O', 'minecraft_server-run.jar', Gamocosm.minecraft_jar_default_url
             execute :chown, 'mcuser:mcuser', 'minecraft_server-run.jar'
+
+            execute :echo, 'eula=true', '>', 'eula.txt'
+            execute :chown, 'mcuser:mcuser', 'eula.txt'
           end
         end
         droplet.minecraft_server.update_columns(remote_ssh_setup_stage: 4)

@@ -10,8 +10,8 @@ gem install passenger
 
 passenger-install-nginx-module
 
-wget -O /etc/systemd/system/nginx.service https://raw.githubusercontent.com/Raekye/Gamocosm/master/sysadmin/nginx.service
-wget -O /etc/systemd/system/gamocosm-sidekiq.service https://raw.githubusercontent.com/Raekye/Gamocosm/master/sysadmin/sidekiq.service
+wget -O /etc/systemd/system/nginx.service https://raw.githubusercontent.com/Raekye/Gamocosm/release/sysadmin/nginx.service
+wget -O /etc/systemd/system/gamocosm-sidekiq.service https://raw.githubusercontent.com/Raekye/Gamocosm/release/sysadmin/sidekiq.service
 
 sed -i "1s/^/user http;\\n/" /opt/nginx/conf/nginx.conf
 sed -i "$ s/}/include \\/opt\\/nginx\\/sites-enabled\\/\\*.conf;\\n}/" /opt/nginx/conf/nginx.conf
@@ -20,7 +20,7 @@ sed -i "0,/listen[[:space:]]*80;/{s/80/8000/}" /opt/nginx/conf/nginx.conf
 mkdir /opt/nginx/sites-enabled;
 mkdir /opt/nginx/sites-available;
 
-wget -O /opt/nginx/sites-available/gamocosm.conf https://raw.githubusercontent.com/Raekye/Gamocosm/master/sysadmin/nginx.conf
+wget -O /opt/nginx/sites-available/gamocosm.conf https://raw.githubusercontent.com/Raekye/Gamocosm/release/sysadmin/nginx.conf
 ln -s /opt/nginx/sites-available/gamocosm.conf /opt/nginx/sites-enabled/gamocosm.conf
 
 systemctl enable nginx
@@ -62,7 +62,7 @@ mkdir /var/www
 cd /var/www
 git clone https://github.com/Raekye/Gamocosm.git gamocosm
 cd gamocosm
-git checkout master
+git checkout release
 cp config/app.yml.template config/app.yml
 mkdir tmp
 touch tmp/restart.txt
@@ -109,4 +109,3 @@ systemctl start gamocosm-sidekiq
 echo "Done!"
 
 # - scripts for: update, assets, restart
-# - release branch

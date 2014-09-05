@@ -4,7 +4,7 @@ set -e
 
 cd /var/www/gamocosm
 
-git pull origin master
+git pull origin release
 
 RAILS_ENV=production bundle exec rake assets:precompile
 
