@@ -97,6 +97,19 @@ class MinecraftServer < ActiveRecord::Base
     return true
   end
 
+  def reboot
+    if user.digital_ocean_invalid?
+      return false
+    end
+    event_id = droplet.remote.reboot
+    if event_id.nil?
+      return false
+    end
+    self.update_columns(pending_operation: 'rebooting', digital_ocean_pending_event_id: event_id)
+    WaitForStartingServer.perform_in(4.seconds, user_id, droplet.id, event_id)
+    return true
+  end
+
   def destroy_remote
     if droplet.nil?
       return true

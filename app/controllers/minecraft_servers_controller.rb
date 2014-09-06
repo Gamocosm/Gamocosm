@@ -153,7 +153,7 @@ class MinecraftServersController < ApplicationController
 
   def reboot
     @server = find_minecraft_server(params[:id])
-    if @server.droplet.remote.reboot
+    if @server.reboot
       return redirect_to minecraft_server_path(@server), notice: 'Server is rebooting'
     end
     return redirect_to minecraft_server_path(@sever), notice: 'Unable to reboot server'

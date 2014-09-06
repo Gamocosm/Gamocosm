@@ -6,13 +6,6 @@
 		<% else %>
 			This should take about a minute.
 		<% end %>
-		<br />
-		Digital Ocean status:
-		<% if @server.digital_ocean_event.try(:percentage).nil? %>
-			0%
-		<% else %>
-			<%= @server.digital_ocean_event.percentage %>%
-		<% end %>
 	<% elsif @server.pending_operation == 'preparing' %>
 		<% if @server.remote_setup_stage == 0 %>
 			Your server is being set up.
@@ -40,23 +33,12 @@
 	<% elsif @server.pending_operation == 'stopping' %>
 		Your server is stopping.
 		This should take about 15 seconds.
-		<br />
-		Digital Ocean status:
-		<% if @server.digital_ocean_event.try(:percentage).nil? %>
-			0%
-		<% else %>
-			<%= @server.digital_ocean_event.percentage %>%
-		<% end %>
 	<% elsif @server.pending_operation == 'saving' %>
 		Your server is being backed up.
 		This should take about a minute.
-		<br />
-		Digital Ocean status:
-		<% if @server.digital_ocean_event.try(:percentage).nil? %>
-			0%
-		<% else %>
-			<%= @server.digital_ocean_event.percentage %>%
-		<% end %>
+	<% elsif @server.pending_operation == 'rebooting' %>
+		Your server is being rebooted.
+		This should only take a few seconds.
 	<% end %>
 	<hr />
 	<%= link_to 'Delete', minecraft_server_path(@server), method: :delete, class: 'btn btn-danger' %>

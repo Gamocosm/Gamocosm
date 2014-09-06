@@ -101,10 +101,13 @@ class DigitalOcean::Droplet
   def reboot
     connection = @local_droplet.minecraft_server.user.digital_ocean
     if connection.nil?
-      return false
+      return nil
     end
     response = connection.droplet.reboot(@local_droplet.remote_id)
-    return response.success?
+    if !response.success?
+      return nil
+    end
+    return response.action.id
   end
 
   # having snapshot and snapshots is asking for badness

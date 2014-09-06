@@ -28,10 +28,6 @@ class DigitalOcean::DropletAction
     return @response.action.status == 'completed'
   end
 
-  def percentage
-    return 50 # TODO
-  end
-
   def show
     return "#{@response}"
   end
