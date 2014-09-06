@@ -130,7 +130,11 @@ class DigitalOcean::Droplet
     if connection.nil?
       return false
     end
-    list_snapshots.each do |x|
+    snapshots = list_snapshots
+    if snapshots.nil?
+      return false
+    end
+    snapshots.each do |x|
       connection.image.destroy(x.id)
     end
     response = connection.droplet.destroy(@local_droplet.remote_id)

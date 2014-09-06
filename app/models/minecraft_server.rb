@@ -35,6 +35,7 @@ class MinecraftServer < ActiveRecord::Base
 
   def before_validate_callback
     self.name = self.name.downcase
+    self.pending_operation = self.pending_operation.blank? ? nil : self.pending_operation
   end
 
   def droplet_running?

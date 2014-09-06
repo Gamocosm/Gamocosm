@@ -195,6 +195,15 @@ class MinecraftServersController < ApplicationController
     return redirect_to minecraft_server_path(@server), error: 'Unable to update server\'s advanced configuration'
   end
 
+  def destroy_droplet
+    @server = find_minecraft_server_only_owner(params[:id])
+    if @server.droplet.nil?
+      @server.droplet.destroy_remote
+      @server.destroy_droplet
+    end
+    return redirect_to minecraft_server_path(@server), notice: 'Droplet destroyed'
+  end
+
   def find_minecraft_server(id)
     server = MinecraftServer.find(id)
     if server.is_owner?(current_user) || server.is_friend?(current_user)
@@ -246,6 +255,7 @@ class MinecraftServersController < ApplicationController
   def minecraft_server_advanced_params
     return params.require(:minecraft_server).permit(:saved_snapshot_id,
       :remote_setup_stage,
+      :pending_operation,
       :digital_ocean_region_slug,
       :digital_ocean_size_slug)
   end

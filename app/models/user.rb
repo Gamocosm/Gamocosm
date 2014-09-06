@@ -36,9 +36,10 @@ class User < ActiveRecord::Base
     if @digital_ocean_invalid.nil?
       if digital_ocean_missing?
         @digital_ocean_invalid = true
+      else
+        @digital_ocean_droplets = digital_ocean.droplet.all
+        @digital_ocean_invalid = !@digital_ocean_droplets.success?
       end
-      @digital_ocean_droplets = digital_ocean.droplet.all
-      @digital_ocean_invalid = !@digital_ocean_droplets.success?
     end
     return @digital_ocean_invalid
   end

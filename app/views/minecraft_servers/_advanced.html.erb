@@ -3,8 +3,10 @@
 	<%= panel_with_heading 'Advanced Configuration' do %>
 		<%= f.input :saved_snapshot_id %>
 		<%= f.input :remote_setup_stage %>
+		<%= f.input :pending_operation %>
 		<%= f.input :digital_ocean_region_slug %>
 		<%= f.input :digital_ocean_size_slug %>
 		<%= f.button :submit, 'Update', class: 'btn btn-success' %>
+		<%= link_to 'Destroy Droplet', destroy_droplet_minecraft_server_path(@server), method: :delete, class: "btn btn-warning pull-right #{@server.droplet.nil? ? 'disabled' : ''}" %>
 	<% end %>
 <% end %>
