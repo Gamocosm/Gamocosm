@@ -1,5 +1,5 @@
 default: &default
-  minecraft_jar_default_url: "https://s3.amazonaws.com/Minecraft.Download/versions/1.7.9/minecraft_server.1.7.9.jar"
+  minecraft_jar_default_url: "https://s3.amazonaws.com/Minecraft.Download/versions/1.8/minecraft_server.1.8.jar"
   minecraft_wrapper_username: "gamocosm-mothership"
   digital_ocean_base_snapshot_id: "3243145"
   digital_ocean_referral_link: "https://www.digitalocean.com/?refcode=758af342c81e"

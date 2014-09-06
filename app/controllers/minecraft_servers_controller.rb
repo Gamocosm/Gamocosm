@@ -197,9 +197,9 @@ class MinecraftServersController < ApplicationController
 
   def destroy_droplet
     @server = find_minecraft_server_only_owner(params[:id])
-    if @server.droplet.nil?
-      @server.droplet.destroy_remote
-      @server.destroy_droplet
+    if !@server.droplet.nil?
+      @server.destroy_remote
+      @server.droplet.delete
     end
     return redirect_to minecraft_server_path(@server), notice: 'Droplet destroyed'
   end

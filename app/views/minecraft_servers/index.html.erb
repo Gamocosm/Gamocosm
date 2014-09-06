@@ -78,7 +78,10 @@
 							<tr><td><em>You have no snapshots on Digital Ocean</em></td></tr>
 						<% else %>
 							<% @snapshots.each do |x| %>
-								<tr><td><%= x.name %></td></tr>
+								<tr>
+									<td><%= x.name %></td>
+									<td class="text-right"><%= x.id %></td>
+								</tr>
 							<% end %>
 						<% end %>
 					</table>

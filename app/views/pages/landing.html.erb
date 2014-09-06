@@ -4,6 +4,8 @@
 			<h1>Gamocosm</h1>
 			<p>An <%= link_to 'open source', source_path %> project to help you host cloud Minecraft servers.</p>
 			<p>Cloud servers are charged by the hour. Why pay 24/7 when you only play with your friends?</p>
+			<br />
+			<p class="text-center"><%= link_to 'Friend of someone hosting a server? Sign up here!', new_user_registration_path, class: 'btn-lg btn-success' %></p>
 		</div>
 	</div>
 </div>
@@ -12,7 +14,7 @@
 		<h1 class="text-center">1. Sign up on <%= link_to 'Digital Ocean', digital_ocean_index_path %></h1>
 		<h3 class="text-center">Digital Ocean is a cloud hosting provider</h3>
 		<div class="text-center">
-			<%= image_tag 'digital_ocean-screenshot.png', size: '600x375', alt: 'Digital Ocean' %>
+			<%= image_tag 'digital_ocean-screenshot.png', size: '600x375', alt: 'Digital Ocean', class: 'img-thumbnail' %>
 		</div>
 	</div>
 	<div class="col-sm-6">
@@ -27,7 +29,7 @@
 						<%= f.input :email, required: true, autofocus: true %>
 						<%= f.input :password, required: true %>
 						<%= f.input :password_confirmation, required: true %>
-						<%= f.input :digital_ocean_api_key %>
+						<%= f.input :digital_ocean_api_key, hint: 'Only required for server admins' %>
 					</div>
 
 					<div class="form-actions">

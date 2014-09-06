@@ -36,6 +36,9 @@ class MinecraftServer < ActiveRecord::Base
   def before_validate_callback
     self.name = self.name.downcase
     self.pending_operation = self.pending_operation.blank? ? nil : self.pending_operation
+    self.saved_snapshot_id = self.saved_snapshot_id.nil? ? nil : self.saved_snapshot_id
+    self.digital_ocean_region_slug = self.digital_ocean_region_slug.blank? ? nil: self.digital_ocean_region_slug
+    self.digital_ocean_size_slug = self.digital_ocean_size_slug.blank? ? nil : self.digital_ocean_size_slug
   end
 
   def droplet_running?
@@ -107,7 +110,7 @@ class MinecraftServer < ActiveRecord::Base
       return false
     end
     self.update_columns(pending_operation: 'rebooting', digital_ocean_pending_event_id: event_id)
-    WaitForStartingServer.perform_in(4.seconds, user_id, droplet.id, event_id)
+    WaitForStartingServerWorker.perform_in(4.seconds, user_id, droplet.id, event_id)
     return true
   end
 

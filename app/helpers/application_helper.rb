@@ -21,7 +21,7 @@ module ApplicationHelper
   end
 
   def render_server_status(server)
-    if !server.pending_operation
+    if server.pending_operation
       return server.pending_operation
     end
     if server.droplet_running?

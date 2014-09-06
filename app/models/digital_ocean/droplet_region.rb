@@ -9,7 +9,7 @@ class DigitalOcean::DropletRegion
         connection = DigitalOcean::Connection.new(Gamocosm.digital_ocean_api_key).request
         response = connection.region.all
         if response.success?
-          @all = response.regions.map { |x| { name: x.name, slug: x.slug } }
+          @all = response.regions.select { |x| x.available }.map { |x| { name: x.name, slug: x.slug } }
         end
       rescue
       end

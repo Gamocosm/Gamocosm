@@ -100,7 +100,7 @@ class User < ActiveRecord::Base
     if public_key.nil?
       raise "Unable to get gamocosm ssh key"
     end
-    response = digital_ocean.ssh_keys.add(name: 'gamocosm', public_key: public_key)
+    response = digital_ocean.key.create(name: 'gamocosm', public_key: public_key)
     if response.success?
       return response.ssh_key.id
     end
