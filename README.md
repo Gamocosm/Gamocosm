@@ -72,8 +72,8 @@ You could replace "gamocosm" under the "user" column with "all".
 - List of `rake db` commands: [Stack Overflow][3]
 
 ### Credits
-- Special thanks to [drchiu][2] who helped with the original development
+- Special thanks to [geetfun][2] who helped with the original development
 
 [1]: http://www.postgresql.org/docs/9.3/static/auth-pg-hba-conf.html
-[2]: https://github.com/drchiu
+[2]: https://github.com/geetfun
 [3]: http://stackoverflow.com/questions/10301794/

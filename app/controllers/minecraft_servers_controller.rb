@@ -244,6 +244,9 @@ class MinecraftServersController < ApplicationController
   end
 
   def minecraft_server_advanced_params
-    return params.require(:minecraft_server).permit(:saved_snapshot_id, :digital_ocean_region_slug, :digital_ocean_size_slug)
+    return params.require(:minecraft_server).permit(:saved_snapshot_id,
+      :remote_setup_stage,
+      :digital_ocean_region_slug,
+      :digital_ocean_size_slug)
   end
 end

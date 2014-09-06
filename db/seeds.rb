@@ -10,6 +10,5 @@ user = User.new
 user.email = 'test@test.com'
 user.password = '1234test'
 user.password_confirmation = '1234test'
-user.digital_ocean_client_id = Gamocosm.digital_ocean_client_id
 user.digital_ocean_api_key = Gamocosm.digital_ocean_api_key
 user.save!
