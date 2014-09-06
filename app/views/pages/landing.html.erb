@@ -10,14 +10,14 @@
 	</div>
 </div>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-lg-6">
 		<h1 class="text-center">1. Sign up on <%= link_to 'Digital Ocean', digital_ocean_index_path %></h1>
 		<h3 class="text-center">Digital Ocean is a cloud hosting provider</h3>
 		<div class="text-center">
-			<%= image_tag 'digital_ocean-screenshot.png', size: '600x375', alt: 'Digital Ocean', class: 'img-thumbnail' %>
+			<%= link_to image_tag('digital_ocean-screenshot.png', size: '600x375', alt: 'Digital Ocean', class: 'img-thumbnail'), digital_ocean_index_path %>
 		</div>
 	</div>
-	<div class="col-sm-6">
+	<div class="col-lg-6">
 		<h1 class="text-center">2. Setup your account</h1>
 		<h3 class="text-center">Allow us to automate your servers</h3>
 		<div class="row">
@@ -30,6 +30,9 @@
 						<%= f.input :password, required: true %>
 						<%= f.input :password_confirmation, required: true %>
 						<%= f.input :digital_ocean_api_key, hint: 'Only required for server admins' %>
+						<label>
+							By clicking 'Sign up', you agree to our <%= link_to 'Terms of Service', :tos %>.
+						</label>
 					</div>
 
 					<div class="form-actions">
@@ -45,8 +48,9 @@
 	<h1 class="text-center">3. Play!</h1>
 </div>
 <div class="row">
-	<div class="col-sm-12 well">
+	<div class="col-sm-12">
 		<%= render partial: 'pages/screenshot_server_show' %>
 	</div>
 </div>
 <br />
+<!--<a href="https://github.com/you"><img style="position: fixed; top: 0; right: 0; border: 0; z-index: 9999;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>-->

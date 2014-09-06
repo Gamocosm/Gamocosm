@@ -6,9 +6,12 @@ Rails.application.routes.draw do
 
   get '/help', to: 'pages#help', as: :help
 
+  get '/tos', to: 'pages#tos', as: :tos
+
   match '/wiki' => redirect('https://github.com/Raekye/Gamocosm/wiki'), as: :wiki, via: :get
   match '/issues' => redirect('https://github.com/Raekye/Gamocosm/issues'), as: :issues, via: :get
   match '/source' => redirect('https://github.com/Raekye/Gamocosm'), as: :source, via: :get
+  match '/license' => redirect('https://github.com/Raekye/Gamocosm/blob/master/LICENSE'), as: :license, via: :get
 
   scope '/wiki' do
     match '/ftp' => redirect('https://github.com/Raekye/Gamocosm/wiki/How-to-FTP'), as: :wiki_ftp, via: :get

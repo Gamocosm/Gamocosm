@@ -1,9 +1,9 @@
-<div id="demo-server_show" class="row">
+<!--<div id="demo-server_show" class="row">
 	<div class="col-sm-12">
 		<h1>terrafirmacraft</h1>
 	</div>
 </div>
-<br />
+<br />-->
 <div class="row">
 	<div class="col-sm-9">
 		<ul class="nav nav-tabs">
@@ -12,6 +12,8 @@
 			<li><a data-toggle="tab" href="#settings">Minecraft Settings</a>
 			</li>
 			<li><a data-toggle="tab" href="#ftp_ssh">FTP and SSH Access</a>
+			</li>
+			<li><a data-toggle="tab" href="#advanced">Advanced</a>
 			</li>
 		</ul>
 
@@ -50,7 +52,7 @@
 								<table class="table table-striped">
 									<tbody>
 										<tr>
-											<td colspan="2"><em>Add friends to your server to give them access to start and stop it when you're offline.</em>
+											<td colspan="2"><em>Tell your friends to sign up and add them to your server to let them start and stop it when you're offline.</em>
 											</td>
 										</tr>
 									</tbody>
@@ -272,6 +274,55 @@
 						</ol>
 					</div>
 				</div>
+			</div>
+			<div class="tab-pane" id="advanced">
+				<br />
+				<form accept-charset="UTF-8" action="/servers/376d4976-9714-4d08-9f34-af8b05f4f397/advanced" class="simple_form edit_minecraft_server" id="edit_minecraft_server_376d4976-9714-4d08-9f34-af8b05f4f397" method="post" novalidate="novalidate">
+					<div style="display:none">
+						<input name="utf8" type="hidden" value="&#x2713;" />
+						<input name="_method" type="hidden" value="put" />
+						<input name="authenticity_token" type="hidden" value="Y94CO0QG42tf++EsedmVQd6QV0Mw8+nOGvBGxzBhekk=" />
+					</div>
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Advanced Configuration</h3>
+						</div>
+						<div class="panel-body">
+							<div class="form-group integer optional minecraft_server_saved_snapshot_id">
+								<label class="integer optional control-label" for="minecraft_server_saved_snapshot_id">Saved snapshot</label>
+								<div>
+									<input class="numeric integer optional form-control" id="minecraft_server_saved_snapshot_id" name="minecraft_server[saved_snapshot_id]" step="1" type="number" value="12345678" />
+								</div>
+							</div>
+							<div class="form-group integer optional minecraft_server_remote_setup_stage">
+								<label class="integer optional control-label" for="minecraft_server_remote_setup_stage">Remote setup stage</label>
+								<div>
+									<input class="numeric integer optional form-control" id="minecraft_server_remote_setup_stage" name="minecraft_server[remote_setup_stage]" step="1" type="number" value="1" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_pending_operation">
+								<label class="string optional control-label" for="minecraft_server_pending_operation">Pending operation</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_pending_operation" name="minecraft_server[pending_operation]" type="text" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_digital_ocean_region_slug">
+								<label class="string optional control-label" for="minecraft_server_digital_ocean_region_slug">Digital ocean region slug</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_digital_ocean_region_slug" name="minecraft_server[digital_ocean_region_slug]" type="text" value="nyc3" />
+								</div>
+							</div>
+							<div class="form-group string optional minecraft_server_digital_ocean_size_slug">
+								<label class="string optional control-label" for="minecraft_server_digital_ocean_size_slug">Digital ocean size slug</label>
+								<div>
+									<input class="string optional form-control" id="minecraft_server_digital_ocean_size_slug" name="minecraft_server[digital_ocean_size_slug]" type="text" value="1gb" />
+								</div>
+							</div>
+							<input class="btn btn-default btn btn-success" name="commit" type="submit" value="Update" />
+							<a class="btn btn-warning pull-right">Destroy Droplet</a>
+						</div>
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>

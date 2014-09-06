@@ -17,7 +17,7 @@
 				<table class="table table-striped">
 					<tbody>
 						<% if @server.friends.blank? %>
-							<tr><td colspan="2"><em>Add friends to your server to give them access to start and stop it when you're offline.</em></td></tr>
+							<tr><td colspan="2"><em>Tell your friends to sign up and add them to your server to let them start and stop it when you're offline.</em></td></tr>
 						<% else %>
 							<%= render partial: 'minecraft_servers/friend', collection: @server.friends %>
 						<% end %>

@@ -14,6 +14,10 @@ table {
 	table-layout: fixed;
 }
 
+table.table-no_fixed {
+	table-layout: auto;
+}
+
 dl.faq dd {
 	margin-bottom: 16px;
 }

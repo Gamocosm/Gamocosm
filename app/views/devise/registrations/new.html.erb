@@ -9,6 +9,9 @@
         <%= f.input :email, required: true, autofocus: true %>
         <%= f.input :password, required: true %>
         <%= f.input :password_confirmation, required: true %>
+        <label>
+          By clicking 'Sign up', you agree to our <%= link_to 'Terms of Service', :tos %>.
+        </label>
       </div>
 
       <div class="form-actions">

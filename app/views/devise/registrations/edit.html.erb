@@ -24,7 +24,7 @@
     <%= f.input :password, autocomplete: "off", hint: "leave it blank if you don't want to change it", required: false %>
     <%= f.input :password_confirmation, required: false %>
 
-    <%= f.input :digital_ocean_api_key, label: 'Digital Ocean Access Token', input_html: { size: 36 } %>
+    <%= f.input :digital_ocean_api_key, label: 'Digital Ocean Access Token', input_html: { size: 36 }, hint: 'Only required for server admins' %>
 
     <%= f.input :current_password, hint: "we need your current password to confirm your changes", required: true %>
   </div>
@@ -38,8 +38,8 @@
   <div class="col-sm-8">
     <h2>Digital Ocean Instructions</h2>
     <p>Gamocosm doesn't charge you for hosting servers (it's free).
-    Your servers are hosted on Digital Ocean, a cloud hosting services.
-    Gamocosm requires API access to do stuff such as setting up a new server or backing up stopping servers.
+    Your servers are hosted on Digital Ocean, a cloud hosting service.
+    Gamocosm requires API access to do stuff such as setting up a new server or backing up and stopping servers.
     To learn more, see the <%= link_to 'About page', about_path %>.
     <ol>
       <li>Sign up on <%= link_to 'Digital Ocean', digital_ocean_index_path %></li>
