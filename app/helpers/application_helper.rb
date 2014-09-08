@@ -17,7 +17,7 @@ module ApplicationHelper
     if server.droplet && server.droplet.ip_address
       return server.droplet.ip_address.to_s
     end
-    return fallback || 'Not available'
+    return fallback || 'Not running'
   end
 
   def render_server_status(server)
@@ -27,6 +27,6 @@ module ApplicationHelper
     if server.droplet_running?
       return server.droplet.remote_status
     end
-    return 'Not available'
+    return 'Not running'
   end
 end
