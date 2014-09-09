@@ -1,5 +1,5 @@
 <br />
-<%= simple_form_for @server, url: advanced_minecraft_server_path(@server), method: :put do |f| %>
+<%= simple_form_for @server, url: minecraft_server_path(@server), method: :put do |f| %>
 	<%= panel_with_heading 'Advanced Configuration' do %>
 		<%= f.input :saved_snapshot_id %>
 		<%= f.input :remote_setup_stage %>

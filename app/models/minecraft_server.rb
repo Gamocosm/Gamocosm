@@ -4,16 +4,16 @@
 #
 #  id                         :uuid             not null, primary key
 #  user_id                    :integer
-#  name                       :string(255)
+#  name                       :string(255)      not null
 #  saved_snapshot_id          :integer
 #  pending_operation          :string(255)
 #  created_at                 :datetime
 #  updated_at                 :datetime
-#  remote_setup_stage         :integer          default(0)
-#  minecraft_wrapper_password :string(255)
+#  remote_setup_stage         :integer          default(0), not null
+#  minecraft_wrapper_password :string(255)      not null
 #  remote_ssh_setup_stage     :integer          default(0), not null
-#  digital_ocean_region_slug  :string(255)
-#  digital_ocean_size_slug    :string(255)
+#  digital_ocean_region_slug  :string(255)      not null
+#  digital_ocean_size_slug    :string(255)      not null
 #
 
 class MinecraftServer < ActiveRecord::Base
@@ -23,6 +23,9 @@ class MinecraftServer < ActiveRecord::Base
 
   validates :name, format: { with: /\A[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,63})*\z/ }
   validates :name, length: { in: 3..128 }
+  validates :remote_setup_stage, numericality: { only_integer: true }
+  validates :digital_ocean_region_slug, presence: true
+  validates :digital_ocean_size_slug, presence: true
 
   after_initialize :after_initialize_callback
   before_validation :before_validate_callback
@@ -32,11 +35,11 @@ class MinecraftServer < ActiveRecord::Base
   end
 
   def before_validate_callback
-    self.name = self.name.downcase
+    self.name = self.name.strip.downcase
     self.pending_operation = self.pending_operation.blank? ? nil : self.pending_operation
-    self.saved_snapshot_id = self.saved_snapshot_id.nil? ? nil : self.saved_snapshot_id
-    self.digital_ocean_region_slug = self.digital_ocean_region_slug.blank? ? nil: self.digital_ocean_region_slug
-    self.digital_ocean_size_slug = self.digital_ocean_size_slug.blank? ? nil : self.digital_ocean_size_slug
+    self.saved_snapshot_id = self.saved_snapshot_id.blank? ? nil : self.saved_snapshot_id
+    self.digital_ocean_region_slug = self.digital_ocean_region_slug.strip.downcase
+    self.digital_ocean_size_slug = self.digital_ocean_size_slug.strip.downcase
   end
 
   def droplet_running?
@@ -67,6 +70,7 @@ class MinecraftServer < ActiveRecord::Base
     self.create_droplet
     error = droplet.remote.create
     if error
+      self.droplet.destroy
       return error
     end
     self.update_columns(pending_operation: 'starting')

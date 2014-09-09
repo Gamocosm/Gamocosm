@@ -15,14 +15,14 @@
 		<div class="row">
 			<div class="col-sm-9">
 				<ul class="nav nav-tabs">
-					<li class="active"><%= link_to 'Profile', minecraft_server_path(@server, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
+					<li class="<%= @server_advanced_tab.nil? ? 'active' : '' %>"><%= link_to 'Profile', minecraft_server_path(@server, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
 					<li><%= link_to 'Minecraft Settings', minecraft_server_path(@server, anchor: 'settings'), 'data-toggle' => 'tab' %></li>
 					<li><%= link_to 'FTP and SSH Access', minecraft_server_path(@server, anchor: 'ftp_ssh'), 'data-toggle' => 'tab' %></li>
-					<li><%= link_to 'Advanced', minecraft_server_path(@server, anchor: 'advanced'), 'data-toggle' => 'tab' %></li>
+					<li class="<%= @server_advanced_tab ? 'active' : '' %>"><%= link_to 'Advanced', minecraft_server_path(@server, anchor: 'advanced'), 'data-toggle' => 'tab' %></li>
 				</ul>
 
 				<div class="tab-content">
-					<div class="tab-pane active" id="profile">
+					<div class="tab-pane <%= @server_advanced_tab.nil? ? 'active' : '' %>" id="profile">
 						<br />
 						<%= render partial: 'profile' %>
 					</div>
@@ -32,7 +32,7 @@
 					<div class="tab-pane" id="ftp_ssh">
 						<%= render partial: 'ftp_ssh' %>
 					</div>
-					<div class="tab-pane" id="advanced">
+					<div class="tab-pane <%= @server_advanced_tab ? 'active' : '' %>" id="advanced">
 						<%= render partial: 'advanced' %>
 					</div>
 				</div>

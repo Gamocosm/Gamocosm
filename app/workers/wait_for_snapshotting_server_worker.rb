@@ -16,7 +16,7 @@ class WaitForSnapshottingServerWorker
       return
     end
     snapshots = droplet.remote.list_snapshots
-    droplet.minecraft_server.update_columns(saved_snapshot_id: snapshots[-1].id)
+    droplet.minecraft_server.update_columns(saved_snapshot_id: snapshots[-1])
     error = droplet.remote.destroy
     if error
       raise error

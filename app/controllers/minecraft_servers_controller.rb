@@ -1,12 +1,16 @@
 class MinecraftServersController < ApplicationController
   before_action :authenticate_user!
 
-  def index
+  def load_index
     @servers = current_user.minecraft_servers
     @server = MinecraftServer.new
     @droplets = current_user.digital_ocean_droplets
     @snapshots = current_user.digital_ocean_snapshots
     @friend_minecraft_servers = current_user.friend_minecraft_servers
+  end
+
+  def index
+    load_index
   end
 
   def new
@@ -17,6 +21,7 @@ class MinecraftServersController < ApplicationController
     if @server.save
       return redirect_to minecraft_server_path(@server), notice: 'Server created'
     else
+      load_index
       flash.now[:error] = 'Something went wrong. Please try again'
       return render :index
     end
@@ -90,17 +95,6 @@ class MinecraftServersController < ApplicationController
   def edit
   end
 
-  def update
-    @server = find_minecraft_server_only_owner(params[:id])
-    if @server.update_attributes(params.require(:minecraft_server).permit(:name))
-      if @server.droplet_running?
-        @server.droplet.remote.rename
-      end
-      return redirect_to minecraft_server_path(@server), notice: 'Server updated'
-    end
-    return redirect_to minecraft_server_path(@server), error: 'Unable to update server'
-  end
-
   def update_minecraft_properties
     @server = find_minecraft_server_only_owner(params[:id])
     properties = @server.properties
@@ -136,7 +130,7 @@ class MinecraftServersController < ApplicationController
     else
       flash_message = 'Server is rebooting'
     end
-    return redirect_to minecraft_server_path(@sever), notice: flash_message
+    return redirect_to minecraft_server_path(@server), notice: flash_message
   end
 
   def add_friend
@@ -167,12 +161,14 @@ class MinecraftServersController < ApplicationController
     return redirect_to minecraft_server_path(@server), notice: "User #{email} removed from the server"
   end
 
-  def advanced
+  def update
     @server = find_minecraft_server_only_owner(params[:id])
     if @server.update_attributes(minecraft_server_advanced_params)
       return redirect_to minecraft_server_path(@server), notice: 'Server advanced configuration updated'
     end
-    return redirect_to minecraft_server_path(@server), error: 'Unable to update server\'s advanced configuration'
+    @server_advanced_tab = true
+    flash.now[:error] = 'Something went wrong. Please try again'
+    return render :show
   end
 
   def destroy_droplet

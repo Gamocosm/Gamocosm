@@ -16,7 +16,6 @@
 #  created_at             :datetime
 #  updated_at             :datetime
 #  digital_ocean_api_key  :string(255)
-#  digital_ocean_event_id :integer
 #
 
 class User < ActiveRecord::Base
@@ -28,8 +27,14 @@ class User < ActiveRecord::Base
   has_many :minecraft_servers, dependent: :destroy
   has_and_belongs_to_many :friend_minecraft_servers, foreign_key: 'user_id', class_name: 'MinecraftServer'
 
+  before_validation :before_validate_callback
+
+  def before_validate_callback
+    self.digital_ocean_api_key = self.digital_ocean_api_key.blank? ? nil : self.digital_ocean_api_key.strip.downcase
+  end
+
   def digital_ocean_missing?
-    return digital_ocean_api_key.nil?
+    return digital_ocean_api_key.blank?
   end
 
   def digital_ocean_invalid?
