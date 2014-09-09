@@ -15,7 +15,7 @@ module ApplicationHelper
 
   def render_server_ip_address(server, fallback = nil)
     if server.droplet && server.droplet.ip_address
-      return server.droplet.ip_address.to_s
+      return server.droplet.ip_address
     end
     return fallback || 'Not running'
   end

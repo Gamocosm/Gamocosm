@@ -4,12 +4,16 @@
 			<h3>Add your Digital Ocean keys</h3>
 			<% if current_user.digital_ocean_missing? %>
 				You have not entered your Digital Ocean keys.
+				<% if @server.is_new? %>
+					If you are not a server admin, you can safely ignore this.
+				<% end %>
 			<% else %>
 				Your Digital Ocean keys are invalid.
 			<% end %>
 			Read more about them or enter them <%= link_to 'here', edit_user_registration_path %>.
 		<% else %>
-			The owner for this server has not entered his/her Digital Ocean keys, or they are invalid. Read more about it <%= link_to 'here', edit_user_registration_path %>
+			The owner for this server has not entered his/her Digital Ocean keys, or they are invalid.
+			Read more about it <%= link_to 'here', edit_user_registration_path %>
 		<% end %>
 	</div>
 </div>

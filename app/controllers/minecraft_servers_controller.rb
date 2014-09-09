@@ -32,42 +32,24 @@ class MinecraftServersController < ApplicationController
 
   def start
     @server = find_minecraft_server(params[:id])
-    if @server.user.digital_ocean_invalid?
-      if @server.is_owner?(current_user)
-        return redirect_to minecraft_server_path(@server), flash: {
-          error: 'You have not entered your Digital Ocean keys, or they are invalid.'
-        }
-      else
-        return redirect_to minecraft_server_path(@server), flash: {
-          error: "The owner of this server did not enter his/her Digital Ocean keys, or they are invalid.<br />Read more #{view_context.link_to('here', edit_user_registration_path)}".html_safe
-        }
-      end
-    end
-    if @server.start
-      flash_message = 'Server starting'
+    error = @server.start
+    if error
+      flash_message = "Unable to start server: #{error}"
     else
-      flash_message = 'Unable to start server'
+      flash_message = 'Server starting'
     end
     return redirect_to minecraft_server_path(@server), notice: flash_message
   end
 
   def stop
     @server = find_minecraft_server(params[:id])
-    if @server.user.digital_ocean_invalid?
-      if @server.is_owner?(current_user)
-        return redirect_to minecraft_server_path(@server), flash: {
-          error: 'You have not entered your Digital Ocean keys, or they are invalid.'
-        }
-      else
-        return redirect_to minecraft_server_path(@server), flash: {
-          error: "The owner of this server did not enter his/her Digital Ocean keys, or they are invalid.<br />Read more #{view_context.link_to('here', edit_user_registration_path)}".html_safe
-        }
-      end
+    error = @server.stop
+    if error
+      flash_message = "Unable to stop server: #{error}"
+    else
+      flash_message = 'Server is stopping'
     end
-    if @server.stop
-      return redirect_to minecraft_servers_path, notice: 'Server is stopping'
-    end
-    return redirect_to minecraft_server_path(@server), notice: 'Unable to stop server'
+    return redirect_to minecraft_server_path(@server), notice: flash_message
   end
 
   def resume
@@ -138,25 +120,23 @@ class MinecraftServersController < ApplicationController
         error: 'Only the owner can destroy a server.'
       }
     end
-    if @server.user.digital_ocean_missing?
-      return redirect_to minecraft_server_path(@server), flash: {
-        error: 'You have not entered your Digital Ocean keys, or they are invalid.'
-      }
+    error = @server.destroy_remote
+    if error
+      return redirect_to minecraft_server_path(@server), notice: "Unable to delete server: #{error}"
     end
-    response = @server.destroy_remote
-    if response
-      @server.destroy
-      return redirect_to minecraft_servers_path, notice: 'Server is deleting'
-    end
-    return redirect_to minecraft_server_path(@server), notice: 'Unable to delete server'
+    @server.destroy
+    return redirect_to minecraft_servers_path, notice: 'Server is deleting'
   end
 
   def reboot
     @server = find_minecraft_server(params[:id])
-    if @server.reboot
-      return redirect_to minecraft_server_path(@server), notice: 'Server is rebooting'
+    error = @server.reboot
+    if error
+      flash_message = "Unable to reboot server: #{flash_message}"
+    else
+      flash_message = 'Server is rebooting'
     end
-    return redirect_to minecraft_server_path(@sever), notice: 'Unable to reboot server'
+    return redirect_to minecraft_server_path(@sever), notice: flash_message
   end
 
   def add_friend
@@ -198,7 +178,10 @@ class MinecraftServersController < ApplicationController
   def destroy_droplet
     @server = find_minecraft_server_only_owner(params[:id])
     if !@server.droplet.nil?
-      @server.destroy_remote
+      error = @server.destroy_remote
+      if error
+        return redirect_to minecraft_server_path(@server), notice: "Unable to destroy droplet: #{error}"
+      end
       @server.droplet.delete
     end
     return redirect_to minecraft_server_path(@server), notice: 'Droplet destroyed'

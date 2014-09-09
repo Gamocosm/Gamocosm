@@ -5,29 +5,30 @@ class WaitForStoppingServerWorker
     4
   end
 
-  def perform(user_id, droplet_id, digital_ocean_event_id)
-    user = User.find(user_id)
-    if user.digital_ocean_invalid?
-      raise "Error getting digital ocean for user #{user_id}"
-    end
+  def perform(droplet_id)
     droplet = Droplet.find(droplet_id)
-    event = DigitalOcean::DropletAction.new(droplet.remote_id, digital_ocean_event_id, user)
-    if event.has_error?
-      raise "Error getting digital ocean event #{digital_ocean_event_id}, #{event}"
+    error = droplet.remote.error
+    if error
+      raise "Error with droplet #{droplet_id} remote: #{error}"
     end
-    if event.is_done?
-      response = user.digital_ocean.droplet.snapshot(droplet.remote_id, name: droplet.host_name)
-      if !response.success?
-        raise "Error making snapshot for server #{droplet.minecraft_server_id} on droplet #{droplet_id}, response was #{response}"
-      end
-      if !droplet.remote.sync
-        raise "Error syncing droplet #{droplet.id}"
-      end
-      droplet.minecraft_server.update_columns(pending_operation: 'saving', digital_ocean_pending_event_id: response.action.id)
-      WaitForSnapshottingServerWorker.perform_in(4.seconds, user_id, droplet_id, response.action.id)
-    else
-      WaitForStoppingServerWorker.perform_in(4.seconds, user_id, droplet_id, digital_ocean_event_id)
+    if droplet.remote.busy?
+      WaitForStoppingServerWorker.perform_in(4.seconds, droplet_id)
+      return
     end
+    if droplet.remote.status != 'off'
+      Rails.logger.warn "Droplet #{droplet_id} in WaitForStoppingServerWorker not busy but status off, was #{droplet.remote.status}"
+      error = droplet.remote.shutdown
+      if error
+        raise error
+      end
+      return
+    end
+    error = droplet.remote.snapshot
+    if error
+      raise error
+    end
+    droplet.minecraft_server.update_columns(pending_operation: 'saving')
+    WaitForSnapshottingServerWorker.perform_in(4.seconds, droplet_id)
   rescue ActiveRecord::RecordNotFound => e
     Rails.logger.info "Record in #{self.class} not found #{e.message}"
   end

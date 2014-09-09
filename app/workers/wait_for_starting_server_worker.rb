@@ -5,26 +5,20 @@ class WaitForStartingServerWorker
     4
   end
 
-  def perform(user_id, droplet_id, digital_ocean_event_id)
+  def perform(user_id, droplet_id)
     user = User.find(user_id)
-    if user.digital_ocean_invalid?
-      raise "Error getting digital ocean for user #{user_id}"
-    end
     droplet = Droplet.find(droplet_id)
-    event = DigitalOcean::DropletAction.new(droplet.remote_id, digital_ocean_event_id, user)
-    if event.has_error?
-      raise "Error getting digital ocean event #{digital_ocean_event_id}, #{event.show}"
+    error = droplet.remote.error
+    if error
+      raise "Error with droplet #{droplet_id} remote: #{error}"
     end
-    if event.is_done?
-      if !droplet.remote.sync
-        raise "Error syncing droplet #{droplet.id}"
-      end
-      user.digital_ocean.image.destroy(droplet.minecraft_server.saved_snapshot_id)
-      droplet.minecraft_server.update_columns(pending_operation: 'preparing')
-      WaitForSSHServerWorker.perform_in(4.seconds, user_id, droplet_id)
-    else
-      WaitForStartingServerWorker.perform_in(4.seconds, user_id, droplet_id, digital_ocean_event_id)
+    if droplet.remote.busy?
+      WaitForStartingServerWorker.perform_in(4.seconds, user_id, droplet_id)
+      return
     end
+    user.digital_ocean.image.destroy(droplet.minecraft_server.saved_snapshot_id)
+    droplet.minecraft_server.update_columns(pending_operation: 'preparing', saved_snapshot_id: nil)
+    WaitForSSHServerWorker.perform_in(4.seconds, user_id, droplet_id)
   rescue ActiveRecord::RecordNotFound => e
     Rails.logger.info "Record in #{self.class} not found #{e.message}"
   end

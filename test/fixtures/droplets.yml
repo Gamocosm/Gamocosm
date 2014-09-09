@@ -4,14 +4,9 @@
 #
 #  id                  :integer          not null, primary key
 #  remote_id           :integer
-#  ip_address          :inet
-#  remote_status       :string(255)
-#  last_synced         :datetime
 #  created_at          :datetime
 #  updated_at          :datetime
 #  minecraft_server_id :uuid
-#  remote_region_slug  :string(255)
-#  remote_size_slug    :string(255)
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html

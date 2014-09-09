@@ -2,20 +2,18 @@
 #
 # Table name: minecraft_servers
 #
-#  id                             :uuid             not null, primary key
-#  user_id                        :integer
-#  name                           :string(255)
-#  saved_snapshot_id              :integer
-#  pending_operation              :string(255)
-#  created_at                     :datetime
-#  updated_at                     :datetime
-#  should_destroy                 :boolean          default(FALSE), not null
-#  remote_setup_stage             :integer          default(0)
-#  minecraft_wrapper_password     :string(255)
-#  remote_ssh_setup_stage         :integer          default(0), not null
-#  digital_ocean_pending_event_id :integer
-#  digital_ocean_region_slug      :string(255)
-#  digital_ocean_size_slug        :string(255)
+#  id                         :uuid             not null, primary key
+#  user_id                    :integer
+#  name                       :string(255)
+#  saved_snapshot_id          :integer
+#  pending_operation          :string(255)
+#  created_at                 :datetime
+#  updated_at                 :datetime
+#  remote_setup_stage         :integer          default(0)
+#  minecraft_wrapper_password :string(255)
+#  remote_ssh_setup_stage     :integer          default(0), not null
+#  digital_ocean_region_slug  :string(255)
+#  digital_ocean_size_slug    :string(255)
 #
 
 class MinecraftServer < ActiveRecord::Base
@@ -53,73 +51,61 @@ class MinecraftServer < ActiveRecord::Base
     if pending_operation
       return true
     end
+    if droplet && droplet.remote_busy?
+      return true
+    end
     return false
   end
 
   def start
     if droplet_running?
-      return true
+      return nil
     end
     if busy?
-      return false
-    end
-    if user.digital_ocean_invalid?
-      return false
+      return 'Server is busy' # TODO
     end
     self.create_droplet
-    event_id = DigitalOcean::Droplet.new(droplet).create
-    if event_id.nil?
-      self.droplet.destroy
-      Rails.logger.warn "MC#start: event was nil, MC #{id}"
-      return false
+    error = droplet.remote.create
+    if error
+      return error
     end
-    self.update_columns(pending_operation: 'starting', digital_ocean_pending_event_id: event_id)
-    WaitForStartingServerWorker.perform_in(32.seconds, user_id, droplet.id, event_id)
-    return true
+    self.update_columns(pending_operation: 'starting')
+    WaitForStartingServerWorker.perform_in(32.seconds, user_id, droplet.id)
+    return nil
   end
 
   def stop
     if !droplet_running?
-      return true
+      return nil
     end
     if busy?
-      return false
-    end
-    if user.digital_ocean_invalid?
-      return false
+      return 'Server is busy' # TODO
     end
     if !node.pause
       Rails.logger.warn "MC#stop: node.pause return false, MC #{id}"
     end
-    event_id = DigitalOcean::Droplet.new(droplet).shutdown
-    if event_id.nil?
-      Rails.logger.warn "MC#stop: event was nil, MC #{id}"
-      return false
+    error = droplet.remote.shutdown
+    if error
+      return error
     end
-    self.update_columns(pending_operation: 'stopping', digital_ocean_pending_event_id: event_id)
-    WaitForStoppingServerWorker.perform_in(16.seconds, user_id, droplet.id, event_id)
-    return true
+    self.update_columns(pending_operation: 'stopping')
+    WaitForStoppingServerWorker.perform_in(16.seconds, droplet.id)
+    return nil
   end
 
   def reboot
-    if user.digital_ocean_invalid?
-      return false
+    error = droplet.remote.reboot
+    if error
+      return error
     end
-    event_id = droplet.remote.reboot
-    if event_id.nil?
-      return false
-    end
-    self.update_columns(pending_operation: 'rebooting', digital_ocean_pending_event_id: event_id)
-    WaitForStartingServerWorker.perform_in(4.seconds, user_id, droplet.id, event_id)
-    return true
+    self.update_columns(pending_operation: 'rebooting')
+    WaitForStartingServerWorker.perform_in(4.seconds, user_id, droplet.id)
+    return nil
   end
 
   def destroy_remote
     if droplet.nil?
-      return true
-    end
-    if user.digital_ocean_invalid?
-      return false
+      return nil
     end
     return droplet.remote.destroy
   end
@@ -190,16 +176,8 @@ class MinecraftServer < ActiveRecord::Base
     return friends.exists?(someone.id)
   end
 
-  def digital_ocean_event
-    if digital_ocean_pending_event_id.nil?
-      return nil
-    end
-    event = DigitalOcean::DropletAction.new(droplet.remote_id, digital_ocean_pending_event_id, user)
-    if event.has_error?
-      Rails.logger.warn "MC#digital_ocean_event: event #{event.show}, MC #{id}, DO event #{digital_ocean_pending_event_id}"
-      return false
-    end
-    return event
+  def is_new?
+    return digital_ocean_region_slug.nil?
   end
 
 end
