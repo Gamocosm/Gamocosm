@@ -5,18 +5,22 @@ class WaitForSnapshottingServerWorker
     4
   end
 
-  def perform(droplet_id)
+  def perform(droplet_id, digital_ocean_snapshot_action_id)
     droplet = Droplet.find(droplet_id)
     error = droplet.remote.error
     if droplet.remote.error
       raise "Error with droplet #{droplet_id} remote: #{error}"
     end
-    if droplet.remote.busy?
-      WaitForSnapshottingServerWorker.perform_in(4.seconds, droplet_id)
+    event = DigitalOcean::DropletAction.new(droplet.remote_id, digital_ocean_snapshot_action_id, droplet.minecraft_server.user)
+    if event.has_error?
+      Rails.logger.info "Error with droplet #{droplet_id}, digital ocean snapshot event #{digital_ocean_snapshot_action_id} failed with #{event.show}"
+      WaitForStoppingServerWorker.perform_in(0.seconds, droplet_id)
+      return
+    elsif !event.is_done? || droplet.remote.busy?
+      WaitForSnapshottingServerWorker.perform_in(4.seconds, droplet_id, digital_ocean_snapshot_action_id)
       return
     end
-    snapshots = droplet.remote.list_snapshots
-    droplet.minecraft_server.update_columns(saved_snapshot_id: snapshots[-1])
+    droplet.minecraft_server.update_columns(saved_snapshot_id: event.resource_id)
     error = droplet.remote.destroy
     if error
       raise error

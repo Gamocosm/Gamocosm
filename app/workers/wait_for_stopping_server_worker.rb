@@ -21,6 +21,7 @@ class WaitForStoppingServerWorker
       if error
         raise error
       end
+      WaitForStoppingServerWorker.perform_in(4.seconds, droplet_id)
       return
     end
     error = droplet.remote.snapshot
@@ -28,7 +29,7 @@ class WaitForStoppingServerWorker
       raise error
     end
     droplet.minecraft_server.update_columns(pending_operation: 'saving')
-    WaitForSnapshottingServerWorker.perform_in(4.seconds, droplet_id)
+    WaitForSnapshottingServerWorker.perform_in(4.seconds, droplet_id, droplet.remote.snapshot_action_id)
   rescue ActiveRecord::RecordNotFound => e
     Rails.logger.info "Record in #{self.class} not found #{e.message}"
   end

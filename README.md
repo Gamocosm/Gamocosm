@@ -1,12 +1,10 @@
 Gamocosm
 ========
 
-Gamocosm makes it easy to run Minecraft servers on Digital Ocean.
-Digital Ocean is a cloud hosting service which lets users create and destroy servers anytime, and charges per hour use.
-Gamocosm works well for groups of friends who play together, but not 24/7.
+Gamocosm makes it easy to run cloud Minecraft servers.
+Digital Ocean is used as the backend/hosting service, due to cost, reliability, and accessibility.
+Gamocosm works well for friends who play together, but not 24/7.
 Running a server 14 hours a week (2 hours every day) may cost 40 cents a month, instead of $5.
-Running a server constantly is still the same price as other Minecraft hosts.
-Also, users have full access to their servers.
 
 ### Contributing
 Pull requests are welcome!

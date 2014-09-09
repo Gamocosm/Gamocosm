@@ -104,10 +104,15 @@ class DigitalOcean::Droplet
     end
     response = connection.droplet.snapshot(@local_droplet.remote_id, name: @local_droplet.host_name)
     if response.success?
+      @snapshot_action_id = response.action.id
       return nil
     end
     Rails.logger.warn "DO::Droplet#snapshot: response #{response}, MC #{@local_droplet.minecraft_server_id}, droplet #{@local_droplet.id}"
     return "Error snapshotting droplet on Digital Ocean; they responded with #{response}"
+  end
+
+  def snapshot_action_id
+    return @snapshot_action_id
   end
 
   def sync

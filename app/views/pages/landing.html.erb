@@ -3,9 +3,10 @@
 		<div class="jumbotron text-center">
 			<h1>Gamocosm</h1>
 			<p>An <%= link_to 'open source', source_path %> project to help you host cloud Minecraft servers.</p>
-			<p>Cloud servers are charged by the hour. Why pay 24/7 when you only play with your friends?</p>
+			<p>Cloud servers are charged by the hour. Why pay 24/7 if you only play with your friends?</p>
+			<p><%= link_to 'Learn more <i class="fa fa-chevron-right"></i>'.html_safe, about_path, class: 'btn-lg btn-default' %></p>
 			<br />
-			<p class="text-center"><%= link_to 'Friend of someone hosting a server? Sign up here!', new_user_registration_path, class: 'btn-lg btn-success' %></p>
+			<p><%= link_to 'Friend of someone hosting a server? Sign up here!', new_user_registration_path, class: 'btn-lg btn-success' %></p>
 		</div>
 	</div>
 </div>

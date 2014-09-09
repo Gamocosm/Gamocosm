@@ -23,13 +23,14 @@ class DigitalOcean::DropletAction
   end
 
   def is_done?
-    if has_error?
-      raise "DO::DropletAction#is_done?: response #{@response}, remote droplet #{@droplet_remote_id}, event #{@action_id}"
-    end
     return @response.action.status == 'completed'
   end
 
   def show
-    return "#{@response}"
+    return @response
+  end
+
+  def resource_id
+    return @response.action.resource_id
   end
 end
