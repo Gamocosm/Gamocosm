@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140823210402) do
+ActiveRecord::Schema.define(version: 20140909052733) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,32 +19,25 @@ ActiveRecord::Schema.define(version: 20140823210402) do
 
   create_table "droplets", force: true do |t|
     t.integer  "remote_id"
-    t.inet     "ip_address"
-    t.string   "remote_status"
-    t.datetime "last_synced"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.uuid     "minecraft_server_id"
-    t.string   "remote_region_slug"
-    t.string   "remote_size_slug"
   end
 
   add_index "droplets", ["minecraft_server_id"], name: "index_droplets_on_minecraft_server_id", unique: true, using: :btree
 
   create_table "minecraft_servers", id: :uuid, default: "uuid_generate_v4()", force: true do |t|
     t.integer  "user_id"
-    t.string   "name"
+    t.string   "name",                                   null: false
     t.integer  "saved_snapshot_id"
     t.string   "pending_operation"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "should_destroy",                 default: false, null: false
-    t.integer  "remote_setup_stage",             default: 0
-    t.string   "minecraft_wrapper_password"
-    t.integer  "remote_ssh_setup_stage",         default: 0,     null: false
-    t.integer  "digital_ocean_pending_event_id"
-    t.string   "digital_ocean_region_slug"
-    t.string   "digital_ocean_size_slug"
+    t.integer  "remote_setup_stage",         default: 0, null: false
+    t.string   "minecraft_wrapper_password",             null: false
+    t.integer  "remote_ssh_setup_stage",     default: 0, null: false
+    t.string   "digital_ocean_region_slug",              null: false
+    t.string   "digital_ocean_size_slug",                null: false
   end
 
   add_index "minecraft_servers", ["user_id"], name: "index_minecraft_servers_on_user_id", using: :btree
@@ -72,7 +65,6 @@ ActiveRecord::Schema.define(version: 20140823210402) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "digital_ocean_api_key"
-    t.integer  "digital_ocean_event_id"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
