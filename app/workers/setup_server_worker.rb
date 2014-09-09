@@ -35,9 +35,14 @@ class SetupServerWorker
         end
         within '/opt/' do
           execute :mkdir, '-p', 'gamocosm'
+          execute :groupadd, 'gamocosm'
+          execute :chgrp, 'gamocosm', 'gamocosm'
+          execute :usermod, '-aG', 'gamocosm', 'mcuser'
+          execute :chmod, 'g+w', 'gamocosm'
           within :gamocosm do
             execute :rm, '-f', 'minecraft-flask.py'
             execute :wget, '-O', 'minecraft-flask.py', 'https://raw.github.com/Raekye/minecraft-server_wrapper/master/minecraft-flask-minified.py'
+            execute :chown, 'mcuser:mcuser', 'minecraft-flask.py'
             execute :echo, "\"#{Gamocosm.minecraft_wrapper_username}\"", '>', 'minecraft-flask-auth.txt'
             execute :echo, "\"#{droplet.minecraft_server.minecraft_wrapper_password}\"", '>>', 'minecraft-flask-auth.txt'
           end

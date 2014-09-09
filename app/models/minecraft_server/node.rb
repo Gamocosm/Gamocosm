@@ -43,6 +43,12 @@ class MinecraftServer::Node
     return true
   end
 
+  def exec(command)
+    response = do_post(:exec, { command: command })
+    return false if response.nil?
+    return true
+  end
+
   def backup
     response = do_post(:backup, {})
     return false if response.nil?
@@ -55,18 +61,6 @@ class MinecraftServer::Node
     return response['properties']
   end
 
-  def whitelist
-    response = do_get(:whitelist)
-    return nil if response.nil?
-    return response['players']
-  end
-
-  def ops
-    response = do_get(:ops)
-    return nil if response.nil?
-    return response['players']
-  end
-
   def update_properties(properties)
     payload = {}
     properties.each_pair do |k, v|
@@ -77,20 +71,8 @@ class MinecraftServer::Node
     return response['properties']
   end
 
-  def update_whitelist(whitelist)
-    response = do_post(:whitelist, { players: whitelist })
-    return nil if response.nil?
-    return response['players']
-  end
-
-  def update_ops(ops)
-    response = do_post(:ops, { players: ops })
-    return nil if response.nil?
-    return response['players']
-  end
-
   def update_wrapper
-    response = do_get(:update_wrapper)
+    response = do_post(:update_wrapper, {})
     return false if response.nil?
     return true
   end

@@ -151,8 +151,11 @@ class DigitalOcean::Droplet
     if response.success?
       return nil
     end
+    if response.id == 'not_found'
+      return nil
+    end
     Rails.logger.warn "DO::Droplet#destroy: response #{response}, MC #{@local_droplet.minecraft_server_id}, droplet #{@local_droplet.id}"
-    return "Error destroying droplet on Digital Ocean; they respondd with #{response}"
+    return "Error destroying droplet on Digital Ocean; they responded with #{response}"
   end
 
 end

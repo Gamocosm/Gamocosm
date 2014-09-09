@@ -6,6 +6,11 @@ Digital Ocean is used as the backend/hosting service, due to cost, reliability, 
 Gamocosm works well for friends who play together, but not 24/7.
 Running a server 14 hours a week (2 hours every day) may cost 40 cents a month, instead of $5.
 
+### Minecraft Server Wrapper
+The [Minecraft Server Wrapper][4] (for lack of a better name) is a Python webserver written with Flask.
+It provides an HTTP API for starting and stopping Minecraft servers, and a few other misc. actions.
+Please check it out and help improve it too!
+
 ### Contributing
 Pull requests are welcome!
 
@@ -76,3 +81,4 @@ You could replace "gamocosm" under the "user" column with "all".
 [1]: http://www.postgresql.org/docs/9.3/static/auth-pg-hba-conf.html
 [2]: https://github.com/geetfun
 [3]: http://stackoverflow.com/questions/10301794/
+[4]: https://github.com/Raekye/minecraft-server_wrapper

@@ -183,6 +183,19 @@ class MinecraftServersController < ApplicationController
     return redirect_to minecraft_server_path(@server), notice: 'Droplet destroyed'
   end
 
+  def command
+    @server = find_minecraft_server(params[:id])
+    if !@server.game_running?
+      return redirect_to minecraft_server_path(@server), notice: 'Minecraft isn\'t running'
+    end
+    command = minecraft_server_command_params[:data]
+    success = @server.node.exec(command)
+    if success
+      return redirect_to minecraft_server_path(@server), notice: 'Command sent'
+    end
+    return redirect_to minecraft_server_path(@server), notice: 'Unable to send command to Minecraft server'
+  end
+
   def find_minecraft_server(id)
     server = MinecraftServer.find(id)
     if server.is_owner?(current_user) || server.is_friend?(current_user)
@@ -237,5 +250,9 @@ class MinecraftServersController < ApplicationController
       :pending_operation,
       :digital_ocean_region_slug,
       :digital_ocean_size_slug)
+  end
+
+  def minecraft_server_command_params
+    return params.require(:command).permit(:data)
   end
 end

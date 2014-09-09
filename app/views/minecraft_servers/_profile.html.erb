@@ -10,6 +10,18 @@
 		<% end %>
 	</div>
 </div>
+<% if @server.is_owner?(current_user) && @server.game_running? %>
+	<div class="row">
+		<div class="col-sm-12">
+			<%= panel_with_heading 'Send Command to Server' do %>
+				<%= simple_form_for :command, url: command_minecraft_server_path(@server) do |f| %>
+					<%= f.input :data, as: :string %>
+					<%= f.button :submit, 'Send', class: 'btn btn-success' %>
+				<% end %>
+			<% end %>
+		</div>
+	</div>
+<% end %>
 <% if @server.is_owner?(current_user) %>
 	<div class="row">
 		<div class="col-sm-6">
