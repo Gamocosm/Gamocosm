@@ -8,6 +8,8 @@ Rails.application.routes.draw do
 
   get '/tos', to: 'pages#tos', as: :tos
 
+  get '/digital_ocean_setup', to: 'pages#digital_ocean_setup', as: :digital_ocean_setup
+
   match '/wiki' => redirect('https://github.com/Raekye/Gamocosm/wiki'), as: :wiki, via: :get
   match '/issues' => redirect('https://github.com/Raekye/Gamocosm/issues'), as: :issues, via: :get
   match '/source' => redirect('https://github.com/Raekye/Gamocosm'), as: :source, via: :get

@@ -15,4 +15,7 @@ class PagesController < ApplicationController
 
   def tos
   end
+
+  def digital_ocean_setup
+  end
 end

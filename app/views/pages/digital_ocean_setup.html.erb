@@ -1,0 +1,29 @@
+<div class="row">
+  <div class="col-sm-8">
+    <h1>Digital Ocean Instructions</h1>
+    <p>Gamocosm doesn't charge you for hosting servers (it's free).
+    Your servers are hosted on Digital Ocean, a cloud hosting service.
+    Gamocosm requires API access to do stuff such as setting up a new server or backing up and stopping servers.
+    To learn more, see the <%= link_to 'About page', about_path %>.
+    <ol>
+      <li>Sign up on <%= link_to 'Digital Ocean', digital_ocean_index_path %></li>
+      <li>Click on Billing</li>
+      <li>Click on Manage Payments</li>
+      <li>Add billing information for Digital Ocean</li>
+      <li>Click on Apps &amp; API</li>
+      <li>Under "Personal Access Tokens", click "Generate new token"</li>
+      <li>Check both "Read" and "Write" for the scope of the token, and click "Generate Token"</li>
+      <li>Copy the token and save it in your settings</li>
+    </ol>
+  </div>
+  <div class="col-sm-4">
+    <%= image_tag 'digital_ocean-sign_up.png', size: '300x300', class: 'img-thumbnail' %>
+  </div>
+</div>
+<br />
+<div class="row text-center">
+  <%= image_tag 'digital_ocean-billing.png', size: '900x580', class: 'img-thumbnail' %>
+  <br />
+  <br />
+  <%= image_tag 'digital_ocean-api.png', size: '900x580', class: 'img-thumbnail' %>
+</div>

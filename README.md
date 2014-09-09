@@ -30,7 +30,7 @@ This is for Econfig. Values added here are available in ruby from `Gamocosm.foo`
 - `minecraft_jar_default_url`: Minecraft jar for new servers (default: latest version of vanilla Minecraft)
 - `minecraft_wrapper_username`: username used for HTTP basic auth when communicating with the Minecraft server wrapper
 - `digital_ocean_base_snapshot_id`: Digital Ocean image for new servers (default: Fedora 20 x64)
-- `digital_ocean_referral_link`: help pay for server costs :)
+- `digital_ocean_referral_link`: help pay for server costs?
 - `digital_ocean_api_key`: your Digital Ocean api token
 - `digital_ocean_ssh_public_key_path`: ssh key to be added to new servers to SSH into
 - `digital_ocean_ssh_private_key_path`: see above
@@ -62,6 +62,7 @@ You could replace "gamocosm" under the "user" column with "all".
 ##### Other useful stuff
 - Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `config/app.yml`
 - The Sidekiq web interface is mounted at `/sidekiq`
+- New Relic RPM is available in developer mode at `/newrelic`
 - Run the console: `bundle exec rails c`
 - Reset the database: `bundle exec rake db:reset`
 - Reset Sidekiq jobs: `Sidekiq::Queue.new.each { |job| job.delete }` in the rails console
