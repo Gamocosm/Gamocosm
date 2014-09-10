@@ -9,13 +9,11 @@ class WaitForSSHServerWorker
   end
 
   def perform(user_id, droplet_id, times = 0)
-    user = User.find(user_id)
     droplet = Droplet.find(droplet_id)
     if times > 16
       Rails.logger.warn "WaitForSSHServerWorker#perform: cannot ssh into droplet, user #{user_id}, droplet #{droplet_id}"
       droplet.minecraft_server.destroy_remote
-      droplet.minecraft_server.update_columns(remote_setup_stage: 1, pending_operation: nil, digital_ocean_pending_event_id: nil)
-      droplet.destroy
+      droplet.minecraft_server.update_columns(remote_setup_stage: 1, pending_operation: nil)
       return
     end
     host = SSHKit::Host.new(droplet.ip_address.to_s)

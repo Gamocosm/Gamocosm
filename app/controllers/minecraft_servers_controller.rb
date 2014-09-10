@@ -19,6 +19,7 @@ class MinecraftServersController < ApplicationController
   def create
     @server = current_user.minecraft_servers.new(minecraft_server_params)
     if @server.save
+      @server.create_droplet
       return redirect_to minecraft_server_path(@server), notice: 'Server created'
     else
       load_index
@@ -171,18 +172,6 @@ class MinecraftServersController < ApplicationController
     return render :show
   end
 
-  def destroy_droplet
-    @server = find_minecraft_server_only_owner(params[:id])
-    if !@server.droplet.nil?
-      error = @server.destroy_remote
-      if error
-        return redirect_to minecraft_server_path(@server), notice: "Unable to destroy droplet: #{error}"
-      end
-      @server.droplet.delete
-    end
-    return redirect_to minecraft_server_path(@server), notice: 'Droplet destroyed'
-  end
-
   def command
     @server = find_minecraft_server(params[:id])
     if !@server.game_running?
@@ -249,7 +238,9 @@ class MinecraftServersController < ApplicationController
       :remote_setup_stage,
       :pending_operation,
       :digital_ocean_region_slug,
-      :digital_ocean_size_slug)
+      :digital_ocean_size_slug,
+      droplet_attributes: [:remote_id]
+    )
   end
 
   def minecraft_server_command_params

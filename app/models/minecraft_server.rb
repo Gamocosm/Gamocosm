@@ -30,6 +30,8 @@ class MinecraftServer < ActiveRecord::Base
   after_initialize :after_initialize_callback
   before_validation :before_validate_callback
 
+  accepts_nested_attributes_for :droplet
+
   def after_initialize_callback
     self.minecraft_wrapper_password ||= SecureRandom.hex
   end
@@ -43,7 +45,7 @@ class MinecraftServer < ActiveRecord::Base
   end
 
   def droplet_running?
-    return droplet && droplet.remote_status == 'active'
+    return droplet.remote_id && droplet.remote_status == 'active'
   end
 
   def game_running?
@@ -54,7 +56,7 @@ class MinecraftServer < ActiveRecord::Base
     if pending_operation
       return true
     end
-    if droplet && droplet.remote_busy?
+    if droplet.remote_id && droplet.remote_busy?
       return true
     end
     return false
@@ -67,10 +69,8 @@ class MinecraftServer < ActiveRecord::Base
     if busy?
       return 'Server is busy' # TODO
     end
-    self.create_droplet
     error = droplet.remote.create
     if error
-      self.droplet.destroy
       return error
     end
     self.update_columns(pending_operation: 'starting')
@@ -108,7 +108,7 @@ class MinecraftServer < ActiveRecord::Base
   end
 
   def destroy_remote
-    if droplet.nil?
+    if droplet.remote_id.nil?
       return nil
     end
     return droplet.remote.destroy

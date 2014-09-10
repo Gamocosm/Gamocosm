@@ -51,7 +51,6 @@ Rails.application.routes.draw do
       put 'update_properties'
       post 'add_friend'
       post 'remove_friend'
-      get 'destroy_droplet'
       post 'command'
     end
   end

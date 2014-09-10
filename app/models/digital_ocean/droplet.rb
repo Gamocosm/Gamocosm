@@ -148,10 +148,8 @@ class DigitalOcean::Droplet
       return 'Digital Ocean API Token missing'
     end
     response = connection.droplet.destroy(@local_droplet.remote_id)
-    if response.success?
-      return nil
-    end
-    if response.id == 'not_found'
+    if response.success? || response.id == 'not_found'
+      @local_droplet.update_columns(remote_id: nil)
       return nil
     end
     Rails.logger.warn "DO::Droplet#destroy: response #{response}, MC #{@local_droplet.minecraft_server_id}, droplet #{@local_droplet.id}"

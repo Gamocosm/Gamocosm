@@ -1,3 +1,6 @@
+<% content_for :head %>
+	<meta http-equiv="refresh" content="8" />
+<% end %>
 <div>
 	<% if @server.pending_operation == 'starting' %>
 		Your server is being created.
@@ -43,7 +46,7 @@
 		Hmmmm.
 	<% end %>
 	<br />
-	Please refresh the page periodically.
+	This page will automatically refresh itself, but feel free to refresh this page yourself.
 	<hr />
 		<%= render partial: 'advanced' %>
 	<hr />

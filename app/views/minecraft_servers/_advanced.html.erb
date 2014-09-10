@@ -4,9 +4,11 @@
 		<%= f.input :saved_snapshot_id %>
 		<%= f.input :remote_setup_stage %>
 		<%= f.input :pending_operation %>
+		<%= f.simple_fields_for :droplet do |droplet_f| %>
+			<%= droplet_f.input :remote_id, label: 'Digital ocean droplet' %>
+		<% end %>
 		<%= f.input :digital_ocean_region_slug %>
 		<%= f.input :digital_ocean_size_slug %>
 		<%= f.button :submit, 'Update', class: 'btn btn-success' %>
-		<%= link_to 'Destroy Droplet', destroy_droplet_minecraft_server_path(@server), class: "btn btn-warning pull-right #{@server.droplet.nil? ? 'disabled' : ''}" %>
 	<% end %>
 <% end %>

@@ -26,7 +26,6 @@ class WaitForSnapshottingServerWorker
       raise error
     end
     droplet.minecraft_server.update_columns(pending_operation: nil)
-    droplet.destroy
   rescue ActiveRecord::RecordNotFound => e
     Rails.logger.info "Record in #{self.class} not found #{e.message}"
   end

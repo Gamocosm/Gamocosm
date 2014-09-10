@@ -12,6 +12,14 @@
 class Droplet < ActiveRecord::Base
   belongs_to :minecraft_server
 
+  validates :remote_id, numericality: { only_integer: true }
+
+  before_validation :before_validate_callback
+
+  def before_validate_callback
+    self.remote_id = self.remote_id.blank? ? nil : self.remote_id
+  end
+
   def remote
     if @remote.nil?
       @remote = DigitalOcean::Droplet.new(self)
