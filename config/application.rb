@@ -22,6 +22,6 @@ module Gamocosm
     # config.i18n.default_locale = :de
 
     # Custom
-    config.cache_store = :dalli_store, 'localhost', { namespace: 'gamocosm', expires_in: 24.hours, compress: true }
+    config.cache_store = :dalli_store, 'localhost', { namespace: "gamocosm-#{Rails.env}", expires_in: 24.hours, compress: true }
   end
 end

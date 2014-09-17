@@ -50,23 +50,27 @@ This is for Econfig. Values added here are available in ruby from `Gamocosm.foo`
 ##### Database configuration
 Locate `pg_hba.conf`. On Fedora this is in `/var/lib/pgsql/data/`.
 This file tells postgresql how to authenticate users. Read about it on the [PostgreSQL docs][1].
+The postgres user you use must be a postgres superuser, as rails needs to enable the uuid extension.
+To create a postgres user "gamocosm":
 
-Depending on what method you want to use, add the following under the line that looks like `# TYPE DATABASE USER ADDRESS METHOD`
+- Switch to the `postgres` user: `(sudo) su - postgres`
+- Run `createuser --createdb --pwprompt --superuser gamocosm` (`createuser --help` for more info)
+
+Depending on what method you want to use, add the following under the line that looks like `# TYPE DATABASE USER ADDRESS METHOD`.
+By default, `config/database.yml` uses `ENV['USER']` (your OS username) as the database username, for peer identification.
+The examples use "gamocosm" as the username; change this to whatever your OS username is.
+Alternatively, you can edit `config/database.yml` to use a different user.
 
 - trust
 	- Easiest, but least secure. Typically ok on development machines. Blindly trusts the user
 	- Add `local all gamocosm trust`
 - peer
 	- Checks if the postgresql user matches the operating system user
-	- You will have to change the user in `config/database.yml` to your OS username
+	- Create a postgres user with your OS username (example uses "gamocosm")
 	- Add `local all gamocosm peer`. Note: an entry `local all all peer` may already exist, so you won't have to do anything
 - md5
 	- Client supplies an MD5-encrypted password
-	- Switch to the `postgres` user: `(sudo) su - postgres`
-	- Create a `gamocosm` user: `createuser --createdb --pwprompt --superuser gamocosm`, `createuser --help` for more info
 	- Add `local all gamocosm md5`
-
-You could replace "gamocosm" under the "user" column with "all".
 
 ##### Other useful stuff
 - Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `config/app.yml`

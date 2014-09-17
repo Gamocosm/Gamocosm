@@ -6,9 +6,11 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
-user = User.new
-user.email = 'test@test.com'
-user.password = '1234test'
-user.password_confirmation = '1234test'
-user.digital_ocean_api_key = Gamocosm.digital_ocean_api_key
-user.save!
+if Rails.env.development?
+  user = User.new
+  user.email = 'test@test.com'
+  user.password = '1234test'
+  user.password_confirmation = user.password
+  user.digital_ocean_api_key = Gamocosm.digital_ocean_api_key
+  user.save!
+end
