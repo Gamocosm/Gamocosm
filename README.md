@@ -1,6 +1,10 @@
 Gamocosm
 ========
 
+## Update as of Microsoft buying Mojang
+Whelp, well 6+ months of effort possibly down the drain.
+This is in limbo until Microsoft's plans for Minecraft are clear... don't even know if they'll allow public servers
+
 Gamocosm makes it easy to run cloud Minecraft servers.
 Digital Ocean is used as the backend/hosting service, due to cost, reliability, and accessibility.
 Gamocosm works well for friends who play together, but not 24/7.
