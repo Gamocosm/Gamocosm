@@ -1,12 +1,12 @@
 <%= panel_with_heading 'Control Panel' do %>
-	<h4 class="text-center">Physical Server</h4>
+	<h4 class="text-center">Physical Computer</h4>
 	<%= link_to 'Start', start_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? || @server.user.digital_ocean_invalid? ? 'disabled' : ''}" %>
 	<%= link_to 'Stop', stop_minecraft_server_path(@server), class: "btn btn-danger btn-block #{@server.droplet_running? && !@server.user.digital_ocean_invalid? ? '' : 'disabled'}" %>
 	<%= link_to 'Reboot', reboot_minecraft_server_path(@server), class: "btn btn-info btn-block #{@server.droplet_running? ? '' : 'disabled'}" %>
 	<hr />
 	<h4 class="text-center">Minecraft</h4>
-	<%= link_to 'Resume', resume_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? && !@server.game_running? ? '' : 'disabled'}" %>
-	<%= link_to 'Pause', pause_minecraft_server_path(@server), class: "btn btn-info btn-block #{@server.droplet_running? && @server.game_running? ? '' : 'disabled'}" %>
+	<%= link_to 'Start', resume_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? && !@server.game_running? ? '' : 'disabled'}" %>
+	<%= link_to 'Stop', pause_minecraft_server_path(@server), class: "btn btn-info btn-block #{@server.droplet_running? && @server.game_running? ? '' : 'disabled'}" %>
 	<hr />
 	<%= link_to 'Backup remotely', backup_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? && !@server.game_running? ? '' : 'disabled'}" %>
 	<%= link_to 'Download world', download_minecraft_server_path(@server), class: "btn btn-info btn-block #{@server.droplet_running? && !@server.game_running? ? '' : 'disabled'}" %>

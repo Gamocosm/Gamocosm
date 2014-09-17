@@ -58,9 +58,7 @@ class DigitalOcean::Droplet
   end
 
   def create
-    user = @local_droplet.minecraft_server.user
-    connection = user.digital_ocean
-    if connection.nil?
+    if @connection.nil?
       return 'Digital Ocean API token missing'
     end
     ssh_key_id = user.digital_ocean_gamocosm_ssh_key_id
@@ -75,7 +73,7 @@ class DigitalOcean::Droplet
       region: @local_droplet.minecraft_server.digital_ocean_region_slug,
       ssh_keys: [ssh_key_id.to_s],
     }
-    response = connection.droplet.create(params)
+    response = @connection.droplet.create(params)
     if response.success?
       @local_droplet.update_columns(remote_id: response.droplet.id)
       return nil
@@ -85,11 +83,10 @@ class DigitalOcean::Droplet
   end
 
   def shutdown
-    connection = @local_droplet.minecraft_server.user.digital_ocean
-    if connection.nil?
+    if @connection.nil?
       return 'Digital Ocean API Token missing'
     end
-    response = connection.droplet.shutdown(@local_droplet.remote_id)
+    response = @connection.droplet.shutdown(@local_droplet.remote_id)
     if response.success?
       return nil
     end
@@ -98,11 +95,10 @@ class DigitalOcean::Droplet
   end
 
   def snapshot
-    connection = @local_droplet.minecraft_server.user.digital_ocean
-    if connection.nil?
+    if @connection.nil?
       return 'Digital Ocean API Token missing'
     end
-    response = connection.droplet.snapshot(@local_droplet.remote_id, name: @local_droplet.host_name)
+    response = @connection.droplet.snapshot(@local_droplet.remote_id, name: @local_droplet.host_name)
     if response.success?
       @snapshot_action_id = response.action.id
       return nil
@@ -117,17 +113,18 @@ class DigitalOcean::Droplet
 
   def sync
     if @remote_data.nil?
-      @remote_data = @connection.droplet.show(@local_droplet.remote_id)
+      if @connection
+        @remote_data = @connection.droplet.show(@local_droplet.remote_id)
+      end
     end
     return @remote_data
   end
 
   def reboot
-    connection = @local_droplet.minecraft_server.user.digital_ocean
-    if connection.nil?
+    if @connection.nil?
       return 'Digital Ocean API Token missing'
     end
-    response = connection.droplet.reboot(@local_droplet.remote_id)
+    response = @connection.droplet.reboot(@local_droplet.remote_id)
     if response.success?
       return nil
     end
@@ -143,11 +140,10 @@ class DigitalOcean::Droplet
   end
 
   def destroy
-    connection = @local_droplet.minecraft_server.user.digital_ocean
-    if connection.nil?
+    if @connection.nil?
       return 'Digital Ocean API Token missing'
     end
-    response = connection.droplet.destroy(@local_droplet.remote_id)
+    response = @connection.droplet.destroy(@local_droplet.remote_id)
     if response.success? || response.id == 'not_found'
       @local_droplet.update_columns(remote_id: nil)
       return nil

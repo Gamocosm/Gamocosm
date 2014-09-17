@@ -10,7 +10,10 @@ class StartServerWorker
     if !minecraft_server.resume
       Rails.logger.warn "StartServerWorker#perform: minecraft server #{minecraft_server_id} unable to resume"
     end
-    minecraft_server.user.digital_ocean.image.destroy(minecraft_server.saved_snapshot_id)
+    connection = minecraft_server.user.digital_ocean
+    if connection
+      connection.image.destroy(minecraft_server.saved_snapshot_id)
+    end
     minecraft_server.update_columns(remote_setup_stage: 1, pending_operation: nil, saved_snapshot_id: nil)
   rescue ActiveRecord::RecordNotFound => e
     Rails.logger.info "Record in #{self.class} not found #{e.message}"
