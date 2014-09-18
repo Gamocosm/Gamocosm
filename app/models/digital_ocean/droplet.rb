@@ -19,7 +19,7 @@ class DigitalOcean::Droplet
 
   def ip_address
     data = self.sync
-    return data.try(:droplet).try(:networks).try(:v4).try(:[], 0).try(:ip_address)
+    return data.try(:droplet).try(:networks).try(:v4).try(:select) { |x| x.type == 'public' }.try(:[], 0).try(:ip_address)
   end
 
   def status
@@ -61,7 +61,8 @@ class DigitalOcean::Droplet
     if @connection.nil?
       return 'Digital Ocean API token missing'
     end
-    ssh_key_id = @local_droplet.minecraft_server.user.digital_ocean_gamocosm_ssh_key_id
+    user = @local_droplet.minecraft_server.user
+    ssh_key_id = user.digital_ocean_gamocosm_ssh_key_id
     if ssh_key_id.nil?
       Rails.logger.warn "DO::Droplet#create: ssh key id was null, user #{user.id}"
       return 'Unable to get gamocosm ssh key id'

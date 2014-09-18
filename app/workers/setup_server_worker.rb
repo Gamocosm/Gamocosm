@@ -10,6 +10,10 @@ class SetupServerWorker
   def perform(user_id, droplet_id)
     user = User.find(user_id)
     droplet = Droplet.find(droplet_id)
+    if droplet.remote.nil?
+      logger.info "Droplet #{droplet_id} in #{self.class} remote nil"
+      return
+    end
     host = SSHKit::Host.new(droplet.ip_address.to_s)
     host.user = 'root'
     host.key = Gamocosm.digital_ocean_ssh_private_key_path
@@ -79,7 +83,7 @@ class SetupServerWorker
         end
       end
     end
-    StartServerWorker.perform_in(4.seconds, droplet.minecraft_server_id)
+    StartMinecraftWorker.perform_in(4.seconds, droplet.minecraft_server_id)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
   end

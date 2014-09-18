@@ -7,6 +7,10 @@ class WaitForStartingServerWorker
 
   def perform(user_id, droplet_id)
     droplet = Droplet.find(droplet_id)
+    if droplet.remote.nil?
+      logger.info "Droplet #{droplet_id} in #{self.class} remote nil"
+      return
+    end
     error = droplet.remote.error
     if error
       raise "Error with droplet #{droplet_id} remote: #{error}"

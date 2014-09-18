@@ -7,6 +7,10 @@ class WaitForSnapshottingServerWorker
 
   def perform(droplet_id, digital_ocean_snapshot_action_id)
     droplet = Droplet.find(droplet_id)
+    if droplet.remote.nil?
+      logger.info "Droplet #{droplet_id} in #{self.class} remote nil"
+      return
+    end
     error = droplet.remote.error
     if droplet.remote.error
       raise "Error with droplet #{droplet_id} remote: #{error}"

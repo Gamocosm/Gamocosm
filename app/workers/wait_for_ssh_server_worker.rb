@@ -10,10 +10,14 @@ class WaitForSSHServerWorker
 
   def perform(user_id, droplet_id, times = 0)
     droplet = Droplet.find(droplet_id)
-    if times > 16
+    if times > 8
       logger.warn "WaitForSSHServerWorker#perform: cannot ssh into droplet, user #{user_id}, droplet #{droplet_id}"
       droplet.minecraft_server.destroy_remote
       droplet.minecraft_server.update_columns(pending_operation: nil)
+      return
+    end
+    if droplet.remote.nil?
+      logger.info "Droplet #{droplet_id} in #{self.class} remote nil"
       return
     end
     host = SSHKit::Host.new(droplet.ip_address.to_s)

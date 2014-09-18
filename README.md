@@ -87,6 +87,8 @@ Methods that "return things" should use `.error!` to mark a return value is an e
 You can use `.error?` to check if a return value is an error. `nil` cannot be made an error.
 These methods are defined on `Object` in `config/initializers/error.rb`
 Why don't I use exceptions? Hmmmmm...
+I prefer only throwing exceptions in "exceptional cases", not when I know something might be wrong (e.g. user input).
+I don't like wrapping everything in try-catches for simple error checking.
 
 #### Other useful stuff
 - Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `config/app.yml`

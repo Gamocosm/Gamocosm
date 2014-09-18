@@ -21,6 +21,9 @@ class Droplet < ActiveRecord::Base
   end
 
   def remote
+    if remote_id.nil?
+      return nil
+    end
     if @remote.nil?
       @remote = DigitalOcean::Droplet.new(self)
     end

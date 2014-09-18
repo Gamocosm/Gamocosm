@@ -20,7 +20,7 @@ class MinecraftServersController < ApplicationController
     @server = current_user.minecraft_servers.new(minecraft_server_params)
     if @server.save
       @server.create_droplet
-      return redirect_to minecraft_server_path(@server), notice: 'You made a new server! It is not started yet'
+      return redirect_to minecraft_server_path(@server), notice: 'You made a new server! Start it to play'
     else
       load_index
       @servers = current_user.minecraft_servers.reload
