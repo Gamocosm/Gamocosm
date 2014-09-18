@@ -18,7 +18,7 @@ class WaitForStartingServerWorker
     droplet.minecraft_server.update_columns(pending_operation: 'preparing')
     WaitForSSHServerWorker.perform_in(4.seconds, user_id, droplet_id)
   rescue ActiveRecord::RecordNotFound => e
-    Rails.logger.info "Record in #{self.class} not found #{e.message}"
+    logger.info "Record in #{self.class} not found #{e.message}"
   end
 
 end

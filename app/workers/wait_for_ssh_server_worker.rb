@@ -11,9 +11,9 @@ class WaitForSSHServerWorker
   def perform(user_id, droplet_id, times = 0)
     droplet = Droplet.find(droplet_id)
     if times > 16
-      Rails.logger.warn "WaitForSSHServerWorker#perform: cannot ssh into droplet, user #{user_id}, droplet #{droplet_id}"
+      logger.warn "WaitForSSHServerWorker#perform: cannot ssh into droplet, user #{user_id}, droplet #{droplet_id}"
       droplet.minecraft_server.destroy_remote
-      droplet.minecraft_server.update_columns(remote_setup_stage: 1, pending_operation: nil)
+      droplet.minecraft_server.update_columns(pending_operation: nil)
       return
     end
     host = SSHKit::Host.new(droplet.ip_address.to_s)
@@ -36,7 +36,7 @@ class WaitForSSHServerWorker
     end
     SetupServerWorker.perform_in(0.seconds, user_id, droplet_id)
   rescue ActiveRecord::RecordNotFound => e
-    Rails.logger.info "Record in #{self.class} not found #{e.message}"
+    logger.info "Record in #{self.class} not found #{e.message}"
   end
 end
 

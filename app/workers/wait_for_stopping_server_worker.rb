@@ -16,7 +16,7 @@ class WaitForStoppingServerWorker
       return
     end
     if droplet.remote.status != 'off'
-      Rails.logger.warn "Droplet #{droplet_id} in WaitForStoppingServerWorker not busy but status off, was #{droplet.remote.status}"
+      logger.warn "Droplet #{droplet_id} in WaitForStoppingServerWorker not busy but status off, was #{droplet.remote.status}"
       error = droplet.remote.shutdown
       if error
         raise error
@@ -31,7 +31,7 @@ class WaitForStoppingServerWorker
     droplet.minecraft_server.update_columns(pending_operation: 'saving')
     WaitForSnapshottingServerWorker.perform_in(4.seconds, droplet_id, droplet.remote.snapshot_action_id)
   rescue ActiveRecord::RecordNotFound => e
-    Rails.logger.info "Record in #{self.class} not found #{e.message}"
+    logger.info "Record in #{self.class} not found #{e.message}"
   end
 
 end

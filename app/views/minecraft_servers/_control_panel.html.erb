@@ -1,5 +1,5 @@
 <%= panel_with_heading 'Control Panel' do %>
-	<h4 class="text-center">Physical Computer</h4>
+	<h4 class="text-center">Physical Server</h4>
 	<%= link_to 'Start', start_minecraft_server_path(@server), class: "btn btn-success btn-block #{@server.droplet_running? || @server.user.digital_ocean_invalid? ? 'disabled' : ''}" %>
 	<%= link_to 'Stop', stop_minecraft_server_path(@server), class: "btn btn-danger btn-block #{@server.droplet_running? && !@server.user.digital_ocean_invalid? ? '' : 'disabled'}" %>
 	<%= link_to 'Reboot', reboot_minecraft_server_path(@server), class: "btn btn-info btn-block #{@server.droplet_running? ? '' : 'disabled'}" %>

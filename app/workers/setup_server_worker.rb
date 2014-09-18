@@ -72,7 +72,6 @@ class SetupServerWorker
         within '/tmp/' do
           execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '5000', '-j', 'ACCEPT'
           execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '25565', '-j', 'ACCEPT'
-          execute 'iptables-save'
           execute :systemctl, 'mask', 'firewalld.service'
           execute :systemctl, 'enable', 'iptables.service'
           execute :systemctl, 'enable', 'ip6tables.service'
@@ -82,6 +81,6 @@ class SetupServerWorker
     end
     StartServerWorker.perform_in(4.seconds, droplet.minecraft_server_id)
   rescue ActiveRecord::RecordNotFound => e
-    Rails.logger.info "Record in #{self.class} not found #{e.message}"
+    logger.info "Record in #{self.class} not found #{e.message}"
   end
 end

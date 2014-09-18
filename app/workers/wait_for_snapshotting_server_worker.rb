@@ -13,7 +13,7 @@ class WaitForSnapshottingServerWorker
     end
     event = DigitalOcean::DropletAction.new(droplet.remote_id, digital_ocean_snapshot_action_id, droplet.minecraft_server.user)
     if event.has_error?
-      Rails.logger.info "Error with droplet #{droplet_id}, digital ocean snapshot event #{digital_ocean_snapshot_action_id} failed with #{event.show}"
+      logger.info "Error with droplet #{droplet_id}, digital ocean snapshot event #{digital_ocean_snapshot_action_id} failed with #{event.show}"
       WaitForStoppingServerWorker.perform_in(0.seconds, droplet_id)
       return
     elsif !event.is_done? || droplet.remote.busy?
@@ -27,7 +27,7 @@ class WaitForSnapshottingServerWorker
     end
     droplet.minecraft_server.update_columns(pending_operation: nil)
   rescue ActiveRecord::RecordNotFound => e
-    Rails.logger.info "Record in #{self.class} not found #{e.message}"
+    logger.info "Record in #{self.class} not found #{e.message}"
   end
 
 end

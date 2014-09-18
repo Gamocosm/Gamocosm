@@ -72,7 +72,23 @@ Alternatively, you can edit `config/database.yml` to use a different user.
 	- Client supplies an MD5-encrypted password
 	- Add `local all gamocosm md5`
 
-##### Other useful stuff
+#### Technical details
+Hmmmm.
+
+##### Data
+Gamocosm has a lot of infrastructure; there's Digital Ocean's API, there're the Digital Ocean servers/droplets, there's Minecraft and its wrapper on the servers, the Gamocosm rails server, and the Gamocosm sidekiq worker.
+Avoid state whenever possible. Less data equals less chance of corruption.
+Idempotency is good.
+
+##### Error handling
+Methods that "do things" should return nil on success, or a message or object on error.
+
+Methods that "return things" should use `.error!` to mark a return value is an error.
+You can use `.error?` to check if a return value is an error. `nil` cannot be made an error.
+These methods are defined on `Object` in `config/initializers/error.rb`
+Why don't I use exceptions? Hmmmmm...
+
+#### Other useful stuff
 - Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `config/app.yml`
 - The Sidekiq web interface is mounted at `/sidekiq`
 - New Relic RPM is available in developer mode at `/newrelic`

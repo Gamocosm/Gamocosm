@@ -12,7 +12,7 @@
 class Droplet < ActiveRecord::Base
   belongs_to :minecraft_server
 
-  validates :remote_id, numericality: { only_integer: true }
+  validates :remote_id, numericality: { only_integer: true }, allow_nil: true
 
   before_validation :before_validate_callback
 

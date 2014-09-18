@@ -2,14 +2,14 @@ class MinecraftServersController < ApplicationController
   before_action :authenticate_user!
 
   def load_index
-    @servers = current_user.minecraft_servers
-    @server = MinecraftServer.new
     @droplets = current_user.digital_ocean_droplets
     @snapshots = current_user.digital_ocean_snapshots
     @friend_minecraft_servers = current_user.friend_minecraft_servers
   end
 
   def index
+    @server = MinecraftServer.new
+    @servers = current_user.minecraft_servers
     load_index
   end
 
@@ -20,9 +20,10 @@ class MinecraftServersController < ApplicationController
     @server = current_user.minecraft_servers.new(minecraft_server_params)
     if @server.save
       @server.create_droplet
-      return redirect_to minecraft_server_path(@server), notice: 'Server created'
+      return redirect_to minecraft_server_path(@server), notice: 'You made a new server! It is not started yet'
     else
       load_index
+      @servers = current_user.minecraft_servers.reload
       flash.now[:error] = 'Something went wrong. Please try again'
       return render :index
     end

@@ -61,7 +61,7 @@ class DigitalOcean::Droplet
     if @connection.nil?
       return 'Digital Ocean API token missing'
     end
-    ssh_key_id = user.digital_ocean_gamocosm_ssh_key_id
+    ssh_key_id = @local_droplet.minecraft_server.user.digital_ocean_gamocosm_ssh_key_id
     if ssh_key_id.nil?
       Rails.logger.warn "DO::Droplet#create: ssh key id was null, user #{user.id}"
       return 'Unable to get gamocosm ssh key id'
