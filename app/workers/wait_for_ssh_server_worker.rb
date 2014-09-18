@@ -16,8 +16,8 @@ class WaitForSSHServerWorker
       droplet.minecraft_server.update_columns(pending_operation: nil)
       return
     end
-    if droplet.remote.nil?
-      logger.info "Droplet #{droplet_id} in #{self.class} remote nil"
+    if !droplet.remote.exists?
+      logger.info "Droplet #{droplet_id} in #{self.class} remote doesn't exist (remote_id nil)"
       return
     end
     host = SSHKit::Host.new(droplet.ip_address.to_s)

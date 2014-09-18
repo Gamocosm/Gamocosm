@@ -50,11 +50,23 @@ class DigitalOcean::Droplet
     return nil
   end
 
+  def snapshot_id
+    data = self.sync
+    if data.success?
+      return data.try(:droplet).try(:snapshot_ids).try(:sort).try(:[], -1)
+    end
+    return nil
+  end
+
   def event
     if action_id.nil?
       return nil
     end
     return DigitalOcean::DropletAction.new(@local_droplet.remote_id, action_id, @local_droplet.minecraft_server.user)
+  end
+
+  def exists?
+    return !@local_droplet.remote_id.nil?
   end
 
   def create

@@ -10,8 +10,8 @@ class SetupServerWorker
   def perform(user_id, droplet_id)
     user = User.find(user_id)
     droplet = Droplet.find(droplet_id)
-    if droplet.remote.nil?
-      logger.info "Droplet #{droplet_id} in #{self.class} remote nil"
+    if !droplet.remote.exists?
+      logger.info "Droplet #{droplet_id} in #{self.class} remote doesn't exist (remote_id nil)"
       return
     end
     host = SSHKit::Host.new(droplet.ip_address.to_s)

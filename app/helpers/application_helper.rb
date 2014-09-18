@@ -14,7 +14,7 @@ module ApplicationHelper
   end
 
   def render_server_ip_address(server, fallback = nil)
-    if server.droplet && server.droplet.ip_address
+    if server.droplet.remote.exists? && server.droplet.ip_address
       return server.droplet.ip_address
     end
     return fallback || 'Not running'

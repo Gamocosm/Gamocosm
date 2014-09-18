@@ -7,8 +7,8 @@ class WaitForSnapshottingServerWorker
 
   def perform(droplet_id, digital_ocean_snapshot_action_id)
     droplet = Droplet.find(droplet_id)
-    if droplet.remote.nil?
-      logger.info "Droplet #{droplet_id} in #{self.class} remote nil"
+    if !droplet.remote.exists?
+      logger.info "Droplet #{droplet_id} in #{self.class} remote doesn't exist (remote_id nil)"
       return
     end
     error = droplet.remote.error
@@ -24,7 +24,7 @@ class WaitForSnapshottingServerWorker
       WaitForSnapshottingServerWorker.perform_in(4.seconds, droplet_id, digital_ocean_snapshot_action_id)
       return
     end
-    droplet.minecraft_server.update_columns(saved_snapshot_id: event.resource_id)
+    droplet.minecraft_server.update_columns(saved_snapshot_id: droplet.remote.snapshot_id)
     error = droplet.remote.destroy
     if error
       raise error
