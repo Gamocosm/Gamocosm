@@ -13,19 +13,22 @@ module ApplicationHelper
     result.html_safe
   end
 
-  def render_server_ip_address(server, fallback = nil)
-    if server.droplet.remote.exists? && server.droplet.ip_address
-      return server.droplet.ip_address
+  def render_minecraft_ip_address(minecraft, fallback = nil)
+    if minecraft.server.remote.exists? && minecraft.server.remote.ip_address
+      return minecraft.server.remote.ip_address
     end
     return fallback || 'Not running'
   end
 
-  def render_server_status(server)
-    if server.pending_operation
-      return server.pending_operation
+  def render_server_status(minecraft)
+    if minecraft.server.pending_operation
+      return minecraft.server.pending_operation
     end
-    if server.droplet_running?
-      return server.droplet.remote_status
+    if minecraft.server.error?
+      return 'Error'
+    end
+    if minecraft.server.running?
+      return minecraft.server.remote.status
     end
     return 'Not running'
   end

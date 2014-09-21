@@ -1,0 +1,13 @@
+<br />
+<%= simple_form_for @minecraft, url: minecraft_path(@minecraft), method: :put do |f| %>
+	<%= panel_with_heading 'Advanced Configuration' do %>
+		<%= f.simple_fields_for :server do |s_f| %>
+			<%= s_f.input :remote_setup_stage %>
+			<%= s_f.input :pending_operation %>
+			<%= s_f.input :do_saved_snapshot_id, label: 'Digital Ocean saved snapshot id' %>
+			<%= s_f.input :do_region_slug, label: 'Digital Ocean region slug' %>
+			<%= s_f.input :do_size_slug, label: 'Digital Ocean size slug' %>
+		<% end %>
+		<%= f.button :submit, 'Update', class: 'btn btn-success' %>
+	<% end %>
+<% end %>

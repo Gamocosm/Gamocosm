@@ -1,28 +1,28 @@
-<% if @server.user.digital_ocean_invalid? %>
+<% if @minecraft.user.digital_ocean_invalid? %>
 	<%= render partial: 'digital_ocean_invalid' %>
 <% end %>
 <div class="row">
 	<div class="col-sm-12">
 		<div class="page-header">
-			<h1><%= @server.name %></h1>
+			<h1><%= @minecraft.name %></h1>
 		</div>
 	</div>
 </div>
-<% if @server.busy? %>
+<% if @minecraft.server.busy? %>
 	<%= render partial: 'busy' %>
 <% else %>
-	<% if @server.is_owner?(current_user) %>
+	<% if @minecraft.is_owner?(current_user) %>
 		<div class="row">
 			<div class="col-sm-9">
 				<ul class="nav nav-tabs">
-					<li class="<%= @server_advanced_tab.nil? ? 'active' : '' %>"><%= link_to 'Profile', minecraft_server_path(@server, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
-					<li><%= link_to 'Minecraft Settings', minecraft_server_path(@server, anchor: 'settings'), 'data-toggle' => 'tab' %></li>
-					<li><%= link_to 'FTP and SSH Access', minecraft_server_path(@server, anchor: 'ftp_ssh'), 'data-toggle' => 'tab' %></li>
-					<li class="<%= @server_advanced_tab ? 'active' : '' %>"><%= link_to 'Advanced', minecraft_server_path(@server, anchor: 'advanced'), 'data-toggle' => 'tab' %></li>
+					<li class="<%= @minecraft_advanced_tab.nil? ? 'active' : '' %>"><%= link_to 'Profile', minecraft_path(@minecraft, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
+					<li><%= link_to 'Minecraft Settings', minecraft_path(@minecraft, anchor: 'settings'), 'data-toggle' => 'tab' %></li>
+					<li><%= link_to 'FTP and SSH Access', minecraft_path(@minecraft, anchor: 'ftp_ssh'), 'data-toggle' => 'tab' %></li>
+					<li class="<%= @minecraft_advanced_tab ? 'active' : '' %>"><%= link_to 'Advanced', minecraft_path(@minecraft, anchor: 'advanced'), 'data-toggle' => 'tab' %></li>
 				</ul>
 
 				<div class="tab-content">
-					<div class="tab-pane <%= @server_advanced_tab.nil? ? 'active' : '' %>" id="profile">
+					<div class="tab-pane <%= @minecraft_advanced_tab.nil? ? 'active' : '' %>" id="profile">
 						<br />
 						<%= render partial: 'profile' %>
 					</div>
@@ -32,7 +32,7 @@
 					<div class="tab-pane" id="ftp_ssh">
 						<%= render partial: 'ftp_ssh' %>
 					</div>
-					<div class="tab-pane <%= @server_advanced_tab ? 'active' : '' %>" id="advanced">
+					<div class="tab-pane <%= @minecraft_advanced_tab ? 'active' : '' %>" id="advanced">
 						<%= render partial: 'advanced' %>
 					</div>
 				</div>

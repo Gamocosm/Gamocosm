@@ -1,20 +1,20 @@
 <div class="row">
 	<div class="col-sm-6">
 		<%= panel_with_heading 'IP Address' do %>
-			<%= render_server_ip_address(@server) %>
+			<%= render_minecraft_ip_address(@minecraft) %>
 		<% end %>
 	</div>
 	<div class="col-sm-6">
 		<%=panel_with_heading 'Status' do %>
-			<%= render_server_status(@server) %>
+			<%= render_server_status(@minecraft) %>
 		<% end %>
 	</div>
 </div>
-<% if @server.is_owner?(current_user) && @server.game_running? %>
+<% if @minecraft.is_owner?(current_user) && @minecraft.running? %>
 	<div class="row">
 		<div class="col-sm-12">
 			<%= panel_with_heading 'Send Command to Server' do %>
-				<%= simple_form_for :command, url: command_minecraft_server_path(@server) do |f| %>
+				<%= simple_form_for :command, url: command_minecraft_path(@minecraft) do |f| %>
 					<%= f.input :data, as: :string %>
 					<%= f.button :submit, 'Send', class: 'btn btn-success' %>
 				<% end %>
@@ -22,20 +22,20 @@
 		</div>
 	</div>
 <% end %>
-<% if @server.is_owner?(current_user) %>
+<% if @minecraft.is_owner?(current_user) %>
 	<div class="row">
 		<div class="col-sm-6">
 			<%= panel_with_heading 'Friends' do %>
 				<table class="table table-striped">
 					<tbody>
-						<% if @server.friends.blank? %>
+						<% if @minecraft.friends.blank? %>
 							<tr><td colspan="2"><em>Tell your friends to sign up and add them to your server to let them start and stop it when you're offline.</em></td></tr>
 						<% else %>
-							<%= render partial: 'minecraft_servers/friend', collection: @server.friends %>
+							<%= render partial: 'friend', collection: @minecraft.friends %>
 						<% end %>
 					</tbody>
 				</table>
-				<%= simple_form_for :minecraft_server_friend, url: add_friend_minecraft_server_path(@server), method: :post do |f| %>
+				<%= simple_form_for :minecraft_friend, url: add_friend_minecraft_path(@minecraft), method: :post do |f| %>
 					<%= f.input :email %>
 					<%= f.button :submit, 'Add', class: 'btn btn-default' %>
 				<% end %>

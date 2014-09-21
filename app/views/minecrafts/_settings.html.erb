@@ -1,8 +1,8 @@
 <br />
-<% if @server.properties.nil? %>
+<% if @minecraft.properties.nil? %>
 	<p>Start droplet to edit Minecraft properties</p>
 <% else %>
-	<%= simple_form_for @server.properties, url: update_properties_minecraft_server_path(@server), method: :put do |f| %>
+	<%= simple_form_for @minecraft.properties, url: update_properties_minecraft_path(@minecraft), method: :put do |f| %>
 		<%= panel_with_heading 'Minecraft Properties' do %>
 			<%= f.input :allow_flight %>
 			<%= f.input :allow_nether %>

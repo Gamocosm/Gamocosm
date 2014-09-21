@@ -11,6 +11,6 @@ class RegistrationsController < Devise::RegistrationsController
   end
 
   def after_sign_up_path_for(resource)
-    return minecraft_servers_path
+    return minecrafts_path
   end
 end

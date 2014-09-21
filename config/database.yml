@@ -83,4 +83,4 @@ production:
   <<: *default
   database: gamocosm_production
   username: gamocosm
-  password: <%= ENV['GAMOCOSM_DATABASE_PASSWORD'] || Gamocosm.config.try(:[], :gamocosm_database_password) %>
+  password: <%= ENV['GAMOCOSM_DATABASE_PASSWORD'] || begin Gamocosm.gamocosm_databse_password rescue nil end %>

@@ -11,14 +11,16 @@
 				<div class="col-sm-6">
 					<h4>Droplets</h4>
 					<table class="table table-striped">
-						<% if @droplets.blank? %>
+						<% if @do_droplets.nil? %>
+							<tr><td><em>Your Digital Ocean API token is empty, or missing</em></td></tr>
+						<% elsif @do_droplets.empty? %>
 							<tr><td><em>You have no droplets on Digital Ocean</em></td></tr>
 						<% else %>
 							<tr>
 								<th>&nbsp;</th>
 								<th class="text-right">ID</th>
 							</tr>
-							<% @droplets.each do |x| %>
+							<% @do_droplets.each do |x| %>
 								<tr><td><%= x.name %></td><td class="text-right"><%= x.id %></td></tr>
 							<% end %>
 						<% end %>
@@ -27,14 +29,16 @@
 				<div class="col-sm-6">
 					<h4>Snapshots</h4>
 					<table class="table table-striped table-no_fixed">
-						<% if @snapshots.blank? %>
+						<% if @do_snapshots.nil? %>
+							<tr><td><em>Your Digital Ocean API token is empty, or missing</em></td></tr>
+						<% elsif @do_snapshots.empty? %>
 							<tr><td><em>You have no snapshots on Digital Ocean</em></td></tr>
 						<% else %>
 							<tr>
 								<th>&nbsp;</th>
 								<th class="text-right">ID</th>
 							</tr>
-							<% @snapshots.each do |x| %>
+							<% @do_snapshots.each do |x| %>
 								<tr>
 									<td><%= x.name %></td>
 									<td class="text-right"><%= x.id %></td>

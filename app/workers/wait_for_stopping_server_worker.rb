@@ -5,35 +5,41 @@ class WaitForStoppingServerWorker
     4
   end
 
-  def perform(droplet_id)
-    droplet = Droplet.find(droplet_id)
-    if !droplet.remote.exists?
-      logger.info "Droplet #{droplet_id} in #{self.class} remote doesn't exist (remote_id nil)"
+  def perform(server_id)
+    server = Server.find(server_id)
+    if !server.remote.exists?
+      logger.info "Server #{server_id} in #{self.class} remote doesn't exist (remote_id nil)"
+      server.reset
       return
     end
-    error = droplet.remote.error
-    if error
-      raise "Error with droplet #{droplet_id} remote: #{error}"
-    end
-    if droplet.remote.busy?
-      WaitForStoppingServerWorker.perform_in(4.seconds, droplet_id)
+    if server.remote.error?
+      logger.info "Error with server #{server} remote: #{server.remote.error}"
+      server.reset
       return
     end
-    if droplet.remote.status != 'off'
-      logger.warn "Droplet #{droplet_id} in WaitForStoppingServerWorker not busy but status off, was #{droplet.remote.status}"
-      error = droplet.remote.shutdown
+    if server.remote.busy?
+      WaitForStoppingServerWorker.perform_in(4.seconds, server_id)
+      return
+    end
+    if server.remote.status != 'off'
+      logger.warn "Server #{server_id} in WaitForStoppingServerWorker not busy but status off, was #{server.remote.status}"
+      error = server.remote.shutdown
       if error
-        raise error
+        logger.info "Error with server #{server_id}, unable to shutdown; #{error}"
+        server.reset_partial
+        return
       end
-      WaitForStoppingServerWorker.perform_in(4.seconds, droplet_id)
+      WaitForStoppingServerWorker.perform_in(4.seconds, server_id)
       return
     end
-    error = droplet.remote.snapshot
+    error = server.remote.snapshot
     if error
-      raise error
+      logger.info "Error with server #{server_id}, unable to snapshot; #{error}"
+      server.reset_partial
+      return
     end
-    droplet.minecraft_server.update_columns(pending_operation: 'saving')
-    WaitForSnapshottingServerWorker.perform_in(4.seconds, droplet_id, droplet.remote.snapshot_action_id)
+    server.update_columns(pending_operation: 'saving')
+    WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, server.remote.snapshot_action_id)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
   end

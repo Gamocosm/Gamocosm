@@ -39,7 +39,7 @@ Rails.application.routes.draw do
 
   root to: 'pages#landing'
 
-  resources :minecraft_servers, path: '/servers' do
+  resources :minecrafts, path: '/servers' do
     member do
       get 'start'
       get 'stop'

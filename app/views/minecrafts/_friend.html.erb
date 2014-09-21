@@ -1,7 +1,7 @@
 <tr>
 	<td><%= friend.email %></td>
 	<td>
-		<%= simple_form_for :minecraft_server_friend, url: remove_friend_minecraft_server_path(@server), method: :post do |f| %>
+		<%= simple_form_for :minecraft_friend, url: remove_friend_minecraft_path(@minecraft), method: :post do |f| %>
 			<%= f.input :email, as: :hidden, input_html: { value: friend.email } %>
 			<%= f.button :submit, 'Remove', class: 'btn btn-default pull-right' %>
 		<% end %>

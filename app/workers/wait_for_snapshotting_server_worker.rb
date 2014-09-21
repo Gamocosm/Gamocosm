@@ -5,31 +5,39 @@ class WaitForSnapshottingServerWorker
     4
   end
 
-  def perform(droplet_id, digital_ocean_snapshot_action_id)
-    droplet = Droplet.find(droplet_id)
-    if !droplet.remote.exists?
-      logger.info "Droplet #{droplet_id} in #{self.class} remote doesn't exist (remote_id nil)"
+  def perform(server_id, digital_ocean_snapshot_action_id)
+    server = Server.find(server_id)
+    if !server.remote.exists?
+      logger.info "Server #{server_id} in #{self.class} remote doesn't exist (remote_id nil)"
+      server.reset
       return
     end
-    error = droplet.remote.error
-    if droplet.remote.error
-      raise "Error with droplet #{droplet_id} remote: #{error}"
-    end
-    event = DigitalOcean::DropletAction.new(droplet.remote_id, digital_ocean_snapshot_action_id, droplet.minecraft_server.user)
-    if event.has_error?
-      logger.info "Error with droplet #{droplet_id}, digital ocean snapshot event #{digital_ocean_snapshot_action_id} failed with #{event.show}"
-      WaitForStoppingServerWorker.perform_in(0.seconds, droplet_id)
-      return
-    elsif !event.is_done? || droplet.remote.busy?
-      WaitForSnapshottingServerWorker.perform_in(4.seconds, droplet_id, digital_ocean_snapshot_action_id)
+    if server.remote.error?
+      logger.info "Error with server #{server_id} remote: #{server.remote.error}"
+      server.reset
       return
     end
-    droplet.minecraft_server.update_columns(saved_snapshot_id: droplet.remote.snapshot_id)
-    error = droplet.remote.destroy
+    event = DigitalOcean::Action.new(server.remote_id, digital_ocean_snapshot_action_id, server.minecraft.user)
+    if event.error?
+      logger.info "Error with server #{server_id}, digital ocean snapshot event #{digital_ocean_snapshot_action_id} failed with #{event.show}"
+      error = server.remote.shutdown
+      if error
+        logger.info "Error with server #{server_id}, unable to shutdown: #{error}"
+        server.reset_partial
+        return
+      end
+      WaitForStoppingServerWorker.perform_in(0.seconds, server_id)
+      return
+    elsif !event.done? || server.remote.busy?
+      WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, digital_ocean_snapshot_action_id)
+      return
+    end
+    server.update_columns(do_saved_snapshot_id: server.remote.latest_snapshot_id)
+    error = server.remote.destroy
     if error
-      raise error
+      logger.info "Error with server #{server_id}, unable to destroy server: #{error}"
     end
-    droplet.minecraft_server.update_columns(pending_operation: nil)
+    server.update_columns(pending_operation: nil)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
   end

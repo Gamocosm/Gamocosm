@@ -1,4 +1,4 @@
-class MinecraftServer::Properties
+class Minecraft::Properties
   include ActiveModel::Model
 
   attr_accessor :allow_flight,
@@ -24,17 +24,12 @@ class MinecraftServer::Properties
     :spawn_npcs,
     :spawn_protection,
     :white_list
-  attr_accessor :whitelist, :ops
 
-  def initialize(minecraft_server)
-    @minecraft_server = minecraft_server
-    if @minecraft_server.node.nil?
-      Rails.logger.warn "MC::Properties#initialize: node was nil, MC #{@minecraft_server.id}"
-      return
-    end
-    response = @minecraft_server.node.properties
-    if response.nil?
-      Rails.logger.warn "MC::Properties#initialize: node.properties response was nil, MC #{@minecraft_server.id}"
+  def initialize(minecraft)
+    @minecraft = minecraft
+    response = @minecraft.node.properties
+    if response.error?
+      error!
       return
     end
     refresh_properties(response)
@@ -67,15 +62,11 @@ class MinecraftServer::Properties
   end
 
   def update(properties)
-    if @minecraft_server.node.nil?
-      Rails.logger.warn "MC::Properties#update: node was nil, MC #{@minecraft_server.id}"
-      return false
-    end
-    response = @minecraft_server.node.update_properties(properties)
-    if response.nil?
-      Rails.logger.warn "MC::Properties#update: node.properties response was nil, MC #{@minecraft_server.id}"
-      return false
+    response = @minecraft.node.update_properties(properties)
+    if response.error?
+      return response
     end
     refresh_properties(response)
+    return nil
   end
 end

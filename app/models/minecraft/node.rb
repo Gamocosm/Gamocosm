@@ -1,9 +1,9 @@
-class MinecraftServer::Node
+class Minecraft::Node
   include HTTParty
   default_timeout 2
 
-  def initialize(local_minecraft_server, ip_address, port = '5000')
-    @local_minecraft_server = local_minecraft_server
+  def initialize(local_minecraft, ip_address, port = '5000')
+    @local_minecraft = local_minecraft
     @ip_address = ip_address
     @port = port
     @options = {
@@ -13,7 +13,7 @@ class MinecraftServer::Node
       },
       basic_auth: {
         username: Gamocosm.minecraft_wrapper_username,
-        password: @local_minecraft_server.minecraft_wrapper_password
+        password: @local_minecraft.minecraft_wrapper_password
       }
     }
   end
@@ -21,43 +21,50 @@ class MinecraftServer::Node
   def pid
     if @pid.nil?
       response = do_get(:pid)
-      @pid = response.nil? ? false : response['pid']
+      @pid = response.error? ? response : response['pid']
     end
-    return @pid == false ? nil : @pid
+    return @pid
   end
 
   def resume
-    response = do_post(:start, { ram: "#{@local_minecraft_server.ram}M" })
+    response = do_post(:start, { ram: "#{@local_minecraft.server.ram}M" })
     invalidate
-    return false if response.nil? # yes I know I can do return !response.nil? (or even return response)
-    return true
+    if response.error?
+      return response
+    end
+    return nil
   end
 
   def pause
     response = do_get(:stop)
     invalidate
-    return false if response.nil?
-    if response['retcode'] != 0
-      Rails.logger.warn "MC::Node#pause: response #{response}, mc #{@local_minecraft_server.id}"
+    if response.error?
+      return response
     end
-    return true
+    return nil
   end
 
   def exec(command)
     response = do_post(:exec, { command: command })
-    return false if response.nil?
-    return true
+    if response.error?
+      return response
+    end
+    return nil
   end
 
   def backup
     response = do_post(:backup, {})
-    return false if response.nil?
-    return true
+    if response.error?
+      return response
+    end
+    return nil
   end
 
   def properties
     response = do_get(:minecraft_properties)
-    return nil if response.nil?
+    if response.error?
+      return response
+    end
     return response['properties']
   end
 
@@ -67,17 +74,18 @@ class MinecraftServer::Node
       payload[k.to_s.gsub('_', '-')] = v.to_s
     end
     response = do_post(:minecraft_properties, { properties: payload })
-    return nil if response.nil?
+    if response.error?
+      return response
+    end
     return response['properties']
   end
 
   def update_wrapper
     response = do_post(:update_wrapper, {})
-    return false if response.nil?
-    return true
-  end
-
-  def download_world
+    if response.error?
+      return response
+    end
+    return nil
   end
 
   def do_get(endpoint)
@@ -86,7 +94,7 @@ class MinecraftServer::Node
       response = parse_response(response, endpoint)
       return response
     rescue => e
-      Rails.logger.warn "Exception: #{e}, endpoint #{endpoint}, MC #{@local_minecraft_server.id}"
+      Rails.logger.warn "Exception: #{e}, endpoint #{endpoint}, MC #{@local_minecraft.id}"
       Rails.logger.warn e.backtrace.join("\n")
     end
     return nil
@@ -99,7 +107,7 @@ class MinecraftServer::Node
       response = parse_response(self.class.post(full_url(endpoint), options), endpoint, data)
       return response
     rescue => e
-      Rails.logger.warn "Exception: #{e}, endpoint #{endpoint}, data #{data}, MC #{@local_minecraft_server.id}"
+      Rails.logger.warn "Exception: #{e}, endpoint #{endpoint}, data #{data}, MC #{@local_minecraft.id}"
       Rails.logger.warn e.backtrace.join("\n")
     end
     return nil
@@ -111,8 +119,7 @@ class MinecraftServer::Node
 
   def parse_response(response, endpoint, data = nil)
     if response['status'] != 0
-      Rails.logger.warn "MC::Node#parse_response: response #{response}, endpoint #{endpoint}, data #{data}, MC #{@local_minecraft_server.id}"
-      return nil
+      return response.error!
     end
     return response
   end

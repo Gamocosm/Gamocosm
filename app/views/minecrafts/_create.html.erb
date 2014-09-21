@@ -1,0 +1,12 @@
+<%= simple_form_for @minecraft, url: minecrafts_path do |f| %>
+	<%= f.input :name, input_html: { size: 32 } %>
+	<%= f.simple_fields_for :server do |s_f| %>
+		<%= s_f.input :do_size_slug, collection: DigitalOcean::Size.new.all.collect { |x| [x[:descriptor], x[:slug]] }, as: :select, include_blank: false, label: 'Size' %>
+		<%= s_f.input :do_region_slug, collection: DigitalOcean::Region.new.all.collect { |x| [x[:name], x[:slug]] }, as: :select, include_blank: false, label: 'Region (higher tier better)' %>
+	<% end %>
+	<br />
+	<%= link_to 'Digital Ocean pricing page', digital_ocean_pricing_path %>
+	<button class="btn btn-default pull-right <%= current_user.digital_ocean_invalid? ? 'disabled' : '' %>" type="submit">
+		Next <i class="fa fa-chevron-right"></i>
+	</button>
+<% end %>

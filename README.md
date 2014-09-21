@@ -90,6 +90,15 @@ Why don't I use exceptions? Hmmmmm...
 I prefer only throwing exceptions in "exceptional cases", not when I know something might be wrong (e.g. user input).
 I don't like wrapping everything in try-catches for simple error checking.
 
+##### Important checks
+- `server.remote.exists?`: `!server.remote_id.nil?`
+- `server.remote.error?`: whether there was an error or not retrieving info about a droplet from Digital Ocean
+	- true if the user is missing his Digital Ocean API token, or if it's invalid
+	- false if `!server.remote.exists?`
+	- don't need to check this before `server.remote` actions (e.g. `server.remote.create`)
+- `server.running?`: `server.remote.exists? && !server.remote.error? && server.remote.status == 'active'`
+- `user.digital_ocean.nil?`: Digital Ocean API token missing
+
 #### Other useful stuff
 - Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `config/app.yml`
 - The Sidekiq web interface is mounted at `/sidekiq`
