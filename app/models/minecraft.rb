@@ -14,6 +14,7 @@ class Minecraft < ActiveRecord::Base
   belongs_to :user
   has_one :server, dependent: :destroy
   has_and_belongs_to_many :friends, foreign_key: 'minecraft_id', class_name: 'User', dependent: :destroy
+  has_many :logs, foreign_key: 'minecraft_id', class_name: 'ServerLog', dependent: :destroy
 
   validates :name, format: { with: /\A[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,63})*\z/ }
   validates :name, length: { in: 3..128 }
@@ -52,8 +53,9 @@ class Minecraft < ActiveRecord::Base
     if server.busy?
       return 'Server is busy'
     end
-    if !node.pause
-      Rails.logger.warn "MC#stop: node.pause return false, MC #{id}"
+    error = node.pause
+    if error
+      Rails.logger.warn "MC#stop: node.pause returned #{error}, MC #{id}"
     end
     return server.stop
   end
@@ -102,6 +104,10 @@ class Minecraft < ActiveRecord::Base
 
   def is_friend?(someone)
     return friends.exists?(someone.id)
+  end
+
+  def log(message)
+    logs.create(message: message, debuginfo: caller[0])
   end
 
 end

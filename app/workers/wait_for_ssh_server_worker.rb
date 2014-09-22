@@ -10,19 +10,20 @@ class WaitForSSHServerWorker
 
   def perform(user_id, server_id, times = 0)
     server = Server.find(server_id)
+    minecraft = server.minecraft
     if times > 8
-      logger.warn "WaitForSSHServerWorker#perform: cannot ssh into server, user #{user_id}, server #{server_id}"
+      minecraft.log('Error connecting to server; failed to SSH. Aborting')
       server.minecraft.destroy_remote
       server.reset
       return
     end
     if !server.remote.exists?
-      logger.info "Server #{server_id} in #{self.class} remote doesn't exist (remote_id nil)"
+      minecraft.log('Error starting server; remote_id is nil. Aborting')
       server.reset
       return
     end
     if server.remote.error?
-      logger.info "Error with server #{server_id} remote: #{server.remote.error}"
+      minecraft.log("Error communicating with Digital Ocean while starting server; they responded with #{server.remote.error}. Aborting")
       server.reset
       return
     end

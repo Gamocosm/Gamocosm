@@ -9,23 +9,24 @@ class StartMinecraftWorker
     server = Server.find(server_id)
     minecraft = server.minecraft
     if !server.remote.exists?
-      logger.info "Server #{server_id} in #{self.class} remote doesn't exist (remote_id nil)"
+      minecraft.log('Error starting server; remote_id is nil. Aborting')
       server.reset
       return
     end
     if server.remote.error?
-      logger.info "Server #{server_id} in #{self.class} remote had error #{server.remote.error}"
+      minecraft.log("Error communicating with Digital Ocean while starting server; they responded with #{server.remote.error}. Aborting")
       server.reset
       return
     end
-    if !minecraft.node.resume
-      logger.warn "StartMinecraftWorker#perform: minecraft #{minecraft.id} unable to resume"
+    error = minecraft.node.resume
+    if error
+      minecraft.log("Error starting Minecraft on server: #{error}")
     end
     connection = minecraft.user.digital_ocean
     if connection
       response = connection.image.destroy(minecraft.server.do_saved_snapshot_id)
       if !response.success?
-        # TODO: log to user
+        minecraft.log("Error deleting saved snapshot on Digital Ocean after starting server; they responded with #{response}")
       end
     end
     minecraft.server.update_columns(pending_operation: nil, do_saved_snapshot_id: nil)

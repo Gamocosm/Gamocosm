@@ -46,7 +46,7 @@ class Server < ActiveRecord::Base
   def ram
     droplet_size = DigitalOcean::Size.new.find(do_size_slug)
     if droplet_size.nil?
-      # TODO: log to user
+      minecraft.log("Unknown Digital Ocean size slug #{do_size_slug}; only starting server with 512MB of RAM")
       return 512
     end
     return droplet_size[:memory]

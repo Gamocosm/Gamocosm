@@ -7,22 +7,23 @@ class WaitForSnapshottingServerWorker
 
   def perform(server_id, digital_ocean_snapshot_action_id)
     server = Server.find(server_id)
+    minecraft = server.minecraft
     if !server.remote.exists?
-      logger.info "Server #{server_id} in #{self.class} remote doesn't exist (remote_id nil)"
+      minecraft.log('Error stopping server; remote_id is nil. Aborting')
       server.reset
       return
     end
     if server.remote.error?
-      logger.info "Error with server #{server_id} remote: #{server.remote.error}"
+      minecraft.log("Error communicating with Digital Ocean while stopping server; they responded with #{server.remote.error}. Aborting")
       server.reset
       return
     end
     event = DigitalOcean::Action.new(server.remote_id, digital_ocean_snapshot_action_id, server.minecraft.user)
     if event.error?
-      logger.info "Error with server #{server_id}, digital ocean snapshot event #{digital_ocean_snapshot_action_id} failed with #{event.show}"
+      minecraft.log("Error with Digital Ocean snapshotting server action #{digital_ocean_snapshot_action_id}; they responded with #{event.show}")
       error = server.remote.shutdown
       if error
-        logger.info "Error with server #{server_id}, unable to shutdown: #{error}"
+        minecraft.log("Error shutting down server on Digital Ocean; they responded with #{error}. Aborting")
         server.reset_partial
         return
       end
@@ -35,7 +36,7 @@ class WaitForSnapshottingServerWorker
     server.update_columns(do_saved_snapshot_id: server.remote.latest_snapshot_id)
     error = server.remote.destroy
     if error
-      logger.info "Error with server #{server_id}, unable to destroy server: #{error}"
+      minecraft.log("Error destroying server on Digital Ocean (has been snapshotted and saved); they responded with #{event.show}")
     end
     server.update_columns(pending_operation: nil)
   rescue ActiveRecord::RecordNotFound => e
