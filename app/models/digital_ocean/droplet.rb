@@ -102,14 +102,14 @@ class DigitalOcean::Droplet
     end
     response = @connection.droplet.snapshot(@server.remote_id, name: @server.host_name)
     if response.success?
-      @snapshot_action_id = response.action.id
+      @action_id = response.action.id
       return nil
     end
     return "Error snapshotting droplet on Digital Ocean; they responded with #{response}"
   end
 
-  def snapshot_action_id
-    return @snapshot_action_id
+  def action_id
+    return @action_id
   end
 
   def reboot

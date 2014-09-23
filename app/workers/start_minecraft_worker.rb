@@ -29,7 +29,7 @@ class StartMinecraftWorker
         minecraft.log("Error deleting saved snapshot on Digital Ocean after starting server; they responded with #{response}")
       end
     end
-    minecraft.server.update_columns(pending_operation: nil, do_saved_snapshot_id: nil)
+    server.update_columns(pending_operation: nil, do_saved_snapshot_id: nil)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
   end

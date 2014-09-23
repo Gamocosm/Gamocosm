@@ -12,7 +12,7 @@
 					<h4>Droplets</h4>
 					<table class="table table-striped">
 						<% if @do_droplets.nil? %>
-							<tr><td><em>Your Digital Ocean API token is empty, or missing</em></td></tr>
+							<tr><td><em>Your Digital Ocean API token is invalid</em></td></tr>
 						<% elsif @do_droplets.empty? %>
 							<tr><td><em>You have no droplets on Digital Ocean</em></td></tr>
 						<% else %>
@@ -30,7 +30,7 @@
 					<h4>Snapshots</h4>
 					<table class="table table-striped table-no_fixed">
 						<% if @do_snapshots.nil? %>
-							<tr><td><em>Your Digital Ocean API token is empty, or missing</em></td></tr>
+							<tr><td><em>Your Digital Ocean API token is invalid</em></td></tr>
 						<% elsif @do_snapshots.empty? %>
 							<tr><td><em>You have no snapshots on Digital Ocean</em></td></tr>
 						<% else %>

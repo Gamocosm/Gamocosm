@@ -81,14 +81,12 @@ Avoid state whenever possible. Less data equals less chance of corruption.
 Idempotency is good.
 
 ##### Error handling
-Methods that "do things" should return nil on success, or a message or object on error.
 
-Methods that "return things" should use `.error!` to mark a return value is an error.
-You can use `.error?` to check if a return value is an error. `nil` cannot be made an error.
-These methods are defined on `Object` in `config/initializers/error.rb`
-Why don't I use exceptions? Hmmmmm...
-I prefer only throwing exceptions in "exceptional cases", not when I know something might be wrong (e.g. user input).
-I don't like wrapping everything in try-catches for simple error checking.
+- Methods that "do things" should return nil on success, or a message or object on error.
+- Methods that "return things" should use `.error!` to mark a return value is an error. These errors should always be strings.
+- You can use `.error?` to check if a return value is an error. `nil` cannot be made an error.
+- These methods are defined on `Object` in `config/initializers/error.rb`
+- I prefer only throwing exceptions in "exceptional cases", not when I expect something to go wrong (e.g. user input).
 
 ##### Important checks
 - `server.remote.exists?`: `!server.remote_id.nil?`
@@ -98,6 +96,8 @@ I don't like wrapping everything in try-catches for simple error checking.
 	- don't need to check this before `server.remote` actions (e.g. `server.remote.create`)
 - `server.running?`: `server.remote.exists? && !server.remote.error? && server.remote.status == 'active'`
 - `user.digital_ocean.nil?`: Digital Ocean API token missing
+- `minecraft.node.error?`: error communicating with Minecraft wrapper on server
+- `minecraft.running?`: `server.running? && !node.error? && node.pid > 0` (notice symmetry with `server.running?`)
 
 #### Other useful stuff
 - Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `config/app.yml`

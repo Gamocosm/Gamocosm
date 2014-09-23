@@ -10,7 +10,7 @@
 		<% end %>
 	</div>
 </div>
-<% if @minecraft.is_owner?(current_user) && @minecraft.running? %>
+<% if @minecraft.owner?(current_user) && @minecraft.running? %>
 	<div class="row">
 		<div class="col-sm-12">
 			<%= panel_with_heading 'Send Command to Server' do %>
@@ -22,7 +22,7 @@
 		</div>
 	</div>
 <% end %>
-<% if @minecraft.is_owner?(current_user) %>
+<% if @minecraft.owner?(current_user) %>
 	<div class="row">
 		<div class="col-sm-6">
 			<%= panel_with_heading 'Friends' do %>

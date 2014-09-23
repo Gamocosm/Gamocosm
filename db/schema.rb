@@ -18,7 +18,7 @@ ActiveRecord::Schema.define(version: 20140922050912) do
   enable_extension "uuid-ossp"
 
   create_table "minecrafts", id: :uuid, default: "uuid_generate_v4()", force: true do |t|
-    t.integer  "user_id"
+    t.integer  "user_id",                    null: false
     t.string   "name",                       null: false
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -50,7 +50,7 @@ ActiveRecord::Schema.define(version: 20140922050912) do
     t.integer  "remote_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.uuid     "minecraft_id"
+    t.uuid     "minecraft_id",                     null: false
     t.string   "do_region_slug",                   null: false
     t.string   "do_size_slug",                     null: false
     t.integer  "do_saved_snapshot_id"

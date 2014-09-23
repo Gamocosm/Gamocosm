@@ -26,6 +26,10 @@ class Minecraft::Node
     return @pid
   end
 
+  def error?
+    return pid.error?
+  end
+
   def resume
     response = do_post(:start, { ram: "#{@local_minecraft.server.ram}M" })
     invalidate
@@ -94,10 +98,8 @@ class Minecraft::Node
       response = parse_response(response, endpoint)
       return response
     rescue => e
-      Rails.logger.warn "Exception: #{e}, endpoint #{endpoint}, MC #{@local_minecraft.id}"
-      Rails.logger.warn e.backtrace.join("\n")
+      return "Exception in Minecraft node #{endpoint}: #{e}".error!
     end
-    return nil
   end
 
   def do_post(endpoint, data)
@@ -107,10 +109,8 @@ class Minecraft::Node
       response = parse_response(self.class.post(full_url(endpoint), options), endpoint, data)
       return response
     rescue => e
-      Rails.logger.warn "Exception: #{e}, endpoint #{endpoint}, data #{data}, MC #{@local_minecraft.id}"
-      Rails.logger.warn e.backtrace.join("\n")
+      return "Exception in Minecraft node #{endpoint}: #{e}".error!
     end
-    return nil
   end
 
   def full_url(endpoint)
@@ -119,7 +119,7 @@ class Minecraft::Node
 
   def parse_response(response, endpoint, data = nil)
     if response['status'] != 0
-      return response.error!
+      return "Minecraft node #{endpoint} response status not OK, was #{response}".error!
     end
     return response
   end

@@ -2,22 +2,21 @@ require 'sshkit/dsl'
 
 class SetupServerWorker
   include Sidekiq::Worker
-  sidekiq_options retry: 8
+  sidekiq_options retry: 4
   sidekiq_retry_in do |count|
-    8
+    4
   end
 
   def perform(user_id, server_id)
     user = User.find(user_id)
     server = Server.find(server_id)
-    minecraft = server.minecraft
     if !server.remote.exists?
-      minecraft.log('Error starting server; remote_id is nil. Aborting')
+      server.minecraft.log('Error starting server; remote_id is nil. Aborting')
       server.reset
       return
     end
     if server.remote.error?
-      minecraft.log("Error communicating with Digital Ocean while starting server; they responded with #{server.remote.error}. Aborting")
+      server.minecraft.log("Error communicating with Digital Ocean while starting server; they responded with #{server.remote.error}. Aborting")
       server.reset
       return
     end

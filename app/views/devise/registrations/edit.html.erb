@@ -1,15 +1,17 @@
-<h2>Edit <%= resource_name.to_s.humanize %></h2>
 <% if current_user.digital_ocean_invalid? %>
   <div class="row">
     <div class="alert alert-warning">
       <% if current_user.digital_ocean_missing? %>
-        You have not entered your Digital Ocean keys.
+        You have not entered your Digital Ocean API token.
+        If you are not a server admin, you can ignore this.
       <% else %>
         Your Digital Ocean keys are invalid.
+        If you are not a server admin, you can remove this.
       <% end %>
     </div>
   </div>
 <% end %>
+<h2>Edit <%= resource_name.to_s.humanize %></h2>
 
 <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
   <%= f.error_notification %>

@@ -29,10 +29,15 @@ class Minecraft::Properties
     @minecraft = minecraft
     response = @minecraft.node.properties
     if response.error?
+      @error = response
       error!
       return
     end
     refresh_properties(response)
+  end
+
+  def error
+    return @error
   end
 
   def refresh_properties(response)

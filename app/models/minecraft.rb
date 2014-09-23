@@ -3,7 +3,7 @@
 # Table name: minecrafts
 #
 #  id                         :uuid             not null, primary key
-#  user_id                    :integer
+#  user_id                    :integer          not null
 #  name                       :string(255)      not null
 #  created_at                 :datetime
 #  updated_at                 :datetime
@@ -33,25 +33,64 @@ class Minecraft < ActiveRecord::Base
   end
 
   def running?
-    return server.running? && !node.pid.error? && node.pid > 0
+    return server.running? && !node.error? && node.pid > 0
+  end
+
+  def resume?
+    if !server.running?
+      return 'Server not running'
+    end
+    if node.error?
+      return node.pid
+    end
+    if node.pid > 0
+      return 'Minecraft already running'
+    end
+    return nil
+  end
+
+  def pause?
+    if !server.running?
+      return 'Server not running'
+    end
+    if node.error?
+      return node.pid
+    end
+    if !(node.pid > 0)
+      return 'Minecraft already stopped'
+    end
+    return nil
+  end
+
+  def backup?
+    if !server.running?
+      return 'Server not running'
+    end
+    if node.error?
+      return node.pid
+    end
+    if node.pid > 0
+      return 'Minecraft is running'
+    end
+    return nil
+  end
+
+  def download?
+    return backup?
   end
 
   def start
-    if server.remote.exists?
-      return nil
-    end
-    if server.busy?
-      return 'Server is busy'
+    error = server.start?
+    if error
+      return error
     end
     return server.start
   end
 
   def stop
-    if !server.remote.exists?
-      return nil
-    end
-    if server.busy?
-      return 'Server is busy'
+    error = server.stop?
+    if error
+      return error
     end
     error = node.pause
     if error
@@ -61,11 +100,9 @@ class Minecraft < ActiveRecord::Base
   end
 
   def reboot
-    if !server.remote.exists?
-      return nil
-    end
-    if server.busy?
-      return 'Server is busy'
+    error = server.reboot?
+    if error
+      return error
     end
     return server.reboot
   end
@@ -79,7 +116,7 @@ class Minecraft < ActiveRecord::Base
 
   def node
     if @node.nil?
-      if !server.remote.error? && server.running?
+      if server.running?
         @node = Minecraft::Node.new(self, server.remote.ip_address, 5000)
       end
     end
@@ -88,26 +125,27 @@ class Minecraft < ActiveRecord::Base
 
   def properties
     if @properties.nil?
-      if !server.remote.error? && server.running?
+      if server.running?
         @properties = Minecraft::Properties.new(self)
       end
     end
     return @properties
   end
 
-  def is_owner?(someone)
+  def owner?(someone)
     if new_record?
       return true
     end
-    return someone.id == user.id
+    return someone.id == user_id
   end
 
-  def is_friend?(someone)
+  def friend?(someone)
     return friends.exists?(someone.id)
   end
 
   def log(message)
-    logs.create(message: message, debuginfo: caller[0])
+    where = caller[0].split(':')
+    logs.create(message: message, debuginfo: Pathname.new(where[0]).relative_path_from(Rails.root).to_s + ':' + where.drop(1).join(':'))
   end
 
 end

@@ -6,7 +6,7 @@
 #  remote_id            :integer
 #  created_at           :datetime
 #  updated_at           :datetime
-#  minecraft_id         :uuid
+#  minecraft_id         :uuid             not null
 #  do_region_slug       :string(255)      not null
 #  do_size_slug         :string(255)      not null
 #  do_saved_snapshot_id :integer
@@ -50,6 +50,36 @@ class Server < ActiveRecord::Base
       return 512
     end
     return droplet_size[:memory]
+  end
+
+  def start?
+    if remote.exists?
+      return 'Server already started'
+    end
+    if busy?
+      return 'Server is busy'
+    end
+    return nil
+  end
+
+  def stop?
+    if !remote.exists?
+      return 'Server already stopped'
+    end
+    if busy?
+      return 'Server is busy'
+    end
+    return nil
+  end
+
+  def reboot?
+    if !remote.exists?
+      return 'Server not running'
+    end
+    if busy?
+      return 'Server is busy'
+    end
+    return nil
   end
 
   def start

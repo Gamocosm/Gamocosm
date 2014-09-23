@@ -7,19 +7,29 @@ class WaitForStartingServerWorker
 
   def perform(user_id, server_id)
     server = Server.find(server_id)
-    minecraft = server.minecraft
     if !server.remote.exists?
-      minecraft.log('Error starting server; remote_id is nil. Aborting')
+      server.minecraft.log('Error starting server; remote_id is nil. Aborting')
       server.reset
       return
     end
     if server.remote.error?
-      minecraft.log("Error communicating with Digital Ocean while starting server; they responded with #{server.remote.error}. Aborting")
+      server.minecraft.log("Error communicating with Digital Ocean while starting server; they responded with #{server.remote.error}. Aborting")
       server.reset
       return
     end
     if server.remote.busy?
       WaitForStartingServerWorker.perform_in(4.seconds, user_id, server_id)
+      return
+    end
+    if server.remote.status != 'active'
+      server.minecraft.log("Server told to start, not busy anymore, but status not on, was #{server.remote.status}")
+      error = server.remote.create
+      if error
+        server.minecraft.log("Error starting server on Digital Ocean; they responded with #{error}. Aborting")
+        server.reset_partial
+        return
+      end
+      WaitForStoppingServerWorker.perform_in(4.seconds, server_id)
       return
     end
     server.update_columns(pending_operation: 'preparing')

@@ -1,5 +1,5 @@
-<% if @minecraft.user.digital_ocean_invalid? %>
-	<%= render partial: 'digital_ocean_invalid' %>
+<% if @minecraft.server.remote.error? %>
+	<%= render partial: 'invalid' %>
 <% end %>
 <div class="row">
 	<div class="col-sm-12">
@@ -11,7 +11,7 @@
 <% if @minecraft.server.busy? %>
 	<%= render partial: 'busy' %>
 <% else %>
-	<% if @minecraft.is_owner?(current_user) %>
+	<% if @minecraft.owner?(current_user) %>
 		<div class="row">
 			<div class="col-sm-9">
 				<ul class="nav nav-tabs">
@@ -53,4 +53,5 @@
 		</div>
 	<% end %>
 	<%= render partial: 'help' %>
+	<%= render partial: 'logs' %>
 <% end %>

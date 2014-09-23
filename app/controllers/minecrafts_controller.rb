@@ -20,11 +20,11 @@ class MinecraftsController < ApplicationController
   def create
     begin
       @minecraft = current_user.minecrafts.create!(minecraft_params)
-      return redirect_to minecraft_path(@minecraft), notice: 'You made a new server! Start it to play'
+      return redirect_to minecraft_path(@minecraft), flash: { success: 'You made a new server! Start it to play' }
     rescue
       load_index
       @minecrafts = current_user.minecrafts.reload
-      flash.now[:error] = 'Something went wrong. Please try again'
+      flash[:error] = 'Something went wrong. Please try again'
       return render :index
     end
   end
@@ -33,168 +33,143 @@ class MinecraftsController < ApplicationController
     @minecraft = find_minecraft(params[:id])
   end
 
+  def edit
+  end
+
+  def update
+    @minecraft = find_minecraft_only_owner(params[:id])
+    if @minecraft.update_attributes(minecraft_advanced_params)
+      return redirect_to minecraft_path(@minecraft), flash: { success: 'Server advanced configuration updated' }
+    end
+    @minecraft_advanced_tab = true
+    flash[:error] = 'Something went wrong. Please try again'
+    return render :show
+  end
+
+  def destroy
+    @minecraft = find_minecraft_only_owner(params[:id])
+    error = @minecraft.server.remote.destroy
+    if error
+      return redirect_to minecraft_path(@minecraft), flash: { succes: "Unable to delete server: #{error}" }
+    end
+    @minecraft.destroy
+    return redirect_to minecrafts_path, flash: { success: 'Server is deleting' }
+  end
+
   def start
     @minecraft = find_minecraft(params[:id])
     error = @minecraft.start
     if error
-      flash_message = "Unable to start server: #{error}"
+      flash[:error] = "Unable to start server: #{error}. Please contact the server admin about this"
     else
-      flash_message = 'Server starting'
+      flash[:success] = 'Server starting'
     end
-    return redirect_to minecraft_path(@minecraft), notice: flash_message
+    return redirect_to minecraft_path(@minecraft)
   end
 
   def stop
     @minecraft = find_minecraft(params[:id])
     error = @minecraft.stop
     if error
-      flash_message = "Unable to stop server: #{error}"
+      flash[:error] = "Unable to stop server: #{error}. Please contact the server admin about this"
     else
-      flash_message = 'Server is stopping'
+      flash[:success] = 'Server is stopping'
     end
-    return redirect_to minecraft_path(@minecraft), notice: flash_message
-  end
-
-  def resume
-    @minecraft = find_minecraft(params[:id])
-    if @minecraft.server.remote.error?
-      flash_message = "Error with Digital Ocean droplet: #{@minecraft.server.remote.error}"
-    elsif !@minecraft.server.running?
-      flash_message = 'Minecraft server not running'
-    else
-      error = @minecraft.node.resume
-      if error
-        flash_message = "Unable to resume server: #{error}"
-      else
-        flash_message = 'Server resumed'
-      end
-    end
-    return redirect_to minecraft_path(@minecraft), notice: flash_message
-  end
-
-  def pause
-    @minecraft = find_minecraft(params[:id])
-    if @minecraft.server.remote.error?
-      flash_message = "Error with Digital Ocean droplet: #{@minecraft.server.remote.error}"
-    elsif !@minecraft.server.running?
-      flash_message = 'Minecraft server not running'
-    else
-      error = @minecraft.node.pause
-      if error
-        flash_message = "Unable to pause server: #{error}"
-      else
-        flash_message = 'Server paused'
-      end
-    end
-    return redirect_to minecraft_path(@minecraft), notice: flash_message
-  end
-
-  def backup
-    @minecraft = find_minecraft(params[:id])
-    if @minecraft.server.remote.error?
-      flash_message = "Error with Digital Ocean droplet: #{@minecraft.server.remote.error}"
-    elsif !@minecraft.server.running?
-      flash_message = 'Minecraft server not running'
-    else
-      error = @minecraft.node.backup
-      if error
-        flash_message = "Unable to backup server: #{error}"
-      else
-        flash_message = 'Unable to backup server'
-      end
-    end
-    return redirect_to minecraft_path(@minecraft), notice: flash_message
-  end
-
-  def download
-    @minecraft = find_minecraft(params[:id])
-    if @minecraft.server.remote.error?
-      flash_message = "Error with Digital Ocean droplet: #{@minecraft.server.remote.error}"
-    elsif !@minecraft.server.running?
-      flash_message = 'Minecraft server not running'
-    else
-      return redirect_to @minecraft.world_download_url
-    end
-    return redirect_to minecraft_path(@minecraft), notice: flash_message
-  end
-
-  def edit
-  end
-
-  def update_minecraft_properties
-    @minecraft = find_minecraft_only_owner(params[:id])
-    if @minecraft.server.remote.error?
-      flash_message = "Error with Digital Ocean droplet: #{@minecraft.server.remote.error}"
-    elsif !@minecraft.server.running?
-      flash_message = 'Minecraft server not running. Start it to edit properties'
-    end
-    if flash_message
-      return redirect_to minecraft_path(@minecraft), error: flash_message
-    end
-    properties = @minecraft.properties
-    if properties.update(minecraft_properties_params)
-      return redirect_to minecraft_path(@minecraft), notice: 'Minecraft properties updated'
-    end
-    return redirect_to minecraft_path(@minecraft), notice: 'Unable to update Minecraft properties'
-  end
-
-  def destroy
-    @minecraft = find_minecraft(params[:id])
-    if !@minecraft.is_owner?(current_user)
-      return redirect_to minecraft_path(@minecraft), flash: {
-        error: 'Only the owner can destroy a server.'
-      }
-    end
-    if !@minecraft.server.remote.exists?
-      return redirect_to minecraft_path(@minecraft), notice: 'Remote server does not exist'
-    end
-    error = @minecraft.server.remote.destroy
-    if error
-      return redirect_to minecraft_path(@minecraft), notice: "Unable to delete server: #{error}"
-    end
-    @minecraft.destroy
-    return redirect_to minecrafts_path, notice: 'Server is deleting'
-  end
-
-  def update
-    @minecraft = find_minecraft_only_owner(params[:id])
-    if @minecraft.update_attributes(minecraft_advanced_params)
-      return redirect_to minecraft_path(@minecraft), notice: 'Server advanced configuration updated'
-    end
-    @minecraft_advanced_tab = true
-    flash.now[:error] = 'Something went wrong. Please try again'
-    return render :show
-  end
-
-  def command
-    @minecraft = find_minecraft(params[:id])
-    if @minecraft.server.remote.error?
-      flash_message = "Error with Digital Ocean droplet: #{@minecraft.server.remote.error}"
-    elsif !@minecraft.server.running?
-      flash_message = 'Minecraft server not running. Start it to edit properties'
-    elsif !@minecraft.running?
-      flash_message = 'Minecraft isn\'t running'
-    end
-    if flash_message
-      return redirect_to minecraft_path(@minecraft), notice: 'Minecraft isn\'t running'
-    end
-    command = minecraft_command_params[:data]
-    error = @minecraft.node.exec(command)
-    if error
-    return redirect_to minecraft_path(@minecraft), notice: "Unable to send command to Minecraft server: #{error}"
-    end
-    return redirect_to minecraft_path(@minecraft), notice: 'Command sent'
+    return redirect_to minecraft_path(@minecraft)
   end
 
   def reboot
     @minecraft = find_minecraft(params[:id])
     error = @minecraft.reboot
     if error
-      flash_message = "Unable to reboot server: #{flash_message}"
+      flash[:error] = "Unable to reboot server: #{flash_message}. Please contact the server admin about this"
     else
-      flash_message = 'Server is rebooting'
+      flash[:success] = 'Server is rebooting'
     end
-    return redirect_to minecraft_path(@minecraft), notice: flash_message
+    return redirect_to minecraft_path(@minecraft)
+  end
+
+  def resume
+    @minecraft = find_minecraft(params[:id])
+    error = @minecraft.resume?
+    if error
+      flash[:error] = "Unable to start Minecraft: #{error}. Please contact the server admin about this"
+    else
+      error = @minecraft.node.resume
+      if error
+        flash[:error] = "Unable to start Minecraft: #{error}. Please contact the server admin about this"
+      else
+        flash[:success] = 'Server resumed'
+      end
+    end
+    return redirect_to minecraft_path(@minecraft)
+  end
+
+  def pause
+    @minecraft = find_minecraft(params[:id])
+    error = @minecraft.pause?
+    if error
+      flash[:error] = "Unable to stop Minecraft: #{error}. Please contact the server admin about this"
+    else
+      error = @minecraft.node.pause
+      if error
+        flash[:error] = "Unable to stop Minecraft: #{error}. Please contact the server admin about this"
+      else
+        flash[:success] = 'Server paused'
+      end
+    end
+    return redirect_to minecraft_path(@minecraft)
+  end
+
+  def backup
+    @minecraft = find_minecraft(params[:id])
+    error = @minecraft.backup?
+    if error
+      flash[:error] = "Unable to backup world: #{error}. Please contact the server admin about this"
+    else
+      error = @minecraft.node.backup
+      if error
+        flash[:error] = "Unable to backup world: #{error}. Please contact the server admin about this"
+      else
+        flash[:success] = 'World backed up remotely on server'
+      end
+    end
+    return redirect_to minecraft_path(@minecraft)
+  end
+
+  def download
+    @minecraft = find_minecraft(params[:id])
+    error = @minecraft.download?
+    if error
+      return redirect_to minecraft_path(@minecraft), flash: { error: "Unable to download world: #{error}. Please contact the server admin about this" }
+    end
+    return redirect_to @minecraft.world_download_url
+  end
+
+  def command
+    @minecraft = find_minecraft(params[:id])
+    if !@minecraft.running?
+      return redirect_to minecraft_path(@minecraft), flash: { error: 'Minecraft isn\'t running' }
+    end
+    command = minecraft_command_params[:data]
+    error = @minecraft.node.exec(command)
+    if error
+      return redirect_to minecraft_path(@minecraft), flash: { error: "Unable to send command to Minecraft: #{error}. Please contact the server admin about this" }
+    end
+    return redirect_to minecraft_path(@minecraft), flash: { success: 'Command sent' }
+  end
+
+  def update_minecraft_properties
+    @minecraft = find_minecraft_only_owner(params[:id])
+    if !@minecraft.server.running?
+      return redirect_to minecraft_path(@minecraft), flash: { error: 'Minecraft isn\'t running. Start it to edit properties' }
+    end
+    properties = @minecraft.properties
+    error = properties.update(minecraft_properties_params)
+    if error
+      return redirect_to minecraft_path(@minecraft), flash: { error: "Unable to update Minecraft properties: #{error}. Please contact the server admin about this" }
+    end
+    return redirect_to minecraft_path(@minecraft), flash: { success: 'Minecraft properties updated' }
   end
 
   def add_friend
@@ -204,14 +179,14 @@ class MinecraftsController < ApplicationController
     if friend.nil?
       return redirect_to minecraft_path(@minecraft), flash: { error: "User #{email} does not exist" }
     end
-    if @minecraft.is_owner?(friend)
+    if @minecraft.owner?(friend)
       return redirect_to minecraft_path(@minecraft), notice: 'You are already the owner of the server'
     end
-    if @minecraft.is_friend?(friend)
+    if @minecraft.friend?(friend)
       return redirect_to minecraft_path(@minecraft), notice: "User #{email} is already on this server"
     end
     @minecraft.friends << friend
-    return redirect_to minecraft_path(@minecraft), notice: "User #{email} added to the server"
+    return redirect_to minecraft_path(@minecraft), flash: { success: "User #{email} added to the server" }
   end
 
   def remove_friend
@@ -222,7 +197,7 @@ class MinecraftsController < ApplicationController
       return redirect_to minecraft_path(@minecraft), flash: { error: "User #{email} does not exist" }
     end
     @minecraft.friends.destroy(friend)
-    return redirect_to minecraft_path(@minecraft), notice: "User #{email} removed from the server"
+    return redirect_to minecraft_path(@minecraft), flash: { success: "User #{email} removed from the server" }
   end
 
   def find_minecraft(id)
@@ -231,7 +206,7 @@ class MinecraftsController < ApplicationController
     rescue
       raise ActionController::RoutingError.new('Not found')
     end
-    if server.is_owner?(current_user) || server.is_friend?(current_user)
+    if server.owner?(current_user) || server.friend?(current_user)
       return server
     end
     raise ActionController::RoutingError.new('Not found')

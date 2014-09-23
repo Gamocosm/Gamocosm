@@ -1,6 +1,8 @@
 <br />
 <% if @minecraft.properties.nil? %>
 	<p>Start droplet to edit Minecraft properties</p>
+<% elsif @minecraft.properties.error? %>
+	<p>Error getting Minecraft properties: <%= @minecraft.properties.error %></p>
 <% else %>
 	<%= simple_form_for @minecraft.properties, url: update_properties_minecraft_path(@minecraft), method: :put do |f| %>
 		<%= panel_with_heading 'Minecraft Properties' do %>

@@ -1,6 +1,3 @@
-<% if current_user.digital_ocean_invalid? %>
-	<%= render partial: 'digital_ocean_invalid' %>
-<% end %>
 <div class="row">
 	<div class="col-sm-12">
 		<div class="page-header">
@@ -40,4 +37,6 @@
 		</div>
 	</div>
 </div>
-<%= render partial: 'digital_ocean_panel' %>
+<% if !current_user.digital_ocean_missing? %>
+	<%= render partial: 'digital_ocean_panel' %>
+<% end %>

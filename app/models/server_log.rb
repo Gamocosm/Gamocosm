@@ -14,6 +14,6 @@ class ServerLog < ActiveRecord::Base
   belongs_to :minecraft
 
   def when
-    return created_at.strftime('%Y %b %e (%l:%H:%S)')
+    return created_at.in_time_zone(ActiveSupport::TimeZone[-8]).strftime('%Y %b %e (%H:%M:%S %Z)')
   end
 end
