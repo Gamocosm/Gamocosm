@@ -14,7 +14,7 @@
 	<div class="row">
 		<div class="col-sm-12">
 			<%= panel_with_heading 'Send Command to Server' do %>
-				<%= simple_form_for :command, url: command_minecraft_path(@minecraft) do |f| %>
+				<%= simple_form_for :command, (@demo.nil? ? { url: command_minecraft_path(@minecraft) } : { html: { onsubmit: 'return false;' } }) do |f| %>
 					<%= f.input :data, as: :string %>
 					<%= f.button :submit, 'Send', class: 'btn btn-success' %>
 				<% end %>
@@ -35,7 +35,7 @@
 						<% end %>
 					</tbody>
 				</table>
-				<%= simple_form_for :minecraft_friend, url: add_friend_minecraft_path(@minecraft), method: :post do |f| %>
+				<%= simple_form_for :minecraft_friend, (@demo.nil? ? { url: add_friend_minecraft_path(@minecraft), method: :post } : { html: { onsubmit: 'return false;' } }) do |f| %>
 					<%= f.input :email %>
 					<%= f.button :submit, 'Add', class: 'btn btn-default' %>
 				<% end %>

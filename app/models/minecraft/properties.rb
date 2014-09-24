@@ -43,7 +43,7 @@ class Minecraft::Properties
   def refresh_properties(response)
     self.allow_flight = response['allow-flight']
     self.allow_nether = response['allow-nether']
-    self.announce_player_achievements = response['allow-player-achievements']
+    self.announce_player_achievements = response['announce-player-achievements']
     self.difficulty = response['difficulty']
     self.enable_command_block = response['enable-command-block']
     self.force_gamemode = response['force-gamemode']

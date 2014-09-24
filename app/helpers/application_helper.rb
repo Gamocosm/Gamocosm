@@ -14,6 +14,9 @@ module ApplicationHelper
   end
 
   def render_minecraft_ip_address(minecraft, fallback = nil)
+    if minecraft.server.remote.error?
+      return 'Error'
+    end
     if minecraft.server.remote.exists? && minecraft.server.remote.ip_address
       return minecraft.server.remote.ip_address
     end
@@ -24,7 +27,7 @@ module ApplicationHelper
     if minecraft.server.pending_operation
       return minecraft.server.pending_operation
     end
-    if minecraft.server.error?
+    if minecraft.server.remote.error?
       return 'Error'
     end
     if minecraft.server.running?

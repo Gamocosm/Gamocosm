@@ -187,6 +187,7 @@ DEPENDENCIES
   econfig
   font-awesome-sass
   foreigner
+  hashie
   httparty
   jbuilder (~> 2.0)
   jquery-rails

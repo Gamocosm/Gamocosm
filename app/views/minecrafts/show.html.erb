@@ -1,13 +1,15 @@
-<% if @minecraft.server.remote.error? %>
-	<%= render partial: 'invalid' %>
-<% end %>
-<div class="row">
-	<div class="col-sm-12">
-		<div class="page-header">
-			<h1><%= @minecraft.name %></h1>
+<% if @demo.nil? %>
+	<% if @minecraft.server.remote.error? %>
+		<%= render partial: 'invalid' %>
+	<% end %>
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="page-header">
+				<h1><%= @minecraft.name %></h1>
+			</div>
 		</div>
 	</div>
-</div>
+<% end %>
 <% if @minecraft.server.busy? %>
 	<%= render partial: 'busy' %>
 <% else %>
@@ -15,43 +17,50 @@
 		<div class="row">
 			<div class="col-sm-9">
 				<ul class="nav nav-tabs">
-					<li class="<%= @minecraft_advanced_tab.nil? ? 'active' : '' %>"><%= link_to 'Profile', minecraft_path(@minecraft, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
-					<li><%= link_to 'Minecraft Settings', minecraft_path(@minecraft, anchor: 'settings'), 'data-toggle' => 'tab' %></li>
-					<li><%= link_to 'FTP and SSH Access', minecraft_path(@minecraft, anchor: 'ftp_ssh'), 'data-toggle' => 'tab' %></li>
-					<li class="<%= @minecraft_advanced_tab ? 'active' : '' %>"><%= link_to 'Advanced', minecraft_path(@minecraft, anchor: 'advanced'), 'data-toggle' => 'tab' %></li>
+					<% if @demo.nil? %>
+						<li class="<%= @minecraft_advanced_tab.nil? ? 'active' : '' %>"><%= link_to 'Profile', minecraft_path(@minecraft, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
+						<li><%= link_to 'Minecraft Settings', minecraft_path(@minecraft, anchor: 'settings'), 'data-toggle' => 'tab' %></li>
+						<li><%= link_to 'FTP and SSH Access', minecraft_path(@minecraft, anchor: 'ftp_ssh'), 'data-toggle' => 'tab' %></li>
+						<li class="<%= @minecraft_advanced_tab ? 'active' : '' %>"><%= link_to 'Advanced', minecraft_path(@minecraft, anchor: 'advanced'), 'data-toggle' => 'tab' %></li>
+					<% else %>
+						<li class="active"><a href="#profile" data-toggle="tab">Profile</a></li>
+						<li><a href="#settings" data-toggle="tab">Minecraft Settings</a></li>
+						<li><a href="#ftp_ssh" data-toggle="tab">FTP and SSH Access</a></li>
+						<li><a href="#advanced" data-toggle="tab">Advanced</a></li>
+					<% end %>
 				</ul>
 
 				<div class="tab-content">
 					<div class="tab-pane <%= @minecraft_advanced_tab.nil? ? 'active' : '' %>" id="profile">
 						<br />
-						<%= render partial: 'profile' %>
+						<%= render partial: 'minecrafts/profile' %>
 					</div>
 					<div class="tab-pane" id="settings">
-						<%= render partial: 'settings' %>
+						<%= render partial: 'minecrafts/settings' %>
 					</div>
 					<div class="tab-pane" id="ftp_ssh">
-						<%= render partial: 'ftp_ssh' %>
+						<%= render partial: 'minecrafts/ftp_ssh' %>
 					</div>
 					<div class="tab-pane <%= @minecraft_advanced_tab ? 'active' : '' %>" id="advanced">
-						<%= render partial: 'advanced' %>
+						<%= render partial: 'minecrafts/advanced' %>
 					</div>
 				</div>
 			</div>
 
 			<div class="col-sm-3">
-				<%= render partial: 'control_panel' %>
+				<%= render partial: 'minecrafts/control_panel' %>
 			</div>
 		</div>
 	<% else %>
 		<div class="row">
 			<div class="col-sm-9">
-				<%= render partial: 'profile' %>
+				<%= render partial: 'minecrafts/profile' %>
 			</div>
 			<div class="col-sm-3">
-				<%= render partial: 'control_panel' %>
+				<%= render partial: 'minecrafts/control_panel' %>
 			</div>
 		</div>
 	<% end %>
-	<%= render partial: 'help' %>
-	<%= render partial: 'logs' %>
+	<%= render partial: 'minecrafts/help' %>
+	<%= render partial: 'minecrafts/logs' %>
 <% end %>

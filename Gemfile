@@ -52,6 +52,7 @@ gem 'simple_form', '~> 3.1.0.rc1'
 gem 'sshkit'
 gem 'dalli'
 gem 'foreigner'
+gem 'hashie'
 group :development do
 	gem 'newrelic_rpm'
 end

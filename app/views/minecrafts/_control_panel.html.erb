@@ -1,17 +1,40 @@
-<%= panel_with_heading 'Control Panel' do %>
-	<h4 class="text-center">Physical Server</h4>
-	<%= link_to 'Start', start_minecraft_path(@minecraft), class: "btn btn-success btn-block #{!@minecraft.server.start?.nil? ? 'disabled' : ''}" %>
-	<%= link_to 'Stop', stop_minecraft_path(@minecraft), class: "btn btn-danger btn-block #{@minecraft.server.remote.error? || !@minecraft.server.stop?.nil? ? 'disabled' : ''}" %>
-	<%= link_to 'Reboot', reboot_minecraft_path(@minecraft), class: "btn btn-info btn-block #{@minecraft.server.remote.error? || !@minecraft.server.reboot?.nil? ? 'disabled' : ''}" %>
-	<hr />
-	<h4 class="text-center">Minecraft</h4>
-	<%= link_to 'Start', resume_minecraft_path(@minecraft), class: "btn btn-success btn-block #{!@minecraft.resume?.nil? ? 'disabled' : ''}" %>
-	<%= link_to 'Stop', pause_minecraft_path(@minecraft), class: "btn btn-info btn-block #{!@minecraft.pause?.nil? ? 'disabled' : ''}" %>
-	<hr />
-	<%= link_to 'Backup remotely', backup_minecraft_path(@minecraft), class: "btn btn-success btn-block #{!@minecraft.backup?.nil? ? 'disabled' : ''}" %>
-	<%= link_to 'Download world', download_minecraft_path(@minecraft), class: "btn btn-info btn-block #{!@minecraft.download?.nil? ? 'disabled' : ''}" %>
-	<% if @minecraft.owner?(current_user) %>
+<% if @demo.nil? %>
+	<%= panel_with_heading 'Control Panel' do %>
+		<h4 class="text-center">Physical Server</h4>
+		<%= link_to 'Start', start_minecraft_path(@minecraft), class: "btn btn-success btn-block #{!@minecraft.server.start?.nil? ? 'disabled' : ''}" %>
+		<%= link_to 'Stop', stop_minecraft_path(@minecraft), class: "btn btn-danger btn-block #{@minecraft.server.remote.error? || !@minecraft.server.stop?.nil? ? 'disabled' : ''}" %>
+		<%= link_to 'Reboot', reboot_minecraft_path(@minecraft), class: "btn btn-info btn-block #{@minecraft.server.remote.error? || !@minecraft.server.reboot?.nil? ? 'disabled' : ''}" %>
 		<hr />
-		<%= link_to 'Delete', minecraft_path(@minecraft), method: :delete, class: "btn btn-danger btn-block", data: { confirm: 'Are you sure you want to delete this server forever? (A really long time!)' } %>
+		<h4 class="text-center">Minecraft</h4>
+		<%= link_to 'Start', resume_minecraft_path(@minecraft), class: "btn btn-success btn-block #{!@minecraft.resume?.nil? ? 'disabled' : ''}" %>
+		<%= link_to 'Stop', pause_minecraft_path(@minecraft), class: "btn btn-info btn-block #{!@minecraft.pause?.nil? ? 'disabled' : ''}" %>
+		<hr />
+		<%= link_to 'Backup remotely', backup_minecraft_path(@minecraft), class: "btn btn-success btn-block #{!@minecraft.backup?.nil? ? 'disabled' : ''}" %>
+		<%= link_to 'Download world', download_minecraft_path(@minecraft), class: "btn btn-info btn-block #{!@minecraft.download?.nil? ? 'disabled' : ''}" %>
+		<% if @minecraft.owner?(current_user) %>
+			<hr />
+			<%= link_to 'Delete', minecraft_path(@minecraft), method: :delete, class: "btn btn-danger btn-block", data: { confirm: 'Are you sure you want to delete this server forever? (A really long time!)' } %>
+		<% end %>
 	<% end %>
+<% else %>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Control Panel</h3>
+		</div>
+		<div class="panel-body">
+			<h4 class="text-center">Physical Server</h4>
+			<a class="btn btn-success btn-block disabled">Start</a>
+			<a class="btn btn-danger btn-block">Stop</a>
+			<a class="btn btn-info btn-block">Reboot</a>
+			<hr>
+			<h4 class="text-center">Minecraft</h4>
+			<a class="btn btn-success btn-block disabled">Resume</a>
+			<a class="btn btn-info btn-block">Pause</a>
+			<hr>
+			<a class="btn btn-success btn-block disabled">Backup Remotely</a>
+			<a class="btn btn-info btn-block disabled">Download world</a>
+			<hr>
+			<a class="btn btn-danger btn-block">Delete</a>
+		</div>
+	</div>
 <% end %>
