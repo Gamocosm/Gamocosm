@@ -52,11 +52,11 @@ class SetupServerWorker
           execute :usermod, '-aG', 'gamocosm', 'mcuser'
           execute :chmod, 'g+w', 'gamocosm'
           within :gamocosm do
-            execute :rm, '-f', 'minecraft-flask.py'
-            execute :wget, '-O', 'minecraft-flask.py', 'https://raw.github.com/Raekye/minecraft-server_wrapper/master/minecraft-flask-minified.py'
-            execute :chown, 'mcuser:mcuser', 'minecraft-flask.py'
-            execute :echo, "\"#{Gamocosm.minecraft_wrapper_username}\"", '>', 'minecraft-flask-auth.txt'
-            execute :echo, "\"#{server.minecraft.minecraft_wrapper_password}\"", '>>', 'minecraft-flask-auth.txt'
+            execute :rm, '-f', 'mcsw.py'
+            execute :wget, '-O', 'mcsw.py', 'https://raw.github.com/Gamocosm/minecraft-server_wrapper/master/minecraft-server_wrapper.py'
+            execute :chown, 'mcuser:mcuser', 'mcsw.py'
+            execute :echo, "\"#{Gamocosm.minecraft_wrapper_username}\"", '>', 'mcsw-auth.txt'
+            execute :echo, "\"#{server.minecraft.minecraft_wrapper_password}\"", '>>', 'mcsw-auth.txt'
           end
         end
         server.update_columns(remote_setup_stage: 3)
@@ -74,8 +74,8 @@ class SetupServerWorker
         end
         server.update_columns(remote_setup_stage: 4)
         within '/etc/supervisord.d/' do
-          execute :rm, '-f', 'minecraft_wrapper.ini'
-          execute :wget, '-O', 'minecraft_wrapper.ini', 'https://raw.github.com/Raekye/minecraft-server_wrapper/master/supervisor.conf'
+          execute :rm, '-f', 'minecraft_sw.ini'
+          execute :wget, '-O', 'minecraft_sw.ini', 'https://raw.github.com/Gamocosm/minecraft-server_wrapper/master/supervisor.conf'
           execute :systemctl, 'start', 'supervisord'
           execute :systemctl, 'enable', 'supervisord'
           execute :supervisorctl, 'reread'

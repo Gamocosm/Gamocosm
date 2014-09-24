@@ -10,17 +10,17 @@ Rails.application.routes.draw do
 
   get '/digital_ocean_setup', to: 'pages#digital_ocean_setup', as: :digital_ocean_setup
 
-  match '/wiki' => redirect('https://github.com/Raekye/Gamocosm/wiki'), as: :wiki, via: :get
-  match '/issues' => redirect('https://github.com/Raekye/Gamocosm/issues'), as: :issues, via: :get
-  match '/source' => redirect('https://github.com/Raekye/Gamocosm'), as: :source, via: :get
-  match '/license' => redirect('https://github.com/Raekye/Gamocosm/blob/master/LICENSE'), as: :license, via: :get
+  match '/wiki' => redirect('https://github.com/Gamocosm/Gamocosm/wiki'), as: :wiki, via: :get
+  match '/issues' => redirect('https://github.com/Gamocosm/Gamocosm/issues'), as: :issues, via: :get
+  match '/source' => redirect('https://github.com/Gamocosm/Gamocosm'), as: :source, via: :get
+  match '/license' => redirect('https://github.com/Gamocosm/Gamocosm/blob/master/LICENSE'), as: :license, via: :get
 
   scope '/wiki' do
-    match '/ftp' => redirect('https://github.com/Raekye/Gamocosm/wiki/How-to-FTP'), as: :wiki_ftp, via: :get
-    match '/ssh' => redirect('https://github.com/Raekye/Gamocosm/wiki/How-to-SSH'), as: :wiki_ssh, via: :get
-    match '/bukkit' => redirect('https://github.com/Raekye/Gamocosm/wiki/Installing-CraftBukkit-and-Plugins'), as: :wiki_bukkit, via: :get
-    match '/forge' => redirect('https://github.com/Raekye/Gamocosm/wiki/Installing-Minecraft-Forge-and-Mods'), as: :wiki_forge, via: :get
-    match '/minecraft_versions' => redirect('https://github.com/Raekye/Gamocosm/wiki/Installing-different-versions-of-Minecraft'), as: :wiki_minecraft_versions, via: :get
+    match '/ftp' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/How-to-FTP'), as: :wiki_ftp, via: :get
+    match '/ssh' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/How-to-SSH'), as: :wiki_ssh, via: :get
+    match '/bukkit' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Installing-CraftBukkit-and-Plugins'), as: :wiki_bukkit, via: :get
+    match '/forge' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Installing-Minecraft-Forge-and-Mods'), as: :wiki_forge, via: :get
+    match '/minecraft_versions' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft'), as: :wiki_minecraft_versions, via: :get
   end
 
   scope '/digital_ocean' do
