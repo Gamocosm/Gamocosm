@@ -22,26 +22,25 @@ The following instructions were made for Fedora 20, but the steps should be simi
 1. Install Ruby 2.0.0+: `(sudo) yum install ruby`. You can also use RVM
 1. Install Bundler: `gem install bundler`
 1. Install gem dependencies: `bundle install`
-1. Run `cp config/app.yml.template config/app.yml`
-1. Edit `config/app.yml`
+1. Run `cp env.sh.template env.sh`
+1. Run `chmod u+x env.sh`
+1. Enter config in `env.sh`
 1. Start postgresql, memcached, and redis manually: `(sudo) service start postgresql/memcached/redis`, or enable them to start at boot time: `(sudo) service enable postgresql/memcached/redis`
-1. After configuring the database, run `bundle exec rake db:setup`
-1. Start the server: `bundle exec rails s`
-1. Start the Sidekiq worker: `bundle exec sidekiq`
+1. After configuring the database, run `./env.sh rake db:setup`
+1. Start the server: `./env.sh rails s`
+1. Start the Sidekiq worker: `./env.sh sidekiq`
 
-##### config/app.yml options
-This is for Econfig. Values added here are available in ruby from `Gamocosm.foo`.
+##### env.sh options
 
-- `minecraft_jar_default_url`: Minecraft jar for new servers (default: latest version of vanilla Minecraft)
-- `minecraft_wrapper_username`: username used for HTTP basic auth when communicating with the Minecraft server wrapper
-- `digital_ocean_base_snapshot_id`: Digital Ocean image for new servers (default: Fedora 20 x64)
-- `digital_ocean_referral_link`: help pay for server costs?
-- `digital_ocean_api_key`: your Digital Ocean api token
-- `digital_ocean_ssh_public_key_path`: ssh key to be added to new servers to SSH into
-- `digital_ocean_ssh_private_key_path`: see above
-- `digital_ocean_ssh_private_key_passphrase`: see above
-- `sidekiq_admin_username`: HTTP basic auth for Sidekiq web interface
-- `sidekiq_admin_password`: see above
+- `DIGITAL_OCEAN_API_KEY`: your Digital Ocean api token
+- `DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH`: ssh key to be added to new servers to SSH into
+- `DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH`: see above
+- `DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE`: see above
+- `SIDEKIQ_ADMIN_USERNAME`: HTTP basic auth for Sidekiq web interface
+- `SIDEKIQ_ADMIN_PASSWORD`: see above
+- `DATABASE_PASSWORD`: only production, database password
+- `DEVISE_SECRET_KEY`: only tests, production, devise secret key
+- `SECRET_KEY`: only production, secret key base
 
 ##### Database configuration
 Locate `pg_hba.conf`. On Fedora this is in `/var/lib/pgsql/data/`.
@@ -99,8 +98,8 @@ Idempotency is good.
 - Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `config/app.yml`
 - The Sidekiq web interface is mounted at `/sidekiq`
 - New Relic RPM is available in developer mode at `/newrelic`
-- Run the console: `bundle exec rails c`
-- Reset the database: `bundle exec rake db:reset`
+- Run the console: `./env.sh rails c`
+- Reset the database: `./env.sh rake db:reset`
 - Reset Sidekiq jobs: `Sidekiq::Queue.new.each { |job| job.delete }` in the rails console
 - Reset Sidekiq stats: `Sidekiq::Stats.new.reset` in the rails console
 - The deployment scripts and configuration are in the `sysadmin/` directory
@@ -112,4 +111,4 @@ Idempotency is good.
 [1]: http://www.postgresql.org/docs/9.3/static/auth-pg-hba-conf.html
 [2]: https://github.com/geetfun
 [3]: http://stackoverflow.com/questions/10301794/
-[4]: https://github.com/Raekye/minecraft-server_wrapper
+[4]: https://github.com/Gamocosm/minecraft-server_wrapper

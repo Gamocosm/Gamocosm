@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class MinecraftServerTest < ActiveSupport::TestCase
+class MinecraftTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

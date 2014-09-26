@@ -1,6 +1,6 @@
 <br />
 <% if @minecraft.properties.nil? %>
-	<p>Start droplet to edit Minecraft settings (<a href="http://minecraft.gamepedia.com/Server.properties"><code>server.properties</code></a>)</p>
+	<p>Start droplet to edit Minecraft settings (<code><a href="http://minecraft.gamepedia.com/Server.properties">server.properties</a></code>)</p>
 <% elsif @minecraft.properties.error? %>
 	<p>Error getting Minecraft properties: <%= @minecraft.properties.error %></p>
 <% else %>

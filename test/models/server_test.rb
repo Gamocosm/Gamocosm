@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class DropletTest < ActiveSupport::TestCase
+class ServerTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

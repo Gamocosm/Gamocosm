@@ -66,6 +66,8 @@ git checkout release
 cp config/app.yml.template config/app.yml
 mkdir tmp
 touch tmp/restart.txt
+cp env.sh.template env.sh
+chmod u+x env.sh
 chown -R http:http .
 
 sudo -u http gem install bundler
@@ -75,7 +77,7 @@ DEVISE_SECRET_KEY="$(su - http -c "cd $(pwd) && bundle exec rake secret")"
 echo "Generated devise secret key $DEVISE_SECRET_KEY"
 PRODUCTION_SECRET_KEY="$(su - http -c "cd $(pwd) && bundle exec rake secret")"
 echo "Generated secret key base $PRODUCTION_SECRET_KEY"
-read -p "Enter gamocosm database password: " GAMOCOSM_DATABASE_PASSWORD
+read -p "Enter database password: " DATABASE_PASSWORD
 read -p "Enter digital ocean access token: " DIGITAL_OCEAN_API_KEY
 DIGITAL_OCEAN_PUBLIC_KEY_PATH="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm\\.pub"
 echo "Found public key path $DIGITAL_OCEAN_PUBLIC_KEY_PATH"
@@ -85,16 +87,15 @@ read -p "Enter private key passphrase: " DIGITAL_OCEAN_PRIVATE_KEY_PASSPHRASE
 read -p "Enter Sidekiq admin username: " SIDEKIQ_ADMIN_USERNAME
 read -p "Enter Sidekiq admin password: " SIDEKIQ_ADMIN_PASSWORD
 
-cp config/app.yml.template config/app.yml
-sed -i "s/\$devise_secret_key/$DEVISE_SECRET_KEY/" config/app.yml
-sed -i "s/\$secret_key_base/$PRODUCTION_SECRET_KEY/" config/app.yml
-sed -i "s/\$gamocosm_database_password/$GAMOCOSM_DATABASE_PASSWORD/" config/app.yml
-sed -i "s/\$digital_ocean_api_key/$DIGITAL_OCEAN_API_KEY/" config/app.yml
-sed -i "s/\$digital_ocean_ssh_public_key_path/$DIGITAL_OCEAN_PUBLIC_KEY_PATH/" config/app.yml
-sed -i "s/\$digital_ocean_ssh_private_key_path/$DIGITAL_OCEAN_PRIVATE_KEY_PATH/" config/app.yml
-sed -i "s/\$digital_ocean_ssh_private_key_passphrase/$DIGITAL_OCEAN_PRIVATE_KEY_PASSPHRASE/" config/app.yml
-sed -i "s/\$sidekiq_admin_username/$SIDEKIQ_ADMIN_USERNAME/" config/app.yml
-sed -i "s/\$sidekiq_admin_password/$SIDEKIQ_ADMIN_PASSWORD/" config/app.yml
+sed -i "/DEVISE_SECRET_KEY/ s/=.*$/=$DEVISE_SECRET_KEY" env.sh
+sed -i "/DATABASE_PASSWORD/ s/$/$DATABASE_PASSWORD" env.sh
+sed -i "/SECRET_KEY_BASE/ s/$/$PRODUCTION_SECRET_KEY/" env.sh
+sed -i "/DIGITAL_OCEAN_API_KEY/ s/$/$DIGITAL_OCEAN_API_KEY/" env.sh
+sed -i "/DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH/ s/=.*$/=$DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH/" env.sh
+sed -i "/DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH/ s/=.*$/=$DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH/" env.sh
+sed -i "/DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE/ s/$/$DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE/" env.sh
+sed -i "/SIDEKIQ_ADMIN_USERNAME/ s/=.*$/=$SIDEKIQ_ADMIN_USERNAME/" env.sh
+sed -i "/SIDEKIQ_ADMIN_PASSWORD/ s/=.*$/=$SIDEKIQ_ADMIN_PASSPORD/" env.sh
 
 su - http -c "cd $(pwd) && RAILS_ENV=production GAMOCOSM_DATABASE_PASSWORD=$GAMOCOSM_DATABASE_PASSWORD bundle exec rake db:setup"
 

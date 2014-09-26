@@ -78,8 +78,8 @@ class User < ActiveRecord::Base
   end
 
   def digital_ocean_gamocosm_ssh_key_id
-    if digital_ocean_invalid?
-      return 'Digital Ocean API token invalid'.error!
+    if digital_ocean_missing?
+      return 'Digital Ocean API token missing'.error!
     end
     public_key = File.read(Gamocosm.digital_ocean_ssh_public_key_path)
     fingerprint = Digest::MD5.hexdigest(Base64.decode64(public_key.split(/\s+/m)[1])).scan(/../).join(':')
