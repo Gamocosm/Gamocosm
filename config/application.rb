@@ -22,6 +22,7 @@ module Gamocosm
 
     # Custom
     config.cache_store = :dalli_store, 'localhost', { namespace: "gamocosm-#{Rails.env}", expires_in: 24.hours, compress: true }
+    config.exceptions_app = self.routes
   end
 
   def self.minecraft_jar_default_url

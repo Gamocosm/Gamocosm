@@ -1,0 +1,16 @@
+<div class="row">
+	<div class="col-sm-12">
+		<h1>We're sorry, but something went wrong</h1>
+		<p>
+			This has been logged and we'll take a look at it.
+			If it's urgent, or this keeps happening, please <%= link_to 'let us know about it!', issues_path %>
+		</p>
+		<hr />
+		<ul>
+			<li><%= link_to 'Home page', root_path %></li>
+			<% if user_signed_in? %>
+				<li><%= link_to 'My servers', minecrafts_path %></li>
+			<% end %>
+		</ul>
+	</div>
+</div>

@@ -1,0 +1,16 @@
+<div class="row">
+	<div class="col-sm-12">
+		<h1>This page does not exist</h1>
+		<p>
+			You may have mistyped the address or the page may have moved.
+			If you think this is an error, please <%= link_to 'let us know about it!', issues_path %>
+		</p>
+		<hr />
+		<ul>
+			<li><%= link_to 'Home page', root_path %></li>
+			<% if user_signed_in? %>
+				<li><%= link_to 'My servers', minecrafts_path %></li>
+			<% end %>
+		</ul>
+	</div>
+</div>

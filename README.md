@@ -14,6 +14,18 @@ Please check it out and help improve it too!
 ### Contributing
 Pull requests are welcome!
 
+#### Tests
+
+1. Start Sidekiq: `RAILS_ENV=test ./env.sh sidekiq`
+1. Run `./env.sh rake test` (parallel to Sidekiq).
+1. Will create servers using the Digital Ocean api token from "env.sh".
+1. If nothing fails tests should delete everything they create.
+
+- Because there's a lot of infrastructure (see below, "Technical details"), sometimes tests will fail for random reasons
+- I have not found a good workaround for this
+- Run `RAILS_ENV=test ./env.sh rails [s|c]` to run the server or console (respectively) in test mode
+- Note: the test server does not automatically reload source files when you edit them. You must restart the server
+
 #### Setting up your development environment
 You should have a Unix/Linux system.
 The following instructions were made for Fedora 20, but the steps should be similar on other distributions.
@@ -63,23 +75,19 @@ Alternatively, you can edit `config/database.yml` to use a different user.
 	- Checks if the postgresql user matches the operating system user
 	- Create a postgres user with your OS username (example uses "gamocosm")
 	- Add `local all gamocosm peer`. Note: an entry `local all all peer` may already exist, so you won't have to do anything
+- ident
+	- Same as `peer` but for network connections
 - md5
 	- Client supplies an MD5-encrypted password
 	- Add `local all gamocosm md5`
-
-#### Tests
-Start Sidekiq: `RAILS_ENV=test ./env.sh sidekiq`
-Run `./env.sh rake test` (parallel to Sidekiq).
-Will create servers using the Digital Ocean api token from "env.sh".
-If nothing fails tests should delete everything they create.
 
 #### Technical details
 Hmmmm.
 
 ##### Data
-Gamocosm has a lot of infrastructure; there's Digital Ocean's API, there're the Digital Ocean servers/droplets, there's Minecraft and its wrapper on the servers, the Gamocosm rails server, and the Gamocosm sidekiq worker.
-Avoid state whenever possible. Less data equals less chance of corruption.
-Idempotency is good.
+- Gamocosm has a lot of infrastructure: Digital Ocean's API, Digital Ocean servers/droplets, Minecraft and the server wrapper, the Gamocosm rails server, and the Gamocosm sidekiq worker
+- Avoid state whenever possible; less chance of corruption with less data
+- Idempotency is good
 
 ##### Error handling
 
@@ -103,6 +111,7 @@ Idempotency is good.
 #### Other useful stuff
 - Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `env.sh`
 - The Sidekiq web interface is mounted at `/sidekiq`
+- Sidekiq doesn't automatically reload source files when you edit them. You must restart it for changes to take effect
 - New Relic RPM is available in developer mode at `/newrelic`
 - Run the console: `./env.sh rails c`
 - Reset the database: `./env.sh rake db:reset`

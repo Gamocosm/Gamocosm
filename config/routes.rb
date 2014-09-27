@@ -10,6 +10,10 @@ Rails.application.routes.draw do
 
   get '/digital_ocean_setup', to: 'pages#digital_ocean_setup', as: :digital_ocean_setup
 
+  get '/404', to: 'pages#not_found'
+  get '/422', to: 'pages#unacceptable'
+  get '/500', to: 'pages#internal_error'
+
   match '/wiki' => redirect('https://github.com/Gamocosm/Gamocosm/wiki'), as: :wiki, via: :get
   match '/issues' => redirect('https://github.com/Gamocosm/Gamocosm/issues'), as: :issues, via: :get
   match '/source' => redirect('https://github.com/Gamocosm/Gamocosm'), as: :source, via: :get
@@ -27,7 +31,7 @@ Rails.application.routes.draw do
     match '/pricing' => redirect('https://www.digitalocean.com/pricing/'), as: :digital_ocean_pricing, via: :get
     match '/index' => redirect(Gamocosm.digital_ocean_referral_link), as: :digital_ocean_index, via: :get
     match '/help' => redirect('https://www.digitalocean.com/help/'), as: :digital_ocean_help, via: :get
-    match '/control_panel' => redirect('https://cloud.digitalocean.com/login'), as: :digital_ocean_control_panel, via: :get
+    match '/control_panel' => redirect('https://cloud.digitalocean.com'), as: :digital_ocean_control_panel, via: :get
   end
 
   Sidekiq::Web.use Rack::Auth::Basic, 'Protected Area' do |u, p|
