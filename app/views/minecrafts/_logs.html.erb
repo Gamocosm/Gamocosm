@@ -1,13 +1,14 @@
 <div class="row">
-	<div class="col-sm-9">
+	<div class="col-sm-12">
 		<%= panel_with_heading 'Server Log' do %>
 			<% if @minecraft.logs.count == 0 %>
 				<em>No messages</em>
 			<% else %>
 				<% @minecraft.logs.order('created_at DESC').each do |x| %>
 					<p><div>
-						<%= x.when %>:
+						<%= x.when %>
 						<div class="pull-right"><%= x.debuginfo %></div>
+						<br />
 						<%= x.message %>
 					</div></p>
 				<% end %>

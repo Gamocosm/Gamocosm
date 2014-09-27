@@ -85,6 +85,17 @@ class DigitalOcean::Droplet
     return "Error creating droplet on Digital Ocean; they responded with #{response}"
   end
 
+  def power_on
+    if @connection.nil?
+      return 'Digital Ocean API token missing'
+    end
+    response = @connection.droplet.power_on(@server.remote_id)
+    if response.success?
+      return nil
+    end
+    return "Error powering on droplet on Digital Ocean; they responded with #{response}"
+  end
+
   def shutdown
     if @connection.nil?
       return 'Digital Ocean API token missing'
@@ -136,6 +147,21 @@ class DigitalOcean::Droplet
       return nil
     end
     return "Error destroying droplet on Digital Ocean; they responded with #{response}"
+  end
+
+  def destroy_saved_snapshot
+    if @connection.nil?
+      return 'Digital Ocean API token missing'
+    end
+    if @server.do_saved_snapshot_id.nil?
+      return nil
+    end
+    response = @connection.image.destroy(@server.do_saved_snapshot_id)
+    if response.success? || response.id == 'not_found'
+      @server.update_columns(do_saved_snapshot_id: nil)
+      return nil
+    end
+    return "Error destroying snapshot on Digital Ocean; they responded with #{response}"
   end
 
 end

@@ -27,17 +27,22 @@ class Minecraft::Properties
 
   def initialize(minecraft)
     @minecraft = minecraft
-    response = @minecraft.node.properties
-    if response.error?
-      @error = response
-      error!
-      return
-    end
-    refresh_properties(response)
+    refresh
   end
 
   def error
     return @error
+  end
+
+  def refresh
+    response = @minecraft.node.properties
+    if response.error?
+      @error = response
+      @minecraft.log("Error getting Minecraft properties: #{response}")
+      error!
+      return
+    end
+    refresh_properties(response)
   end
 
   def refresh_properties(response)

@@ -22,7 +22,7 @@ class WaitForSnapshottingServerWorker
       server.minecraft.log("Error with Digital Ocean snapshotting server action #{digital_ocean_snapshot_action_id}; they responded with #{event.show}")
       error = server.remote.shutdown
       if error
-        server.minecraft.log("Error shutting down server on Digital Ocean; they responded with #{error}. Aborting")
+        server.minecraft.log("Error shutting down server on Digital Ocean; #{error}. Aborting")
         server.reset_partial
         return
       end
@@ -35,7 +35,7 @@ class WaitForSnapshottingServerWorker
     server.update_columns(do_saved_snapshot_id: server.remote.latest_snapshot_id)
     error = server.remote.destroy
     if error
-      server.minecraft.log("Error destroying server on Digital Ocean (has been snapshotted and saved); they responded with #{event.show}")
+      server.minecraft.log("Error destroying server on Digital Ocean (has been snapshotted and saved); #{error}")
     end
     server.update_columns(pending_operation: nil)
   rescue ActiveRecord::RecordNotFound => e

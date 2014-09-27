@@ -67,6 +67,12 @@ Alternatively, you can edit `config/database.yml` to use a different user.
 	- Client supplies an MD5-encrypted password
 	- Add `local all gamocosm md5`
 
+#### Tests
+Start Sidekiq: `RAILS_ENV=test ./env.sh sidekiq`
+Run `./env.sh rake test` (parallel to Sidekiq).
+Will create servers using the Digital Ocean api token from "env.sh".
+If nothing fails tests should delete everything they create.
+
 #### Technical details
 Hmmmm.
 
@@ -95,7 +101,7 @@ Idempotency is good.
 - `minecraft.running?`: `server.running? && !node.error? && node.pid > 0` (notice symmetry with `server.running?`)
 
 #### Other useful stuff
-- Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `config/app.yml`
+- Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `env.sh`
 - The Sidekiq web interface is mounted at `/sidekiq`
 - New Relic RPM is available in developer mode at `/newrelic`
 - Run the console: `./env.sh rails c`

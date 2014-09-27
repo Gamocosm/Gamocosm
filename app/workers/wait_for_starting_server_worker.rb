@@ -23,13 +23,17 @@ class WaitForStartingServerWorker
     end
     if server.remote.status != 'active'
       server.minecraft.log("Server told to start, not busy anymore, but status not on, was #{server.remote.status}")
-      error = server.remote.create
+      error = server.remote.power_on
       if error
-        server.minecraft.log("Error starting server on Digital Ocean; they responded with #{error}. Aborting")
+        server.minecraft.log("Error powering on server on Digital Ocean; #{error}. Aborting")
+        error = server.remote.destroy
+        if error
+          server.minecraft.log("Error destroying server on Digital Ocean after failed to power on; #{error}. (Aborting)")
+        end
         server.reset_partial
         return
       end
-      WaitForStoppingServerWorker.perform_in(4.seconds, server_id)
+      WaitForStartingServerWorker.perform_in(4.seconds, user_id, server_id)
       return
     end
     server.update_columns(pending_operation: 'preparing')

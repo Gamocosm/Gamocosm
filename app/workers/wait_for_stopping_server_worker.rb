@@ -25,7 +25,7 @@ class WaitForStoppingServerWorker
       server.minecraft.log("Server told to shutdown, not busy anymore, but status not off, was #{server.remote.status}")
       error = server.remote.shutdown
       if error
-        server.minecraft.log("Error shutting down server on Digital Ocean; they responded with #{error}. Aborting")
+        server.minecraft.log("Error shutting down server on Digital Ocean; #{error}. Aborting")
         server.reset_partial
         return
       end
@@ -34,8 +34,7 @@ class WaitForStoppingServerWorker
     end
     error = server.remote.snapshot
     if error
-      logger.info "Error with server #{server_id}, unable to snapshot; #{error}"
-      server.minecraft.log("Error snapshotting server on Digital Ocean; they responded with #{error}. Aborting")
+      server.minecraft.log("Error snapshotting server on Digital Ocean; #{error}. Aborting")
       server.reset_partial
       return
     end

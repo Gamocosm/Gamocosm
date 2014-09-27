@@ -1,4 +1,5 @@
 require 'sshkit/dsl'
+require 'timeout'
 
 class SetupServerWorker
   include Sidekiq::Worker
@@ -29,66 +30,78 @@ class SetupServerWorker
       timeout: 4
     }
     if !server.done_setup?
-      on host do
-        within '/tmp/' do
-          server.update_columns(remote_setup_stage: 1)
-          if test '! id -u mcuser'
-            execute :adduser, '-m', 'mcuser'
-          end
-          execute :echo, server.minecraft.name, '|', :passwd, '--stdin', 'mcuser'
-          execute :usermod, '-aG', 'wheel', 'mcuser'
-          server.update_columns(remote_setup_stage: 2)
-          execute :yum, '-y', 'update'
-          execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'supervisor', 'tmux', 'iptables-services'
-          execute :rm, '-rf', 'pip_build_root'
-          execute 'python3-pip', 'install', 'flask'
-        end
-        within '/opt/' do
-          execute :mkdir, '-p', 'gamocosm'
-          if test '! grep -q gamocosm /etc/group'
-            execute :groupadd, 'gamocosm'
-          end
-          execute :chgrp, 'gamocosm', 'gamocosm'
-          execute :usermod, '-aG', 'gamocosm', 'mcuser'
-          execute :chmod, 'g+w', 'gamocosm'
-          within :gamocosm do
-            execute :rm, '-f', 'mcsw.py'
-            execute :wget, '-O', 'mcsw.py', 'https://raw.github.com/Gamocosm/minecraft-server_wrapper/master/minecraft-server_wrapper.py'
-            execute :chown, 'mcuser:mcuser', 'mcsw.py'
-            execute :echo, "\"#{Gamocosm.minecraft_wrapper_username}\"", '>', 'mcsw-auth.txt'
-            execute :echo, "\"#{server.minecraft.minecraft_wrapper_password}\"", '>>', 'mcsw-auth.txt'
-          end
-        end
-        server.update_columns(remote_setup_stage: 3)
-        within '/home/mcuser/' do
-          execute :mkdir, '-p', 'minecraft'
-          execute :chown, 'mcuser:mcuser', 'minecraft'
-          within :minecraft do
-            execute :rm, '-f', 'minecraft_server-run.jar'
-            execute :wget, '-O', 'minecraft_server-run.jar', Gamocosm.minecraft_jar_default_url
-            execute :chown, 'mcuser:mcuser', 'minecraft_server-run.jar'
+      begin
+        Timeout::timeout(512) {
+          on host do
+            within '/tmp/' do
+              server.update_columns(remote_setup_stage: 1)
+              if test '! id -u mcuser'
+                execute :adduser, '-m', 'mcuser'
+              end
+              execute :echo, server.minecraft.name, '|', :passwd, '--stdin', 'mcuser'
+              execute :usermod, '-aG', 'wheel', 'mcuser'
+              server.update_columns(remote_setup_stage: 2)
+              execute :yum, '-y', 'update'
+              execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'supervisor', 'tmux', 'iptables-services'
+              execute :rm, '-rf', 'pip_build_root'
+              execute 'python3-pip', 'install', 'flask'
+            end
+            within '/opt/' do
+              execute :mkdir, '-p', 'gamocosm'
+              if test '! grep -q gamocosm /etc/group'
+                execute :groupadd, 'gamocosm'
+              end
+              execute :chgrp, 'gamocosm', 'gamocosm'
+              execute :usermod, '-aG', 'gamocosm', 'mcuser'
+              execute :chmod, 'g+w', 'gamocosm'
+              within :gamocosm do
+                execute :rm, '-f', 'mcsw.py'
+                execute :wget, '-O', 'mcsw.py', 'https://raw.github.com/Gamocosm/minecraft-server_wrapper/master/minecraft-server_wrapper.py'
+                execute :chown, 'mcuser:mcuser', 'mcsw.py'
+                execute :echo, "\"#{Gamocosm.minecraft_wrapper_username}\"", '>', 'mcsw-auth.txt'
+                execute :echo, "\"#{server.minecraft.minecraft_wrapper_password}\"", '>>', 'mcsw-auth.txt'
+              end
+            end
+            server.update_columns(remote_setup_stage: 3)
+            within '/home/mcuser/' do
+              execute :mkdir, '-p', 'minecraft'
+              execute :chown, 'mcuser:mcuser', 'minecraft'
+              within :minecraft do
+                execute :rm, '-f', 'minecraft_server-run.jar'
+                execute :wget, '-O', 'minecraft_server-run.jar', Gamocosm.minecraft_jar_default_url
+                execute :chown, 'mcuser:mcuser', 'minecraft_server-run.jar'
 
-            execute :echo, 'eula=true', '>', 'eula.txt'
-            execute :chown, 'mcuser:mcuser', 'eula.txt'
+                execute :echo, 'eula=true', '>', 'eula.txt'
+                execute :chown, 'mcuser:mcuser', 'eula.txt'
+              end
+            end
+            server.update_columns(remote_setup_stage: 4)
+            within '/etc/supervisord.d/' do
+              execute :rm, '-f', 'minecraft_sw.ini'
+              execute :wget, '-O', 'minecraft_sw.ini', 'https://raw.github.com/Gamocosm/minecraft-server_wrapper/master/supervisor.conf'
+              execute :systemctl, 'start', 'supervisord'
+              execute :systemctl, 'enable', 'supervisord'
+              execute :supervisorctl, 'reread'
+              execute :supervisorctl, 'update'
+            end
+            within '/tmp/' do
+              execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '5000', '-j', 'ACCEPT'
+              execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '25565', '-j', 'ACCEPT'
+              execute :systemctl, 'mask', 'firewalld.service'
+              execute :systemctl, 'enable', 'iptables.service'
+              execute :systemctl, 'enable', 'ip6tables.service'
+              execute :service, 'iptables', 'save'
+            end
           end
+        }
+      rescue Timeout::Error
+        server.minecraft.log('Timed out setting up server. Aborting')
+        error = server.remote.destroy
+        if error
+          server.minecraft.log("Failed to destroy server after failing to set up; #{error}")
         end
-        server.update_columns(remote_setup_stage: 4)
-        within '/etc/supervisord.d/' do
-          execute :rm, '-f', 'minecraft_sw.ini'
-          execute :wget, '-O', 'minecraft_sw.ini', 'https://raw.github.com/Gamocosm/minecraft-server_wrapper/master/supervisor.conf'
-          execute :systemctl, 'start', 'supervisord'
-          execute :systemctl, 'enable', 'supervisord'
-          execute :supervisorctl, 'reread'
-          execute :supervisorctl, 'update'
-        end
-        within '/tmp/' do
-          execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '5000', '-j', 'ACCEPT'
-          execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '25565', '-j', 'ACCEPT'
-          execute :systemctl, 'mask', 'firewalld.service'
-          execute :systemctl, 'enable', 'iptables.service'
-          execute :systemctl, 'enable', 'ip6tables.service'
-          execute :service, 'iptables', 'save'
-        end
+        server.reset
+        return
       end
     end
     server.update_columns(remote_setup_stage: 5)

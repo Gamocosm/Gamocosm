@@ -94,7 +94,7 @@ class Minecraft < ActiveRecord::Base
     end
     error = node.pause
     if error
-      Rails.logger.warn "MC#stop: node.pause returned #{error}, MC #{id}"
+      log("Stopping Minecraft, node returned #{error}")
     end
     return server.stop
   end
@@ -146,6 +146,10 @@ class Minecraft < ActiveRecord::Base
   def log(message)
     where = caller[0].split(':')
     logs.create(message: message, debuginfo: Pathname.new(where[0]).relative_path_from(Rails.root).to_s + ':' + where.drop(1).join(':'))
+  end
+
+  def log_test(message)
+    log(message)
   end
 
 end

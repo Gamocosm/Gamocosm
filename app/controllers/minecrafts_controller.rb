@@ -48,11 +48,15 @@ class MinecraftsController < ApplicationController
 
   def destroy
     @minecraft = find_minecraft_only_owner(params[:id])
+    error = @minecraft.server.remote.destroy_saved_snapshot
+    if error
+      return redirect_to minecraft_path(@minecraft), flash: { error: "Unable to delete saved server snapshot: #{error}" }
+    end
     error = @minecraft.server.remote.destroy
     if error
-      return redirect_to minecraft_path(@minecraft), flash: { succes: "Unable to delete server: #{error}" }
+      return redirect_to minecraft_path(@minecraft), flash: { error: "Unable to delete server: #{error}" }
     end
-    @minecraft.destroy
+    @minecraft.delete
     return redirect_to minecrafts_path, flash: { success: 'Server is deleting' }
   end
 
@@ -159,7 +163,7 @@ class MinecraftsController < ApplicationController
     return redirect_to minecraft_path(@minecraft), flash: { success: 'Command sent' }
   end
 
-  def update_minecraft_properties
+  def update_properties
     @minecraft = find_minecraft_only_owner(params[:id])
     if !@minecraft.server.running?
       return redirect_to minecraft_path(@minecraft), flash: { error: 'Minecraft isn\'t running. Start it to edit properties' }
@@ -196,7 +200,7 @@ class MinecraftsController < ApplicationController
     if friend.nil?
       return redirect_to minecraft_path(@minecraft), flash: { error: "User #{email} does not exist" }
     end
-    @minecraft.friends.destroy(friend)
+    @minecraft.friends.delete(friend)
     return redirect_to minecraft_path(@minecraft), flash: { success: "User #{email} removed from the server" }
   end
 

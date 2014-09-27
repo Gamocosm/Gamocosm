@@ -33,7 +33,7 @@ module Gamocosm
   end
 
   def self.digital_ocean_base_snapshot_id
-    '3243145'
+    '6370882'
   end
 
   def self.digital_ocean_referral_link

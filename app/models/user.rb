@@ -63,11 +63,14 @@ class User < ActiveRecord::Base
     if digital_ocean_invalid?
       return nil
     end
-    response = digital_ocean.image.all
-    if !response.success?
-      return nil
+    if @digital_ocean_snapshots.nil?
+      response = digital_ocean.image.all
+      if !response.success?
+        @digital_ocean_snapshots = false
+      end
+      @digital_ocean_snapshots = response.images.select { |x| !x.public }
     end
-    return response.images.select { |x| !x.public }
+    return @digital_ocean_snapshots == false ? nil : @digital_ocean_snapshots
   end
 
   def digital_ocean_droplets
@@ -97,5 +100,10 @@ class User < ActiveRecord::Base
       return response.ssh_key.id
     end
     return "Unable to add key; Digital Ocean responded with #{response}".error!
+  end
+
+  def invalidate
+    @digital_ocean_invalid = nil
+    @digital_ocean_snapshots = nil
   end
 end

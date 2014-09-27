@@ -21,7 +21,12 @@ class Minecraft::Node
   def pid
     if @pid.nil?
       response = do_get(:pid)
-      @pid = response.error? ? response : response['pid']
+      if response.error?
+        @pid = response
+        @local_minecraft.log("Error getting Minecraft pid: #{response}")
+      else
+        @pid = response['pid']
+      end
     end
     return @pid
   end

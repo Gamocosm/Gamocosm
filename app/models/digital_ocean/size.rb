@@ -61,7 +61,7 @@ class DigitalOcean::Size
   end
 
   def find(digital_ocean_size_slug)
-    i = @all.index { |x| x[:id] == digital_ocean_size_slug }
+    i = @all.index { |x| x[:slug] == digital_ocean_size_slug }
     if i
       return @all[i]
     end
