@@ -30,7 +30,7 @@ Pull requests are welcome!
 You should have a Unix/Linux system.
 The following instructions were made for Fedora 20, but the steps should be similar on other distributions.
 
-1. Install postgresql and development headers and libraries, memcached, and redis: `(sudo) yum install postgresql-server postgresql-contrib postgresql-devel memcached redis`
+1. Install postgresql and development headers and libraries, memcached, redis, and nodejs: `(sudo) yum install postgresql-server postgresql-contrib postgresql-devel memcached redis nodejs`
 1. Install Ruby 2.0.0+: `(sudo) yum install ruby`. You can also use RVM
 1. Install Bundler: `gem install bundler`
 1. Install gem dependencies: `bundle install`

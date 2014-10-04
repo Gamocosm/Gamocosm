@@ -20,10 +20,7 @@ Rails.application.routes.draw do
   match '/license' => redirect('https://github.com/Gamocosm/Gamocosm/blob/master/LICENSE'), as: :license, via: :get
 
   scope '/wiki' do
-    match '/ftp' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/How-to-FTP'), as: :wiki_ftp, via: :get
-    match '/ssh' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/How-to-SSH'), as: :wiki_ssh, via: :get
-    match '/bukkit' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Installing-CraftBukkit-and-Plugins'), as: :wiki_bukkit, via: :get
-    match '/forge' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Installing-Minecraft-Forge-and-Mods'), as: :wiki_forge, via: :get
+    match '/ftp_ssh' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/FTP-and-SSH'), as: :wiki_ftp_ssh, via: :get
     match '/minecraft_versions' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft'), as: :wiki_minecraft_versions, via: :get
   end
 

@@ -38,7 +38,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     add_friend_to_server(minecraft, 'test2@test.com')
     stop_server(minecraft)
     logout_user
-    sleep(32)
+    sleep 32
     login_user('test2@test.com', '2345test')
     start_server(minecraft, {})
     logout_user
@@ -47,6 +47,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     remove_friend_from_server(minecraft, 'test@test.com')
     delete_server(minecraft)
     logout_user
+    sleep 4
     user_digital_ocean_after!
   end
 

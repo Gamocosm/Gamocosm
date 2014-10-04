@@ -12,8 +12,7 @@
 
 <%= panel_with_heading 'Instructions' do %>
 	<ul>
-		<li>FTP instructions on the <%= link_to 'wiki', wiki_ftp_path %></li>
-		<li>SSH instructions on the <%= link_to 'wiki', wiki_ssh_path %></li>
+		<li>FTP and SSH instructions on the <%= link_to 'wiki', wiki_ftp_ssh_path %></li>
 	</ul>
 <% end %>
 
@@ -21,7 +20,7 @@
 	<ol>
 		<li>SSH into your server</li>
 		<li>Run <code>passwd</code></li>
-		<li>Enter your new password into the prompt</li>
+		<li>Enter your old and new password into the prompt</li>
 		<li>Exit (run <code>exit</code>)</li>
 	</ol>
 <% end %>
