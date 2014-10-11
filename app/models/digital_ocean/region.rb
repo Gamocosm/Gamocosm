@@ -18,7 +18,7 @@ class DigitalOcean::Region
     end
     if @all.nil?
       @all = [
-        { name: "Amsterdam 3", slug: "ams3" }
+        { name: "Amsterdam 3", slug: "ams3" },
         { name: "New York 3", slug: "nyc3" },
         { name: "Amsterdam 2", slug: "ams2" },
         { name: "New York 2", slug: "nyc2" },
