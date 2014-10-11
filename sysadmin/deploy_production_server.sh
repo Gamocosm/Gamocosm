@@ -75,33 +75,14 @@ chown -R http:http .
 sudo -u http gem install bundler
 su - http -c "cd $(pwd) && bundle install --deployment"
 
-DEVISE_SECRET_KEY="$(su - http -c "cd $(pwd) && bundle exec rake secret")"
-echo "Generated devise secret key $DEVISE_SECRET_KEY"
-PRODUCTION_SECRET_KEY="$(su - http -c "cd $(pwd) && bundle exec rake secret")"
-echo "Generated secret key base $PRODUCTION_SECRET_KEY"
-read -p "Enter database password: " DATABASE_PASSWORD
-read -p "Enter digital ocean access token: " DIGITAL_OCEAN_API_KEY
-DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm\\.pub"
-echo "Found public key path $DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH"
-DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm"
-echo "Found private key path $DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH"
-read -p "Enter private key passphrase: " DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE
-read -p "Enter Sidekiq admin username: " SIDEKIQ_ADMIN_USERNAME
-read -p "Enter Sidekiq admin password: " SIDEKIQ_ADMIN_PASSWORD
+read -p "Please fill in the information in env.sh (press any key to continue)"
 
-sed -i "/DEVISE_SECRET_KEY/ s/=.*$/=$DEVISE_SECRET_KEY/" env.sh
-sed -i "/DATABASE_PASSWORD/ s/$/$DATABASE_PASSWORD/" env.sh
-sed -i "/SECRET_KEY_BASE/ s/$/$PRODUCTION_SECRET_KEY/" env.sh
-sed -i "/DIGITAL_OCEAN_API_KEY/ s/$/$DIGITAL_OCEAN_API_KEY/" env.sh
-sed -i "/DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH/ s/=.*$/=$DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH/" env.sh
-sed -i "/DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH/ s/=.*$/=$DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH/" env.sh
-sed -i "/DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE/ s/$/$DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE/" env.sh
-sed -i "/SIDEKIQ_ADMIN_USERNAME/ s/=.*$/=$SIDEKIQ_ADMIN_USERNAME/" env.sh
-sed -i "/SIDEKIQ_ADMIN_PASSWORD/ s/=.*$/=$SIDEKIQ_ADMIN_PASSWORD/" env.sh
+vi env.sh
+# no more sed -i "/SIDEKIQ_ADMIN_PASSWORD/ s/=.*$/=$SIDEKIQ_ADMIN_PASSWORD/" env.sh :(
 
-su - http -c "cd $(pwd) && RAILS_ENV=production ./env.sh rake db:setup"
+su - http -c "cd $(pwd) && RAILS_ENV=production ./env.sh --bundler rake db:setup"
 
-su - http -c "cd $(pwd) && RAILS_ENV=production ./env.sh rake assets:precompile"
+su - http -c "cd $(pwd) && RAILS_ENV=production ./env.sh --bundler rake assets:precompile"
 
 OUTDOORS_IP_ADDRESS=$(ifconfig | grep -m 1 "inet" | awk "{ print \$2 }")
 echo "$OUTDOORS_IP_ADDRESS gamocosm.com" >> /etc/hosts
