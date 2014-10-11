@@ -18,13 +18,13 @@ class DigitalOcean::Region
     end
     if @all.nil?
       @all = [
-        { name: "San Francisco 1", slug: "sfo1" },
-        { name: "New York 2", slug: "nyc2" },
-        { name: "Amsterdam 2", slug: "ams2" },
-        { name: "Singapore 1", slug: "sgp1" },
-        { name: "London 1", slug: "lon1" },
-        { name: "New York 3", slug: "nyc3" },
         { name: "Amsterdam 3", slug: "ams3" }
+        { name: "New York 3", slug: "nyc3" },
+        { name: "Amsterdam 2", slug: "ams2" },
+        { name: "New York 2", slug: "nyc2" },
+        { name: "London 1", slug: "lon1" },
+        { name: "San Francisco 1", slug: "sfo1" },
+        { name: "Singapore 1", slug: "sgp1" },
       ]
     else
       Rails.cache.write(:digital_ocean_regions, @all)
@@ -32,7 +32,11 @@ class DigitalOcean::Region
   end
 
   def all
-    return @all
+    return @all.sort do |a, b|
+      a_tier = a[:slug][-1]
+      b_tier = b[:slug][-1]
+      a_tier == b_tier ? a[:name] <=> b[:name] : b_tier <=> a_tier
+    end
   end
 
   def find(digital_ocean_region_slug)

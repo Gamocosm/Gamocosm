@@ -4,14 +4,14 @@ set -e
 
 yum -y update
 
-yum -y install ruby nodejs gcc gcc-c++ curl-devel openssl-devel zlib-devel ruby-devel memcached git postgresql-server postgresql-contrib postgresql-devel tmux redis
+yum -y install ruby nodejs gcc gcc-c++ curl-devel openssl-devel zlib-devel ruby-devel memcached git postgresql-server postgresql-contrib postgresql-devel tmux redis iptables-services
 
 gem install passenger
 
 passenger-install-nginx-module
 
-wget -O /etc/systemd/system/nginx.service https://raw.githubusercontent.com/Raekye/Gamocosm/release/sysadmin/nginx.service
-wget -O /etc/systemd/system/gamocosm-sidekiq.service https://raw.githubusercontent.com/Raekye/Gamocosm/release/sysadmin/sidekiq.service
+wget -O /etc/systemd/system/nginx.service https://raw.githubusercontent.com/Gamocosm/Gamocosm/release/sysadmin/nginx.service
+wget -O /etc/systemd/system/gamocosm-sidekiq.service https://raw.githubusercontent.com/Gamocosm/Gamocosm/release/sysadmin/sidekiq.service
 
 sed -i "1s/^/user http;\\n/" /opt/nginx/conf/nginx.conf
 sed -i "$ s/}/include \\/opt\\/nginx\\/sites-enabled\\/\\*.conf;\\n}/" /opt/nginx/conf/nginx.conf
@@ -20,7 +20,7 @@ sed -i "0,/listen[[:space:]]*80;/{s/80/8000/}" /opt/nginx/conf/nginx.conf
 mkdir /opt/nginx/sites-enabled;
 mkdir /opt/nginx/sites-available;
 
-wget -O /opt/nginx/sites-available/gamocosm.conf https://raw.githubusercontent.com/Raekye/Gamocosm/release/sysadmin/nginx.conf
+wget -O /opt/nginx/sites-available/gamocosm.conf https://raw.githubusercontent.com/Gamocosm/Gamocosm/release/sysadmin/nginx.conf
 ln -s /opt/nginx/sites-available/gamocosm.conf /opt/nginx/sites-enabled/gamocosm.conf
 
 systemctl enable nginx
@@ -46,7 +46,10 @@ sed -i "/^# TYPE[[:space:]]*DATABASE[[:space:]]*USER[[:space:]]*ADDRESS[[:space:
 systemctl restart postgresql
 
 iptables -I INPUT -p tcp --dport 80 -j ACCEPT
-iptables-save
+systemctl mask firewalld.service
+systemctl enable iptables.service
+systemctl enable ip6tables.service
+service iptables save
 
 adduser -m http
 
@@ -60,10 +63,9 @@ chown http:http /run/http
 
 mkdir /var/www
 cd /var/www
-git clone https://github.com/Raekye/Gamocosm.git gamocosm
+git clone https://github.com/Gamocosm/Gamocosm.git gamocosm
 cd gamocosm
 git checkout release
-cp config/app.yml.template config/app.yml
 mkdir tmp
 touch tmp/restart.txt
 cp env.sh.template env.sh
@@ -79,27 +81,27 @@ PRODUCTION_SECRET_KEY="$(su - http -c "cd $(pwd) && bundle exec rake secret")"
 echo "Generated secret key base $PRODUCTION_SECRET_KEY"
 read -p "Enter database password: " DATABASE_PASSWORD
 read -p "Enter digital ocean access token: " DIGITAL_OCEAN_API_KEY
-DIGITAL_OCEAN_PUBLIC_KEY_PATH="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm\\.pub"
-echo "Found public key path $DIGITAL_OCEAN_PUBLIC_KEY_PATH"
-DIGITAL_OCEAN_PRIVATE_KEY_PATH="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm"
-echo "Found private key path $DIGITAL_OCEAN_PRIVATE_KEY_PATH"
-read -p "Enter private key passphrase: " DIGITAL_OCEAN_PRIVATE_KEY_PASSPHRASE
+DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm\\.pub"
+echo "Found public key path $DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH"
+DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH="\\/home\\/http\\/\\.ssh\\/id_rsa-gamocosm"
+echo "Found private key path $DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH"
+read -p "Enter private key passphrase: " DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE
 read -p "Enter Sidekiq admin username: " SIDEKIQ_ADMIN_USERNAME
 read -p "Enter Sidekiq admin password: " SIDEKIQ_ADMIN_PASSWORD
 
-sed -i "/DEVISE_SECRET_KEY/ s/=.*$/=$DEVISE_SECRET_KEY" env.sh
-sed -i "/DATABASE_PASSWORD/ s/$/$DATABASE_PASSWORD" env.sh
+sed -i "/DEVISE_SECRET_KEY/ s/=.*$/=$DEVISE_SECRET_KEY/" env.sh
+sed -i "/DATABASE_PASSWORD/ s/$/$DATABASE_PASSWORD/" env.sh
 sed -i "/SECRET_KEY_BASE/ s/$/$PRODUCTION_SECRET_KEY/" env.sh
 sed -i "/DIGITAL_OCEAN_API_KEY/ s/$/$DIGITAL_OCEAN_API_KEY/" env.sh
 sed -i "/DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH/ s/=.*$/=$DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH/" env.sh
 sed -i "/DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH/ s/=.*$/=$DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH/" env.sh
 sed -i "/DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE/ s/$/$DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE/" env.sh
 sed -i "/SIDEKIQ_ADMIN_USERNAME/ s/=.*$/=$SIDEKIQ_ADMIN_USERNAME/" env.sh
-sed -i "/SIDEKIQ_ADMIN_PASSWORD/ s/=.*$/=$SIDEKIQ_ADMIN_PASSPORD/" env.sh
+sed -i "/SIDEKIQ_ADMIN_PASSWORD/ s/=.*$/=$SIDEKIQ_ADMIN_PASSWORD/" env.sh
 
-su - http -c "cd $(pwd) && RAILS_ENV=production GAMOCOSM_DATABASE_PASSWORD=$GAMOCOSM_DATABASE_PASSWORD bundle exec rake db:setup"
+su - http -c "cd $(pwd) && RAILS_ENV=production ./env.sh rake db:setup"
 
-su - http -c "cd $(pwd) && RAILS_ENV=production bundle exec rake assets:precompile"
+su - http -c "cd $(pwd) && RAILS_ENV=production ./env.sh rake assets:precompile"
 
 OUTDOORS_IP_ADDRESS=$(ifconfig | grep -m 1 "inet" | awk "{ print \$2 }")
 echo "$OUTDOORS_IP_ADDRESS gamocosm.com" >> /etc/hosts
