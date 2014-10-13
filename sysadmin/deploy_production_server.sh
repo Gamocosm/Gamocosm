@@ -42,9 +42,10 @@ echo "Run: \\q"
 echo "Run: exit"
 su - postgres
 
-sed -i "/^# TYPE[[:space:]]*DATABASE[[:space:]]*USER[[:space:]]*ADDRESS[[:space:]]*METHOD/a local all gamocosm md5" /var/lib/pgsql/data/pg_hba.conf
+sed -i "/^# TYPE[[:space:]]*DATABASE[[:space:]]*USER[[:space:]]*ADDRESS[[:space:]]*METHOD/a host gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 md5" /var/lib/pgsql/data/pg_hba.conf
 systemctl restart postgresql
 
+firewall-cmd --add-port=80/tcp
 firewall-cmd --permanent --add-port=80/tcp
 
 adduser -m http
@@ -70,6 +71,8 @@ chown -R http:http .
 sudo -u http gem install bundler
 su - http -c "cd $(pwd) && bundle install --deployment"
 
+SECRET_KEY_BASE="$(su - http -c "cd $(pwd) && bundle exec rake secret")"
+echo "Generated secret key base $SECRET_KEY_BASE"
 DEVISE_SECRET_KEY="$(su - http -c "cd $(pwd) && bundle exec rake secret")"
 echo "Generated Devise secret key $DEVISE_SECRET_KEY"
 read -p "Please fill in the information in env.sh (press any key to continue)... "
