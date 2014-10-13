@@ -68,17 +68,17 @@ Depending on what method you want to use, add the following under the line that 
 
 - trust
 	- Easiest, but least secure. Typically ok on development machines. Blindly trusts the user
-	- Add `host gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 trust`
+	- Add `host postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 trust`
 - peer
 	- Checks if the postgresql user matches the operating system user
 	- Create a postgres user with your OS username (example uses "gamocosm")
-	- Add `host gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 peer`
+	- Add `host postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 peer`
 	- Since `config/database.yml` is set to use a user "gamocosm", you'll have to change that. Because of this, this method isn't recommended
 - ident
 	- Same as `peer` but for network connections
 - md5
 	- Client supplies an MD5-encrypted password
-	- Add `host gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 md5`
+	- Add `host postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 md5`
 
 The "type" can be either "local" or "host".
 Local is for unix socket connections, host is for tcp connections.

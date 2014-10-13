@@ -42,7 +42,7 @@ echo "Run: \\q"
 echo "Run: exit"
 su - postgres
 
-sed -i "/^# TYPE[[:space:]]*DATABASE[[:space:]]*USER[[:space:]]*ADDRESS[[:space:]]*METHOD/a host gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 md5" /var/lib/pgsql/data/pg_hba.conf
+sed -i "/^# TYPE[[:space:]]*DATABASE[[:space:]]*USER[[:space:]]*ADDRESS[[:space:]]*METHOD/a host postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 md5" /var/lib/pgsql/data/pg_hba.conf
 systemctl restart postgresql
 
 firewall-cmd --add-port=80/tcp
