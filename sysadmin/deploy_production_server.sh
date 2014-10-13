@@ -4,7 +4,7 @@ set -e
 
 yum -y update
 
-yum -y install ruby nodejs gcc gcc-c++ curl-devel openssl-devel zlib-devel ruby-devel memcached git postgresql-server postgresql-contrib postgresql-devel tmux redis iptables-services
+yum -y install ruby nodejs gcc gcc-c++ curl-devel openssl-devel zlib-devel ruby-devel memcached git postgresql-server postgresql-contrib postgresql-devel tmux redis
 
 gem install passenger
 
@@ -45,16 +45,11 @@ su - postgres
 sed -i "/^# TYPE[[:space:]]*DATABASE[[:space:]]*USER[[:space:]]*ADDRESS[[:space:]]*METHOD/a local all gamocosm md5" /var/lib/pgsql/data/pg_hba.conf
 systemctl restart postgresql
 
-iptables -I INPUT -p tcp --dport 80 -j ACCEPT
-systemctl mask firewalld.service
-systemctl enable iptables.service
-systemctl enable ip6tables.service
-service iptables save
+firewall-cmd --permanent --add-port=80/tcp
 
 adduser -m http
 
 echo "Run: ssh-keygen -t rsa"
-echo "Note: set path to /home/http/.ssh/id_rsa-gamocosm"
 echo "Run: exit"
 su - http
 
@@ -75,7 +70,9 @@ chown -R http:http .
 sudo -u http gem install bundler
 su - http -c "cd $(pwd) && bundle install --deployment"
 
-read -p "Please fill in the information in env.sh (press any key to continue)"
+DEVISE_SECRET_KEY="$(su - http -c "cd $(pwd) && bundle exec rake secret")"
+echo "Generated Devise secret key $DEVISE_SECRET_KEY"
+read -p "Please fill in the information in env.sh (press any key to continue)... "
 
 vi env.sh
 # no more sed -i "/SIDEKIQ_ADMIN_PASSWORD/ s/=.*$/=$SIDEKIQ_ADMIN_PASSWORD/" env.sh :(
