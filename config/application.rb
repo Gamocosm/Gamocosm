@@ -23,6 +23,16 @@ module Gamocosm
     # Custom
     config.cache_store = :dalli_store, ENV['MEMCACHED_HOST'] || 'localhost', { namespace: "gamocosm-#{Rails.env}", expires_in: 24.hours, compress: true }
     config.exceptions_app = self.routes
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+      address: ENV['MAIL_SERVER_ADDRESS'],
+      port: ENV['MAIL_SERVER_PORT'],
+      domain: ENV['MAIL_SERVER_DOMAIN'],
+      user_name: ENV['MAIL_SERVER_USERNAME'],
+      password: ENV['MAIL_SERVER_PASSWORD'],
+      authentication: 'plain',
+      enable_starttls_auto: true
+    }
   end
 
   def self.minecraft_jar_default_url
