@@ -4,7 +4,7 @@ set -e
 
 yum -y update
 
-yum -y install ruby nodejs gcc gcc-c++ curl-devel openssl-devel zlib-devel ruby-devel memcached git postgresql-server postgresql-contrib postgresql-devel tmux redis
+yum -y install ruby nodejs gcc gcc-c++ curl-devel openssl-devel zlib-devel ruby-devel memcached git postgresql-devel tmux
 
 gem install passenger
 
@@ -25,25 +25,9 @@ ln -s /opt/nginx/sites-available/gamocosm.conf /opt/nginx/sites-enabled/gamocosm
 
 systemctl enable nginx
 systemctl enable memcached
-systemctl enable redis
-systemctl enable postgresql
 systemctl enable gamocosm-sidekiq
 
-postgresql-setup initdb
-
-systemctl start postgresql
-systemctl start redis
 systemctl start memcached
-
-echo "Run: createuser --createdb --pwprompt --superuser gamocosm"
-echo "Run: psql"
-echo "Run: \\password postgres"
-echo "Run: \\q"
-echo "Run: exit"
-su - postgres
-
-sed -i "/^# TYPE[[:space:]]*DATABASE[[:space:]]*USER[[:space:]]*ADDRESS[[:space:]]*METHOD/a host gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 md5" /var/lib/pgsql/data/pg_hba.conf
-systemctl restart postgresql
 
 firewall-cmd --add-port=80/tcp
 firewall-cmd --permanent --add-port=80/tcp

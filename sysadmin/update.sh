@@ -2,13 +2,16 @@
 
 set -e
 
-PATH="$PATH:$HOME/bin"
+if [[ "$USER" != "http" ]]; then
+	echo "Should be run as http"
+	exit 1
+fi
 
 cd /var/www/gamocosm
 
+git checkout release
 git pull origin release
-chown -R http:http .
 
-RAILS_ENV=production bundle exec rake assets:precompile
+RAILS_ENV=production ./env.sh --bundler rake assets:precompile
 
 touch tmp/restart.txt

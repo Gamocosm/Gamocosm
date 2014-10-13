@@ -3,15 +3,12 @@
 use strict;
 use POSIX;
 
-my $username = $ENV{USER};
 my @http_pwnam = POSIX::getpwnam("http");
+my $executable = "/var/www/gamocosm/sysadmin/update.sh";
+my @command = ("bash", $executable);
 
-if ($< == 0) {
-	POSIX::setuid($http_pwnam[2]);
-}
 if ($< != $http_pwnam[2]) {
-	print("This should be run as root or http");
-	exit(1);
+	@command = (("sudo", "--login", "-u", "http"), @command);
 }
 
-exec("bash", "/var/www/gamocosm/sysadmin/update.sh");
+exec(@command);
