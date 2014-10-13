@@ -1,15 +1,6 @@
 Rails.application.configure do
   # Custom
-  config.action_mailer.delivery_method = :smtp
-  config.action_mailer.smtp_settings = {
-    address: ENV['MAIL_SERVER_ADDRESS'],
-    port: ENV['MAIL_SERVER_PORT'],
-    domain: ENV['MAIL_SERVER_DOMAIN'],
-    user_name: ENV['MAIL_SERVER_USERNAME'],
-    password: ENV['MAIL_SERVER_PASSWORD'],
-    authentication: 'plain',
-    enable_starttls_auto: true
-  }
+  config.action_mailer.default_url_options = { host: 'gamocosm.com' }
 
   # Settings specified here will take precedence over those in config/application.rb.
 

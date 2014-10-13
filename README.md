@@ -57,6 +57,7 @@ The following instructions were made for Fedora 20, but the steps should be simi
 ##### Database configuration
 Locate `pg_hba.conf`. On Fedora this is in `/var/lib/pgsql/data/`.
 This file tells postgresql how to authenticate users. Read about it on the [PostgreSQL docs][1].
+`config/database.yml` sets the database user to be "gamocosm".
 The postgres user you use must be a postgres superuser, as rails needs to enable the uuid extension.
 To create a postgres user "gamocosm":
 
@@ -64,22 +65,30 @@ To create a postgres user "gamocosm":
 - Run `createuser --createdb --pwprompt --superuser gamocosm` (`createuser --help` for more info)
 
 Depending on what method you want to use, add the following under the line that looks like `# TYPE DATABASE USER ADDRESS METHOD`.
-By default, `config/database.yml` uses `ENV['USER']` (your OS username) as the database username, for peer identification.
-The examples use "gamocosm" as the username; change this to whatever your OS username is.
-Alternatively, you can edit `config/database.yml` to use a different user.
 
 - trust
 	- Easiest, but least secure. Typically ok on development machines. Blindly trusts the user
-	- Add `local all gamocosm trust`
+	- Add `host postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 trust`
 - peer
 	- Checks if the postgresql user matches the operating system user
 	- Create a postgres user with your OS username (example uses "gamocosm")
-	- Add `local all gamocosm peer`. Note: an entry `local all all peer` may already exist, so you won't have to do anything
+	- Add `host postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 peer`
+	- Since `config/database.yml` is set to use a user "gamocosm", you'll have to change that. Because of this, this method isn't recommended
 - ident
 	- Same as `peer` but for network connections
 - md5
 	- Client supplies an MD5-encrypted password
-	- Add `local all gamocosm md5`
+	- Add `host postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 md5`
+
+The "type" can be either "local" or "host".
+Local is for unix socket connections, host is for tcp connections.
+When you specify a host (as is in the `env.sh.template`), Rails uses a tcp connection.
+If you omit host (leave it blank), Rails uses a socket connection.
+If you do this, change "host" to "local" and remove the `::1/32` before the method, in the examples above.
+
+`::1/32` is localhost in ipv6.
+On my computer Rails uses ipv6, but I don't know if it's the same for everyone.
+Try `127.0.0.1/32` for ipv4 if it's not working for you.
 
 #### Technical details
 Hmmmm.
