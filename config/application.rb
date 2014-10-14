@@ -48,7 +48,7 @@ module Gamocosm
   end
 
   def self.digital_ocean_referral_link
-    'https://www.digitalocean.com/?refcode=758af342c81e'
+    'https://www.digitalocean.com/?refcode=f787055e1099'
   end
 
   def self.digital_ocean_api_key
