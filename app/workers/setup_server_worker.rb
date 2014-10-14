@@ -42,7 +42,7 @@ class SetupServerWorker
               execute :usermod, '-aG', 'wheel', 'mcuser'
               server.update_columns(remote_setup_stage: 2)
               execute :yum, '-y', 'update'
-              execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'supervisor', 'tmux', 'iptables-services'
+              execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'supervisor', 'tmux'
               execute :rm, '-rf', 'pip_build_root'
               execute 'python3-pip', 'install', 'flask'
             end
@@ -85,12 +85,10 @@ class SetupServerWorker
               execute :supervisorctl, 'update'
             end
             within '/tmp/' do
-              execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '5000', '-j', 'ACCEPT'
-              execute :iptables, '-I', 'INPUT', '-p', 'tcp', '--dport', '25565', '-j', 'ACCEPT'
-              execute :systemctl, 'mask', 'firewalld.service'
-              execute :systemctl, 'enable', 'iptables.service'
-              execute :systemctl, 'enable', 'ip6tables.service'
-              execute :service, 'iptables', 'save'
+              execute 'firewall-cmd', '--add-port=5000/tcp'
+              execute 'firewall-cmd', '--permanent', '--add-port=5000/tcp'
+              execute 'firewall-cmd', '--add-port=25565/tcp'
+              execute 'firewall-cmd', '--permanent', '--add-port=25565/tcp'
             end
           end
         }
