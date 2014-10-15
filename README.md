@@ -32,17 +32,20 @@ The following instructions were made for Fedora 20, but the steps should be simi
 
 1. Install postgresql and development headers and libraries, memcached, redis, and nodejs: `(sudo) yum install postgresql-server postgresql-contrib postgresql-devel memcached redis nodejs`
 1. Install Ruby 2.0.0+: `(sudo) yum install ruby`. You can also use RVM
+1. Install other things needed for gems: `(sudo) yum install gcc`
 1. Install Bundler: `gem install bundler`
 1. Install gem dependencies: `bundle install`
 1. Run `cp env.sh.template env.sh`
 1. Run `chmod u+x env.sh`
 1. Enter config in `env.sh`
+1. Initialize postgresql: `(sudo) postgresql-setup initdb`
 1. Start postgresql, memcached, and redis manually: `(sudo) service start postgresql/memcached/redis`, or enable them to start at boot time: `(sudo) service enable postgresql/memcached/redis`
 1. After configuring the database, run `./env.sh rake db:setup`
 1. Start the server: `./env.sh rails s`
 1. Start the Sidekiq worker: `./env.sh sidekiq`
 
 ##### env.sh options
+# Development, test, and production
 
 - `DIGITAL_OCEAN_API_KEY`: your Digital Ocean api token
 - `DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH`: ssh key to be added to new servers to SSH into
@@ -50,14 +53,20 @@ The following instructions were made for Fedora 20, but the steps should be simi
 - `DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE`: see above
 - `SIDEKIQ_ADMIN_USERNAME`: HTTP basic auth for Sidekiq web interface
 - `SIDEKIQ_ADMIN_PASSWORD`: see above
-- `DATABASE_PASSWORD`: only production, database password
-- `DEVISE_SECRET_KEY`: only tests, production, devise secret key
-- `SECRET_KEY`: only production, secret key base
+- `DATABASE_PASSWORD`: hmmmm
+- `DATABASE_HOST`: database host. If specified, Rails will use a TCP connection (e.g. "localhost"). If left blank, Rails will use a local Unix socket connection
+- `MEMCACHED_HOST`: hmmmm
+- `SIDEKIQ_REDIS_URL`: see [advanced options][5] in the Sidekiq wiki
+- `MAIL_SERVER_*`: see [action mailer configuration][6] in the Rails guide
+- `DEVISE_SECRET_KEY`: only tests, production
+- `SECRET_KEY`: only production
 
 ##### Database configuration
 Locate `pg_hba.conf`. On Fedora this is in `/var/lib/pgsql/data/`.
 This file tells postgresql how to authenticate users. Read about it on the [PostgreSQL docs][1].
+To restart postgresql: `(sudo) service postgresql restart`
 `config/database.yml` sets the database user to be "gamocosm".
+The default value in "env.sh.template" for `DATABASE_HOST` is blank, so if you don't change it Rails will use a local Unix socket connection.
 The postgres user you use must be a postgres superuser, as rails needs to enable the uuid extension.
 To create a postgres user "gamocosm":
 
@@ -66,29 +75,28 @@ To create a postgres user "gamocosm":
 
 Depending on what method you want to use, add the following under the line that looks like `# TYPE DATABASE USER ADDRESS METHOD`.
 
-- trust
-	- Easiest, but least secure. Typically ok on development machines. Blindly trusts the user
-	- Add `host postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 trust`
-- peer
-	- Checks if the postgresql user matches the operating system user
-	- Create a postgres user with your OS username (example uses "gamocosm")
-	- Add `host postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 peer`
-	- Since `config/database.yml` is set to use a user "gamocosm", you'll have to change that. Because of this, this method isn't recommended
-- ident
-	- Same as `peer` but for network connections
-- md5
-	- Client supplies an MD5-encrypted password
-	- Add `host postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm ::1/32 md5`
+- Type
+	- `local` (local Unix socket) or `host` (TCP connection)
+- Database
+	- `postgres,gamocosm_development,gamocosm_test,gamocosm_production`
+- User
+	- `gamocosm`
+- Address
+	- Leave blank for `local` type
+	- Localhost is `127.0.0.1/32` in ipv4 and `::1/128` in ipv6. My system used ipv6 (postgres did not match the entry when I entered localhost ipv4)
+- Method
+	- trust
+		- Easiest, but least secure. Typically ok on development machines. Blindly trusts the user
+	- peer
+		- Checks if the postgresql user matches the operating system user
+		- Since `config/database.yml` specifies the database user to be "gamocosm", using this method is more troublesome, at least in development, because you have to either change that to your OS username and create a postgresql user with your username, or create a new OS account called "gamocosm" and a postgresql user "gamocosm"
+	- ident
+		- Same as `peer` but for network connections
+	- md5
+		- Client supplies an MD5-encrypted password
+		- This is the recommended method
 
-The "type" can be either "local" or "host".
-Local is for unix socket connections, host is for tcp connections.
-When you specify a host (as is in the `env.sh.template`), Rails uses a tcp connection.
-If you omit host (leave it blank), Rails uses a socket connection.
-If you do this, change "host" to "local" and remove the `::1/32` before the method, in the examples above.
-
-`::1/32` is localhost in ipv6.
-On my computer Rails uses ipv6, but I don't know if it's the same for everyone.
-Try `127.0.0.1/32` for ipv4 if it's not working for you.
+Example: `local postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm md5`
 
 #### Technical details
 Hmmmm.
@@ -136,3 +144,5 @@ Hmmmm.
 [2]: https://github.com/geetfun
 [3]: http://stackoverflow.com/questions/10301794/
 [4]: https://github.com/Gamocosm/minecraft-server_wrapper
+[5]: https://github.com/mperham/sidekiq/wiki/Advanced-Options
+[6]: http://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-configuration
