@@ -59,6 +59,8 @@ The following instructions were made for Fedora 20, but the steps should be simi
 - `MAIL_SERVER_*`: see [action mailer configuration][6] in the Rails guide
 - `DEVISE_SECRET_KEY`: only tests, production
 - `SECRET_KEY`: only production
+- `DEVELOPER_EMAILS`: comma separated list of emails to send exceptions to
+- `BADNESS_SECRET`: secret to protect `/badness` endpoint
 
 ##### Database configuration
 Locate `pg_hba.conf`. On Fedora this is in `/var/lib/pgsql/data/`.

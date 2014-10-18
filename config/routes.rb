@@ -10,6 +10,8 @@ Rails.application.routes.draw do
 
   get '/digital_ocean_setup', to: 'pages#digital_ocean_setup', as: :digital_ocean_setup
 
+  get '/badness/:secret', to: 'pages#badness'
+
   get '/404', to: 'pages#not_found'
   get '/422', to: 'pages#unacceptable'
   get '/500', to: 'pages#internal_error'

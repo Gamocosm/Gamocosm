@@ -58,7 +58,10 @@ GEM
       thread_safe (~> 0.1)
       warden (~> 1.2.3)
     erubis (2.7.0)
-    execjs (2.2.1)
+    exception_notification (4.0.1)
+      actionmailer (>= 3.0.4)
+      activesupport (>= 3.0.4)
+    execjs (2.2.2)
     faraday (0.9.0)
       multipart-post (>= 1.2, < 3)
     faraday_middleware (0.9.1)
@@ -82,7 +85,7 @@ GEM
     json (1.8.1)
     mail (2.6.1)
       mime-types (>= 1.16, < 3)
-    mime-types (2.4.1)
+    mime-types (2.4.2)
     minitest (5.4.2)
     multi_json (1.10.1)
     multi_xml (0.5.5)
@@ -176,6 +179,7 @@ DEPENDENCIES
   coffee-rails (~> 4.0.0)
   dalli
   devise (~> 3.2.4)
+  exception_notification
   font-awesome-sass
   foreigner
   hashie

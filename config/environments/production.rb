@@ -1,6 +1,11 @@
 Rails.application.configure do
   # Custom
   config.action_mailer.default_url_options = { host: 'gamocosm.com' }
+  config.middleware.use ExceptionNotification::Rack, email: {
+    email_prefix: '[Gamocosm Badness] ',
+    sender_address: 'Gamocosm no-reply <no-reply@gamocosm.com>',
+    exception_recipients: ENV['DEVELOPER_EMAILS'].split(',')
+  }
 
   # Settings specified here will take precedence over those in config/application.rb.
 

@@ -52,6 +52,7 @@ gem 'sshkit'
 gem 'dalli'
 gem 'foreigner'
 gem 'hashie'
+gem 'exception_notification'
 group :development do
 	gem 'newrelic_rpm'
 end
