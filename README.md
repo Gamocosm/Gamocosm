@@ -45,7 +45,6 @@ The following instructions were made for Fedora 20, but the steps should be simi
 1. Start the Sidekiq worker: `./env.sh sidekiq`
 
 ##### env.sh options
-# Development, test, and production
 
 - `DIGITAL_OCEAN_API_KEY`: your Digital Ocean api token
 - `DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH`: ssh key to be added to new servers to SSH into

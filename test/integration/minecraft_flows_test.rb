@@ -37,8 +37,8 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     update_minecraft_properties(minecraft, { motd: 'A Gamocosm Minecraft Server' })
     add_friend_to_server(minecraft, 'test2@test.com')
     stop_server(minecraft)
-    logout_user
     sleep 32
+    logout_user
     login_user('test2@test.com', '2345test')
     start_server(minecraft, {})
     logout_user
@@ -46,8 +46,8 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     view_server(minecraft, { motd: 'A Gamocosm Minecraft Server' })
     remove_friend_from_server(minecraft, 'test@test.com')
     delete_server(minecraft)
-    logout_user
     sleep 4
+    logout_user
     user_digital_ocean_after!
   end
 
@@ -122,6 +122,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def view_server(minecraft, properties, get = true)
+    minecraft.properties.refresh
     if get
       get minecraft_path(minecraft)
       assert_response :success
@@ -181,13 +182,14 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     assert_equal flash[:notice], 'Welcome! You have signed up successfully.'
   end
 
-  def wait_for_starting_server(minecraft, times = 0, server_running = false)
+  def wait_for_starting_server(minecraft, times = 0)
     if times == 0
       sleep 32
     end
+    Rails.logger.info "Waiting for server to start, try #{times}"
     minecraft.reload
     if times >= 32
-      raise 'Minecraft server did not start'
+      raise "Minecraft server did not start: #{minecraft.server.inspect}"
     end
     if !minecraft.server.remote.exists?
       raise 'Minecraft server remote does not exist'
@@ -196,28 +198,24 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
       raise "Minecraft server remote error: #{minecraft.server.remote.error}"
     end
     if !minecraft.server.busy?
-      if !server_running
-        assert minecraft.server.running?
-        server_running = true
-      end
-      minecraft.properties.refresh
+      assert minecraft.server.running?
+      sleep 16
       minecraft.node.invalidate
-      if !minecraft.properties.motd.nil?
-        assert minecraft.running?
-        return
-      end
+      assert minecraft.running?
+      return
     end
     sleep 16
-    wait_for_starting_server(minecraft, times + 1, server_running)
+    wait_for_starting_server(minecraft, times + 1)
   end
 
   def wait_for_stopping_server(minecraft, times = 0)
     if times == 0
-      sleep 16
+      sleep 32
     end
+    Rails.logger.info "Waiting for server to stop, try #{times}"
     minecraft.reload
-    if times >= 16
-      raise 'Minecraft server did not stop'
+    if times >= 32
+      raise "Minecraft server did not stop, #{minecraft.server.inspect}"
     end
     if minecraft.server.remote.error?
       raise "Minecraft server remote error: #{minecraft.server.remote.error}"

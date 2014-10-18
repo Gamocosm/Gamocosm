@@ -74,7 +74,7 @@ class DigitalOcean::Droplet
       name: @server.host_name,
       size: @server.do_size_slug,
       region: @server.do_region_slug,
-      image: @server.do_saved_snapshot_id || Gamocosm.digital_ocean_base_snapshot_id,
+      image: @server.do_saved_snapshot_id || Gamocosm.digital_ocean_base_image_id,
       ssh_keys: [ssh_key_id.to_s],
     }
     response = @connection.droplet.create(params)

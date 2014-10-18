@@ -43,8 +43,8 @@ module Gamocosm
     'gamocosm-mothership'
   end
 
-  def self.digital_ocean_base_snapshot_id
-    '6370882'
+  def self.digital_ocean_base_image_id
+    'fedora-20-x64'
   end
 
   def self.digital_ocean_referral_link
