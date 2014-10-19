@@ -2,7 +2,8 @@ require 'exception_notification/rails'
 
 require 'exception_notification/sidekiq'
 
-
+Rails.application.config.middleware.delete ExceptionNotification::Rack
+Rails.application.config.middleware.insert_after ActionDispatch::DebugExceptions, ExceptionNotification::Rack
 
 ExceptionNotification.configure do |config|
   # Ignore additional exception types.
@@ -18,11 +19,13 @@ ExceptionNotification.configure do |config|
   # Notifiers =================================================================
 
   # Email notifier sends notifications by email.
-  config.add_notifier :email, {
-    email_prefix: '[Gamocosm Badness] ',
-    sender_address: 'Gamocosm no-reply <no-reply@gamocosm.com>',
-    exception_recipients: ENV['DEVELOPER_EMAILS'].split(',')
-  }
+  if Rails.env.production?
+    config.add_notifier :email, {
+      email_prefix: '[Gamocosm Badness] ',
+      sender_address: 'Gamocosm no-reply <no-reply@gamocosm.com>',
+      exception_recipients: ENV['DEVELOPER_EMAILS'].split(',')
+    }
+  end
 
   # Campfire notifier sends notifications to your Campfire room. Requires 'tinder' gem.
   # config.add_notifier :campfire, {

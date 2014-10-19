@@ -26,7 +26,7 @@
     <%= f.input :password, autocomplete: "off", hint: "leave it blank if you don't want to change it", required: false %>
     <%= f.input :password_confirmation, required: false %>
 
-    <%= f.input :digital_ocean_api_key, label: 'Digital Ocean Access Token', input_html: { size: 36 }, hint: "Only required for server admins. #{link_to('Read more/Instructions', digital_ocean_setup_path)}".html_safe %>
+    <%= f.input :digital_ocean_api_key, label: 'Digital Ocean API Token', input_html: { size: 36 }, hint: "Only required for server admins. #{link_to('Read more/Instructions', digital_ocean_setup_path)}".html_safe %>
 
     <%= f.input :current_password, hint: "we need your current password to confirm your changes", required: true %>
   </div>

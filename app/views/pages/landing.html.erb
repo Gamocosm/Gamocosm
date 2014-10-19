@@ -17,6 +17,7 @@
 		<div class="text-center">
 			<%= link_to image_tag('digital_ocean-screenshot.png', size: '600x375', alt: 'Digital Ocean', class: 'img-thumbnail'), digital_ocean_index_path %>
 		</div>
+		<div class="text-muted text-center">View their <%= link_to 'pricing', digital_ocean_pricing_path %></div>
 	</div>
 	<div class="col-lg-6">
 		<h1 class="text-center">2. Setup your account</h1>
@@ -30,7 +31,7 @@
 						<%= f.input :email, required: true, autofocus: true %>
 						<%= f.input :password, required: true %>
 						<%= f.input :password_confirmation, required: true %>
-						<%= f.input :digital_ocean_api_key, hint: "Only required for server admins. #{link_to('Read more/Instructions', digital_ocean_setup_path)}".html_safe %>
+						<%= f.input :digital_ocean_api_key, label: 'Digital Ocean API Token', hint: "Only required for server admins. #{link_to('Read more/Instructions', digital_ocean_setup_path)}".html_safe %>
 						<label>
 							By clicking 'Sign up', you agree to our <%= link_to 'Terms of Service', :tos %>.
 						</label>

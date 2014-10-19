@@ -47,10 +47,6 @@ module Gamocosm
     'fedora-20-x64'
   end
 
-  def self.digital_ocean_referral_link
-    'https://www.digitalocean.com/?refcode=f787055e1099'
-  end
-
   def self.digital_ocean_api_key
     ENV['DIGITAL_OCEAN_API_KEY']
   end

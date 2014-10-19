@@ -27,8 +27,8 @@ Rails.application.routes.draw do
   end
 
   scope '/digital_ocean' do
-    match '/pricing' => redirect('https://www.digitalocean.com/pricing/'), as: :digital_ocean_pricing, via: :get
-    match '/index' => redirect(Gamocosm.digital_ocean_referral_link), as: :digital_ocean_index, via: :get
+    match '/pricing' => redirect('https://www.digitalocean.com/pricing/?refcode=f787055e1099'), as: :digital_ocean_pricing, via: :get
+    match '/index' => redirect('https://www.digitalocean.com/?refcode=f787055e1099'), as: :digital_ocean_index, via: :get
     match '/help' => redirect('https://www.digitalocean.com/help/'), as: :digital_ocean_help, via: :get
     match '/control_panel' => redirect('https://cloud.digitalocean.com'), as: :digital_ocean_control_panel, via: :get
   end
