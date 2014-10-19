@@ -8,7 +8,7 @@
 		<hr />
 		<ul>
 			<li><%= link_to 'Home page', root_path %></li>
-			<% if user_signed_in? %>
+			<% if begin user_signed_in? rescue false end %>
 				<li><%= link_to 'My servers', minecrafts_path %></li>
 			<% end %>
 		</ul>
