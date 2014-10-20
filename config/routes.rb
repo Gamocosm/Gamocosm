@@ -12,9 +12,9 @@ Rails.application.routes.draw do
 
   get '/badness/:secret', to: 'pages#badness'
 
-  get '/404', to: 'pages#not_found'
-  get '/422', to: 'pages#unacceptable'
-  get '/500', to: 'pages#internal_error'
+  match '/404', to: 'pages#not_found', via: :all
+  match '/422', to: 'pages#unacceptable', via: :all
+  match '/500', to: 'pages#internal_error', via: :all
 
   match '/wiki' => redirect('https://github.com/Gamocosm/Gamocosm/wiki'), as: :wiki, via: :get
   match '/issues' => redirect('https://github.com/Gamocosm/Gamocosm/issues'), as: :issues, via: :get

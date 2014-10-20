@@ -23,6 +23,8 @@ class MinecraftsController < ApplicationController
       return redirect_to minecraft_path(@minecraft), flash: { success: 'You made a new server! Start it to play' }
     rescue
       load_index
+      @minecraft = Minecraft.new(minecraft_params)
+      @minecraft.valid?
       @minecrafts = current_user.minecrafts.reload
       flash[:error] = 'Something went wrong. Please try again'
       return render :index

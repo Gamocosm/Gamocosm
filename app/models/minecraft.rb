@@ -16,7 +16,7 @@ class Minecraft < ActiveRecord::Base
   has_and_belongs_to_many :friends, foreign_key: 'minecraft_id', class_name: 'User', dependent: :destroy
   has_many :logs, foreign_key: 'minecraft_id', class_name: 'ServerLog', dependent: :destroy
 
-  validates :name, format: { with: /\A[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,63})*\z/ }
+  validates :name, format: { with: /\A[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,63})*\z/, message: 'Name must start with a letter, and only contain letters and numbers, and non-consecutive dots and dashes' }
   validates :name, length: { in: 3..128 }
 
   after_initialize :after_initialize_callback
