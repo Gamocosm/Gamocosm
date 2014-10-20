@@ -5,6 +5,12 @@ class StartMinecraftWorker
     4
   end
 
+  sidekiq_retries_exhausted do |msg|
+    args = msg['args']
+    server = Server.find(args[0])
+    server.minecraft.log("Background job starting Minecraft died: #{msg['error_message']}")
+  end
+
   def perform(server_id)
     server = Server.find(server_id)
     minecraft = server.minecraft
@@ -29,5 +35,8 @@ class StartMinecraftWorker
     server.update_columns(pending_operation: nil)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
+  rescue => e
+    server.minecraft.log("Background job starting Minecraft failed: #{e}")
+    raise
   end
 end

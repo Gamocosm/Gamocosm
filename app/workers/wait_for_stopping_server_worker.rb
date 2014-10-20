@@ -5,6 +5,12 @@ class WaitForStoppingServerWorker
     4
   end
 
+  sidekiq_retries_exhausted do |msg|
+    args = msg['args']
+    server = Server.find(args[0])
+    server.minecraft.log("Background job waiting for stopping server died: #{msg['error_message']}")
+  end
+
   def perform(server_id)
     server = Server.find(server_id)
     if !server.remote.exists?
@@ -42,6 +48,9 @@ class WaitForStoppingServerWorker
     WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, server.remote.action_id)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
+  rescue => e
+    server.minecraft.log("Background job waiting for stopping server failed: #{e}")
+    raise
   end
 
 end

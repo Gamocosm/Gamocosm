@@ -8,6 +8,12 @@ class SetupServerWorker
     4
   end
 
+  sidekiq_retries_exhausted do |msg|
+    args = msg['args']
+    server = Server.find(args[1])
+    server.minecraft.log("Background job setting up server died: #{msg['error_message']}")
+  end
+
   def perform(user_id, server_id)
     user = User.find(user_id)
     server = Server.find(server_id)
@@ -108,5 +114,8 @@ class SetupServerWorker
     StartMinecraftWorker.perform_in(4.seconds, server_id)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
+  rescue => e
+    server.minecraft.log("Background job setting up server failed: #{e}")
+    raise
   end
 end

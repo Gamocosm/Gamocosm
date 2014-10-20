@@ -123,6 +123,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
 
   def view_server(minecraft, properties, get = true)
     minecraft.properties.refresh
+    Rails.logger.info "Viewing server, Minecraft properties is #{properties}"
     if get
       get minecraft_path(minecraft)
       assert_response :success
@@ -199,9 +200,10 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     end
     if !minecraft.server.busy?
       assert minecraft.server.running?
-      sleep 16
+      sleep 8
       minecraft.node.invalidate
       assert minecraft.running?
+      sleep 16
       return
     end
     sleep 16

@@ -5,6 +5,12 @@ class WaitForStartingServerWorker
     4
   end
 
+  sidekiq_retries_exhausted do |msg|
+    args = msg['args']
+    server = Server.find(args[1])
+    server.minecraft.log("Background job waiting for starting server died: #{msg['error_message']}")
+  end
+
   def perform(user_id, server_id)
     server = Server.find(server_id)
     if !server.remote.exists?
@@ -40,6 +46,9 @@ class WaitForStartingServerWorker
     WaitForSSHServerWorker.perform_in(4.seconds, user_id, server_id)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
+  rescue => e
+    server.minecraft.log("Background job waiting for starting server failed: #{e}")
+    raise
   end
 
 end

@@ -21,8 +21,9 @@ class DigitalOcean::Droplet
   end
 
   def busy?
-    data = self.sync
-    return data.try(:droplet).try(:locked)
+    return status != 'active'
+    #data = self.sync
+    #return data.try(:droplet).try(:status)
   end
 
   def error?

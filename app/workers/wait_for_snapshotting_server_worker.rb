@@ -5,6 +5,12 @@ class WaitForSnapshottingServerWorker
     4
   end
 
+  sidekiq_retries_exhausted do |msg|
+    args = msg['args']
+    server = Server.find(args[0])
+    server.minecraft.log("Background job waiting for snapshotting server died: #{msg['error_message']}")
+  end
+
   def perform(server_id, digital_ocean_snapshot_action_id)
     server = Server.find(server_id)
     if !server.remote.exists?
@@ -40,6 +46,9 @@ class WaitForSnapshottingServerWorker
     server.update_columns(pending_operation: nil)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
+  rescue => e
+    server.minecraft.log("Background job waiting for snapshotting server failed: #{e}")
+    raise
   end
 
 end

@@ -8,6 +8,12 @@ class WaitForSSHServerWorker
     4
   end
 
+  sidekiq_retries_exhausted do |msg|
+    args = msg['args']
+    server = Server.find(args[1])
+    server.minecraft.log("Background job waiting for ssh connection to server died: #{msg['error_message']}")
+  end
+
   def perform(user_id, server_id, times = 0)
     server = Server.find(server_id)
     if !server.remote.exists?
@@ -53,6 +59,9 @@ class WaitForSSHServerWorker
     SetupServerWorker.perform_in(0.seconds, user_id, server_id)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
+  rescue => e
+    server.minecraft.log("Background job waiting for SSH connection to server failed: #{e}")
+    raise
   end
 end
 
