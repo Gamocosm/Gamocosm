@@ -4,7 +4,11 @@
 		<dt>Host</dt><dd><%= render_minecraft_ip_address(@minecraft, 'Your server\'s IP address when running') %></dd>
 		<dt>Port</dt><dd>22 (default for SSH/SFTP)</dd>
 		<dt>User</dt><dd>mcuser</dd>
-		<dt>Password</dt><dd>Default: name of your server (<strong>you should change this!</strong>)</dd>
+		<dt>Password</dt>
+		<dd>
+			Default: your email and the name of your server separated with a plus (<strong>you should change this!</strong>)<br />
+			If your email is "steve@example.com" and your server is "terrafirmacraft", the default password is "steve@example.com+terrafirmacraft"
+		</dd>
 		<dt>FTP Protocol</dt><dd>SFTP</dd>
 		<dt>FTP Logon Type</dt><dd>Normal (saves password) or Ask for password (every time)</dd>
 	</dl>

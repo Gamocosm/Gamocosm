@@ -38,7 +38,7 @@ class SetupServerWorker
               if test '! id -u mcuser'
                 execute :adduser, '-m', 'mcuser'
               end
-              execute :echo, server.minecraft.name, '|', :passwd, '--stdin', 'mcuser'
+              execute :echo, "\"#{server.minecraft.user.email.gsub('"', '\"')}+#{server.minecraft.name}\"", '|', :passwd, '--stdin', 'mcuser'
               execute :usermod, '-aG', 'wheel', 'mcuser'
               server.update_columns(remote_setup_stage: 2)
               execute :yum, '-y', 'update'

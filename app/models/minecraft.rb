@@ -16,8 +16,8 @@ class Minecraft < ActiveRecord::Base
   has_and_belongs_to_many :friends, foreign_key: 'minecraft_id', class_name: 'User', dependent: :destroy
   has_many :logs, foreign_key: 'minecraft_id', class_name: 'ServerLog', dependent: :destroy
 
-  validates :name, format: { with: /\A[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,63})*\z/, message: 'Name must start with a letter, and only contain letters and numbers, and non-consecutive dots and dashes' }
-  validates :name, length: { in: 3..128 }
+  validates :name, length: { in: 3...64 }
+  validates :name, format: { with: /\A[a-z][a-z0-9-]*[a-z0-9]\z/, message: 'Name must start with a letter, and end with a letter or number. May include letters, numbers, and dashes in between' }
 
   after_initialize :after_initialize_callback
   before_validation :before_validate_callback
@@ -29,7 +29,7 @@ class Minecraft < ActiveRecord::Base
   end
 
   def before_validate_callback
-    self.name = self.name.strip.downcase
+    self.name = self.name.strip.downcase.gsub(' ', '-')
   end
 
   def running?

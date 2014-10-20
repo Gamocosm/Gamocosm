@@ -40,7 +40,7 @@ class Server < ActiveRecord::Base
   end
 
   def host_name
-    return "gamocosm-minecraft-#{minecraft.name}"
+    return "#{minecraft.name}.minecraft.gamocosm"
   end
 
   def ram
