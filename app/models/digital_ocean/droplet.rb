@@ -39,6 +39,11 @@ class DigitalOcean::Droplet
       end
     end
     return @remote_data
+  rescue => e
+    ExceptionNotifier.notify_exception(e)
+    e.define_singleton_method(:success?) { false }
+    @remote_data = e.error!
+    return @remote_data
   end
 
   def error
@@ -83,6 +88,9 @@ class DigitalOcean::Droplet
       return nil
     end
     return "Error creating droplet on Digital Ocean; they responded with #{response}"
+  rescue => e
+    ExceptionNotifier.notify_exception(e)
+    return "Error creating droplet on Digital Ocean: #{e}"
   end
 
   def power_on
@@ -94,6 +102,9 @@ class DigitalOcean::Droplet
       return nil
     end
     return "Error powering on droplet on Digital Ocean; they responded with #{response}"
+  rescue => e
+    ExceptionNotifier.notify_exception(e)
+    return "Error powering on droplet on Digital Ocean: #{e}"
   end
 
   def shutdown
@@ -105,6 +116,9 @@ class DigitalOcean::Droplet
       return nil
     end
     return "Error shutting down droplet on Digital Ocean; they responded with #{response}"
+  rescue => e
+    ExceptionNotifier.notify_exception(e)
+    return "Error shutting down droplet on Digital Ocean: #{e}"
   end
 
   def snapshot
@@ -117,6 +131,9 @@ class DigitalOcean::Droplet
       return nil
     end
     return "Error snapshotting droplet on Digital Ocean; they responded with #{response}"
+  rescue => e
+    ExceptionNotifier.notify_exception(e)
+    return "Error snapshotting droplet on Digital Ocean: #{e}"
   end
 
   def action_id
@@ -132,6 +149,9 @@ class DigitalOcean::Droplet
       return nil
     end
     return "Error rebooting droplet on Digital Ocean; they responded with #{response}"
+  rescue => e
+    ExceptionNotifier.notify_exception(e)
+    return "Error rebooting droplet on Digital Ocean: #{e}"
   end
 
   def destroy
@@ -147,6 +167,9 @@ class DigitalOcean::Droplet
       return nil
     end
     return "Error destroying droplet on Digital Ocean; they responded with #{response}"
+  rescue => e
+    ExceptionNotifier.notify_exception(e)
+    return "Error destroying droplet on Digital Ocean: #{e}"
   end
 
   def destroy_saved_snapshot
@@ -162,6 +185,9 @@ class DigitalOcean::Droplet
       return nil
     end
     return "Error destroying snapshot on Digital Ocean; they responded with #{response}"
+  rescue => e
+    ExceptionNotifier.notify_exception(e)
+    return "Error destroying snapshot on Digital Ocean: #{e}"
   end
 
 end
