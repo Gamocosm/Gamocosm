@@ -96,6 +96,11 @@ class SetupServerWorker
                 execute 'firewall-cmd', '--permanent', '--add-port=5000/tcp'
                 execute 'firewall-cmd', '--add-port=25565/tcp'
                 execute 'firewall-cmd', '--permanent', '--add-port=25565/tcp'
+                execute :fallocate, '-l', '1G', '/swapfile'
+                execute :chmod, '600', '/swapfile'
+                execute :mkswap, '/swapfile'
+                execute :swapon, '/swapfile'
+                execute :echo, '/swapfile none swap defaults 0 0', '>>', '/etc/fstab'
               end
             end
           end

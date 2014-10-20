@@ -114,6 +114,10 @@ class Server < ActiveRecord::Base
 
   def busy?
     if !pending_operation.blank?
+      if remote_id.nil? && do_saved_snapshot_id.nil?
+        self.update_columns(pending_operation: nil)
+        return false
+      end
       return true
     end
     return false
