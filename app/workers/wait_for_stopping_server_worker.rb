@@ -23,18 +23,7 @@ class WaitForStoppingServerWorker
       server.reset
       return
     end
-    if server.remote.busy?
-      WaitForStoppingServerWorker.perform_in(4.seconds, server_id)
-      return
-    end
     if server.remote.status != 'off'
-      server.minecraft.log("Server told to shutdown, not busy anymore, but status not off, was #{server.remote.status}")
-      error = server.remote.shutdown
-      if error
-        server.minecraft.log("Error shutting down server on Digital Ocean; #{error}. Aborting")
-        server.reset_partial
-        return
-      end
       WaitForStoppingServerWorker.perform_in(4.seconds, server_id)
       return
     end

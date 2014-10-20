@@ -34,7 +34,7 @@ class WaitForSnapshottingServerWorker
       end
       WaitForStoppingServerWorker.perform_in(4.seconds, server_id)
       return
-    elsif !event.done? || server.remote.busy?
+    elsif !event.done?
       WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, digital_ocean_snapshot_action_id)
       return
     end
