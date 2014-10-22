@@ -109,7 +109,7 @@ class Minecraft < ActiveRecord::Base
 
   def world_download_url
     if server.running?
-      return "http://#{Gamocosm.minecraft_wrapper_username}:#{minecraft_wrapper_password}@#{server.ip_address}:5000/download_world"
+      return "http://#{Gamocosm.minecraft_wrapper_username}:#{minecraft_wrapper_password}@#{server.remote.ip_address}:5000/download_world"
     end
     return nil
   end

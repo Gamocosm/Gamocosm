@@ -126,6 +126,15 @@ Hmmmm.
 - `minecraft.node.error?`: error communicating with Minecraft wrapper on server
 - `minecraft.running?`: `server.running? && !node.error? && node.pid > 0` (notice symmetry with `server.running?`)
 
+##### Background workers
+- Idempotent
+- Use `ActiveRecord::Base.connection_pool.with_connection do |conn|` if threads (e.g. teimout) access the database
+- Run finite amount of times (keep track of how many times looped)
+- Reset the state of the server if anything goes wrong (any exit points)
+- Check that the remote exists and is not errored
+- Log errors to user minecraft server, include 'Aborting' when not finishing
+- 'Aborting' should always be followed by `server.reset_partial` and `return`
+
 #### Other useful stuff
 - Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `env.sh`
 - The Sidekiq web interface is mounted at `/sidekiq`

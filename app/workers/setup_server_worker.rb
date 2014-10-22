@@ -3,28 +3,19 @@ require 'timeout'
 
 class SetupServerWorker
   include Sidekiq::Worker
-  sidekiq_options retry: 4
-  sidekiq_retry_in do |count|
-    4
-  end
-
-  sidekiq_retries_exhausted do |msg|
-    args = msg['args']
-    server = Server.find(args[1])
-    server.minecraft.log("Background job setting up server died: #{msg['error_message']}")
-  end
+  sidekiq_options retry: 0
 
   def perform(user_id, server_id)
     user = User.find(user_id)
     server = Server.find(server_id)
     if !server.remote.exists?
       server.minecraft.log('Error starting server; remote_id is nil. Aborting')
-      server.reset
+      server.reset_partial
       return
     end
     if server.remote.error?
       server.minecraft.log("Error communicating with Digital Ocean while starting server; they responded with #{server.remote.error}. Aborting")
-      server.reset
+      server.reset_partial
       return
     end
     host = SSHKit::Host.new(server.remote.ip_address.to_s)
@@ -107,11 +98,7 @@ class SetupServerWorker
         }
       rescue Timeout::Error
         server.minecraft.log('Timed out setting up server. Aborting')
-        error = server.remote.destroy
-        if error
-          server.minecraft.log("Failed to destroy server after failing to set up; #{error}")
-        end
-        server.reset
+        server.reset_partial
         return
       end
     end
@@ -121,6 +108,7 @@ class SetupServerWorker
     logger.info "Record in #{self.class} not found #{e.message}"
   rescue => e
     server.minecraft.log("Background job setting up server failed: #{e}")
+    server.reset_partial
     raise
   end
 end

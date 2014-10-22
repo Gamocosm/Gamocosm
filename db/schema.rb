@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140922050912) do
+ActiveRecord::Schema.define(version: 20141022055402) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,7 +38,7 @@ ActiveRecord::Schema.define(version: 20140922050912) do
 
   create_table "server_logs", force: true do |t|
     t.uuid     "minecraft_id", null: false
-    t.string   "message",      null: false
+    t.text     "message",      null: false
     t.string   "debuginfo",    null: false
     t.datetime "created_at"
     t.datetime "updated_at"

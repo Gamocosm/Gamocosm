@@ -20,10 +20,10 @@ class DigitalOcean::Droplet
     return !@server.remote_id.nil?
   end
 
+  # Should be unused
   def busy?
-    return status != 'active'
-    #data = self.sync
-    #return data.try(:droplet).try(:status)
+    data = self.sync
+    return data.try(:droplet).try(:locked)
   end
 
   def error?
@@ -86,6 +86,15 @@ class DigitalOcean::Droplet
     response = @connection.droplet.create(params)
     if response.success?
       @server.update_columns(remote_id: response.droplet.id)
+      response = @connection.droplet.actions(@server.remote_id)
+      if !response.success?
+        return "Created server on Digital Ocean, but unable to get action id to listen on; they responded with #{response}"
+      end
+      create_action_id = response.actions.sort.first.id
+      if create_action_id.nil?
+        return "Created server on Digital Ocean, but latest action id null. List actions response was #{response}"
+      end
+      @action_id = create_action_id
       return nil
     end
     return "Error creating droplet on Digital Ocean; they responded with #{response}"
@@ -100,6 +109,7 @@ class DigitalOcean::Droplet
     end
     response = @connection.droplet.power_on(@server.remote_id)
     if response.success?
+      @action_id = response.action.id
       return nil
     end
     return "Error powering on droplet on Digital Ocean; they responded with #{response}"
@@ -114,6 +124,7 @@ class DigitalOcean::Droplet
     end
     response = @connection.droplet.shutdown(@server.remote_id)
     if response.success?
+      @action_id = response.action.id
       return nil
     end
     return "Error shutting down droplet on Digital Ocean; they responded with #{response}"
@@ -137,22 +148,23 @@ class DigitalOcean::Droplet
     return "Error snapshotting droplet on Digital Ocean: #{e}"
   end
 
-  def action_id
-    return @action_id
-  end
-
   def reboot
     if @connection.nil?
       return 'Digital Ocean API token missing'
     end
     response = @connection.droplet.reboot(@server.remote_id)
     if response.success?
+      @action_id = response.action.id
       return nil
     end
     return "Error rebooting droplet on Digital Ocean; they responded with #{response}"
   rescue => e
     ExceptionNotifier.notify_exception(e)
     return "Error rebooting droplet on Digital Ocean: #{e}"
+  end
+
+  def action_id
+    return @action_id
   end
 
   def destroy

@@ -4,7 +4,7 @@
 #
 #  id           :integer          not null, primary key
 #  minecraft_id :uuid             not null
-#  message      :string(255)      not null
+#  message      :text             not null
 #  debuginfo    :string(255)      not null
 #  created_at   :datetime
 #  updated_at   :datetime

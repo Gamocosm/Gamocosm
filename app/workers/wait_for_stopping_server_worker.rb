@@ -1,30 +1,38 @@
 class WaitForStoppingServerWorker
   include Sidekiq::Worker
-  sidekiq_options retry: 4
-  sidekiq_retry_in do |count|
-    4
-  end
+  sidekiq_options retry: 0
 
-  sidekiq_retries_exhausted do |msg|
-    args = msg['args']
-    server = Server.find(args[0])
-    server.minecraft.log("Background job waiting for stopping server died: #{msg['error_message']}")
-  end
-
-  def perform(server_id)
+  def perform(server_id, digital_ocean_action_id, times = 0)
     server = Server.find(server_id)
+    if times > 16
+      server.minecraft.log("Still waiting for Digital Ocean server to stop, tried #{times} times")
+    elsif times > 32
+      server.minecraft.log('Digital Ocean took too long to stop server. Aborting')
+      server.reset_partial
+      return
+    end
     if !server.remote.exists?
       server.minecraft.log('Error stopping server; remote_id is nil. Aborting')
-      server.reset
+      server.reset_partial
       return
     end
     if server.remote.error?
       server.minecraft.log("Error communicating with Digital Ocean while stopping server; they responded with #{server.remote.error}. Aborting")
-      server.reset
+      server.reset_partial
+      return
+    end
+    event = DigitalOcean::Action.new(server.remote_id, digital_ocean_action_id, server.minecraft.user)
+    if event.error?
+      server.minecraft.log("Error with Digital Ocean stop server action #{digital_ocean_action_id}; they responded with #{event.show}. Aborting")
+      server.reset_partial
+      return
+    elsif !event.done?
+      WaitForStoppingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times + 1)
       return
     end
     if server.remote.status != 'off'
-      WaitForStoppingServerWorker.perform_in(4.seconds, server_id)
+      server.minecraft.log("Finished stopping server on Digital Ocean, but remote status was #{server.remote.status} (not 'off'). Aborting")
+      server.reset_partial
       return
     end
     error = server.remote.snapshot
@@ -39,6 +47,7 @@ class WaitForStoppingServerWorker
     logger.info "Record in #{self.class} not found #{e.message}"
   rescue => e
     server.minecraft.log("Background job waiting for stopping server failed: #{e}")
+    server.reset_partial
     raise
   end
 

@@ -87,7 +87,7 @@ class Server < ActiveRecord::Base
     if error
       return error
     end
-    WaitForStartingServerWorker.perform_in(32.seconds, minecraft.user_id, id)
+    WaitForStartingServerWorker.perform_in(32.seconds, minecraft.user_id, id, remote.action_id)
     self.update_columns(pending_operation: 'starting')
     return nil
   end
@@ -98,7 +98,7 @@ class Server < ActiveRecord::Base
       return error
     end
     self.update_columns(pending_operation: 'stopping')
-    WaitForStoppingServerWorker.perform_in(16.seconds, id)
+    WaitForStoppingServerWorker.perform_in(16.seconds, id, remote.action_id)
     return nil
   end
 
@@ -135,6 +135,7 @@ class Server < ActiveRecord::Base
     return 5
   end
 
+  # Should be unused
   def reset
     update_columns(pending_operation: nil, remote_setup_stage: 0)
   end
