@@ -12,6 +12,8 @@
 #  do_saved_snapshot_id :integer
 #  remote_setup_stage   :integer          default(0), not null
 #  pending_operation    :string(255)
+#  ssh_keys             :string(255)
+#  ssh_port             :integer          default(22), not null
 #
 
 class Server < ActiveRecord::Base
@@ -19,8 +21,10 @@ class Server < ActiveRecord::Base
 
   validates :remote_id, numericality: { only_integer: true }, allow_nil: true
   validates :remote_setup_stage, numericality: { only_integer: true }
+  validates :do_saved_snapshot_id, numericality: { only_integer: true }, allow_nil: true
   validates :do_region_slug, presence: true
   validates :do_size_slug, presence: true
+  validates :ssh_keys, format: { with: /\A\d+(,\d+)*\z/, message: 'Invalid list of comma separated IDs' }, allow_nil: true
 
   before_validation :before_validate_callback
 
@@ -30,6 +34,8 @@ class Server < ActiveRecord::Base
     self.do_saved_snapshot_id = self.do_saved_snapshot_id.blank? ? nil : self.do_saved_snapshot_id
     self.do_region_slug = self.do_region_slug.strip.downcase
     self.do_size_slug = self.do_size_slug.strip.downcase
+    self.ssh_keys = self.ssh_keys.try(:gsub, ' ', '')
+    self.ssh_keys = self.ssh_keys.blank? ? nil : self.ssh_keys
   end
 
   def remote
@@ -108,7 +114,7 @@ class Server < ActiveRecord::Base
       return error
     end
     self.update_columns(pending_operation: 'rebooting')
-    WaitForStartingServerWorker.perform_in(4.seconds, minecraft.user_id, id)
+    WaitForStartingServerWorker.perform_in(4.seconds, minecraft.user_id, id, remote.action_id)
     return nil
   end
 

@@ -7,6 +7,10 @@ class MinecraftsController < ApplicationController
     @friend_minecrafts = current_user.friend_minecrafts
   end
 
+  def load_show
+    @do_ssh_keys = current_user.digital_ocean_ssh_keys
+  end
+
   def index
     @minecraft = Minecraft.new
     @minecraft.server = Server.new
@@ -32,6 +36,7 @@ class MinecraftsController < ApplicationController
   end
 
   def show
+    load_show
     @minecraft = find_minecraft(params[:id])
   end
 
@@ -40,10 +45,22 @@ class MinecraftsController < ApplicationController
 
   def update
     @minecraft = find_minecraft_only_owner(params[:id])
-    if @minecraft.update_attributes(minecraft_advanced_params)
-      return redirect_to minecraft_path(@minecraft), flash: { success: 'Server advanced configuration updated' }
+    if minecraft_advanced_params[:server_attributes][:ssh_keys].nil?
+      if @minecraft.update_attributes(minecraft_advanced_params)
+        return redirect_to minecraft_path(@minecraft), flash: { success: 'Server advanced configuration updated' }
+      end
+      @minecraft_advanced_tab = true
+    else
+      if @minecraft.update_attributes(minecraft_advanced_params)
+        message = 'Server SSH keys updated'
+        if !minecraft_advanced_params[:server_attributes][:ssh_keys].blank?
+          message += '. They will be added the next time you start the server'
+        end
+        return redirect_to minecraft_path(@minecraft), flash: { success: message }
+      end
+      @minecraft_ftp_ssh_tab = true
     end
-    @minecraft_advanced_tab = true
+    load_show
     flash[:error] = 'Something went wrong. Please try again'
     return render :show
   end
@@ -206,6 +223,17 @@ class MinecraftsController < ApplicationController
     return redirect_to minecraft_path(@minecraft), flash: { success: "User #{email} removed from the server" }
   end
 
+  def add_digital_ocean_ssh_key
+    @minecraft = find_minecraft_only_owner(params[:id])
+    ssh_key_name = params[:digital_ocean_ssh_key][:name]
+    ssh_public_key = params[:digital_ocean_ssh_key][:data]
+    error = current_user.digital_ocean_add_ssh_key(ssh_key_name, ssh_public_key)
+    if error
+      return redirect_to minecraft_path(@minecraft), flash: { error: error }
+    end
+    return redirect_to minecraft_path(@minecraft), flash: { succes: 'Added SSH public key to Digital Ocean' }
+  end
+
   def find_minecraft(id)
     begin
       server = Minecraft.find(id)
@@ -264,15 +292,22 @@ class MinecraftsController < ApplicationController
 
   def minecraft_advanced_params
     return params.require(:minecraft).permit(server_attributes: [
+      :id,
+      :ssh_port,
       :remote_setup_stage,
       :pending_operation,
       :do_saved_snapshot_id,
       :do_region_slug,
-      :do_size_slug
+      :do_size_slug,
+      :ssh_keys,
     ])
   end
 
   def minecraft_command_params
     return params.require(:command).permit(:data)
+  end
+
+  def minecraft_add_digital_ocean_ssh_key
+    return params.require(:digital_ocean_ssh_key).permit(:name, :data)
   end
 end

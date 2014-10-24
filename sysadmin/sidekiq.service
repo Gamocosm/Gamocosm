@@ -1,5 +1,6 @@
 [Unit]
 Description=Gamocosm Sidekiq
+After=syslog.target network.target
 
 [Service]
 Type=forking

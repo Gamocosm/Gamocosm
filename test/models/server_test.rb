@@ -12,6 +12,8 @@
 #  do_saved_snapshot_id :integer
 #  remote_setup_stage   :integer          default(0), not null
 #  pending_operation    :string(255)
+#  ssh_keys             :string(255)
+#  ssh_port             :integer          default(22), not null
 #
 
 require 'test_helper'

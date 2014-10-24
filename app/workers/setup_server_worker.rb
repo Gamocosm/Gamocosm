@@ -19,6 +19,7 @@ class SetupServerWorker
       return
     end
     host = SSHKit::Host.new(server.remote.ip_address.to_s)
+    host.port = server.ssh_port
     host.user = 'root'
     host.key = Gamocosm.digital_ocean_ssh_private_key_path
     host.ssh_options = {
@@ -26,7 +27,41 @@ class SetupServerWorker
       paranoid: false,
       timeout: 4
     }
-    if !server.done_setup?
+    if server.done_setup?
+      # Note: this is duplicated below (labeled adding_ssh_keys)
+      if !server.ssh_keys.nil?
+        begin
+          Timeout::timeout(32) {
+            ActiveRecord::Base.connection_pool.with_connection do |conn|
+              on host do
+                within '/' do
+                  execute :mkdir, '-p', '/home/mcuser/.ssh/'
+                  server.ssh_keys.split(',').each do |key_id|
+                    key = user.digital_ocean_ssh_public_key(key_id)
+                    if key.error?
+                      server.minecraft.log(key)
+                    else
+                      execute :echo, key.gsub(/["\\]/, ''), '>>', '/home/mcuser/.ssh/authorized_keys'
+                    end
+                  end
+                  execute :chown, '-R', 'mcuser:mcuser', '/home/mcuser/.ssh/'
+                  execute :chmod, '700', '/home/mcuser/.ssh/'
+                  server.update_columns(ssh_keys: nil)
+                end
+              end
+            end
+          }
+        rescue Timeout::Error
+          server.minecraft.log('Timed out trying to add SSH keys to server. Aborting')
+          server.reset_partial
+          return
+        rescue SSHKit::Runner::ExecuteError => e
+          server.minecraft.log("SSH should be up, but got error #{e} trying to add SSH keys to server. Aborting")
+          server.reset_partial
+          return
+        end
+      end
+    else
       begin
         Timeout::timeout(512) {
           ActiveRecord::Base.connection_pool.with_connection do |conn|
@@ -36,7 +71,23 @@ class SetupServerWorker
                 if test '! id -u mcuser'
                   execute :adduser, '-m', 'mcuser'
                 end
-                execute :echo, "\"#{server.minecraft.user.email.gsub('"', '\"')}+#{server.minecraft.name}\"", '|', :passwd, '--stdin', 'mcuser'
+                if server.ssh_keys.nil?
+                  execute :echo, "\"#{server.minecraft.user.email.gsub('"', '\"')}+#{server.minecraft.name}\"", '|', :passwd, '--stdin', 'mcuser'
+                else
+                  # LABEL: adding_ssh_keys
+                  execute :mkdir, '-p', '/home/mcuser/.ssh/'
+                  server.ssh_keys.split(',').each do |key_id|
+                    key = user.digital_ocean_ssh_public_key(key_id)
+                    if key.error?
+                      server.minecraft.log(key)
+                    else
+                      execute :echo, key.gsub(/["\\]/, ''), '>>', '/home/mcuser/.ssh/authorized_keys'
+                    end
+                  end
+                  execute :chown, '-R', 'mcuser:mcuser', '/home/mcuser/.ssh/'
+                  execute :chmod, '700', '/home/mcuser/.ssh/'
+                  server.update_columns(ssh_keys: nil)
+                end
                 execute :usermod, '-aG', 'wheel', 'mcuser'
                 server.update_columns(remote_setup_stage: 2)
                 execute :yum, '-y', 'update'
@@ -87,11 +138,15 @@ class SetupServerWorker
                 execute 'firewall-cmd', '--permanent', '--add-port=5000/tcp'
                 execute 'firewall-cmd', '--add-port=25565/tcp'
                 execute 'firewall-cmd', '--permanent', '--add-port=25565/tcp'
+                execute 'firewall-cmd', '--add-port=4022/tcp'
+                execute 'firewall-cmd', '--permanent', '--add-port=4022/tcp'
                 execute :fallocate, '-l', '1G', '/swapfile'
                 execute :chmod, '600', '/swapfile'
                 execute :mkswap, '/swapfile'
                 execute :swapon, '/swapfile'
                 execute :echo, '/swapfile none swap defaults 0 0', '>>', '/etc/fstab'
+                execute :sed, '-i', '"s/^#Port 22$/Port 4022/"', '/etc/ssh/sshd_config'
+                execute :systemctl, 'restart', 'sshd'
               end
             end
           end
@@ -100,9 +155,13 @@ class SetupServerWorker
         server.minecraft.log('Timed out setting up server. Aborting')
         server.reset_partial
         return
+      rescue SSHKit::Runner::ExecuteError => e
+        server.minecraft.log("SSH should be up, but got error #{e} trying to setup server. Aborting")
+        server.reset_partial
+        return
       end
     end
-    server.update_columns(remote_setup_stage: 5)
+    server.update_columns(remote_setup_stage: 5, port: 4022)
     StartMinecraftWorker.perform_in(4.seconds, server_id)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"

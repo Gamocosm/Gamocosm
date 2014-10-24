@@ -1,23 +1,19 @@
 <br />
 <%= panel_with_heading 'Server Credentials' do %>
+	FTP and SSH instructions are on the <%= link_to 'wiki', wiki_ftp_ssh_path %>.
+	<br /><br />
 	<dl>
 		<dt>Host</dt><dd><%= render_minecraft_ip_address(@minecraft, 'Your server\'s IP address when running') %></dd>
-		<dt>Port</dt><dd>22 (default for SSH/SFTP)</dd>
+		<dt>Port</dt><dd>4022 (not the default for SSH/SFTP, for security)</dd>
 		<dt>User</dt><dd>mcuser</dd>
 		<dt>Password</dt>
-		<dd>
-			Default: your email and the name of your server separated with a plus (<strong>you should change this!</strong>)<br />
-			If your email is "steve@example.com" and your server is "terrafirmacraft", the default password is "steve@example.com+terrafirmacraft"
-		</dd>
+		<dd><ul>
+			<li>Default: your email and the name of your server separated with a plus, e.g. "steve@example.com+terrafirmacraft" (<strong>you should change this!</strong>)</li>
+			<li>If you specify SSH key(s) to add before the first time you start a server, Gamocosm will not set the password (this is more secure)</li>
+		</ul></dd>
 		<dt>FTP Protocol</dt><dd>SFTP</dd>
 		<dt>FTP Logon Type</dt><dd>Normal (saves password) or Ask for password (every time)</dd>
 	</dl>
-<% end %>
-
-<%= panel_with_heading 'Instructions' do %>
-	<ul>
-		<li>FTP and SSH instructions on the <%= link_to 'wiki', wiki_ftp_ssh_path %></li>
-	</ul>
 <% end %>
 
 <%= panel_with_heading 'Changing your server password' do %>
@@ -27,4 +23,58 @@
 		<li>Enter your old and new password into the prompt</li>
 		<li>Exit (run <code>exit</code>)</li>
 	</ol>
+<% end %>
+
+<%= panel_with_heading 'SSH Keys' do %>
+	<p>
+		The next time you start your server, Gamocosm will add these keys to your list of authorized keys (and reset this field)
+	</p>
+	<%= simple_form_for @minecraft, (@demo.nil? ? { url: minecraft_path(@minecraft), method: :put } : { html: { onsubmit: 'return false;' } }) do |f| %>
+		<%= f.simple_fields_for :server do |s_f| %>
+			<%= s_f.input :ssh_keys, label: false, hint: 'Comma separated list of Digital Ocean SSH key IDs (spaces will be stripped)' %>
+		<% end %>
+		<%= f.button :submit, 'Save', class: 'btn btn-default' %>
+	<% end %>
+	<hr />
+	<h4>SSH keys on Digital Ocean</h4>
+	<table class="table table-striped table-no_fixed">
+		<% if @demo.nil? %>
+			<% if @do_ssh_keys.nil? %>
+				<tr><td><em>Your Digital Ocean API token is missing or invalid</em></td></tr>
+			<% elsif @do_ssh_keys.blank? %>
+				<tr><td><em>You have no SSH keys on Digital Ocean</em></td></tr>
+			<% else %>
+				<tr>
+					<th>&nbsp;</th>
+					<th class="text-right">ID</th>
+				</tr>
+				<% @do_ssh_keys.each do |x| %>
+					<tr>
+						<td><%= x.name %></td>
+						<td class="text-right"><%= x.id %></td>
+					</tr>
+				<% end %>
+			<% end %>
+		<% else %>
+			<tr>
+				<th>&nbsp;</th>
+				<th class="text-right">ID</th>
+			</tr>
+			<tr>
+				<td>me</td>
+				<td class="text-right">123</td>
+			</tr>
+			<tr>
+				<td>gamocosm</td>
+				<td class="text-right">456</td>
+			</tr>
+		<% end %>
+	</table>
+	<hr />
+	<h4>Add SSH public key to Digital Ocean</h4>
+	<%= simple_form_for :digital_ocean_ssh_key, (@demo.nil? ? { url: add_digital_ocean_ssh_key_minecraft_path(@minecraft), method: :post } : { html: { onsubmit: 'return false;' } }) do |f| %>
+		<%= f.input :name %>
+		<%= f.input :data, as: :text, label: 'SSH Public Key' %>
+		<%= f.button :submit, 'Add', class: 'btn btn-default' %>
+	<% end %>
 <% end %>

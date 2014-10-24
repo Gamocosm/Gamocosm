@@ -23,6 +23,7 @@ class WaitForSSHServerWorker
       return
     end
     host = SSHKit::Host.new(server.remote.ip_address.to_s)
+    host.port = server.ssh_port
     host.user = 'root'
     host.key = Gamocosm.digital_ocean_ssh_private_key_path
     host.ssh_options = {
@@ -39,7 +40,7 @@ class WaitForSSHServerWorker
         end
       }
     rescue Timeout::Error, SSHKit::Runner::ExecuteError => e
-      server.minecraft.log('Server started, but timed out while trying to SSH. Trying again in 16 seconds')
+      server.minecraft.log("Server started, but timed out while trying to SSH (#{e}). Trying again in 16 seconds")
       WaitForSSHServerWorker.perform_in(16.seconds, user_id, server_id, times + 1)
       return
     end

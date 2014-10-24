@@ -59,6 +59,43 @@ class User < ActiveRecord::Base
     return @digital_ocean_connection
   end
 
+  def digital_ocean_add_ssh_key(name, public_key)
+    if digital_ocean_missing?
+      return 'Digital Ocean API token missing'.error!
+    end
+    response = digital_ocean.key.create(name: name, public_key: public_key)
+    if !response.success?
+      return "Error adding Digital Ocean SSH key; they responded with #{response}"
+    end
+    return nil
+  end
+
+  def digital_ocean_ssh_public_key(id)
+    if digital_ocean_missing?
+      return 'Digital Ocean API token missing'.error!
+    end
+    response = digital_ocean.key.show(id)
+    if !response.success?
+      return "Error getting Digital Ocean SSH key #{id}; they responded with #{response}".error!
+    end
+    return response.ssh_key.public_key
+  end
+
+  def digital_ocean_ssh_keys
+    if digital_ocean_missing?
+      return nil
+    end
+    if @digital_ocean_ssh_keys.nil?
+      response = digital_ocean.key.all
+      if !response.success?
+        @digital_ocean_ssh_keys = false
+      else
+        @digital_ocean_ssh_keys = response.ssh_keys
+      end
+    end
+    return @digital_ocean_ssh_keys == false ? nil : @digital_ocean_ssh_keys
+  end
+
   def digital_ocean_snapshots
     if digital_ocean_invalid?
       return nil
@@ -67,8 +104,9 @@ class User < ActiveRecord::Base
       response = digital_ocean.image.all
       if !response.success?
         @digital_ocean_snapshots = false
+      else
+        @digital_ocean_snapshots = response.images.select { |x| !x.public }
       end
-      @digital_ocean_snapshots = response.images.select { |x| !x.public }
     end
     return @digital_ocean_snapshots == false ? nil : @digital_ocean_snapshots
   end

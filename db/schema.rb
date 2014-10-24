@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141022055402) do
+ActiveRecord::Schema.define(version: 20141024093909) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -50,12 +50,14 @@ ActiveRecord::Schema.define(version: 20141022055402) do
     t.integer  "remote_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.uuid     "minecraft_id",                     null: false
-    t.string   "do_region_slug",                   null: false
-    t.string   "do_size_slug",                     null: false
+    t.uuid     "minecraft_id",                      null: false
+    t.string   "do_region_slug",                    null: false
+    t.string   "do_size_slug",                      null: false
     t.integer  "do_saved_snapshot_id"
-    t.integer  "remote_setup_stage",   default: 0, null: false
+    t.integer  "remote_setup_stage",   default: 0,  null: false
     t.string   "pending_operation"
+    t.string   "ssh_keys"
+    t.integer  "ssh_port",             default: 22, null: false
   end
 
   add_index "servers", ["minecraft_id"], name: "index_servers_on_minecraft_id", unique: true, using: :btree

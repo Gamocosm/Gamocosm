@@ -55,6 +55,7 @@ Rails.application.routes.draw do
       post 'add_friend'
       post 'remove_friend'
       post 'command'
+      post 'add_digital_ocean_ssh_key'
     end
   end
 
