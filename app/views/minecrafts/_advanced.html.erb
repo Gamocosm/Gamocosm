@@ -1,6 +1,8 @@
 <br />
 <%= simple_form_for @minecraft, (@demo.nil? ? { url: minecraft_path(@minecraft), method: :put } : { html: { onsubmit: 'return false;' } }) do |f| %>
 	<%= panel_with_heading 'Advanced Configuration' do %>
+		View the documentation on the <%= link_to 'wiki', wiki_server_advanced_tab_path %>.
+		<br /><br />
 		<%= f.simple_fields_for :server do |s_f| %>
 			<%= s_f.input :ssh_port, label: 'SSH port' %>
 			<%= s_f.input :remote_setup_stage %>

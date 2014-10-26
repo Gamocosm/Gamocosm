@@ -13,7 +13,7 @@
 #  remote_setup_stage   :integer          default(0), not null
 #  pending_operation    :string(255)
 #  ssh_keys             :string(255)
-#  ssh_port             :integer          default(22), not null
+#  ssh_port             :integer          default(4022), not null
 #
 
 class Server < ActiveRecord::Base

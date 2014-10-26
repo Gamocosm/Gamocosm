@@ -19,7 +19,7 @@ class SetupServerWorker
       return
     end
     host = SSHKit::Host.new(server.remote.ip_address.to_s)
-    host.port = server.ssh_port
+    host.port = !server.done_setup? ? 22 : server.ssh_port
     host.user = 'root'
     host.key = Gamocosm.digital_ocean_ssh_private_key_path
     host.ssh_options = {
@@ -145,8 +145,10 @@ class SetupServerWorker
                 execute :mkswap, '/swapfile'
                 execute :swapon, '/swapfile'
                 execute :echo, '/swapfile none swap defaults 0 0', '>>', '/etc/fstab'
-                execute :sed, '-i', '"s/^#Port 22$/Port 4022/"', '/etc/ssh/sshd_config'
-                execute :systemctl, 'restart', 'sshd'
+                if server.ssh_port != 22
+                  execute :sed, '-i', "'s/^#Port 22$/Port #{server.ssh_port}/'", '/etc/ssh/sshd_config'
+                  execute :systemctl, 'restart', 'sshd'
+                end
               end
             end
           end
@@ -161,7 +163,7 @@ class SetupServerWorker
         return
       end
     end
-    server.update_columns(remote_setup_stage: 5, port: 4022)
+    server.update_columns(remote_setup_stage: 5)
     StartMinecraftWorker.perform_in(4.seconds, server_id)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"

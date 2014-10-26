@@ -7,7 +7,7 @@ class WaitForSSHServerWorker
 
   def perform(user_id, server_id, times = 0)
     server = Server.find(server_id)
-    if times > 4
+    if times > 12
       server.minecraft.log('Error connecting to server; failed to SSH. Aborting')
       server.reset_partial
       return
@@ -23,7 +23,7 @@ class WaitForSSHServerWorker
       return
     end
     host = SSHKit::Host.new(server.remote.ip_address.to_s)
-    host.port = server.ssh_port
+    host.port = !server.done_setup? ? 22 : server.ssh_port
     host.user = 'root'
     host.key = Gamocosm.digital_ocean_ssh_private_key_path
     host.ssh_options = {
@@ -40,7 +40,7 @@ class WaitForSSHServerWorker
         end
       }
     rescue Timeout::Error, SSHKit::Runner::ExecuteError => e
-      server.minecraft.log("Server started, but timed out while trying to SSH (#{e}). Trying again in 16 seconds")
+      server.minecraft.log("Server started, but timed out while trying to SSH (#{e}, attempt #{times}). Trying again in 16 seconds")
       WaitForSSHServerWorker.perform_in(16.seconds, user_id, server_id, times + 1)
       return
     end

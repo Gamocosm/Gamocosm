@@ -24,6 +24,7 @@ Rails.application.routes.draw do
   scope '/wiki' do
     match '/ftp_ssh' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/FTP-and-SSH'), as: :wiki_ftp_ssh, via: :get
     match '/minecraft_versions' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft'), as: :wiki_minecraft_versions, via: :get
+    match '/server_advanced_tab' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Server-advanced-tab-documentation'), as: :wiki_server_advanced_tab, via: :get
   end
 
   scope '/digital_ocean' do
