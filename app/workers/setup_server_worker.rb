@@ -138,14 +138,14 @@ class SetupServerWorker
                 execute 'firewall-cmd', '--permanent', '--add-port=5000/tcp'
                 execute 'firewall-cmd', '--add-port=25565/tcp'
                 execute 'firewall-cmd', '--permanent', '--add-port=25565/tcp'
-                execute 'firewall-cmd', '--add-port=4022/tcp'
-                execute 'firewall-cmd', '--permanent', '--add-port=4022/tcp'
                 execute :fallocate, '-l', '1G', '/swapfile'
                 execute :chmod, '600', '/swapfile'
                 execute :mkswap, '/swapfile'
                 execute :swapon, '/swapfile'
                 execute :echo, '/swapfile none swap defaults 0 0', '>>', '/etc/fstab'
                 if server.ssh_port != 22
+                  execute 'firewall-cmd', "--add-port=#{server.ssh_port}/tcp"
+                  execute 'firewall-cmd', '--permanent', "--add-port=#{server.ssh_port}/tcp"
                   execute :sed, '-i', "'s/^#Port 22$/Port #{server.ssh_port}/'", '/etc/ssh/sshd_config'
                   execute :systemctl, 'restart', 'sshd'
                 end
