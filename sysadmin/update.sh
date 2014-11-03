@@ -16,3 +16,5 @@ RAILS_ENV=production ./env.sh --bundler rake assets:precompile
 RAILS_ENV=production ./env.sh --bundler rake db:migrate
 
 touch tmp/restart.txt
+
+echo "Remember to restart the Gamocosm Sidekiq service!"

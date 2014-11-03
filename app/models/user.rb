@@ -61,11 +61,44 @@ class User < ActiveRecord::Base
 
   def digital_ocean_add_ssh_key(name, public_key)
     if digital_ocean_missing?
-      return 'Digital Ocean API token missing'.error!
+      return 'Digital Ocean API token missing'
     end
     response = digital_ocean.key.create(name: name, public_key: public_key)
     if !response.success?
       return "Error adding Digital Ocean SSH key; they responded with #{response}"
+    end
+    return nil
+  end
+
+  def digital_ocean_delete_ssh_key(remote_id)
+    if digital_ocean_missing?
+      return 'Digital Ocean API token missing'
+    end
+    response = digital_ocean.key.destroy(remote_id)
+    if !response.success?
+      return "Error deleting Digital Ocean SSH key; they responded with #{response}"
+    end
+    return nil
+  end
+
+  def digital_ocean_delete_droplet(remote_id)
+    if digital_ocean_missing?
+      return 'Digital Ocean API token missing'
+    end
+    response = digital_ocean.droplet.destroy(remote_id)
+    if !response.success?
+      return "Error deleting Digital Ocean SSH droplet; they responded with #{response}"
+    end
+    return nil
+  end
+
+  def digital_ocean_delete_snapshot(remote_id)
+    if digital_ocean_missing?
+      return 'Digital Ocean API token missing'
+    end
+    response = digital_ocean.image.destroy(remote_id)
+    if !response.success?
+      return "Error deleting Digital Ocean snapshot; they responded with #{response}"
     end
     return nil
   end

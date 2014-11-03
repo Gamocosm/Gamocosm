@@ -234,6 +234,31 @@ class MinecraftsController < ApplicationController
     return redirect_to minecraft_path(@minecraft), flash: { succes: 'Added SSH public key to Digital Ocean' }
   end
 
+  def delete_digital_ocean_ssh_key
+    @minecraft = find_minecraft_only_owner(params[:id])
+    error = current_user.digital_ocean_delete_ssh_key(params[:digital_ocean_ssh_key][:remote_id])
+    if error
+      return redirect_to minecraft_path(@minecraft), flash: { error: error }
+    end
+    return redirect_to minecraft_path(@minecraft), flash: { notice: 'Deleted SSH public key from Digital Ocean' }
+  end
+
+  def delete_digital_ocean_droplet
+    error = current_user.digital_ocean_delete_droplet(params[:digital_ocean_droplet][:remote_id])
+    if error
+      return redirect_to minecrafts_path, flash: { error: error }
+    end
+    return redirect_to minecrafts_path, flash: { notice: 'Deleted droplet on Digital Ocean' }
+  end
+
+  def delete_digital_ocean_snapshot
+    error = current_user.digital_ocean_delete_snapshot(params[:digital_ocean_snapshot][:remote_id])
+    if error
+      return redirect_to minecrafts_path, flash: { error: error }
+    end
+    return redirect_to minecrafts_path, flash: { notice: 'Deleted snapshot on Digital Ocean' }
+  end
+
   def find_minecraft(id)
     begin
       server = Minecraft.find(id)

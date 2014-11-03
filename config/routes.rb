@@ -57,6 +57,11 @@ Rails.application.routes.draw do
       post 'remove_friend'
       post 'command'
       post 'add_digital_ocean_ssh_key'
+      post 'delete_digital_ocean_ssh_key'
+    end
+    collection do
+      post 'delete_digital_ocean_droplet'
+      post 'delete_digital_ocean_snapshot'
     end
   end
 
