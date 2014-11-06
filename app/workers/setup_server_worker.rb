@@ -91,11 +91,12 @@ class SetupServerWorker
                 execute :usermod, '-aG', 'wheel', 'mcuser'
                 server.update_columns(remote_setup_stage: 2)
                 execute :yum, '-y', 'update'
-                execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'supervisor', 'tmux'
+                execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'git', 'tmux'
                 execute :rm, '-rf', 'pip_build_root'
                 execute 'python3-pip', 'install', 'flask'
               end
               within '/opt/' do
+                execute :rm, '-rf', 'gamocosm'
                 execute :mkdir, '-p', 'gamocosm'
                 if test '! grep -q gamocosm /etc/group'
                   execute :groupadd, 'gamocosm'
@@ -104,9 +105,9 @@ class SetupServerWorker
                 execute :usermod, '-aG', 'gamocosm', 'mcuser'
                 execute :chmod, 'g+w', 'gamocosm'
                 within :gamocosm do
-                  execute :rm, '-f', 'mcsw.py'
-                  execute :wget, '-O', 'mcsw.py', 'https://raw.github.com/Gamocosm/minecraft-server_wrapper/master/minecraft-server_wrapper.py'
-                  execute :chown, 'mcuser:mcuser', 'mcsw.py'
+                  execute :git, 'clone', Gamocosm.minecraft_server_wrapper_git_url, '.'
+                  execute :git, 'checkout', 'dev'
+                  execute :chown, 'mcuser:mcuser', 'minecraft-server_wrapper.py'
                   execute :echo, "\"#{Gamocosm.minecraft_wrapper_username}\"", '>', 'mcsw-auth.txt'
                   execute :echo, "\"#{server.minecraft.minecraft_wrapper_password}\"", '>>', 'mcsw-auth.txt'
                 end
@@ -125,13 +126,10 @@ class SetupServerWorker
                 end
               end
               server.update_columns(remote_setup_stage: 4)
-              within '/etc/supervisord.d/' do
-                execute :rm, '-f', 'minecraft_sw.ini'
-                execute :wget, '-O', 'minecraft_sw.ini', 'https://raw.github.com/Gamocosm/minecraft-server_wrapper/master/supervisor.conf'
-                execute :systemctl, 'start', 'supervisord'
-                execute :systemctl, 'enable', 'supervisord'
-                execute :supervisorctl, 'reread'
-                execute :supervisorctl, 'update'
+              within '/etc/systemd/system/' do
+                execute 'cp', '/opt/gamocosm/mcsw.service', 'mcsw.service'
+                execute 'systemctl', 'enable', 'mcsw'
+                execute 'systemctl', 'start', 'mcsw'
               end
               within '/tmp/' do
                 execute 'firewall-cmd', '--add-port=5000/tcp'

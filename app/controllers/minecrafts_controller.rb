@@ -105,7 +105,7 @@ class MinecraftsController < ApplicationController
     @minecraft = find_minecraft(params[:id])
     error = @minecraft.reboot
     if error
-      flash[:error] = "Unable to reboot server: #{flash_message}. Please contact the server admin about this"
+      flash[:error] = "Unable to reboot server: #{error}. Please contact the server admin about this"
     else
       flash[:success] = 'Server is rebooting'
     end

@@ -39,6 +39,10 @@ module Gamocosm
     'https://s3.amazonaws.com/Minecraft.Download/versions/1.8/minecraft_server.1.8.jar'
   end
 
+  def self.minecraft_server_wrapper_git_url
+    'https://github.com/Gamocosm/minecraft-server_wrapper.git'
+  end
+
   def self.minecraft_wrapper_username
     'gamocosm-mothership'
   end

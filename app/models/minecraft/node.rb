@@ -36,7 +36,7 @@ class Minecraft::Node
   end
 
   def resume
-    response = do_post(:start, { ram: "#{@local_minecraft.server.ram}M" })
+    response = do_post(:start, { ram: "#{@local_minecraft.server.ram}M" }, { timeout: 8 })
     invalidate
     if response.error?
       return response
@@ -107,9 +107,9 @@ class Minecraft::Node
     end
   end
 
-  def do_post(endpoint, data)
+  def do_post(endpoint, data, options = {})
     begin
-      options = @options.dup
+      options = @options.merge(options)
       options[:body] = data.to_json
       response = parse_response(self.class.post(full_url(endpoint), options), endpoint, data)
       return response
@@ -123,7 +123,7 @@ class Minecraft::Node
   end
 
   def parse_response(response, endpoint, data = nil)
-    if response['status'] != 0
+    if response['status'] != nil
       return "Minecraft node #{endpoint} response status not OK, was #{response}".error!
     end
     return response
