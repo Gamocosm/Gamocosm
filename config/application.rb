@@ -36,7 +36,7 @@ module Gamocosm
   end
 
   def self.minecraft_jar_default_url
-    'https://s3.amazonaws.com/Minecraft.Download/versions/1.8/minecraft_server.1.8.jar'
+    'https://s3.amazonaws.com/Minecraft.Download/versions/1.8.1/minecraft_server.1.8.1.jar'
   end
 
   def self.minecraft_server_wrapper_git_url
