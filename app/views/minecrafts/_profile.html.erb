@@ -1,7 +1,13 @@
 <div class="row">
 	<div class="col-sm-6">
-		<%= panel_with_heading 'IP Address' do %>
+		<%= panel_with_heading 'Domain / IP Address' do %>
 			<%= render_minecraft_ip_address(@minecraft) %>
+			<br />
+			<br />
+			<i>
+				The domain for a server won't change, but the IP might sometimes.
+				Though rare, but possible under contrived circumstances, the domain may point to an old IP for up to 30 minutes (use the IP directly)
+			</i>
 		<% end %>
 	</div>
 	<div class="col-sm-6">

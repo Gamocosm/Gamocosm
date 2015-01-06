@@ -74,4 +74,8 @@ module Gamocosm
   def self.sidekiq_admin_password
     ENV['SIDEKIQ_ADMIN_PASSWORD']
   end
+
+  def self.domain
+    ENV['DOMAIN']
+  end
 end

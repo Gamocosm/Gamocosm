@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141026033707) do
+ActiveRecord::Schema.define(version: 20150106065521) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -35,6 +35,14 @@ ActiveRecord::Schema.define(version: 20141026033707) do
   add_index "minecrafts_users", ["minecraft_id", "user_id"], name: "index_minecrafts_users_on_minecraft_id_and_user_id", unique: true, using: :btree
   add_index "minecrafts_users", ["minecraft_id"], name: "index_minecrafts_users_on_minecraft_id", using: :btree
   add_index "minecrafts_users", ["user_id"], name: "index_minecrafts_users_on_user_id", using: :btree
+
+  create_table "server_domains", force: true do |t|
+    t.integer "server_id", null: false
+    t.string  "name"
+  end
+
+  add_index "server_domains", ["name"], name: "index_server_domains_on_name", unique: true, using: :btree
+  add_index "server_domains", ["server_id"], name: "index_server_domains_on_server_id", using: :btree
 
   create_table "server_logs", force: true do |t|
     t.uuid     "minecraft_id", null: false
@@ -85,6 +93,8 @@ ActiveRecord::Schema.define(version: 20141026033707) do
 
   add_foreign_key "minecrafts_users", "minecrafts", name: "minecrafts_users_minecraft_id_fk", dependent: :delete
   add_foreign_key "minecrafts_users", "users", name: "minecrafts_users_user_id_fk", dependent: :delete
+
+  add_foreign_key "server_domains", "servers", name: "server_domains_server_id_fk", dependent: :delete
 
   add_foreign_key "server_logs", "minecrafts", name: "server_logs_minecraft_id_fk", dependent: :delete
 

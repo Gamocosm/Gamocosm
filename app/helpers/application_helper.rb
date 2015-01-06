@@ -13,12 +13,23 @@ module ApplicationHelper
     result.html_safe
   end
 
-  def render_minecraft_ip_address(minecraft, fallback = nil)
+  def render_minecraft_domain(minecraft)
+    if minecraft.server.server_domain.nil?
+      return 'Not applicable'
+    end
+    return minecraft.server.server_domain.name + '.' + Gamocosm.domain
+  end
+
+  def render_minecraft_ip_address(minecraft, fallback = nil, only_ip = false)
     if minecraft.server.remote.error?
       return 'Error'
     end
     if minecraft.server.remote.exists? && minecraft.server.remote.ip_address
-      return minecraft.server.remote.ip_address
+      if minecraft.server.server_domain.nil? || only_ip
+        return minecraft.server.remote.ip_address
+      else
+        return "#{minecraft.server.server_domain.name}.#{Gamocosm.domain} (or #{minecraft.server.remote.ip_address})"
+      end
     end
     return fallback || 'Not running'
   end

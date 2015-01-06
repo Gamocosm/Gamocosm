@@ -18,6 +18,7 @@
 
 class Server < ActiveRecord::Base
   belongs_to :minecraft
+  has_one :server_domain, dependent: :destroy
 
   validates :remote_id, numericality: { only_integer: true }, allow_nil: true
   validates :remote_setup_stage, numericality: { only_integer: true }
@@ -148,6 +149,67 @@ class Server < ActiveRecord::Base
 
   def reset_partial
     update_columns(pending_operation: nil)
+  end
+
+  def refresh_domain
+    connection = DigitalOcean::Connection.new(Gamocosm.digital_ocean_api_key).request
+    if self.server_domain.nil?
+      while true do
+        begin
+          self.create_server_domain
+          break
+        rescue ActiveRecord::RecordNotUnique
+        end
+      end
+      begin
+        response = connection.domain.create_record(Gamocosm.domain, { type: 'A', name: self.server_domain.name, data: self.remote.ip_address || '127.0.0.1' })
+        if !response.success?
+          return "Error creating domain on Digital Ocean; they responded with #{response}"
+        end
+      rescue
+        self.server_domain.delete
+        return "Exception creating domain on Digital Ocean: #{e}"
+      end
+    else
+      response = connection.domain.records(Gamocosm.domain)
+      if !response.success?
+        return "Error fetching domains from Digital Ocean; they responded with #{response}"
+      end
+      found = false
+      response.domain_records.each do |x|
+        if x.type == 'A' && x.name == self.server_domain.name
+          found = true
+          connection.domain.update_record(Gamocosm.domain, x.id, { data: self.remote.ip_address })
+          break
+        end
+      end
+      if !found
+        raise 'Badness! Server domain exists in database, but not on Digital Ocean'
+      end
+    end
+    return nil
+  end
+
+  def remove_domain
+    if self.server_domain.nil?
+      return nil
+    end
+    connection = DigitalOcean::Connection.new(Gamocosm.digital_ocean_api_key).request
+    response = connection.domain.records(Gamocosm.domain)
+    if !response.success?
+      return "Error fetching domains from Digital Ocean; they responded with #{response}"
+    end
+    response.domain_records.each do |x|
+      if x.type == 'A' && x.name == self.server_domain.name
+        response2 = connection.domain.destroy_record(Gamocosm.domain, x.id)
+        if !response2.success?
+          return "Error deleting domain from Digital Ocean; they responded with #{response}"
+        end
+        break
+      end
+    end
+    self.server_domain.delete
+    return nil
   end
 
 end
