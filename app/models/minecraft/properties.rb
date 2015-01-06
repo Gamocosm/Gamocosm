@@ -6,6 +6,7 @@ class Minecraft::Properties
     :announce_player_achievements,
     :difficulty,
     :enable_command_block,
+    :enable_query,
     :force_gamemode,
     :gamemode,
     :generate_structures,
@@ -51,6 +52,7 @@ class Minecraft::Properties
     self.announce_player_achievements = response['announce-player-achievements']
     self.difficulty = response['difficulty']
     self.enable_command_block = response['enable-command-block']
+    self.enable_query = response['enable-query']
     self.force_gamemode = response['force-gamemode']
     self.gamemode = response['gamemode']
     self.generate_structures = response['generate-structures']

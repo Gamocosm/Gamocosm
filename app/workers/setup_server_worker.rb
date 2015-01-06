@@ -123,6 +123,8 @@ class SetupServerWorker
 
                   execute :echo, 'eula=true', '>', 'eula.txt'
                   execute :chown, 'mcuser:mcuser', 'eula.txt'
+                  execute :echo, 'enable-query=true', '>', 'server.properties'
+                  execute :chown, 'mcuser:mcuser', 'server.properties'
                 end
               end
               server.update_columns(remote_setup_stage: 4)

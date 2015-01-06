@@ -3,11 +3,7 @@
 		<%= panel_with_heading 'Domain / IP Address' do %>
 			<%= render_minecraft_ip_address(@minecraft) %>
 			<br />
-			<br />
-			<i>
-				The domain for a server won't change, but the IP might sometimes.
-				Though rare, but possible under contrived circumstances, the domain may point to an old IP for up to 30 minutes (use the IP directly)
-			</i>
+			<%= link_to 'Learn more', help_path %>
 		<% end %>
 	</div>
 	<div class="col-sm-6">

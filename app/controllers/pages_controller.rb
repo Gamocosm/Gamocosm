@@ -5,6 +5,8 @@ class PagesController < ApplicationController
     server.do_region_slug = 'nyc3'
     server.do_size_slug = '1gb'
     server.remote_setup_stage = 5
+    server.server_domain = ServerDomain.new
+    server.server_domain.name = 'abcdefgh'
     def server.busy?
       return false
     end
@@ -34,6 +36,7 @@ class PagesController < ApplicationController
             'announce-player-achievements' => 'true',
             'difficulty' => '1',
             'enable-command-block' => '',
+            'enable-query' => 'true',
             'force-gamemode' => 'false',
             'gamemode' => '0',
             'generate-structures' => 'true',
