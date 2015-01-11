@@ -14,7 +14,7 @@ class AutoshutdownMinecraftWorker
     if server.remote.error?
       minecraft.log("Error communicating with Digital Ocean while checking for autoshutdown; they responded with #{server.remote.error}")
       if !last_check_successful && times == 7
-        # TODO: email user
+        UserMailer.autoshutdown_error_email(User.first).deliver
       else
         # note: don't care about last_check_has_players
         AutoshutdownMinecraftWorker.perform_in(64.seconds, minecraft_id, false, false, last_check_successful ? 1 : (times + 1))
@@ -30,7 +30,7 @@ class AutoshutdownMinecraftWorker
     if server.remote.status != 'active'
       minecraft.log("Checking for autoshutdown: remote status was #{server.remote.status}; something bad happened!")
       if !last_check_successful && times == 7
-        # TODO: email user
+        UserMailer.autoshutdown_error_email(User.first).deliver
       else
         # note: don't care about last_check_has_players
         AutoshutdownMinecraftWorker.perform_in(64.seconds, minecraft_id, false, false, last_check_successful ? 0 : (times + 1))
@@ -42,12 +42,12 @@ class AutoshutdownMinecraftWorker
     if minecraft.node.error?
       # minecraft.node.error? will log if true
       minecraft.update_columns(autoshutdown_last_successful: Time.now)
-      if last_check_successful && times == 0
+      if last_check_successful && times == 7
         minecraft.log('GOING TO STOP')
         error = minecraft.stop
         if error
           minecraft.log("In autoshutdown worker, unable to stop server: #{error}")
-          # TODO: email user
+          UserMailer.autoshutdown_error_email(User.first).deliver
         end
       else
         AutoshutdownMinecraftWorker.perform_in(64.seconds, minecraft_id, true, false, last_check_successful ? (times + 1) : 1)
@@ -56,12 +56,12 @@ class AutoshutdownMinecraftWorker
     end
     if minecraft.node.pid == 0
       minecraft.update_columns(autoshutdown_last_successful: Time.now)
-      if last_check_successful && times == 0
+      if last_check_successful && times == 7
         minecraft.log('GOING TO STOP')
         error = minecraft.stop
         if error
           minecraft.log("In autoshutdown worker, unable to stop server: #{error}")
-          # TODO: email user
+          UserMailer.autoshutdown_error_email(User.first).deliver
         end
       else
         AutoshutdownMinecraftWorker.perform_in(64.seconds, minecraft_id, true, false, last_check_successful ? (times + 1) : 1)
@@ -73,7 +73,7 @@ class AutoshutdownMinecraftWorker
     if num_players.nil?
       minecraft.log('Error pinging Minecraft server')
       if !last_check_successful && times == 7
-        # TODO: email user
+        UserMailer.autoshutdown_error_email(User.first).deliver
       else
         # note: don't care about last_check_has_players
         AutoshutdownMinecraftWorker.perform_in(64.seconds, minecraft_id, false, false, last_check_successful ? 1 : (times + 1))
@@ -83,12 +83,12 @@ class AutoshutdownMinecraftWorker
     minecraft.log("PING GOOD, WAS #{num_players}")
     minecraft.update_columns(autoshutdown_last_successful: Time.now)
     if num_players == 0
-      if last_check_successful && times == 0
+      if last_check_successful && times == 7
         minecraft.log('GOING TO STOP')
         error = minecraft.stop
         if error
           minecraft.log("In autoshutdown worker, unable to stop server: #{error}")
-          # TODO: email user
+          UserMailer.autoshutdown_error_email(User.first).deliver
         end
       else
         AutoshutdownMinecraftWorker.perform_in(64.seconds, minecraft_id, true, false, last_check_successful ? (times + 1) : 1)
@@ -102,7 +102,7 @@ class AutoshutdownMinecraftWorker
   rescue => e
     minecraft = Minecraft.find(minecraft_id)
     minecraft.log("Background job checking for autoshutdown failed: #{e}")
-    # TODO: email_user
+    UserMailer.autoshutdown_error_email(User.first).deliver
     raise
   end
 
