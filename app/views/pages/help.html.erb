@@ -67,6 +67,15 @@
 				The only way I can polish it is with user feedback and support.
 				</p>
 			</dd>
+
+			<dt>Gamocosm got an error pinging/querying my server</dt>
+			<dd>
+				<ul>
+					<li>Ensure <code>enable-query</code> is set in your <code>server.properties</code></li>
+					<li>Ensure port 25565 is open to UDP (<code>(sudo) firewall-cmd --add-port=25565/udp</code> and <code>(sudo) firewall-cmd --permanent --add-port=25565/udp</code>)
+				</ul>
+				Both of these are done automatically on new servers, but you will have to do this manually for servers created before the autoshutdown update
+			</dd>
 		</dl>
 	</div>
 </div>

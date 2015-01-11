@@ -5,7 +5,6 @@ class AutoshutdownMinecraftWorker
   def perform(minecraft_id, last_check_successful = true, last_check_has_players = true, times = 0)
     minecraft = Minecraft.find(minecraft_id)
     minecraft.update_columns(autoshutdown_last_check: Time.now)
-    minecraft.log('IN AUTOSHUTDOWN WORKER')
     server = minecraft.server
     # the next two checks and server.remote.status are !server.running?
     if !server.remote.exists?
@@ -37,13 +36,11 @@ class AutoshutdownMinecraftWorker
       end
       return
     end
-    minecraft.log('PASSED BASIC TESTS')
     # !server.running? and the next two checks are !minecraft.running?
     if minecraft.node.error?
       # minecraft.node.error? will log if true
       minecraft.update_columns(autoshutdown_last_successful: Time.now)
       if last_check_successful && times == 7
-        minecraft.log('GOING TO STOP')
         error = minecraft.stop
         if error
           minecraft.log("In autoshutdown worker, unable to stop server: #{error}")
@@ -57,7 +54,6 @@ class AutoshutdownMinecraftWorker
     if minecraft.node.pid == 0
       minecraft.update_columns(autoshutdown_last_successful: Time.now)
       if last_check_successful && times == 7
-        minecraft.log('GOING TO STOP')
         error = minecraft.stop
         if error
           minecraft.log("In autoshutdown worker, unable to stop server: #{error}")
@@ -68,7 +64,6 @@ class AutoshutdownMinecraftWorker
       end
       return
     end
-    minecraft.log('ABOUT TO PING')
     num_players = Minecraft::Querier.new(minecraft.server.remote.ip_address).read_num_players
     if num_players.nil?
       minecraft.log('Error pinging Minecraft server')
@@ -80,11 +75,9 @@ class AutoshutdownMinecraftWorker
       end
       return
     end
-    minecraft.log("PING GOOD, WAS #{num_players}")
     minecraft.update_columns(autoshutdown_last_successful: Time.now)
     if num_players == 0
       if last_check_successful && times == 7
-        minecraft.log('GOING TO STOP')
         error = minecraft.stop
         if error
           minecraft.log("In autoshutdown worker, unable to stop server: #{error}")
@@ -96,7 +89,6 @@ class AutoshutdownMinecraftWorker
     else
       AutoshutdownMinecraftWorker.perform_in(64.seconds, minecraft_id, true, true, 0)
     end
-    minecraft.log('END OF AUTOSHUTDOWN')
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
   rescue => e
