@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   match '/issues' => redirect('https://github.com/Gamocosm/Gamocosm/issues'), as: :issues, via: :get
   match '/source' => redirect('https://github.com/Gamocosm/Gamocosm'), as: :source, via: :get
   match '/license' => redirect('https://github.com/Gamocosm/Gamocosm/blob/master/LICENSE'), as: :license, via: :get
+  match '/blog' => redirect('http://gamocosm.com/static/'), as: :blog, via: :get
 
   scope '/wiki' do
     match '/ftp_ssh' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/FTP-and-SSH'), as: :wiki_ftp_ssh, via: :get
