@@ -49,6 +49,7 @@ class WaitForSSHServerWorker
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
   rescue => e
+    server = Server.find(server_id)
     server.minecraft.log("Background job waiting for SSH connection to server failed: #{e}")
     server.reset_partial
     raise

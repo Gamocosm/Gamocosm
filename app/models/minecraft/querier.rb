@@ -41,7 +41,8 @@ class Minecraft::Querier
   end
 
   def read_num_players
-    return self.read_all[3].to_i
+    data = self.read_all
+    return data.nil? ? nil : data[3].to_i
   end
 
 end

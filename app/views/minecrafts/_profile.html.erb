@@ -43,5 +43,31 @@
 				<% end %>
 			<% end %>
 		</div>
+		<div class="col-sm-6">
+			<%= panel_with_heading 'Autoshutdown' do %>
+				Autoshutdown is <strong><%= @minecraft.autoshutdown_enabled ? 'enabled' : 'disabled' %></strong>
+				<br />
+				Last check: <strong><%= @minecraft.autoshutdown_last_check.nil? ? 'n/a' : (time_ago_in_words(@minecraft.autoshutdown_last_check) + ' ago') %></strong>
+				<br />
+				Last successful check: <strong><%= @minecraft.autoshutdown_last_successful.nil? ? 'n/a' : (time_ago_in_words(@minecraft.autoshutdown_last_successful) + ' ago') %></strong>
+				<br />
+				<% if @demo.nil? %>
+					<% if @minecraft.autoshutdown_enabled %>
+						<%= link_to 'Disable', autoshutdown_disable_minecraft_path(@minecraft), class: 'btn btn-success' %>
+					<% else %>
+						<%= link_to 'Enable', autoshutdown_enable_minecraft_path(@minecraft), class: 'btn btn-success' %>
+					<% end %>
+				<% else %>
+					<a class="btn btn-success">Enable</a>
+				<% end %>
+				<br />
+				<br />
+				<i>
+					Gamocosm is not responsible if something goes wrong, but it will try to notify you via email.
+					It is your responsibility to periodically check on your servers.
+					<%= link_to 'Learn more', help_path %>
+				</i>
+			<% end %>
+		</div>
 	</div>
 <% end %>

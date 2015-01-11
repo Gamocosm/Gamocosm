@@ -138,6 +138,8 @@ class SetupServerWorker
                 execute 'firewall-cmd', '--permanent', '--add-port=5000/tcp'
                 execute 'firewall-cmd', '--add-port=25565/tcp'
                 execute 'firewall-cmd', '--permanent', '--add-port=25565/tcp'
+                execute 'firewall-cmd', '--add-port=25565/udp'
+                execute 'firewall-cmd', '--permanent', '--add-port=25565/udp'
                 execute :fallocate, '-l', '1G', '/swapfile'
                 execute :chmod, '600', '/swapfile'
                 execute :mkswap, '/swapfile'
@@ -168,6 +170,7 @@ class SetupServerWorker
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
   rescue => e
+    server = Server.find(server_id)
     server.minecraft.log("Background job setting up server failed: #{e}")
     server.reset_partial
     raise

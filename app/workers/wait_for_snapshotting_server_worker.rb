@@ -45,6 +45,7 @@ class WaitForSnapshottingServerWorker
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
   rescue => e
+    server = Server.find(server_id)
     server.minecraft.log("Background job waiting for snapshotting server failed: #{e}")
     server.reset_partial
     raise

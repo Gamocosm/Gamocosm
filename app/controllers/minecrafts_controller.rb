@@ -263,6 +263,21 @@ class MinecraftsController < ApplicationController
     return redirect_to minecrafts_path, flash: { notice: 'Deleted snapshot on Digital Ocean' }
   end
 
+  def autoshutdown_enable
+    @minecraft = find_minecraft_only_owner(params[:id])
+    @minecraft.update_columns(autoshutdown_enabled: true)
+    if @minecraft.server.remote.exists?
+      AutoshutdownMinecraftWorker.perform_in(64.seconds, @minecraft.id)
+    end
+    return redirect_to minecraft_path(@minecraft), flash: { success: 'Autoshutdown enabled' }
+  end
+
+  def autoshutdown_disable
+    @minecraft = find_minecraft_only_owner(params[:id])
+    @minecraft.update_columns(autoshutdown_enabled: false)
+    return redirect_to minecraft_path(@minecraft), flash: { success: 'Autoshutdown disabled' }
+  end
+
   def find_minecraft(id)
     begin
       server = Minecraft.find(id)

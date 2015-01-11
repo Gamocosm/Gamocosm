@@ -23,10 +23,14 @@ class StartMinecraftWorker
     if error
       minecraft.log("Error deleting saved snapshot on Digital Ocean after starting server; #{response}")
     end
+    if minecraft.autoshutdown_enabled
+      AutoshutdownMinecraftWorker.perform_in(64.seconds, minecraft.id)
+    end
     server.update_columns(pending_operation: nil)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
   rescue => e
+    server = Server.find(server_id)
     server.minecraft.log("Background job starting Minecraft failed: #{e}")
     server.reset_partial
     raise
