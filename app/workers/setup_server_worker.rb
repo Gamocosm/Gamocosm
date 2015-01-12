@@ -98,19 +98,12 @@ class SetupServerWorker
               within '/opt/' do
                 execute :rm, '-rf', 'gamocosm'
                 execute :mkdir, '-p', 'gamocosm'
-                if test '! grep -q gamocosm /etc/group'
-                  execute :groupadd, 'gamocosm'
-                end
-                execute :chgrp, 'gamocosm', 'gamocosm'
-                execute :usermod, '-aG', 'gamocosm', 'mcuser'
-                execute :chmod, 'g+w', 'gamocosm'
                 within :gamocosm do
                   execute :git, 'clone', Gamocosm.minecraft_server_wrapper_git_url, '.'
-                  execute :git, 'checkout', 'dev'
-                  execute :chown, 'mcuser:mcuser', 'minecraft-server_wrapper.py'
                   execute :echo, "\"#{Gamocosm.minecraft_wrapper_username}\"", '>', 'mcsw-auth.txt'
                   execute :echo, "\"#{server.minecraft.minecraft_wrapper_password}\"", '>>', 'mcsw-auth.txt'
                 end
+                execute :chown, '-R', 'mcuser:mcuser', 'gamocosm'
               end
               server.update_columns(remote_setup_stage: 3)
               within '/home/mcuser/' do
