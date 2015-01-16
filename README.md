@@ -150,6 +150,9 @@ Hmmmm.
 
 ### Credits
 - Special thanks to [geetfun][2] who helped with the original development
+- [SuperMarioBro][7] for helping iron out some initial bugs
+- [bearbin][8] for helping iron out some initial bugs
+- [chiisana][9] for feedback and other ideas, resources
 
 [1]: http://www.postgresql.org/docs/9.3/static/auth-pg-hba-conf.html
 [2]: https://github.com/geetfun
@@ -157,3 +160,6 @@ Hmmmm.
 [4]: https://github.com/Gamocosm/minecraft-server_wrapper
 [5]: https://github.com/mperham/sidekiq/wiki/Advanced-Options
 [6]: http://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-configuration
+[7]: http://www.reddit.com/user/SuperMarioBro
+[8]: https://github.com/bearbin
+[9]: http://www.reddit.com/user/chiisana

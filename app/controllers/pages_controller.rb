@@ -1,5 +1,21 @@
 class PagesController < ApplicationController
   def landing
+    @nocontainer = true
+  end
+
+  def about
+  end
+
+  def help
+  end
+
+  def tos
+  end
+
+  def digital_ocean_setup
+  end
+
+  def demo
     @minecraft = Minecraft.new
     server = Server.new
     server.do_region_slug = 'nyc3'
@@ -13,7 +29,7 @@ class PagesController < ApplicationController
     def server.remote
       if @minecraft_server_remote.nil?
         r = Hashie::Mash.new
-        r.ip_address = '1.2.3.4'
+        r.ip_address = '12.34.56.78'
         r.status = 'active'
         r.exists = true
         @minecraft_server_remote = r
@@ -68,19 +84,10 @@ class PagesController < ApplicationController
       return @minecraft_properties
     end
     @minecraft.server = server
+    @minecraft.autoshutdown_enabled = true
+    @minecraft.autoshutdown_last_check = Time.now - 32.seconds
+    @minecraft.autoshutdown_last_successful = Time.now - 32.seconds
     @demo = true
-  end
-
-  def about
-  end
-
-  def help
-  end
-
-  def tos
-  end
-
-  def digital_ocean_setup
   end
 
   def not_found

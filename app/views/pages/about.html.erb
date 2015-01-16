@@ -1,68 +1,30 @@
-<div class="page-header">
-	<h1>About</h1>
-</div>
 <div class="row">
-	<div class="col-sm-6 text-center">
-		<h3>Digital Ocean is a cloud hosting provider</h3>
-		<p>They allow users to create and destroy servers at any time.<br />
-		They only charge per hour use. Gamocosm runs your servers on Digital Ocean.
-		</p>
-	</div>
-	<div class="col-sm-6 text-center">
-		<h3>Gamocosm makes it easy to run Minecraft servers</h3>
-		<p>There is a lot of work to set up and manage cloud servers.<br />
-		Gamocosm hides this from you. You just start and stop your server.
-		</p>
-	</div>
-</div>
-<br />
-<br />
-<div class="row">
-	<div class="col-sm-6 text-center">
-		<h3>Start and stop your servers anytime</h3>
-		<p>You can stop your server when no-one is playing.<br />
-		You don't pay when your server isn't running.<br />
-		You can add your friends so they can start and stop the server too.
-		</p>
-	</div>
-	<div class="col-sm-6 text-center">
-		<h3>What are the downsides?</h3>
-		<p>It takes longer to start and stop servers (1-5 minutes),<br />
-		and your IP address may change from time to time.<br />
-		However, you can save a lot of money using per hour hosting!<br />
-		</p>
-	</div>
-</div>
-<br />
-<br />
-<div class="row">
-	<div class="col-sm-6 text-center">
-		<h3>How much does per hour hosting cost?</h3>
-		<p>If you play 2 hours a day with your friends every day,<br />
-		you pay about 30 days * 2 hours * 0.7 cents ~ 40 cents a month, instead of $5.<br />
-		Visit <%= link_to 'Digital Ocean\'s website', digital_ocean_pricing_path %> for more details.
-		</p>
-	</div>
-	<div class="col-sm-6 text-center">
-		<h3>You own these servers</h3>
-		<p>You don't pay us anything; you only pay Digital Ocean for the server costs.<br />
-		You have full access to the server and can do whatever you want with it.<br />
-		You can install whatever server, mods, programs, etc. you want!
+	<div class="col-sm-12">
+		<h1>About</h1>
+		<p>
+			Gamocosm is FOSS.
+			Gamocosm doesn't accept payment, no ads, and no tracking user data.
+			I pay for all the development and production costs out of my pocket.
+			I do this because I want to make something useful.
+			I'll accept donations later if costs start being an issue.
+			I intend to keep everything as transparent as possible.
+			<%= link_to 'More information on how Gamocosm works', help_path %>.
 		</p>
 	</div>
 </div>
 <div class="row">
 	<div class="col-sm-12">
 		<h2>Contact</h2>
-		<p>
-		Join our IRC discussion in <code>gamocosm</code> on <code>irc.esper.net</code>.
-		Or submit an issue on the <%= link_to 'GitHub Project', issues_path %>.
-		</p>
+		<ul>
+			<li>Submit an issue on <%= link_to 'GitHub', issues_path %></li>
+			<li>Reddit PM "raekye"</li>
+			<li>IRC in <code>#gamocosm</code> on <code>irc.esper.net</code></li>
+		</ul>
 	</div>
 </div>
 <div class="row">
 	<div class="col-sm-12">
-		<h2>Source</h3>
+		<h2>Source</h2>
 		<p>The source code is on <%= link_to 'GitHub', source_path %>. Feel free to fork and send a pull request!</p>
 	</div>
 </div>

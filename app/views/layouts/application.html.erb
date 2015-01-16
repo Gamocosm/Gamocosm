@@ -22,7 +22,11 @@
 
   <%= render partial: 'layouts/components/navbar' %>
   <%= render partial: 'layouts/components/flash' %>
-  <div class="container"><%= yield %></div>
+  <% if @nocontainer.nil? %>
+    <div class="container"><%= yield %></div>
+  <% else %>
+    <%= yield %>
+  <% end %>
   <%= render partial: 'layouts/components/footer' %>
 
 </body>

@@ -8,6 +8,8 @@ Rails.application.routes.draw do
 
   get '/tos', to: 'pages#tos', as: :tos
 
+  get '/demo', to: 'pages#demo', as: :demo
+
   get '/digital_ocean_setup', to: 'pages#digital_ocean_setup', as: :digital_ocean_setup
 
   get '/badness/:secret', to: 'pages#badness'
@@ -26,6 +28,7 @@ Rails.application.routes.draw do
     match '/ftp_ssh' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/FTP-and-SSH'), as: :wiki_ftp_ssh, via: :get
     match '/minecraft_versions' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft'), as: :wiki_minecraft_versions, via: :get
     match '/server_advanced_tab' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Server-advanced-tab-documentation'), as: :wiki_server_advanced_tab, via: :get
+    match '/server_additional_info' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Additional-Info-for-Server-Admins'), as: :wiki_server_additional_info, via: :get
   end
 
   scope '/digital_ocean' do

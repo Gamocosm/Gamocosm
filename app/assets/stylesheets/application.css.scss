@@ -14,6 +14,9 @@
  *= require_tree .
  */
 
+$btn-info-bg: #8BC34A;
+$btn-danger-bg: #3F51B5;
+
 @import "bootstrap-sprockets";
 @import "bootstrap";
 @import "font-awesome-sprockets";
