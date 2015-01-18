@@ -78,4 +78,12 @@ module Gamocosm
   def self.domain
     ENV['DOMAIN']
   end
+
+  def self.cloudflare_api_token
+    ENV['CLOUDFLARE_API_TOKEN']
+  end
+
+  def self.cloudflare_email
+    ENV['CLOUDFLARE_EMAIL']
+  end
 end

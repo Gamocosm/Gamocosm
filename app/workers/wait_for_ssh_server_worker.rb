@@ -44,7 +44,6 @@ class WaitForSSHServerWorker
       WaitForSSHServerWorker.perform_in(16.seconds, user_id, server_id, times + 1)
       return
     end
-    server.refresh_domain
     SetupServerWorker.perform_in(0.seconds, user_id, server_id)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"

@@ -21,6 +21,7 @@ class WaitForStartingServerWorker
       server.reset_partial
       return
     end
+    server.refresh_domain
     event = DigitalOcean::Action.new(server.remote_id, digital_ocean_action_id, server.minecraft.user)
     if event.error?
       server.minecraft.log("Error with Digital Ocean start server action #{digital_ocean_action_id}; they responded with #{event.show}. Aborting")

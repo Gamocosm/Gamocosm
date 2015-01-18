@@ -58,6 +58,8 @@ The following instructions were made for Fedora 20, but the steps should be simi
 - `SIDEKIQ_REDIS_URL`: see [advanced options][5] in the Sidekiq wiki
 - `MAIL_SERVER_*`: see [action mailer configuration][6] in the Rails guide
 - `DOMAIN`: base domain (e.g. `gamocosm.com`)
+- `CLOUDFLARE_API_TOKEN`: hmmm
+- `CLOUDFLARE_EMAIL`: hmmm
 - `DEVISE_SECRET_KEY`: only tests, production
 - `SECRET_KEY`: only production
 - `DEVELOPER_EMAILS`: comma separated list of emails to send exceptions to
