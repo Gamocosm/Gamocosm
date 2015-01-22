@@ -142,11 +142,6 @@ class Server < ActiveRecord::Base
     return 5
   end
 
-  # Should be unused
-  def reset
-    update_columns(pending_operation: nil, remote_setup_stage: 0)
-  end
-
   def reset_partial
     update_columns(pending_operation: nil)
   end

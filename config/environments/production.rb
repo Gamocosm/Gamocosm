@@ -1,6 +1,6 @@
 Rails.application.configure do
   # Custom
-  config.action_mailer.default_url_options = { host: 'gamocosm.com' }
+  config.action_mailer.default_url_options = { host: 'gamocosm.com', protocol: 'https://' }
 
   # Settings specified here will take precedence over those in config/application.rb.
 

@@ -37,7 +37,7 @@ class WaitForStartingServerWorker
       return
     end
     server.update_columns(pending_operation: 'preparing')
-    WaitForSSHServerWorker.perform_in(4.seconds, user_id, server_id)
+    SetupServerWorker.perform_in(4.seconds, user_id, server_id)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
   rescue => e

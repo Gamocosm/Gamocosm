@@ -5,7 +5,7 @@ class SetupServerWorker
   include Sidekiq::Worker
   sidekiq_options retry: 0
 
-  def perform(user_id, server_id)
+  def perform(user_id, server_id, times = 0)
     user = User.find(user_id)
     server = Server.find(server_id)
     if !server.remote.exists?
@@ -27,136 +27,35 @@ class SetupServerWorker
       paranoid: false,
       timeout: 4
     }
-    if server.done_setup?
-      # Note: this is duplicated below (labeled adding_ssh_keys)
-      if !server.ssh_keys.nil?
-        begin
-          Timeout::timeout(32) {
-            ActiveRecord::Base.connection_pool.with_connection do |conn|
-              on host do
-                within '/' do
-                  execute :mkdir, '-p', '/home/mcuser/.ssh/'
-                  server.ssh_keys.split(',').each do |key_id|
-                    key = user.digital_ocean_ssh_public_key(key_id)
-                    if key.error?
-                      server.minecraft.log(key)
-                    else
-                      execute :echo, key.gsub(/["\\]/, ''), '>>', '/home/mcuser/.ssh/authorized_keys'
-                    end
-                  end
-                  execute :chown, '-R', 'mcuser:mcuser', '/home/mcuser/.ssh/'
-                  execute :chmod, '700', '/home/mcuser/.ssh/'
-                  server.update_columns(ssh_keys: nil)
-                end
-              end
-            end
-          }
-        rescue Timeout::Error
-          server.minecraft.log('Timed out trying to add SSH keys to server. Aborting')
+    begin
+      on host do
+        execute :true
+      end
+    rescue SSHKit::Runner::ExecuteError => e
+      if e.cause.is_a?(Timeout::Error)
+        if times == 11
+          server.minecraft.log('Error connecting to server; failed to SSH. Aborting')
           server.reset_partial
-          return
-        rescue SSHKit::Runner::ExecuteError => e
-          server.minecraft.log("SSH should be up, but got error #{e} trying to add SSH keys to server. Aborting")
-          server.reset_partial
-          return
+        else
+          server.minecraft.log("Server started, but timed out while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
+          SetupServerWorker.perform_in(16.seconds, user_id, server_id, times + 1)
         end
+        return
       end
+      raise
+    end
+    if server.done_setup?
+      self.base_update(user, server, host)
+      self.add_ssh_keys(user, server, host)
     else
-      begin
-        Timeout::timeout(512) {
-          ActiveRecord::Base.connection_pool.with_connection do |conn|
-            on host do
-              within '/tmp/' do
-                server.update_columns(remote_setup_stage: 1)
-                if test '! id -u mcuser'
-                  execute :adduser, '-m', 'mcuser'
-                end
-                if server.ssh_keys.nil?
-                  execute :echo, "\"#{server.minecraft.user.email.gsub('"', '\"')}+#{server.minecraft.name}\"", '|', :passwd, '--stdin', 'mcuser'
-                else
-                  # LABEL: adding_ssh_keys
-                  execute :mkdir, '-p', '/home/mcuser/.ssh/'
-                  server.ssh_keys.split(',').each do |key_id|
-                    key = user.digital_ocean_ssh_public_key(key_id)
-                    if key.error?
-                      server.minecraft.log(key)
-                    else
-                      execute :echo, key.gsub(/["\\]/, ''), '>>', '/home/mcuser/.ssh/authorized_keys'
-                    end
-                  end
-                  execute :chown, '-R', 'mcuser:mcuser', '/home/mcuser/.ssh/'
-                  execute :chmod, '700', '/home/mcuser/.ssh/'
-                  server.update_columns(ssh_keys: nil)
-                end
-                execute :usermod, '-aG', 'wheel', 'mcuser'
-                server.update_columns(remote_setup_stage: 2)
-                execute :yum, '-y', 'update'
-                execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'git', 'tmux'
-                execute :rm, '-rf', 'pip_build_root'
-                execute 'python3-pip', 'install', 'flask'
-              end
-              within '/opt/' do
-                execute :rm, '-rf', 'gamocosm'
-                execute :mkdir, '-p', 'gamocosm'
-                within :gamocosm do
-                  execute :git, 'clone', Gamocosm.minecraft_server_wrapper_git_url, '.'
-                  execute :echo, "\"#{Gamocosm.minecraft_wrapper_username}\"", '>', 'mcsw-auth.txt'
-                  execute :echo, "\"#{server.minecraft.minecraft_wrapper_password}\"", '>>', 'mcsw-auth.txt'
-                end
-                execute :chown, '-R', 'mcuser:mcuser', 'gamocosm'
-              end
-              server.update_columns(remote_setup_stage: 3)
-              within '/home/mcuser/' do
-                execute :mkdir, '-p', 'minecraft'
-                execute :chown, 'mcuser:mcuser', 'minecraft'
-                within :minecraft do
-                  execute :rm, '-f', 'minecraft_server-run.jar'
-                  execute :wget, '-O', 'minecraft_server-run.jar', Gamocosm.minecraft_jar_default_url
-                  execute :chown, 'mcuser:mcuser', 'minecraft_server-run.jar'
-
-                  execute :echo, 'eula=true', '>', 'eula.txt'
-                  execute :chown, 'mcuser:mcuser', 'eula.txt'
-                  execute :echo, 'enable-query=true', '>', 'server.properties'
-                  execute :chown, 'mcuser:mcuser', 'server.properties'
-                end
-              end
-              server.update_columns(remote_setup_stage: 4)
-              within '/etc/systemd/system/' do
-                execute 'cp', '/opt/gamocosm/mcsw.service', 'mcsw.service'
-                execute 'systemctl', 'enable', 'mcsw'
-                execute 'systemctl', 'start', 'mcsw'
-              end
-              within '/tmp/' do
-                execute 'firewall-cmd', '--add-port=5000/tcp'
-                execute 'firewall-cmd', '--permanent', '--add-port=5000/tcp'
-                execute 'firewall-cmd', '--add-port=25565/tcp'
-                execute 'firewall-cmd', '--permanent', '--add-port=25565/tcp'
-                execute 'firewall-cmd', '--add-port=25565/udp'
-                execute 'firewall-cmd', '--permanent', '--add-port=25565/udp'
-                execute :fallocate, '-l', '1G', '/swapfile'
-                execute :chmod, '600', '/swapfile'
-                execute :mkswap, '/swapfile'
-                execute :swapon, '/swapfile'
-                execute :echo, '/swapfile none swap defaults 0 0', '>>', '/etc/fstab'
-                if server.ssh_port != 22
-                  execute 'firewall-cmd', "--add-port=#{server.ssh_port}/tcp"
-                  execute 'firewall-cmd', '--permanent', "--add-port=#{server.ssh_port}/tcp"
-                  execute :sed, '-i', "'s/^#Port 22$/Port #{server.ssh_port}/'", '/etc/ssh/sshd_config'
-                  execute :systemctl, 'restart', 'sshd'
-                end
-              end
-            end
-          end
-        }
-      rescue Timeout::Error
-        server.minecraft.log('Timed out setting up server. Aborting')
-        server.reset_partial
-        return
-      rescue SSHKit::Runner::ExecuteError => e
-        server.minecraft.log("SSH should be up, but got error #{e} trying to setup server. Aborting")
-        server.reset_partial
-        return
-      end
+      server.update_columns(remote_setup_stage: 1)
+      self.base_install(user, server, host)
+      self.add_ssh_keys(user, server, host)
+      server.update_columns(remote_setup_stage: 3)
+      self.install_minecraft(user, server, host)
+      self.install_mcsw(user, server, host)
+      server.update_columns(remote_setup_stage: 4)
+      self.modify_ssh_port(user, server, host)
     end
     server.update_columns(remote_setup_stage: 5)
     StartMinecraftWorker.perform_in(4.seconds, server_id)
@@ -167,5 +66,170 @@ class SetupServerWorker
     server.minecraft.log("Background job setting up server failed: #{e}")
     server.reset_partial
     raise
+  end
+
+  def base_install(user, server, host)
+    begin
+      Timeout::timeout(512) do
+        ActiveRecord::Base.connection_pool.with_connection do |conn|
+          on host do
+            within '/tmp/' do
+              if test '! id -u mcuser'
+                execute :adduser, '-m', 'mcuser'
+              end
+              if server.ssh_keys.nil?
+                execute :echo, "\"#{server.minecraft.user.email.gsub('"', '\"')}+#{server.minecraft.name}\"", '|', :passwd, '--stdin', 'mcuser'
+              end
+              execute :usermod, '-aG', 'wheel', 'mcuser'
+              if test '[ ! -f "/swapfile" ]'
+                execute :fallocate, '-l', '1G', '/swapfile'
+                execute :chmod, '600', '/swapfile'
+                execute :mkswap, '/swapfile'
+                execute :swapon, '/swapfile'
+                execute :echo, '/swapfile none swap defaults 0 0', '>>', '/etc/fstab'
+              end
+              server.update_columns(remote_setup_stage: 2)
+              execute :yum, '-y', 'update'
+              execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'git', 'tmux'
+              execute 'firewall-cmd', '--add-port=5000/tcp'
+              execute 'firewall-cmd', '--permanent', '--add-port=5000/tcp'
+              execute 'firewall-cmd', '--add-port=25565/tcp'
+              execute 'firewall-cmd', '--permanent', '--add-port=25565/tcp'
+              execute 'firewall-cmd', '--add-port=25565/udp'
+              execute 'firewall-cmd', '--permanent', '--add-port=25565/udp'
+              execute :rm, '-rf', '/tmp/pip_build_root'
+              execute 'python3-pip', 'install', 'flask'
+              execute :sed, '-ie', '\'s/Defaults\s\+requiretty/#Defaults requiretty/\'', '/etc/sudoers'
+            end
+          end
+        end
+      end
+    rescue Timeout::Error => e
+      raise 'Server setup (SSH): took too long doing base setup'
+    end
+  end
+
+  def base_update(user, server, host)
+    begin
+      Timeout::timeout(16) do
+        ActiveRecord::Base.connection_pool.with_connection do |conn|
+          on host do
+            within '/opt/gamocosm/' do
+              as 'mcuser' do
+                execute :git, 'checkout', 'master'
+                execute :git, 'pull', 'origin', 'master'
+              end
+              execute :cp, '/opt/gamocosm/mcsw.service', '/etc/systemd/system/mcsw.service'
+              execute :systemctl, 'daemon-reload'
+              execute :systemctl, 'restart', 'mcsw'
+            end
+          end
+        end
+      end
+    rescue Timeout::Error
+      raise 'Server setup (SSH): took too long updating'
+    end
+  end
+
+  def install_minecraft(user, server, host)
+    begin
+      Timeout::timeout(64) do
+        ActiveRecord::Base.connection_pool.with_connection do |conn|
+          on host do
+            within '/home/mcuser/' do
+              execute :mkdir, '-p', 'minecraft'
+              within :minecraft do
+                execute :rm, '-f', 'minecraft_server-run.jar'
+                execute :wget, '-O', 'minecraft_server-run.jar', Gamocosm.minecraft_jar_default_url
+                execute :echo, 'eula=true', '>', 'eula.txt'
+                execute :echo, 'enable-query=true', '>', 'server.properties'
+              end
+              execute :chown, '-R', 'mcuser:mcuser', 'minecraft'
+            end
+          end
+        end
+      end
+    rescue Timeout::Error
+      raise 'Server setup (SSH): took too long installing Minecraft'
+    end
+  end
+
+  def install_mcsw(user, server, host)
+    begin
+      Timeout::timeout(16) do
+        ActiveRecord::Base.connection_pool.with_connection do |conn|
+          on host do
+            within '/opt/' do
+              execute :rm, '-rf', 'gamocosm'
+              execute :git, 'clone', Gamocosm.minecraft_server_wrapper_git_url, 'gamocosm'
+              within :gamocosm do
+                execute :echo, "\"#{Gamocosm.minecraft_wrapper_username}\"", '>', 'mcsw-auth.txt'
+                execute :echo, "\"#{server.minecraft.minecraft_wrapper_password}\"", '>>', 'mcsw-auth.txt'
+              end
+              execute :chown, '-R', 'mcuser:mcuser', 'gamocosm'
+            end
+            within '/etc/systemd/system/' do
+              execute :cp, '/opt/gamocosm/mcsw.service', 'mcsw.service'
+              execute :systemctl, 'enable', 'mcsw'
+              execute :systemctl, 'start', 'mcsw'
+            end
+          end
+        end
+      end
+    rescue Timeout::Error
+      raise 'Server setup (SSH): took too long installing the Minecraft server wrapper'
+    end
+  end
+
+  def modify_ssh_port(user, server, host)
+    begin
+      Timeout::timeout(8) do
+        ActiveRecord::Base.connection_pool.with_connection do |conn|
+          on host do
+            within '/tmp/' do
+              if server.ssh_port != 22
+                execute 'firewall-cmd', "--add-port=#{server.ssh_port}/tcp"
+                execute 'firewall-cmd', '--permanent', "--add-port=#{server.ssh_port}/tcp"
+                execute :sed, '-i', "'s/^#Port 22$/Port #{server.ssh_port}/'", '/etc/ssh/sshd_config'
+                execute :systemctl, 'restart', 'sshd'
+              end
+            end
+          end
+        end
+      end
+    rescue Timeout::Error
+      raise 'Server setup (SSH): took too long changing SSH port'
+    end
+  end
+
+  def add_ssh_keys(user, server, host)
+    if server.ssh_keys.nil?
+      return
+    end
+    begin
+      Timeout::timeout(32) do
+        ActiveRecord::Base.connection_pool.with_connection do |conn|
+          on host do
+            within '/tmp/' do
+              execute :mkdir, '-p', '/home/mcuser/.ssh/'
+              server.ssh_keys.split(',').each do |key_id|
+                key = user.digital_ocean_ssh_public_key(key_id)
+                if key.error?
+                  server.minecraft.log(key)
+                else
+                  execute :echo, key.gsub(/["\\]/, ''), '>>', '/home/mcuser/.ssh/authorized_keys'
+                end
+              end
+              execute :chown, '-R', 'mcuser:mcuser', '/home/mcuser/.ssh/'
+              execute :chmod, '700', '/home/mcuser/.ssh/'
+              execute :chmod, '600', '/home/mcuser/.ssh/authorized_keys'
+              server.update_columns(ssh_keys: nil)
+            end
+          end
+        end
+      end
+    rescue Timeout::Error
+      raise 'Server setup (SSH): took too long adding SSH keys from Digital Ocean'
+    end
   end
 end
