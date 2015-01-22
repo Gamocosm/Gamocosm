@@ -12,6 +12,9 @@
 						<%= x.message %>
 					</div></p>
 				<% end %>
+				<% if @minecraft.owner?(current_user) %>
+					<%= link_to 'Clear', clear_logs_minecraft_path(@minecraft), class: 'btn btn-default pull-right' %>
+				<% end %>
 			<% end %>
 		<% end %>
 	</div>

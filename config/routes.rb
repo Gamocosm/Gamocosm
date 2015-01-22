@@ -64,6 +64,7 @@ Rails.application.routes.draw do
       post 'delete_digital_ocean_ssh_key'
       get 'autoshutdown_enable'
       get 'autoshutdown_disable'
+      get 'clear_logs'
     end
     collection do
       post 'delete_digital_ocean_droplet'

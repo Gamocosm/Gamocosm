@@ -278,6 +278,12 @@ class MinecraftsController < ApplicationController
     return redirect_to minecraft_path(@minecraft), flash: { success: 'Autoshutdown disabled' }
   end
 
+  def clear_logs
+    @minecraft = find_minecraft_only_owner(params[:id])
+    @minecraft.logs.delete_all
+    return redirect_to minecraft_path(@minecraft), flash: { success: 'Server logs cleared' }
+  end
+
   def find_minecraft(id)
     begin
       server = Minecraft.find(id)
