@@ -14,7 +14,7 @@
 			<%= s_f.input :do_size_slug, collection: DigitalOcean::Size.new.all.collect { |x| [x[:descriptor], x[:slug]] }, as: :select, include_blank: false, label: 'Size' %>
 			<%= s_f.input :do_region_slug, collection: DigitalOcean::Region.new.all.collect { |x| [x[:name], x[:slug]] }, as: :select, include_blank: false, label: 'Region (higher tier better)' %>
 		<% end %>
-		<%= f.input :flavour, collection: Gamocosm.minecraft_flavours.collect { |x| [x[:name], x[:value]] }, as: :select, include_blank: false, label: 'Minecraft flavour', required: true, hint: "We recommend vanilla or #{link_to('MCServer', mcserver_website_path)}, the performant C++ Minecraft server. #{link_to('Read more', wiki_minecraft_versions_path)}".html_safe %>
+		<%= f.input :flavour, collection: Gamocosm.minecraft_flavours.collect { |x| [x[:name], x[:value]] }, as: :select, include_blank: false, label: 'Minecraft flavour', required: true, hint: "We recommend vanilla or #{link_to('MCServer', mcserver_website_path)}, the performant C++ Minecraft server. You can always change this later. #{link_to('Read more', wiki_minecraft_versions_path)}".html_safe %>
 		<br />
 		<%= link_to 'Digital Ocean pricing page', digital_ocean_pricing_path %>
 		<button class="btn btn-default pull-right <%= current_user.digital_ocean_invalid? ? 'disabled' : '' %>" type="submit">

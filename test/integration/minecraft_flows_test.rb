@@ -32,7 +32,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   test "everything" do
     user_digital_ocean_before!
     login_user('test@test.com', '1234test')
-    minecraft = create_server('test', 'nyc3', '512mb')
+    minecraft = create_server('test', 'vanilla/1.8.1', 'nyc3', '512mb')
     start_server(minecraft, { motd: 'A Minecraft Server' })
     update_minecraft_properties(minecraft, { motd: 'A Gamocosm Minecraft Server' })
     add_friend_to_server(minecraft, 'test2@test.com')
@@ -45,6 +45,29 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     login_user('test@test.com', '1234test')
     view_server(minecraft, { motd: 'A Gamocosm Minecraft Server' })
     remove_friend_from_server(minecraft, 'test@test.com')
+    delete_server(minecraft)
+    sleep 4
+    logout_user
+    user_digital_ocean_after!
+  end
+
+  test "mcserver" do
+    user_digital_ocean_before!
+    login_user('test@test.com', '1234test')
+    minecraft = create_server('test', 'mc-server/null', 'nyc3', '512mb')
+    start_server(minecraft, { })
+    delete_server(minecraft)
+    sleep 4
+    logout_user
+    user_digital_ocean_after!
+  end
+
+  test "forge server" do
+    user_digital_ocean_before!
+    login_user('test@test.com', '1234test')
+    minecraft = create_server('test', 'forge/1.7.10-10.13.2.1230', 'nyc3', '512mb')
+    start_server(minecraft, { motd: 'A Minecraft Server' })
+    update_minecraft_properties(minecraft, { motd: 'A Gamocosm Minecraft Server' })
     delete_server(minecraft)
     sleep 4
     logout_user
@@ -102,9 +125,10 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     assert_select 'p', /start server to edit minecraft settings/i
   end
 
-  def create_server(name, do_region_slug, do_size_slug)
-    post minecrafts_path, { minecraft: { name: name, server_attributes: { do_region_slug: do_region_slug, do_size_slug: do_size_slug } } }
-    assert_equal(Minecraft.all.count, 1)
+  def create_server(name, flavour, do_region_slug, do_size_slug)
+    old_minecrafts_count = Minecraft.count
+    post minecrafts_path, { minecraft: { name: name, flavour: flavour, server_attributes: { do_region_slug: do_region_slug, do_size_slug: do_size_slug } } }
+    assert_equal(Minecraft.count, old_minecrafts_count + 1)
     minecraft = Minecraft.all.first
     assert_redirected_to minecraft_path(minecraft)
     follow_redirect!
@@ -123,7 +147,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
 
   def view_server(minecraft, properties, get = true)
     minecraft.properties.refresh
-    Rails.logger.info "Viewing server, Minecraft properties is #{properties}"
+    Rails.logger.info "Viewing server, Minecraft properties is #{minecraft.properties.inspect}, expecting #{properties}"
     if get
       get minecraft_path(minecraft)
       assert_response :success

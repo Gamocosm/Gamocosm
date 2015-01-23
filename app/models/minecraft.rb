@@ -22,7 +22,6 @@ class Minecraft < ActiveRecord::Base
 
   validates :name, length: { in: 3...64 }
   validates :name, format: { with: /\A[a-z][a-z0-9-]*[a-z0-9]\z/, message: 'Name must start with a letter, and end with a letter or number. May include letters, numbers, and dashes in between' }
-  validates :flavour, inclusion: Gamocosm.minecraft_flavours.collect { |x| x[:value] }
 
   after_initialize :after_initialize_callback
   before_validation :before_validate_callback
@@ -35,6 +34,11 @@ class Minecraft < ActiveRecord::Base
 
   def before_validate_callback
     self.name = self.name.strip.downcase.gsub(' ', '-')
+    if self.new_record?
+      if Gamocosm.minecraft_flavours.collect { |x| x[:value] }.index(self.flavour).nil?
+        self.errors.add(:flavour, 'Invalid flavour')
+      end
+    end
   end
 
   def running?
