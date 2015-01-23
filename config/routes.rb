@@ -38,6 +38,11 @@ Rails.application.routes.draw do
     match '/control_panel' => redirect('https://cloud.digitalocean.com'), as: :digital_ocean_control_panel, via: :get
   end
 
+  scope '/mcserver' do
+    match '/' => redirect('http://mc-server.org'), as: :mcserver_website, via: :get
+    match '/repo' => redirect('https://github.com/mc-server/MCServer'), as: :mcserver_repo, via: :get
+  end
+
   Sidekiq::Web.use Rack::Auth::Basic, 'Protected Area' do |u, p|
     u == Gamocosm.sidekiq_admin_username && p == Gamocosm.sidekiq_admin_password
   end

@@ -77,9 +77,7 @@ class SetupServerWorker
               if test '! id -u mcuser'
                 execute :adduser, '-m', 'mcuser'
               end
-              if server.ssh_keys.nil?
-                execute :echo, "\"#{server.minecraft.user.email.gsub('"', '\"')}+#{server.minecraft.name}\"", '|', :passwd, '--stdin', 'mcuser'
-              end
+              execute :echo, "'#{server.minecraft.user.email.gsub('\'', '\'"\'"\'')}+#{server.minecraft.name}'", '|', :passwd, '--stdin', 'mcuser'
               execute :usermod, '-aG', 'wheel', 'mcuser'
               if test '[ ! -f "/swapfile" ]'
                 execute :fallocate, '-l', '1G', '/swapfile'
@@ -89,8 +87,8 @@ class SetupServerWorker
                 execute :echo, '/swapfile none swap defaults 0 0', '>>', '/etc/fstab'
               end
               server.update_columns(remote_setup_stage: 2)
-              execute :yum, '-y', 'update'
-              execute :yum, '-y', 'install', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'git', 'tmux'
+              execute :yum, '-y', 'install', 'yum-plugin-security', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'git', 'tmux'
+              execute :yum, '-y', 'update', '--security'
               execute 'firewall-cmd', '--add-port=5000/tcp'
               execute 'firewall-cmd', '--permanent', '--add-port=5000/tcp'
               execute 'firewall-cmd', '--add-port=25565/tcp'
@@ -136,13 +134,19 @@ class SetupServerWorker
       Timeout::timeout(64) do
         ActiveRecord::Base.connection_pool.with_connection do |conn|
           on host do
+            within '/tmp/' do
+              execute :rm, '-rf', 'gamocosm-minecraft-flavours'
+              execute :git, 'clone', Gamocosm.minecraft_flavours_git_url, 'gamocosm-minecraft-flavours'
+            end
             within '/home/mcuser/' do
               execute :mkdir, '-p', 'minecraft'
               within :minecraft do
-                execute :rm, '-f', 'minecraft_server-run.jar'
-                execute :wget, '-O', 'minecraft_server-run.jar', Gamocosm.minecraft_jar_default_url
-                execute :echo, 'eula=true', '>', 'eula.txt'
-                execute :echo, 'enable-query=true', '>', 'server.properties'
+                flavour_version = server.minecraft.flavour.split('/')
+                minecraft_script = "/tmp/gamocosm-minecraft-flavours/#{flavour_version[0]}.sh"
+                execute :chmod, 'u+x', minecraft_script
+                with minecraft_flavour_version: flavour_version[1] do
+                  execute :bash, '-c', minecraft_script
+                end
               end
               execute :chown, '-R', 'mcuser:mcuser', 'minecraft'
             end
@@ -163,8 +167,8 @@ class SetupServerWorker
               execute :rm, '-rf', 'gamocosm'
               execute :git, 'clone', Gamocosm.minecraft_server_wrapper_git_url, 'gamocosm'
               within :gamocosm do
-                execute :echo, "\"#{Gamocosm.minecraft_wrapper_username}\"", '>', 'mcsw-auth.txt'
-                execute :echo, "\"#{server.minecraft.minecraft_wrapper_password}\"", '>>', 'mcsw-auth.txt'
+                execute :echo, "'#{Gamocosm.minecraft_wrapper_username}'", '>', 'mcsw-auth.txt'
+                execute :echo, "'#{server.minecraft.minecraft_wrapper_password}'", '>>', 'mcsw-auth.txt'
               end
               execute :chown, '-R', 'mcuser:mcuser', 'gamocosm'
             end
@@ -217,7 +221,7 @@ class SetupServerWorker
                 if key.error?
                   server.minecraft.log(key)
                 else
-                  execute :echo, key.gsub(/["\\]/, ''), '>>', '/home/mcuser/.ssh/authorized_keys'
+                  execute :echo, "'#{key.gsub('\'', '\'"\'"\'')}'", '>>', '/home/mcuser/.ssh/authorized_keys'
                 end
               end
               execute :chown, '-R', 'mcuser:mcuser', '/home/mcuser/.ssh/'

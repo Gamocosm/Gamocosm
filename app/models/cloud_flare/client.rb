@@ -1,6 +1,6 @@
 class CloudFlare::Client
   include HTTParty
-  default_timeout 2
+  default_timeout 4
 
   CLOUDFLARE_API_URL = 'https://www.cloudflare.com/api_json.html'
 
@@ -32,40 +32,62 @@ class CloudFlare::Client
         end
       end
       return records
+    rescue Net::ReadTimeout => e
+      Rails.logger.error "CloudFlare API read timeout: #{e}"
+      Rails.logger.error e.backtrace.join("\n")
+      return "Error with CloudFlare API; exception #{e}".error!
     rescue => e
       return "Error with CloudFlare API; exception #{e}".error!
     end
   end
 
   def add_dns(name, ip)
-    response = self.parse_response(self.class.post(CLOUDFLARE_API_URL, { query: self.make_post_params('rec_new', { type: 'A', name: name, content: ip, ttl: 120 }) }))
-    return response.error? ? response : nil
+    begin
+      response = self.parse_response(self.class.post(CLOUDFLARE_API_URL, { query: self.make_post_params('rec_new', { type: 'A', name: name, content: ip, ttl: 120 }) }))
+      return response.error? ? response : nil
+    rescue Net::ReadTimeout => e
+      Rails.logger.error "CloudFlare API read timeout: #{e}"
+      Rails.logger.error e.backtrace.join("\n")
+      return "Error with CloudFlare API; exception #{e}".error!
+    end
   end
 
   def update_dns(name, ip)
-    records = self.list_dns
-    if records.error?
-      return records
+    begin
+      records = self.list_dns
+      if records.error?
+        return records
+      end
+      x = records.index { |x| x[:name] == name }
+      if x.nil?
+        return self.add_dns(name, ip)
+      end
+      response = self.parse_response(self.class.post(CLOUDFLARE_API_URL, { query: self.make_post_params('rec_edit', { id: records[x][:id], type: 'A', name: name, content: ip, ttl: 120 }) }))
+      return response.error? ? response : nil
+    rescue Net::ReadTimeout => e
+      Rails.logger.error "CloudFlare API read timeout: #{e}"
+      Rails.logger.error e.backtrace.join("\n")
+      return "Error with CloudFlare API; exception #{e}".error!
     end
-    x = records.index { |x| x[:name] == name }
-    if x.nil?
-      return self.add_dns(name, ip)
-    end
-    response = self.parse_response(self.class.post(CLOUDFLARE_API_URL, { query: self.make_post_params('rec_edit', { id: records[x][:id], type: 'A', name: name, content: ip, ttl: 120 }) }))
-    return response.error? ? response : nil
   end
 
   def delete_dns(name)
-    records = self.list_dns
-    if records.error?
-      return records
+    begin
+      records = self.list_dns
+      if records.error?
+        return records
+      end
+      x = records.index { |x| x[:name] == name }
+      if x.nil?
+        return nil
+      end
+      response = self.parse_response(self.class.post(CLOUDFLARE_API_URL, { query: self.make_post_params('rec_delete', { id: records[x][:id] }) }))
+      return response.error? ? response : nil
+    rescue Net::ReadTimeout => e
+      Rails.logger.error "CloudFlare API read timeout: #{e}"
+      Rails.logger.error e.backtrace.join("\n")
+      return "Error with CloudFlare API; exception #{e}".error!
     end
-    x = records.index { |x| x[:name] == name }
-    if x.nil?
-      return nil
-    end
-    response = self.parse_response(self.class.post(CLOUDFLARE_API_URL, { query: self.make_post_params('rec_delete', { id: records[x][:id] }) }))
-    return response.error? ? response : nil
   end
 
   def parse_response(res)

@@ -35,8 +35,8 @@ module Gamocosm
     }
   end
 
-  def self.minecraft_jar_default_url
-    'https://s3.amazonaws.com/Minecraft.Download/versions/1.8.1/minecraft_server.1.8.1.jar'
+  def self.minecraft_flavours_git_url
+    'https://github.com/Gamocosm/gamocosm-minecraft-flavours.git'
   end
 
   def self.minecraft_server_wrapper_git_url
@@ -49,6 +49,14 @@ module Gamocosm
 
   def self.digital_ocean_base_image_id
     'fedora-20-x64'
+  end
+
+  def self.minecraft_flavours
+    return [
+      { name: 'Vanilla (latest)', value: 'vanilla/1.8.1', },
+      { name: 'MCServer', value: 'mc-server/null' },
+      { name: 'Forge (1.7.10)', value: 'forge/1.7.10-10.13.2.1230' }
+    ]
   end
 
   def self.digital_ocean_api_key

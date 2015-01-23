@@ -11,6 +11,7 @@
 #  autoshutdown_enabled         :boolean          default(FALSE), not null
 #  autoshutdown_last_check      :datetime
 #  autoshutdown_last_successful :datetime
+#  flavour                      :string(255)      default("vanilla/null"), not null
 #
 
 require 'test_helper'

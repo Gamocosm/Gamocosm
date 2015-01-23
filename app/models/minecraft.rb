@@ -11,6 +11,7 @@
 #  autoshutdown_enabled         :boolean          default(FALSE), not null
 #  autoshutdown_last_check      :datetime
 #  autoshutdown_last_successful :datetime
+#  flavour                      :string(255)      default("vanilla/null"), not null
 #
 
 class Minecraft < ActiveRecord::Base
@@ -21,6 +22,7 @@ class Minecraft < ActiveRecord::Base
 
   validates :name, length: { in: 3...64 }
   validates :name, format: { with: /\A[a-z][a-z0-9-]*[a-z0-9]\z/, message: 'Name must start with a letter, and end with a letter or number. May include letters, numbers, and dashes in between' }
+  validates :flavour, inclusion: Gamocosm.minecraft_flavours.collect { |x| x[:value] }
 
   after_initialize :after_initialize_callback
   before_validation :before_validate_callback

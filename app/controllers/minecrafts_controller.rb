@@ -305,7 +305,7 @@ class MinecraftsController < ApplicationController
   end
 
   def minecraft_params
-    return params.require(:minecraft).permit(:name, server_attributes: [:do_region_slug, :do_size_slug])
+    return params.require(:minecraft).permit(:name, :flavour, server_attributes: [:do_region_slug, :do_size_slug])
   end
 
   def minecraft_properties_params
