@@ -1,6 +1,6 @@
 <% if current_user.digital_ocean_missing? %>
 	Gamocosm is an <%= link_to 'open source project', source_path %> to help players host cloud Minecraft servers, but Gamocosm doesn't host the servers ourselves.
-	Create an account on <%= link_to 'Digital Ocean', digital_ocean_index_path %>, a server host, and enter your API token in your <%= link_to 'settings', edit_user_registration_path %>.
+	Create an account on <%= link_to 'Digital Ocean', digital_ocean_index_path %> (<%= link_to 'no referral', digital_ocean_index_no_ref_path %>), a server host, and enter your API token in your <%= link_to 'settings', edit_user_registration_path %>.
 	<strong>If you are not a server admin, you can ignore this.</strong>
 	Read more about it <%= link_to 'here', digital_ocean_setup_path %>.
 <% elsif current_user.digital_ocean_invalid? %>
@@ -16,7 +16,7 @@
 		<% end %>
 		<%= f.input :flavour, collection: Gamocosm.minecraft_flavours.collect { |x| [x[:name], x[:value]] }, as: :select, include_blank: false, label: 'Minecraft flavour', required: true, hint: "We recommend vanilla or #{link_to('MCServer', mcserver_website_path)}, the performant C++ Minecraft server. You can always change this later. #{link_to('Read more', wiki_minecraft_versions_path)}".html_safe %>
 		<br />
-		<%= link_to 'Digital Ocean pricing page', digital_ocean_pricing_path %>
+		<%= link_to 'Digital Ocean pricing page', digital_ocean_pricing_no_ref_path %>
 		<button class="btn btn-default pull-right <%= current_user.digital_ocean_invalid? ? 'disabled' : '' %>" type="submit">
 			Next <i class="fa fa-chevron-right"></i>
 		</button>

@@ -1,10 +1,3 @@
-<% content_for :head do %>
-	<style>
-		body {
-			padding-top: 50px;
-		}
-	</style>
-<% end %>
 <div class="container-fluid">
 <div id="landing_main" class="row">
 	<div class="col-sm-12">
@@ -36,19 +29,17 @@
 			</div>
 			<br />
 			<br />
-			<div class="row">
-				<div class="col-sm-5 col-sm-offset-1">
-					<p><%= link_to 'What it looks like', demo_path, class: 'btn-lg btn-success' %></p>
-				</div>
-				<div class="col-sm-5">
-					<p><%= link_to 'Get started!', new_user_registration_path, class: 'btn-lg btn-success' %></p>
-				</div>
-			</div>
-			<br />
-			<br />
 			<br />
 			<div class="row">
-				<%= link_to 'More information <i class="fa fa-chevron-right"></i>'.html_safe, help_path, class: 'btn-lg btn-default' %>
+				<div class="col-sm-3 col-sm-offset-1">
+					<%= link_to 'What it looks like', demo_path, class: 'btn-lg btn-success' %>
+				</div>
+				<div class="col-sm-4">
+					<%= link_to 'More information <i class="fa fa-chevron-right"></i>'.html_safe, help_path, class: 'btn-lg btn-success' %>
+				</div>
+				<div class="col-sm-3">
+					<%= link_to 'Get started!', new_user_registration_path, class: 'btn-lg btn-success' %>
+				</div>
 			</div>
 			</div>
 		</div>
@@ -75,9 +66,9 @@
 	<div class="col-sm-8">
 		<h1>Digital Ocean is a general-purpose cloud hosting provider</h1>
 		<p>
-			Gamocosm sets up your servers on <%= link_to 'Digital Ocean', digital_ocean_index_path %>.
+			Gamocosm sets up your servers on <%= link_to 'Digital Ocean', digital_ocean_index_path %> (<%= link_to 'no referral', digital_ocean_index_no_ref_path %>).
 			It takes care of starting, stopping, backing up, and destroying servers so you only pay per-hour for what you use.
-			You pay Digital Ocean for running the servers (<%= link_to 'pricing', digital_ocean_pricing_path %>).
+			You pay Digital Ocean for running the servers (<%= link_to 'pricing', digital_ocean_pricing_path %>, <%= link_to 'no referral', digital_ocean_pricing_no_ref_path %>).
 			For a private server, you're looking at usually <strong><%= link_to '$0.50-$2', help_path %> a month</strong>.
 		</p>
 	</div>

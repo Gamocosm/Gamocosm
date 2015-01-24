@@ -14,6 +14,8 @@ git pull origin release
 
 RAILS_ENV=production ./env.sh --bundler rake assets:precompile
 RAILS_ENV=production ./env.sh --bundler rake db:migrate
+RAILS_ENV=test ./env.sh rake db:migrate
+./env.sh rake db:migrate
 
 touch tmp/restart.txt
 

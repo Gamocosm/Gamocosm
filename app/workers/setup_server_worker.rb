@@ -97,7 +97,6 @@ class SetupServerWorker
               execute 'firewall-cmd', '--permanent', '--add-port=25565/udp'
               execute :rm, '-rf', '/tmp/pip_build_root'
               execute 'python3-pip', 'install', 'flask'
-              execute :sed, '-ie', '\'s/Defaults\s\+requiretty/#Defaults requiretty/\'', '/etc/sudoers'
             end
           end
         end
@@ -113,10 +112,8 @@ class SetupServerWorker
         ActiveRecord::Base.connection_pool.with_connection do |conn|
           on host do
             within '/opt/gamocosm/' do
-              as 'mcuser' do
-                execute :git, 'checkout', 'master'
-                execute :git, 'pull', 'origin', 'master'
-              end
+              execute :su, '-l', 'mcuser', '-c', '"git checkout master"'
+              execute :su, '-l', 'mcuser', '-c', '"git pull origin master"'
               execute :cp, '/opt/gamocosm/mcsw.service', '/etc/systemd/system/mcsw.service'
               execute :systemctl, 'daemon-reload'
               execute :systemctl, 'restart', 'mcsw'

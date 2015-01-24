@@ -31,13 +31,17 @@ GEM
       activerecord (>= 2.3.0)
       rake (>= 0.8.7)
     arel (5.0.1.20140414130214)
+    autoprefixer-rails (5.0.0.3)
+      execjs
+      json
     barge (0.10.0)
       faraday (~> 0.9)
       faraday_middleware (~> 0.9)
       hashie (~> 3.2)
     bcrypt (3.1.7)
-    bootstrap-sass (3.2.0.2)
-      sass (~> 3.2)
+    bootstrap-sass (3.3.3)
+      autoprefixer-rails (>= 5.0.0.1)
+      sass (>= 3.2.19)
     builder (3.2.2)
     celluloid (0.15.2)
       timers (~> 1.1.0)
@@ -175,7 +179,7 @@ PLATFORMS
 DEPENDENCIES
   annotate
   barge
-  bootstrap-sass (~> 3.2.0)
+  bootstrap-sass (~> 3.3.3)
   coffee-rails (~> 4.0.0)
   dalli
   devise (~> 3.2.4)
