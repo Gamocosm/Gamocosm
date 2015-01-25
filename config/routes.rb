@@ -2,14 +2,12 @@ require 'sidekiq/web'
 
 Rails.application.routes.draw do
 
+  root to: 'pages#landing'
+
   get '/about', to: 'pages#about', as: :about
-
-  get '/help', to: 'pages#help', as: :help
-
+  get '/info', to: 'pages#info', as: :info
   get '/tos', to: 'pages#tos', as: :tos
-
   get '/demo', to: 'pages#demo', as: :demo
-
   get '/digital_ocean_setup', to: 'pages#digital_ocean_setup', as: :digital_ocean_setup
 
   get '/badness/:secret', to: 'pages#badness'
@@ -23,6 +21,7 @@ Rails.application.routes.draw do
   match '/source' => redirect('https://github.com/Gamocosm/Gamocosm'), as: :source, via: :get
   match '/license' => redirect('https://github.com/Gamocosm/Gamocosm/blob/master/LICENSE'), as: :license, via: :get
   match '/blog' => redirect('http://gamocosm.com/static/'), as: :blog, via: :get
+  match '/irc' => redirect('https://webchat.esper.net/?channels=gamocosm'), as: :irc, via: :get
 
   scope '/wiki' do
     match '/ftp_ssh' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/FTP-and-SSH'), as: :wiki_ftp_ssh, via: :get
@@ -52,8 +51,6 @@ Rails.application.routes.draw do
 
   devise_for :users, controllers: { registrations: 'registrations' }
 
-  root to: 'pages#landing'
-
   resources :minecrafts, path: '/servers' do
     member do
       get 'start'
@@ -76,6 +73,7 @@ Rails.application.routes.draw do
     collection do
       post 'delete_digital_ocean_droplet'
       post 'delete_digital_ocean_snapshot'
+      post 'refresh_digital_ocean_cache'
     end
   end
 

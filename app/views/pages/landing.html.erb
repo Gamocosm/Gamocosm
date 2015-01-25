@@ -35,7 +35,7 @@
 					<%= link_to 'What it looks like', demo_path, class: 'btn-lg btn-success' %>
 				</div>
 				<div class="col-sm-4">
-					<%= link_to 'More information <i class="fa fa-chevron-right"></i>'.html_safe, help_path, class: 'btn-lg btn-success' %>
+					<%= link_to 'Frequently Asked Questions <i class="fa fa-chevron-right"></i>'.html_safe, info_path, class: 'btn-lg btn-success' %>
 				</div>
 				<div class="col-sm-3">
 					<%= link_to 'Get started!', new_user_registration_path, class: 'btn-lg btn-success' %>
@@ -69,7 +69,7 @@
 			Gamocosm sets up your servers on <%= render_digital_ocean_referral_link('%s (%s)', 'Digital Ocean', digital_ocean_index_path, digital_ocean_index_no_ref_path) %>.
 			It takes care of starting, stopping, backing up, and destroying servers so you only pay per-hour for what you use.
 			You pay Digital Ocean for running the servers (<%= render_digital_ocean_referral_link('%s, %s', 'pricing', digital_ocean_pricing_path, digital_ocean_pricing_no_ref_path) %>).
-			For a private server, you're looking at usually <strong><%= link_to '$0.50-$2', help_path %> a month</strong>.
+			For a private server, you're looking at usually <strong><%= link_to '$0.50-$2', info_path %> a month</strong>.
 		</p>
 	</div>
 	<div class="col-sm-4">

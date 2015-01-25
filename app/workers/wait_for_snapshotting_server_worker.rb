@@ -22,16 +22,17 @@ class WaitForSnapshottingServerWorker
         server.reset_partial
         return
       end
-      server.minecraft.user.invalidate
       event = DigitalOcean::Action.new(server.remote_id, digital_ocean_action_id, server.minecraft.user)
       if event.error?
         server.minecraft.log("Error with Digital Ocean snapshot server action #{digital_ocean_action_id}; they responded with #{event.show}. Aborting")
         server.reset_partial
+        server.minecraft.user.invalidate
         return
       elsif !event.done?
         WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times + 1)
         return
       end
+      server.minecraft.user.invalidate
       snapshot_id = server.remote.latest_snapshot_id
       if snapshot_id.nil?
         server.minecraft.log('Finished snapshotting server on Digital Ocean, but unable to get latest snapshot id. Aborting')

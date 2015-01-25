@@ -48,6 +48,6 @@ module ApplicationHelper
   end
 
   def render_digital_ocean_referral_link(format, text, link, link_no_ref)
-    return (format % [link_to(text, link), link_to('*', link_no_ref, data: { toggle: 'tooltip' }, title: 'non-referral link, no $10 credit/promo')]).html_safe
+    return (format % [link_to(text, link, data: { toggle: 'tooltip' }, title: '$10 credit when you sign up'), link_to('*', link_no_ref, data: { toggle: 'tooltip' }, title: 'no referral (no $10 promo)')]).html_safe
   end
 end

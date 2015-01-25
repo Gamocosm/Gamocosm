@@ -6,7 +6,7 @@ class PagesController < ApplicationController
   def about
   end
 
-  def help
+  def info
   end
 
   def tos

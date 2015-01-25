@@ -4,7 +4,8 @@
 			<div class="row">
 				<div class="col-sm-8 col-sm-offset-2">
 					This information is provided for you to help you monitor your Digital Ocean account.
-					<br />If you see orphaned servers or snapshots, you should log into <%= link_to 'Digital Ocean\'s control panel', digital_ocean_control_panel_path %> and delete them.
+					You can always log into <%= link_to 'Digital Ocean\'s control panel', digital_ocean_control_panel_path %> for more control.
+					<%= link_to 'Refresh cache', refresh_digital_ocean_cache_minecrafts_path, method: :post %>
 				</div>
 			</div>
 			<div class="row">

@@ -1,5 +1,10 @@
 class RegistrationsController < Devise::RegistrationsController
 
+  def update
+    current_user.invalidate
+    super
+  end
+
   private
 
   def sign_up_params

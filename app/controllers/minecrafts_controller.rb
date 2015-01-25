@@ -263,6 +263,11 @@ class MinecraftsController < ApplicationController
     return redirect_to minecrafts_path, flash: { notice: 'Deleted snapshot on Digital Ocean' }
   end
 
+  def refresh_digital_ocean_cache
+    current_user.invalidate
+    return redirect_to minecrafts_path, flash: { success: 'Cache refreshed' }
+  end
+
   def autoshutdown_enable
     @minecraft = find_minecraft_only_owner(params[:id])
     @minecraft.update_columns(autoshutdown_enabled: true)
