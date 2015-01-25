@@ -12,6 +12,7 @@ cd /var/www/gamocosm
 git checkout release
 git pull origin release
 
+bundle install
 RAILS_ENV=production ./env.sh --bundler rake assets:precompile
 RAILS_ENV=production ./env.sh --bundler rake db:migrate
 RAILS_ENV=test ./env.sh rake db:migrate

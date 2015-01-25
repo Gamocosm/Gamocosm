@@ -1,6 +1,6 @@
 <% if current_user.digital_ocean_missing? %>
 	Gamocosm is an <%= link_to 'open source project', source_path %> to help players host cloud Minecraft servers, but Gamocosm doesn't host the servers ourselves.
-	Create an account on <%= link_to 'Digital Ocean', digital_ocean_index_path %> (<%= link_to 'no referral', digital_ocean_index_no_ref_path %>), a server host, and enter your API token in your <%= link_to 'settings', edit_user_registration_path %>.
+	Create an account on <%= render_digital_ocean_referral_link('%s (%s)', 'Digital Ocean', digital_ocean_index_path, digital_ocean_index_no_ref_path) %>, a server host, and enter your API token in your <%= link_to 'settings', edit_user_registration_path %>.
 	<strong>If you are not a server admin, you can ignore this.</strong>
 	Read more about it <%= link_to 'here', digital_ocean_setup_path %>.
 <% elsif current_user.digital_ocean_invalid? %>

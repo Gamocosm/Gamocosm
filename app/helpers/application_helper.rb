@@ -46,4 +46,8 @@ module ApplicationHelper
     end
     return 'Not running'
   end
+
+  def render_digital_ocean_referral_link(format, text, link, link_no_ref)
+    return (format % [link_to(text, link), link_to('*', link_no_ref, data: { toggle: 'tooltip' }, title: 'non-referral link, no $10 credit/promo')]).html_safe
+  end
 end

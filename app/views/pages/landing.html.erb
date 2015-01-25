@@ -66,9 +66,9 @@
 	<div class="col-sm-8">
 		<h1>Digital Ocean is a general-purpose cloud hosting provider</h1>
 		<p>
-			Gamocosm sets up your servers on <%= link_to 'Digital Ocean', digital_ocean_index_path %> (<%= link_to 'no referral', digital_ocean_index_no_ref_path %>).
+			Gamocosm sets up your servers on <%= render_digital_ocean_referral_link('%s (%s)', 'Digital Ocean', digital_ocean_index_path, digital_ocean_index_no_ref_path) %>.
 			It takes care of starting, stopping, backing up, and destroying servers so you only pay per-hour for what you use.
-			You pay Digital Ocean for running the servers (<%= link_to 'pricing', digital_ocean_pricing_path %>, <%= link_to 'no referral', digital_ocean_pricing_no_ref_path %>).
+			You pay Digital Ocean for running the servers (<%= render_digital_ocean_referral_link('%s, %s', 'pricing', digital_ocean_pricing_path, digital_ocean_pricing_no_ref_path) %>).
 			For a private server, you're looking at usually <strong><%= link_to '$0.50-$2', help_path %> a month</strong>.
 		</p>
 	</div>

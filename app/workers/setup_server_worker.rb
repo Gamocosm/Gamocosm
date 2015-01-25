@@ -8,64 +8,66 @@ class SetupServerWorker
   def perform(user_id, server_id, times = 0)
     user = User.find(user_id)
     server = Server.find(server_id)
-    if !server.remote.exists?
-      server.minecraft.log('Error starting server; remote_id is nil. Aborting')
-      server.reset_partial
-      return
-    end
-    if server.remote.error?
-      server.minecraft.log("Error communicating with Digital Ocean while starting server; they responded with #{server.remote.error}. Aborting")
-      server.reset_partial
-      return
-    end
-    host = SSHKit::Host.new(server.remote.ip_address.to_s)
-    host.port = !server.done_setup? ? 22 : server.ssh_port
-    host.user = 'root'
-    host.key = Gamocosm.digital_ocean_ssh_private_key_path
-    host.ssh_options = {
-      passphrase: Gamocosm.digital_ocean_ssh_private_key_passphrase,
-      paranoid: false,
-      timeout: 4
-    }
     begin
-      on host do
-        execute :true
-      end
-    rescue SSHKit::Runner::ExecuteError => e
-      if e.cause.is_a?(Timeout::Error)
-        if times == 11
-          server.minecraft.log('Error connecting to server; failed to SSH. Aborting')
-          server.reset_partial
-        else
-          server.minecraft.log("Server started, but timed out while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
-          SetupServerWorker.perform_in(16.seconds, user_id, server_id, times + 1)
-        end
+      if !server.remote.exists?
+        server.minecraft.log('Error starting server; remote_id is nil. Aborting')
+        server.reset_partial
         return
       end
+      if server.remote.error?
+        server.minecraft.log("Error communicating with Digital Ocean while starting server; they responded with #{server.remote.error}. Aborting")
+        server.reset_partial
+        return
+      end
+      host = SSHKit::Host.new(server.remote.ip_address.to_s)
+      host.port = !server.done_setup? ? 22 : server.ssh_port
+      host.user = 'root'
+      host.key = Gamocosm.digital_ocean_ssh_private_key_path
+      host.ssh_options = {
+        passphrase: Gamocosm.digital_ocean_ssh_private_key_passphrase,
+        paranoid: false,
+        timeout: 4
+      }
+      begin
+        on host do
+          execute :true
+        end
+      rescue SSHKit::Runner::ExecuteError => e
+        if e.cause.is_a?(Timeout::Error)
+          if times == 11
+            server.minecraft.log('Error connecting to server; failed to SSH. Aborting')
+            server.reset_partial
+          else
+            server.minecraft.log("Server started, but timed out while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
+            SetupServerWorker.perform_in(16.seconds, user_id, server_id, times + 1)
+          end
+          return
+        end
+        raise
+      end
+      if server.done_setup?
+        self.base_update(user, server, host)
+        self.add_ssh_keys(user, server, host)
+      else
+        server.update_columns(remote_setup_stage: 1)
+        self.base_install(user, server, host)
+        self.add_ssh_keys(user, server, host)
+        server.update_columns(remote_setup_stage: 3)
+        self.install_minecraft(user, server, host)
+        self.install_mcsw(user, server, host)
+        server.update_columns(remote_setup_stage: 4)
+        self.modify_ssh_port(user, server, host)
+      end
+      server.update_columns(remote_setup_stage: 5)
+      StartMinecraftWorker.perform_in(4.seconds, server_id)
+    rescue => e
+      server = Server.find(server_id)
+      server.minecraft.log("Background job setting up server failed: #{e}")
+      server.reset_partial
       raise
     end
-    if server.done_setup?
-      self.base_update(user, server, host)
-      self.add_ssh_keys(user, server, host)
-    else
-      server.update_columns(remote_setup_stage: 1)
-      self.base_install(user, server, host)
-      self.add_ssh_keys(user, server, host)
-      server.update_columns(remote_setup_stage: 3)
-      self.install_minecraft(user, server, host)
-      self.install_mcsw(user, server, host)
-      server.update_columns(remote_setup_stage: 4)
-      self.modify_ssh_port(user, server, host)
-    end
-    server.update_columns(remote_setup_stage: 5)
-    StartMinecraftWorker.perform_in(4.seconds, server_id)
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
-  rescue => e
-    server = Server.find(server_id)
-    server.minecraft.log("Background job setting up server failed: #{e}")
-    server.reset_partial
-    raise
   end
 
   def base_install(user, server, host)
@@ -112,8 +114,8 @@ class SetupServerWorker
         ActiveRecord::Base.connection_pool.with_connection do |conn|
           on host do
             within '/opt/gamocosm/' do
-              execute :su, '-l', 'mcuser', '-c', '"git checkout master"'
-              execute :su, '-l', 'mcuser', '-c', '"git pull origin master"'
+              execute :su, 'mcuser', '-c', '"git checkout master"'
+              execute :su, 'mcuser', '-c', '"git pull origin master"'
               execute :cp, '/opt/gamocosm/mcsw.service', '/etc/systemd/system/mcsw.service'
               execute :systemctl, 'daemon-reload'
               execute :systemctl, 'restart', 'mcsw'

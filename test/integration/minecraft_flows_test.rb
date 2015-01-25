@@ -45,6 +45,9 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     login_user('test@test.com', '1234test')
     view_server(minecraft, { motd: 'A Gamocosm Minecraft Server' })
     remove_friend_from_server(minecraft, 'test@test.com')
+    enable_autoshutdown_server(minecraft)
+    wait_for_autoshutdown_server(minecraft)
+    wait_for_stopping_server(minecraft)
     delete_server(minecraft)
     sleep 4
     logout_user
@@ -205,6 +208,32 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
     assert_equal flash[:notice], 'Welcome! You have signed up successfully.'
+  end
+
+  def enable_autoshutdown_server(minecraft)
+    get autoshutdown_enable_minecraft_path(minecraft)
+    assert_redirected_to minecraft_path(minecraft)
+    follow_redirect!
+    assert_response :success
+  end
+
+  def wait_for_autoshutdown_server(minecraft, times = 0)
+    if times == 0
+      sleep 96
+    end
+    Rails.logger.info "Waiting for server to autoshutdown, try #{times}"
+    minecraft.reload
+    if times >= 16
+      raise "Minecraft did not autoshutdown, #{minecraft.inspect}"
+    end
+    if minecraft.server.remote.error?
+      raise "Minecraft server remote error: #{minecraft.server.remote.error}"
+    end
+    if minecraft.server.pending_operation == 'stopping' || minecraft.server.pending_operation == 'saving'
+      return
+    end
+    sleep 8
+    wait_for_autoshutdown_server(minecraft, times + 1)
   end
 
   def wait_for_starting_server(minecraft, times = 0)

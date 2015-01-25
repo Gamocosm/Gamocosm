@@ -33,25 +33,16 @@ class User < ActiveRecord::Base
     self.digital_ocean_api_key = self.digital_ocean_api_key.blank? ? nil : self.digital_ocean_api_key.strip.downcase
   end
 
-  def digital_ocean_missing?
-    return digital_ocean_api_key.blank?
+  def digital_ocean_servers_cache
+    return "user-#{self.id}-servers"
   end
 
-  def digital_ocean_invalid?
-    if @digital_ocean_invalid.nil?
-      if digital_ocean_missing?
-        @digital_ocean_invalid = true
-      else
-        begin
-          @digital_ocean_droplets = digital_ocean.droplet.all
-          @digital_ocean_invalid = !@digital_ocean_droplets.success?
-        rescue Faraday::TimeoutError
-          @digital_ocean_droplets = nil
-          @digital_ocean_invalid = true
-        end
-      end
-    end
-    return @digital_ocean_invalid
+  def digital_ocean_snapshots_cache
+    return "user-#{self.id}-snapshots"
+  end
+
+  def digital_ocean_missing?
+    return digital_ocean_api_key.blank?
   end
 
   def digital_ocean
@@ -62,6 +53,75 @@ class User < ActiveRecord::Base
       @digital_ocean_connection = DigitalOcean::Connection.new(digital_ocean_api_key).request
     end
     return @digital_ocean_connection
+  end
+
+  def invalidate
+    @digital_ocean_droplets = nil
+    @digital_ocean_snapshots = nil
+    Rails.cache.delete(self.digital_ocean_servers_cache)
+    Rails.cache.delete(self.digital_ocean_snapshots_cache)
+  end
+
+  def digital_ocean_invalid?
+    # checks digital ocean droplets
+    return self.digital_ocean_missing? || self.digital_ocean_droplets.nil?
+  end
+
+  def digital_ocean_droplets
+    if digital_ocean_missing?
+      return nil
+    end
+    # if we haven't cached it this request
+    if @digital_ocean_droplets.nil?
+      droplets = Rails.cache.read(self.digital_ocean_servers_cache)
+      # if we haven't cached it recently
+      if droplets.nil?
+        begin
+          response = self.digital_ocean.droplet.all
+          if response.success?
+            droplets = response.droplets
+            Rails.cache.write(self.digital_ocean_servers_cache, droplets.map { |x| x.to_hash }, expires_in: 512.seconds)
+          else
+            droplets = false
+          end
+        rescue Faraday::TimeoutError
+          droplets = false
+        end
+      else
+        droplets = droplets.map { |x| Hashie::Mash.new(x) }
+      end
+      # cache the result for this request (if there was an error, don't keep trying)
+      @digital_ocean_droplets = droplets
+    end
+    return @digital_ocean_droplets == false ? nil : @digital_ocean_droplets
+  end
+
+  def digital_ocean_snapshots
+    # mostly parallel to User#digital_ocean_droplets
+    # if we had an error getting the droplets, don't try to get the snapshots
+    if digital_ocean_invalid?
+      return nil
+    end
+    if @digital_ocean_snapshots.nil?
+      snapshots = Rails.cache.read(self.digital_ocean_snapshots_cache)
+      if snapshots.nil?
+        begin
+          response = self.digital_ocean.image.all
+          if response.success?
+            snapshots = response.images.select { |x| !x.public }
+            Rails.cache.write(self.digital_ocean_snapshots_cache, snapshots.map { |x| x.to_hash }, expires_in: 512.seconds)
+          else
+            snapshots = false
+          end
+        rescue Faraday::TimeoutError
+          snapshots = false
+        end
+      else
+        snapshots = snapshots.map { |x| Hashie::Mash.new(x) }
+      end
+      @digital_ocean_snapshots = snapshots
+    end
+    return @digital_ocean_snapshots == false ? nil : @digital_ocean_snapshots
   end
 
   def digital_ocean_add_ssh_key(name, public_key)
@@ -98,6 +158,7 @@ class User < ActiveRecord::Base
     if digital_ocean_missing?
       return 'Digital Ocean API token missing'
     end
+    self.invalidate
     begin
       response = digital_ocean.droplet.destroy(remote_id)
     rescue Faraday::TimeoutError
@@ -113,6 +174,7 @@ class User < ActiveRecord::Base
     if digital_ocean_missing?
       return 'Digital Ocean API token missing'
     end
+    self.invalidate
     begin
       response = digital_ocean.image.destroy(remote_id)
     rescue Faraday::TimeoutError
@@ -159,33 +221,6 @@ class User < ActiveRecord::Base
     return @digital_ocean_ssh_keys == false ? nil : @digital_ocean_ssh_keys
   end
 
-  def digital_ocean_snapshots
-    if digital_ocean_invalid?
-      return nil
-    end
-    if @digital_ocean_snapshots.nil?
-      begin
-        response = digital_ocean.image.all
-      rescue Faraday::TimeoutError
-        @digital_ocean_snapshots = false
-        return nil
-      end
-      if !response.success?
-        @digital_ocean_snapshots = false
-      else
-        @digital_ocean_snapshots = response.images.select { |x| !x.public }
-      end
-    end
-    return @digital_ocean_snapshots == false ? nil : @digital_ocean_snapshots
-  end
-
-  def digital_ocean_droplets
-    if digital_ocean_invalid?
-      return nil
-    end
-    return @digital_ocean_droplets.droplets
-  end
-
   def digital_ocean_gamocosm_ssh_key_id
     if digital_ocean_missing?
       return 'Digital Ocean API token missing'.error!
@@ -214,10 +249,5 @@ class User < ActiveRecord::Base
       return response.ssh_key.id
     end
     return "Unable to add key; Digital Ocean responded with #{response}".error!
-  end
-
-  def invalidate
-    @digital_ocean_invalid = nil
-    @digital_ocean_snapshots = nil
   end
 end

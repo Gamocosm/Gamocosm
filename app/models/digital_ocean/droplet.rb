@@ -83,6 +83,7 @@ class DigitalOcean::Droplet
       image: @server.do_saved_snapshot_id || Gamocosm.digital_ocean_base_image_id,
       ssh_keys: [ssh_key_id.to_s],
     }
+    @server.minecraft.user.invalidate
     response = @connection.droplet.create(params)
     if response.success?
       @server.update_columns(remote_id: response.droplet.id)
@@ -174,6 +175,7 @@ class DigitalOcean::Droplet
     if !exists?
       return nil
     end
+    @server.minecraft.user.invalidate
     response = @connection.droplet.destroy(@server.remote_id)
     if response.success? || response.id == 'not_found'
       @server.update_columns(remote_id: nil)
@@ -192,6 +194,7 @@ class DigitalOcean::Droplet
     if @server.do_saved_snapshot_id.nil?
       return nil
     end
+    @server.minecraft.user.invalidate
     response = @connection.image.destroy(@server.do_saved_snapshot_id)
     if response.success? || response.id == 'not_found'
       @server.update_columns(do_saved_snapshot_id: nil)
