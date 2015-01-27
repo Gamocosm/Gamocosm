@@ -56,6 +56,8 @@ module Gamocosm
       { name: 'Vanilla (latest)', value: 'vanilla/1.8.1', },
       { name: 'MCServer', value: 'mc-server/null' },
       { name: 'Forge (1.7.10)', value: 'forge/1.7.10-10.13.2.1230' }
+      { name: 'CraftBukkit (1.8)', value: 'craftbukkit/1.8-R0.1-SNAPSHOT' }
+      { name: 'Spigot (1.8)', value: 'spigot/1.8-R0.1-SNAPSHOT' }
     ]
   end
 
