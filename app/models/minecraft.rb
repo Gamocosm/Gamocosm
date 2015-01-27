@@ -35,7 +35,7 @@ class Minecraft < ActiveRecord::Base
   def before_validate_callback
     self.name = self.name.strip.downcase.gsub(' ', '-')
     if self.new_record?
-      if Gamocosm.minecraft_flavours.collect { |x| x[:value] }.index(self.flavour).nil?
+      if !Gamocosm.minecraft_flavours.has_key?(self.flavour)
         self.errors.add(:flavour, 'Invalid flavour')
       end
     end
@@ -139,6 +139,10 @@ class Minecraft < ActiveRecord::Base
       end
     end
     return @properties
+  end
+
+  def flavour_info
+    return Gamocosm.minecraft_flavours[self.flavour]
   end
 
   def owner?(someone)

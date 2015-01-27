@@ -11,6 +11,10 @@ The [Minecraft Server Wrapper][4] (for lack of a better name) is a light python 
 It provides an HTTP API for starting and stopping Minecraft servers, downloading the world, etc.
 Please check it out and help improve it too!
 
+### Gamocosm Minecraft Flavours
+The [gamocosm-minecraft-flavours][10] repository includes the setup scripts used to install different flavours of Minecraft on a new server.
+Read this [wiki page][11] for adding support for new flavours, or manually installing something yourself.
+
 ### Contributing
 Pull requests are welcome!
 
@@ -165,3 +169,5 @@ Hmmmm.
 [7]: http://www.reddit.com/user/SuperMarioBro
 [8]: https://github.com/bearbin
 [9]: http://www.reddit.com/user/chiisana
+[10]: https://github.com/Gamocosm/gamocosm-minecraft-flavours
+[11]: https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft

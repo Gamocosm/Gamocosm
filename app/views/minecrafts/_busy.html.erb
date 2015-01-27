@@ -5,13 +5,14 @@
 	<% if @minecraft.server.pending_operation == 'starting' %>
 		Your server is being created.
 		<% if !@minecraft.server.done_setup? %>
-			This should take about four minutes (first time only).
+			This should take a few minutes (first time only).
 		<% else %>
 			This should take about a minute.
 		<% end %>
 	<% elsif @minecraft.server.pending_operation == 'preparing' %>
 		<% if !@minecraft.server.done_setup? %>
-			Your server is being set up. This should take about four minutes (first time only).
+			Your server is being set up.
+			This should take a few minutes (first time only).
 		<% else %>
 			Your server is being started. This should take about a minute.
 		<% end %>
@@ -22,9 +23,9 @@
 		<% elsif @minecraft.server.remote_setup_stage == 1 %>
 			Connected
 		<% elsif @minecraft.server.remote_setup_stage == 2 %>
-			Installing software
+			Installing and updating software (usually 2-3 minutes)
 		<% elsif @minecraft.server.remote_setup_stage == 3 %>
-			Downloading Minecraft
+			Downloading and installing Minecraft (<%= @minecraft.flavour_info.try(:[], :name) %>, estimated <%= pluralize_with_count(@minecraft.flavour_info.try(:[], :time), 'minute') %>)
 		<% elsif @minecraft.server.remote_setup_stage == 4 %>
 			Finishing up
 		<% elsif @minecraft.server.remote_setup_stage == 5 %>

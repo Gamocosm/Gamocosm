@@ -130,7 +130,16 @@ class SetupServerWorker
 
   def install_minecraft(user, server, host)
     begin
-      Timeout::timeout(64) do
+      fi = server.minecraft.flavour_info
+      if fi.nil?
+        server.minecraft.log("Flavour #{server.minecraft.flavour} not found! Installing default vanilla")
+        server.minecraft.update_columns(flavour: Gamocosm.minecraft_flavours.first[0])
+        fi = Gamocosm.minecraft_flavours.first[1]
+      end
+      fv = server.minecraft.flavour.split('/')
+      minecraft_script = "/tmp/gamocosm-minecraft-flavours/#{fv[0]}.sh"
+      # estimated minutes * 60 secs/minute * 2 (buffer)
+      Timeout::timeout(fi[:time] * 60 * 2) do
         ActiveRecord::Base.connection_pool.with_connection do |conn|
           on host do
             within '/tmp/' do
@@ -140,10 +149,8 @@ class SetupServerWorker
             within '/home/mcuser/' do
               execute :mkdir, '-p', 'minecraft'
               within :minecraft do
-                flavour_version = server.minecraft.flavour.split('/')
-                minecraft_script = "/tmp/gamocosm-minecraft-flavours/#{flavour_version[0]}.sh"
                 execute :chmod, 'u+x', minecraft_script
-                with minecraft_flavour_version: flavour_version[1] do
+                with minecraft_flavour_version: fv[1] do
                   execute :bash, '-c', minecraft_script
                 end
               end

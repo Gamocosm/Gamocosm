@@ -52,13 +52,13 @@ module Gamocosm
   end
 
   def self.minecraft_flavours
-    return [
-      { name: 'Vanilla (latest)', value: 'vanilla/1.8.1', },
-      { name: 'MCServer', value: 'mc-server/null' },
-      { name: 'Forge (1.7.10)', value: 'forge/1.7.10-10.13.2.1230' }
-      { name: 'CraftBukkit (1.8)', value: 'craftbukkit/1.8-R0.1-SNAPSHOT' }
-      { name: 'Spigot (1.8)', value: 'spigot/1.8-R0.1-SNAPSHOT' }
-    ]
+    return {
+      'vanilla/1.8.1' => { name: 'Vanilla (latest)', time: 1 },
+      'mc-server/null' => { name: 'MCServer', time: 1 },
+      'forge/1.7.10-10.13.2.1230' => { name: 'Forge (1.7.10)', time: 1 },
+      'spigot/1.8' => { name: 'Spigot (1.8)', time: 10 },
+      'craftbukkit/1.8' => { name: 'CraftBukkit (1.8)', time: 10 },
+    }
   end
 
   def self.digital_ocean_api_key
