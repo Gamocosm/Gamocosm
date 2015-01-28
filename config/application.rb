@@ -58,6 +58,7 @@ module Gamocosm
       'forge/1.7.10-10.13.2.1230' => { name: 'Forge (1.7.10)', time: 1 },
       'spigot/1.8' => { name: 'Spigot (1.8)', time: 10 },
       'craftbukkit/1.8' => { name: 'CraftBukkit (1.8)', time: 10 },
+      'agrarianskies/1.6.4' => { name: 'Agrarian Skies (1.6.4)', time: 1 },
     }
   end
 
