@@ -2,7 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Gamocosm</title>
+  <title><%= content_for?(:title) ? yield(:title) : 'Gamocosm' %></title>
+  <% if content_for?(:meta_description) %><meta name="description" content="<%= yield(:meta_description) %>" /><% end %>
+  <% if content_for?(:meta_keywords) %><meta name="keywords" content="<%= yield(:meta_keywords) %>" /><% end %>
   <%= favicon_link_tag 'favicon.ico' %>
   <%= stylesheet_link_tag    'application', media: 'all' %>
   <%= javascript_include_tag 'application' %>

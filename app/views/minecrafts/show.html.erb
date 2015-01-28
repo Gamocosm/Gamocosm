@@ -1,4 +1,5 @@
 <% if @demo.nil? %>
+	<% title "#{@minecraft.name} - Gamocosm" %>
 	<% if @minecraft.server.remote.error? %>
 		<%= render partial: 'invalid' %>
 	<% end %>

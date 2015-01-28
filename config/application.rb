@@ -85,8 +85,8 @@ module Gamocosm
     ENV['SIDEKIQ_ADMIN_PASSWORD']
   end
 
-  def self.domain
-    ENV['DOMAIN']
+  def self.user_servers_domain
+    ENV['USER_SERVERS_DOMAIN']
   end
 
   def self.cloudflare_api_token

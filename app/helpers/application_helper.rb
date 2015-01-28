@@ -17,7 +17,7 @@ module ApplicationHelper
     if minecraft.server.server_domain.nil?
       return 'Not applicable'
     end
-    return minecraft.server.server_domain.name + '.' + Gamocosm.domain
+    return minecraft.server.server_domain.name + '.' + Gamocosm.user_servers_domain
   end
 
   def render_minecraft_ip_address(minecraft, fallback = nil, only_ip = false)
@@ -28,7 +28,7 @@ module ApplicationHelper
       if minecraft.server.server_domain.nil? || only_ip
         return minecraft.server.remote.ip_address
       else
-        return "#{minecraft.server.server_domain.name}.#{Gamocosm.domain} (or #{minecraft.server.remote.ip_address})"
+        return "#{minecraft.server.server_domain.name}.#{Gamocosm.user_servers_domain} (or #{minecraft.server.remote.ip_address})"
       end
     end
     return fallback || 'Not running'
@@ -53,5 +53,13 @@ module ApplicationHelper
 
   def pluralize_with_count(n, str)
     return n == 1 ? "1 #{str}" : "#{n} #{str.pluralize(n)}"
+  end
+
+  def title(t)
+    content_for :title, t
+  end
+
+  def meta_keywords(words)
+    content_for :meta_keywords, words.join(', ')
   end
 end

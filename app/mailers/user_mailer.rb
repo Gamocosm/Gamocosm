@@ -1,5 +1,5 @@
 class UserMailer < ActionMailer::Base
-  default from: 'no-reply@gamocosm.com'
+  default from: 'Gamocosm Mailer <no-reply@gamocosm.com>'
 
   def autoshutdown_error_email(minecraft)
     @user = minecraft.user
