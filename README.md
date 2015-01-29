@@ -20,7 +20,6 @@ Pull requests are welcome!
 
 #### Tests
 
-1. Start Sidekiq: `RAILS_ENV=test ./env.sh sidekiq`
 1. Run `./env.sh rake test` (parallel to Sidekiq).
 1. Will create servers using the Digital Ocean api token from "env.sh".
 1. If nothing fails tests should delete everything they create.
@@ -159,6 +158,7 @@ Hmmmm.
 - [SuperMarioBro][7] for helping iron out some initial bugs
 - [bearbin][8] for helping iron out some initial bugs
 - [chiisana][9] for feedback and other ideas, resources
+- [KayoticSully][12] for planning and development on the server wrapper API
 
 [1]: http://www.postgresql.org/docs/9.3/static/auth-pg-hba-conf.html
 [2]: https://github.com/geetfun
@@ -171,3 +171,4 @@ Hmmmm.
 [9]: http://www.reddit.com/user/chiisana
 [10]: https://github.com/Gamocosm/gamocosm-minecraft-flavours
 [11]: https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft
+[12]: https://github.com/KayoticSully

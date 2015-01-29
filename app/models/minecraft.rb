@@ -101,10 +101,6 @@ class Minecraft < ActiveRecord::Base
     if error
       return error
     end
-    error = node.try(:pause)
-    if error
-      log("Stopping Minecraft, node returned #{error}")
-    end
     return server.stop
   end
 

@@ -56,3 +56,6 @@ gem 'exception_notification'
 group :development do
 	gem 'newrelic_rpm'
 end
+group :test do
+	gem 'simplecov', :require => false
+end

@@ -58,6 +58,11 @@ class DigitalOcean::Droplet
     return data
   end
 
+  def invalidate
+    @remote_data = nil
+    @action_id = nil
+  end
+
   def latest_snapshot_id
     data = self.sync
     if data.success?
