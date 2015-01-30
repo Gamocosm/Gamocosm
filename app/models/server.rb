@@ -31,17 +31,16 @@ class Server < ActiveRecord::Base
 
   def before_validate_callback
     self.remote_id = self.remote_id.blank? ? nil : self.remote_id
-    self.pending_operation = self.pending_operation.blank? ? nil : self.pending_operation.strip.downcase
+    self.pending_operation = self.pending_operation.clean
     self.do_saved_snapshot_id = self.do_saved_snapshot_id.blank? ? nil : self.do_saved_snapshot_id
-    self.do_region_slug = self.do_region_slug.strip.downcase
-    self.do_size_slug = self.do_size_slug.strip.downcase
-    self.ssh_keys = self.ssh_keys.try(:gsub, ' ', '')
-    self.ssh_keys = self.ssh_keys.blank? ? nil : self.ssh_keys
+    self.do_region_slug = self.do_region_slug.clean
+    self.do_size_slug = self.do_size_slug.clean
+    self.ssh_keys = self.ssh_keys.try(:gsub, /\s/, '').clean
   end
 
   def remote
     if @remote.nil?
-      @remote = DigitalOcean::Droplet.new(self)
+      @remote = DigitalOcean::Droplet.new(self, self.minecraft.user.digital_ocean)
     end
     return @remote
   end
@@ -121,7 +120,7 @@ class Server < ActiveRecord::Base
 
   def busy?
     if !pending_operation.blank?
-      if remote_id.nil? && do_saved_snapshot_id.nil?
+      if remote_id.nil?
         self.update_columns(pending_operation: nil)
         return false
       end

@@ -1,0 +1,10 @@
+language: ruby
+rvm:
+    - 2.0.0
+services:
+    - memcached
+    - redis
+before_script:
+    - psql -c 'create database gamocosm_test;' -U postgres
+    - RAILS_ENV=test ./env.sh.travis rake db:schema:load
+script: ./env.sh.travis rake test:functionals test:units

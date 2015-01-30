@@ -30,7 +30,7 @@ class User < ActiveRecord::Base
   before_validation :before_validate_callback
 
   def before_validate_callback
-    self.digital_ocean_api_key = self.digital_ocean_api_key.blank? ? nil : self.digital_ocean_api_key.strip.downcase
+    self.digital_ocean_api_key = self.digital_ocean_api_key.clean
   end
 
   def digital_ocean_servers_cache

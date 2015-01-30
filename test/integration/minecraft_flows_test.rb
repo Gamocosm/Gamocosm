@@ -11,6 +11,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def teardown
+    assert_equal 0, Sidekiq::Worker.jobs.count, 'Unexpected Sidekiq jobs remain'
   end
 
   def user_digital_ocean_before!
@@ -29,24 +30,12 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     assert_equal @user_digital_ocean_snapshots_before, @user_digital_ocean_snapshots_after
   end
 
-  test "everything" do
+  test "a lot of things (\"test everything\" - so it goes)" do
     user_digital_ocean_before!
     login_user('test@test.com', '1234test')
     minecraft = create_server('test', 'vanilla/1.8.1', 'nyc3', '512mb')
     start_server(minecraft, { motd: 'A Minecraft Server' })
     update_minecraft_properties(minecraft, { motd: 'A Gamocosm Minecraft Server' })
-    add_friend_to_server(minecraft, 'test2@test.com')
-    stop_server(minecraft)
-    sleep 32
-    logout_user
-    login_user('test2@test.com', '2345test')
-    start_server(minecraft, {})
-    logout_user
-    login_user('test@test.com', '1234test')
-    # TODO: sometimes the motd is just the default value 'A Minecraft Server'
-    #view_server(minecraft, { motd: 'A Gamocosm Minecraft Server' })
-    view_server(minecraft, { })
-    remove_friend_from_server(minecraft, 'test@test.com')
     enable_autoshutdown_server(minecraft)
     wait_for_autoshutdown_server minecraft
     wait_for_stopping_server minecraft

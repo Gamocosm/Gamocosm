@@ -1,9 +1,9 @@
 class DigitalOcean::Droplet
   include HTTParty
 
-  def initialize(server)
+  def initialize(server, connection)
     @server = server
-    @connection = server.minecraft.user.digital_ocean
+    @connection = connection
   end
 
   def ip_address

@@ -20,9 +20,9 @@ Pull requests are welcome!
 
 #### Tests
 
-1. Run `./env.sh rake test` (parallel to Sidekiq).
-1. Will create servers using the Digital Ocean api token from "env.sh".
-1. If nothing fails tests should delete everything they create.
+- `./env.sh rake test` for everything (uses API token from "env.sh")
+- `./env.sh rake test:functionals test:units` for local tests
+- If nothing fails tests should delete everything they create.
 
 - Because there's a lot of infrastructure (see below, "Technical details"), sometimes tests will fail for random reasons
 - I have not found a good workaround for this
@@ -55,6 +55,7 @@ The following instructions were made for Fedora 20, but the steps should be simi
 - `DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE`: see above
 - `SIDEKIQ_ADMIN_USERNAME`: HTTP basic auth for Sidekiq web interface
 - `SIDEKIQ_ADMIN_PASSWORD`: see above
+- `DATABASE_USER`: hmmmm
 - `DATABASE_PASSWORD`: hmmmm
 - `DATABASE_HOST`: database host. If specified, Rails will use a TCP connection (e.g. "localhost"). If left blank, Rails will use a local Unix socket connection
 - `MEMCACHED_HOST`: hmmmm
@@ -72,7 +73,7 @@ The following instructions were made for Fedora 20, but the steps should be simi
 Locate `pg_hba.conf`. On Fedora this is in `/var/lib/pgsql/data/`.
 This file tells postgresql how to authenticate users. Read about it on the [PostgreSQL docs][1].
 To restart postgresql: `(sudo) service postgresql restart`
-`config/database.yml` sets the database user to be "gamocosm".
+`config/database.yml` gets the database username from the environment variable `DATABASE_USER` (default "gamocosm").
 The default value in "env.sh.template" for `DATABASE_HOST` is blank, so if you don't change it Rails will use a local Unix socket connection.
 The postgres user you use must be a postgres superuser, as rails needs to enable the uuid extension.
 To create a postgres user "gamocosm":

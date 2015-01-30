@@ -24,4 +24,18 @@ class UserTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end
+
+  test 'validate user' do
+    a = User.new
+    a.digital_ocean_api_key = " AB\n\0 "
+    assert_not a.valid?, 'User passed bad validation'
+    assert_equal 'ab', a.digital_ocean_api_key, 'Digital Ocean API key not sanitized'
+    a.digital_ocean_api_key = nil
+    assert_not a.valid?, 'User passed bad validation'
+    assert_nil a.digital_ocean_api_key, 'Digital Ocean API key should be blank -> nil'
+    a.digital_ocean_api_key = " \r\t\0 "
+    assert_not a.valid?, 'User passed bad validation'
+    assert_nil a.digital_ocean_api_key, 'Digital Ocean API key should be strip -> blank -> nil'
+
+  end
 end

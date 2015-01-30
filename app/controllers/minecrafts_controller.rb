@@ -51,7 +51,8 @@ class MinecraftsController < ApplicationController
       end
       @minecraft_advanced_tab = true
     else
-      if @minecraft.update_attributes(minecraft_advanced_params)
+      @minecraft.server.ssh_keys = minecraft_advanced_params[:server_attributes][:ssh_keys]
+      if @minecraft.save
         message = 'Server SSH keys updated'
         if !minecraft_advanced_params[:server_attributes][:ssh_keys].blank?
           message += '. They will be added the next time you start the server'
@@ -347,7 +348,6 @@ class MinecraftsController < ApplicationController
 
   def minecraft_advanced_params
     return params.require(:minecraft).permit(server_attributes: [
-      :id,
       :ssh_port,
       :remote_setup_stage,
       :pending_operation,
