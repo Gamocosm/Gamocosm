@@ -4,7 +4,13 @@ rvm:
 services:
     - memcached
     - redis
+env:
+    global:
+        - RAILS_ENV=test
+        - DATABASE_USER=postgres
+        - DATABASE_HOST=localhost
+        - DEVISE_SECRET_KEY=1234abc
 before_script:
     - psql -c 'create database gamocosm_test;' -U postgres
-    - RAILS_ENV=test ./env.sh.travis rake db:schema:load
-script: ./env.sh.travis rake test:functionals test:units
+    - rake db:schema:load
+script: rake test:functionals test:units

@@ -4,9 +4,6 @@ class Object
   end
 
   def error!
-    if self.nil?
-      raise 'Cannot make nil an error!'
-    end
     self.define_singleton_method(:error?) { true }
     self
   end
@@ -15,6 +12,9 @@ end
 class NilClass
   def clean
     return nil
+  end
+  def error!
+    raise 'Cannot make nil an error!'
   end
 end
 

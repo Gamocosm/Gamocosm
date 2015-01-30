@@ -1,4 +1,4 @@
-Gamocosm
+Gamocosm [![Build Status](https://travis-ci.org/Gamocosm/Gamocosm.svg?branch=master)](https://travis-ci.org/Gamocosm/Gamocosm)
 ========
 
 Gamocosm makes it easy to run cloud Minecraft servers.
