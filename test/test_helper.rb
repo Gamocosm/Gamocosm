@@ -6,6 +6,7 @@ require 'rails/test_help'
 require File.expand_path('test/fixtures/seeds.rb', Rails.root)
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
+require 'webmock/minitest'
 
 class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.

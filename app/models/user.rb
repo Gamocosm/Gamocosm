@@ -242,7 +242,7 @@ class User < ActiveRecord::Base
     end
     begin
       response = digital_ocean.key.create(name: 'gamocosm', public_key: public_key)
-    rescue Farady::TimeoutError
+    rescue Faraday::TimeoutError
       return "Unable to add key; Digital Ocean timed out".error!
     end
     if response.success?

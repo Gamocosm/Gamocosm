@@ -96,7 +96,7 @@ class DigitalOcean::Droplet
       if !response.success?
         return "Created server on Digital Ocean, but unable to get action id to listen on; they responded with #{response}"
       end
-      create_action_id = response.actions.sort.first.id
+      create_action_id = response.actions.first.id
       if create_action_id.nil?
         return "Created server on Digital Ocean, but latest action id null. List actions response was #{response}"
       end
@@ -106,7 +106,10 @@ class DigitalOcean::Droplet
     return "Error creating droplet on Digital Ocean; they responded with #{response}"
   rescue => e
     ExceptionNotifier.notify_exception(e)
-    return "Error creating droplet on Digital Ocean: #{e}"
+    msg = "Error creating droplet on Digital Ocean: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    return msg
   end
 
   def power_on
@@ -121,7 +124,10 @@ class DigitalOcean::Droplet
     return "Error powering on droplet on Digital Ocean; they responded with #{response}"
   rescue => e
     ExceptionNotifier.notify_exception(e)
-    return "Error powering on droplet on Digital Ocean: #{e}"
+    msg = "Error powering on droplet on Digital Ocean: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    return msg
   end
 
   def shutdown
@@ -136,7 +142,10 @@ class DigitalOcean::Droplet
     return "Error shutting down droplet on Digital Ocean; they responded with #{response}"
   rescue => e
     ExceptionNotifier.notify_exception(e)
-    return "Error shutting down droplet on Digital Ocean: #{e}"
+    msg = "Error shutting down droplet on Digital Ocean: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    return msg
   end
 
   def snapshot
@@ -151,7 +160,10 @@ class DigitalOcean::Droplet
     return "Error snapshotting droplet on Digital Ocean; they responded with #{response}"
   rescue => e
     ExceptionNotifier.notify_exception(e)
-    return "Error snapshotting droplet on Digital Ocean: #{e}"
+    msg = "Error snapshotting droplet on Digital Ocean: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    return msg
   end
 
   def reboot
@@ -166,7 +178,10 @@ class DigitalOcean::Droplet
     return "Error rebooting droplet on Digital Ocean; they responded with #{response}"
   rescue => e
     ExceptionNotifier.notify_exception(e)
-    return "Error rebooting droplet on Digital Ocean: #{e}"
+    msg = "Error rebooting droplet on Digital Ocean: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    return msg
   end
 
   def action_id
@@ -189,7 +204,10 @@ class DigitalOcean::Droplet
     return "Error destroying droplet on Digital Ocean; they responded with #{response}"
   rescue => e
     ExceptionNotifier.notify_exception(e)
-    return "Error destroying droplet on Digital Ocean: #{e}"
+    msg = "Error destroying droplet on Digital Ocean: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    return msg
   end
 
   def destroy_saved_snapshot
@@ -208,7 +226,10 @@ class DigitalOcean::Droplet
     return "Error destroying snapshot on Digital Ocean; they responded with #{response}"
   rescue => e
     ExceptionNotifier.notify_exception(e)
-    return "Error destroying snapshot on Digital Ocean: #{e}"
+    msg = "Error destroying snapshot on Digital Ocean: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    return msg
   end
 
 end

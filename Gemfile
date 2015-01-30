@@ -57,5 +57,6 @@ group :development do
 	gem 'newrelic_rpm'
 end
 group :test do
-	gem 'simplecov', :require => false
+	gem 'simplecov', require: false
+    gem 'webmock', require: false
 end

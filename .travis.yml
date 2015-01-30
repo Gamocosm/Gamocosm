@@ -12,5 +12,5 @@ env:
         - DEVISE_SECRET_KEY=1234abc
 before_script:
     - psql -c 'create database gamocosm_test;' -U postgres
-    - rake db:schema:load
-script: rake test:functionals test:units
+    - bundle exec rake db:schema:load
+script: bundle exec rake test:functionals test:units

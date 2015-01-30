@@ -8,10 +8,14 @@ class MinecraftsControllerTest < ActionController::TestCase
     @friend = User.find(2)
     @other = User.find(3)
     @minecraft = Minecraft.first
+    unmock_digital_ocean
+    mock_digital_ocean(:get, '/droplets', { droplets: [] })
+    mock_digital_ocean(:get, '/images', { images: [] })
+    mock_digital_ocean(:get, '/account/keys', { ssh_keys: [] })
   end
 
   def teardown
-    assert_equal 0, Sidekiq::Worker.jobs.count, 'Unexpected Sidekiq jobs remain'
+    assert_equal 0, Sidekiq::Worker.jobs.inject(0) { |total, kv| total + kv.second.size }, "Unexpected Sidekiq jobs remain: #{Sidekiq::Worker.jobs}"
   end
 
   test 'add and remove friends from server' do
@@ -27,8 +31,13 @@ class MinecraftsControllerTest < ActionController::TestCase
   test 'friend can start and stop server' do
     sign_in @friend
     view_server @minecraft
-    #start_server @minecraft
-    #stop_minecraft @minecraft
+    mock_digital_ocean(:post, '/droplets', { droplet: { id: 1 } })
+    mock_digital_ocean(:get, '/droplets/1/actions', { actions: [{ id: 1 }] })
+    mock_digital_ocean(:post, '/account/keys', { ssh_key: { id: 1 } })
+    start_server @minecraft
+    @minecraft.server.update_columns(pending_operation: nil)
+    mock_digital_ocean(:post, '/droplets/1/actions', { action: { id: 1 } })
+    stop_server @minecraft
   end
 
   test 'edit advanced tab' do
@@ -107,9 +116,9 @@ class MinecraftsControllerTest < ActionController::TestCase
     assert_redirected_to minecraft_path(@minecraft)
     view_server(minecraft)
     assert_not_nil flash[:success]
+    ensure_busy
     assert_equal 1, WaitForStartingServerWorker.jobs.count, 'No wait for starting server worker'
     WaitForStartingServerWorker.jobs.clear
-    ensure_busy
   end
 
   def stop_server(minecraft)
@@ -117,13 +126,13 @@ class MinecraftsControllerTest < ActionController::TestCase
     assert_redirected_to minecraft_path(@minecraft)
     view_server(minecraft)
     assert_not_nil flash[:success]
+    ensure_busy
     assert_equal 1, WaitForStoppingServerWorker.jobs.count, 'No wait for stopping server worker'
     WaitForStoppingServerWorker.jobs.clear
-    ensure_busy
   end
 
   def ensure_busy
-    assert_select 'meta[http-equiv=refresh]', { count: 0 }
+    assert_select 'meta[http-equiv=refresh]', { count: 1 }
   end
 
   def add_friend_to_server(minecraft, friend)
@@ -140,6 +149,14 @@ class MinecraftsControllerTest < ActionController::TestCase
     view_server minecraft
     assert_not_nil flash[:success]
     assert_select 'td', { text: friend.email, count: 0 }
+  end
+
+  def mock_digital_ocean(verb, path, response)
+    stub_request(verb, /#{File.join(Barge::Client::DIGITAL_OCEAN_URL, path)}/).to_return(body: response.to_json, headers: { 'Content-Type' => 'application/json' })
+  end
+
+  def unmock_digital_ocean
+    WebMock.reset!
   end
 
 end
