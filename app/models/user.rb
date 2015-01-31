@@ -225,8 +225,8 @@ class User < ActiveRecord::Base
     if digital_ocean_missing?
       return 'Digital Ocean API token missing'.error!
     end
-    public_key = File.read(Gamocosm.digital_ocean_ssh_public_key_path)
-    fingerprint = Digest::MD5.hexdigest(Base64.decode64(public_key.split(/\s+/m)[1])).scan(/../).join(':')
+    public_key = Gamocosm.digital_ocean_public_key
+    fingerprint = Gamocosm.digital_ocean_public_key_fingerprint
     begin
       keys = digital_ocean.key.all
     rescue Faraday::TimeoutError

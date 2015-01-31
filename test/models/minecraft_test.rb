@@ -20,4 +20,14 @@ class MinecraftTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end
+
+  def setup
+    @minecraft = Minecraft.first
+  end
+
+  def teardown
+  end
+
+  test 'log messages' do
+  end
 end

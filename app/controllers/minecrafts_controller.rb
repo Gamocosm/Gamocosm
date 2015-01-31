@@ -101,7 +101,7 @@ class MinecraftsController < ApplicationController
     if error
       flash[:error] = "Unable to stop server: #{error}. Please contact the server admin about this"
     else
-      flash[:success] = 'Server is stopping'
+      flash[:success] = 'Server stopping'
     end
     return redirect_to minecraft_path(@minecraft)
   end

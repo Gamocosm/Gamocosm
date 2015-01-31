@@ -68,29 +68,6 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     user_digital_ocean_after!
   end
 =end
-  test "servers page" do
-    login_user('test@test.com', '1234test')
-    assert_select '#new_minecraft' do
-      assert_select '#minecraft_server_attributes_do_size_slug' do
-        assert_select 'option[value=512mb]'
-        assert_select 'option[value=1gb]'
-        assert_select 'option[value=2gb]'
-      end
-      assert_select '#minecraft_server_attributes_do_region_slug' do
-        assert_select 'option[value=nyc3]'
-        assert_select 'option[value=ams3]'
-        assert_select 'option[value=sfo1]'
-      end
-    end
-    logout_user
-
-    User.delete_all(email: 'test3@test.com')
-    signup_user('test3@test.com', '3456test')
-    assert_select 'form', false
-    assert_select '.panel-body', /gamocosm is an open source project/i
-    logout_user
-  end
-
   def start_server(minecraft, properties)
     get start_minecraft_path(minecraft)
     assert_redirected_to minecraft_path(minecraft)

@@ -2,10 +2,12 @@ class Minecraft::Node
   include HTTParty
   default_timeout 2
 
-  def initialize(local_minecraft, ip_address, port = '5000')
+  MCSW_PORT = 5000
+
+  def initialize(local_minecraft, ip_address)
     @local_minecraft = local_minecraft
     @ip_address = ip_address
-    @port = port
+    @port = MCSW_PORT
     @options = {
       headers: {
         'User-Agent' => 'Gamocosm',
@@ -87,14 +89,6 @@ class Minecraft::Node
       return response
     end
     return response['properties']
-  end
-
-  def update_wrapper
-    response = do_post(:update_wrapper, {})
-    if response.error?
-      return response
-    end
-    return nil
   end
 
   def do_get(endpoint)

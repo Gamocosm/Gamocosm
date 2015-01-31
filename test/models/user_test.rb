@@ -36,6 +36,5 @@ class UserTest < ActiveSupport::TestCase
     a.digital_ocean_api_key = " \r\t\0 "
     assert_not a.valid?, 'User passed bad validation'
     assert_nil a.digital_ocean_api_key, 'Digital Ocean API key should be strip -> blank -> nil'
-
   end
 end

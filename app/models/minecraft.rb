@@ -114,7 +114,7 @@ class Minecraft < ActiveRecord::Base
 
   def world_download_url
     if server.running?
-      return "http://#{Gamocosm.minecraft_wrapper_username}:#{minecraft_wrapper_password}@#{server.remote.ip_address}:5000/download_world"
+      return "http://#{Gamocosm.minecraft_wrapper_username}:#{minecraft_wrapper_password}@#{server.remote.ip_address}:#{Minecraft::Node::MCSW_PORT}/download_world"
     end
     return nil
   end
@@ -122,7 +122,7 @@ class Minecraft < ActiveRecord::Base
   def node
     if @node.nil?
       if server.running?
-        @node = Minecraft::Node.new(self, server.remote.ip_address, 5000)
+        @node = Minecraft::Node.new(self, server.remote.ip_address)
       end
     end
     return @node

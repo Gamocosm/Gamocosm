@@ -2,6 +2,16 @@ class DigitalOcean::Region
   # name
   # slug
 
+  DEFAULT_REGIONS = [
+    { name: "New York 3", slug: "nyc3" },
+    { name: "Amsterdam 3", slug: "ams3" },
+    { name: "New York 2", slug: "nyc2" },
+    { name: "Amsterdam 2", slug: "ams2" },
+    { name: "San Francisco 1", slug: "sfo1" },
+    { name: "London 1", slug: "lon1" },
+    { name: "Singapore 1", slug: "sgp1" },
+  ]
+
   def initialize
     @all = Rails.cache.read(:digital_ocean_regions)
     if @all.nil?
@@ -17,15 +27,7 @@ class DigitalOcean::Region
       end
     end
     if @all.nil?
-      @all = [
-        { name: "New York 3", slug: "nyc3" },
-        { name: "Amsterdam 3", slug: "ams3" },
-        { name: "New York 2", slug: "nyc2" },
-        { name: "Amsterdam 2", slug: "ams2" },
-        { name: "San Francisco 1", slug: "sfo1" },
-        { name: "London 1", slug: "lon1" },
-        { name: "Singapore 1", slug: "sgp1" },
-      ]
+      @all = DEFAULT_REGIONS
     else
       Rails.cache.write(:digital_ocean_regions, @all)
     end

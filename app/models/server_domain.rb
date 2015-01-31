@@ -16,10 +16,6 @@ class ServerDomain < ActiveRecord::Base
     self.name ||= self.random_name
   end
 
-  def refresh_name
-    self.name = self.random_name
-  end
-
   def random_name
     chars = ('a'..'z').to_a
     return (0...8).map { chars[rand(chars.length)] }.join

@@ -46,32 +46,7 @@ class PagesController < ApplicationController
       if @minecraft_node.nil?
         node = Minecraft::Node.new(self, nil)
         def node.properties
-          return {
-            'allow-flight' => 'false',
-            'allow-nether' => 'true',
-            'announce-player-achievements' => 'true',
-            'difficulty' => '1',
-            'enable-command-block' => '',
-            'enable-query' => 'true',
-            'force-gamemode' => 'false',
-            'gamemode' => '0',
-            'generate-structures' => 'true',
-            'generator-settings' => '',
-            'hardcore' => 'false',
-            'level-seed' => '',
-            'level-type' => 'DEFAULT',
-            'max-build-height' => '256',
-            'motd' => 'A Minecraft Server',
-            'online-mode' => 'true',
-            'op-permission-level' => '4',
-            'player-idle-timeout' => '0',
-            'pvp' => 'true',
-            'spawn-animals' => 'true',
-            'spawn-monsters' => 'true',
-            'spawn-npcs' => true,
-            'spawn-protection' => '16',
-            'white-list' => 'false'
-          }
+          return Minecraft::Properties::DEFAULT_PROPERTIES
         end
         @minecraft_node = node
       end

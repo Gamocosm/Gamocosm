@@ -17,7 +17,7 @@ user = User.first
 user.update_columns(digital_ocean_api_key: Gamocosm.digital_ocean_api_key)
 
 mc = Minecraft.new
-mc.name = 'minecraft'
+mc.name = 'test'
 mc.user = User.find(1)
 mc.flavour = Gamocosm.minecraft_flavours.first[0]
 

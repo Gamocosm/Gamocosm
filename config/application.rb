@@ -47,7 +47,7 @@ module Gamocosm
     'gamocosm-mothership'
   end
 
-  def self.digital_ocean_base_image_id
+  def self.digital_ocean_base_image_slug
     'fedora-20-x64'
   end
 
@@ -59,6 +59,16 @@ module Gamocosm
       'spigot/1.8' => { name: 'Spigot (1.8)', time: 10 },
       'craftbukkit/1.8' => { name: 'CraftBukkit (1.8)', time: 10 },
     }
+  end
+
+  def self.digital_ocean_public_key
+    public_key = File.read(Gamocosm.digital_ocean_ssh_public_key_path)
+    return public_key
+  end
+
+  def self.digital_ocean_public_key_fingerprint
+    public_key = self.digital_ocean_public_key
+    fingerprint = Digest::MD5.hexdigest(Base64.decode64(public_key.split(/\s+/m)[1])).scan(/../).join(':')
   end
 
   def self.digital_ocean_api_key

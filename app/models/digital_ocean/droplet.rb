@@ -8,7 +8,7 @@ class DigitalOcean::Droplet
 
   def ip_address
     data = self.sync
-    return data.try(:droplet).try(:networks).try(:v4).try(:select) { |x| x.type == 'public' }.try(:[], 0).try(:ip_address)
+    return data.try(:droplet).try(:networks).try(:v4).try(:select) { |x| x.type == 'public' }.try(:first).try(:ip_address)
   end
 
   def status
@@ -85,7 +85,7 @@ class DigitalOcean::Droplet
       name: @server.host_name,
       size: @server.do_size_slug,
       region: @server.do_region_slug,
-      image: @server.do_saved_snapshot_id || Gamocosm.digital_ocean_base_image_id,
+      image: @server.do_saved_snapshot_id || Gamocosm.digital_ocean_base_image_slug,
       ssh_keys: [ssh_key_id.to_s],
     }
     @server.minecraft.user.invalidate

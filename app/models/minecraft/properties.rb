@@ -1,6 +1,33 @@
 class Minecraft::Properties
   include ActiveModel::Model
 
+  DEFAULT_PROPERTIES = {
+    'allow-flight' => 'false',
+    'allow-nether' => 'true',
+    'announce-player-achievements' => 'true',
+    'difficulty' => '1',
+    'enable-command-block' => '',
+    'enable-query' => 'true',
+    'force-gamemode' => 'false',
+    'gamemode' => '0',
+    'generate-structures' => 'true',
+    'generator-settings' => '',
+    'hardcore' => 'false',
+    'level-seed' => '',
+    'level-type' => 'DEFAULT',
+    'max-build-height' => '256',
+    'motd' => 'A Minecraft Server',
+    'online-mode' => 'true',
+    'op-permission-level' => '4',
+    'player-idle-timeout' => '0',
+    'pvp' => 'true',
+    'spawn-animals' => 'true',
+    'spawn-monsters' => 'true',
+    'spawn-npcs' => true,
+    'spawn-protection' => '16',
+    'white-list' => 'false'
+  }
+
   attr_accessor :allow_flight,
     :allow_nether,
     :announce_player_achievements,

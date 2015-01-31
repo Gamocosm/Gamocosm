@@ -16,4 +16,34 @@ class ActiveSupport::TestCase
   fixtures :all
 
   # Add more helper methods to be used by all tests here...
+
+  def mock_http_json(verb, path, res, req, status)
+    stub = stub_request(verb, path)
+    if !req.nil?
+      stub.with(body: hash_including(req))
+    end
+    stub.to_return(status: status, body: res.to_json, headers: { 'Content-Type' => 'application/json' })
+  end
+
+  def mock_digital_ocean(verb, path, res, req = nil, status = 200)
+    mock_http_json(verb, /#{File.join(Barge::Client::DIGITAL_OCEAN_URL, path)}/, res, req, status)
+  end
+
+  def mock_cloudflare(verb, path, res, req = nil)
+    mock_http_json(verb, File.join(CloudFlare::Client::CLOUDFLARE_API_URL, path), res, req, 200)
+  end
+
+  def mock_minecraft_node(verb, minecraft, endpoint, res, req = nil)
+    mock_http_json(
+      verb,
+      minecraft.node.full_url(endpoint).sub('http://', "http://#{Gamocosm.minecraft_wrapper_username}:#{@minecraft.minecraft_wrapper_password}@"),
+      res,
+      req,
+      200,
+    )
+  end
+
+  def mock_http_reset!
+    WebMock.reset!
+  end
 end
