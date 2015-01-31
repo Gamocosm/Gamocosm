@@ -58,6 +58,10 @@ module Gamocosm
       'forge/1.7.10-10.13.2.1230' => { name: 'Forge (1.7.10)', time: 1 },
       'spigot/1.8' => { name: 'Spigot (1.8)', time: 10 },
       'craftbukkit/1.8' => { name: 'CraftBukkit (1.8)', time: 10 },
+      'agrarianskies/1.6.4' => { name: 'Agrarian Skies (1.6.4) 2GB+ Recommended', time: 1 },
+	  'ftbresurrection/1.7.10' => { name: 'FTB Resurrection (1.7.10) 2GB+ Recommended', time: 2 },
+	  'crashlanding/1.6.4' => { name: 'Crash Landing (1.6.4) 2GB+ Recommended', time: 1 },
+	  'direwolf20/1.7.10' => { name: 'Direwolf20 (1.7.10) 2GB+ Recommended', time: 2 },
     }
   end
 
