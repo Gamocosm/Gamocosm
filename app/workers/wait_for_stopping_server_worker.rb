@@ -5,12 +5,12 @@ class WaitForStoppingServerWorker
   def perform(server_id, digital_ocean_action_id, times = 0)
     server = Server.find(server_id)
     begin
-      if times > 16
-        server.minecraft.log("Still waiting for Digital Ocean server to stop, tried #{times} times")
-      elsif times > 32
+      if times > 32
         server.minecraft.log('Digital Ocean took too long to stop server. Aborting')
         server.reset_partial
         return
+      elsif times > 16
+        server.minecraft.log("Still waiting for Digital Ocean server to stop, tried #{times} times")
       end
       if !server.remote.exists?
         server.minecraft.log('Error stopping server; remote_id is nil. Aborting')

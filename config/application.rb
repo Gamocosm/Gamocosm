@@ -53,15 +53,77 @@ module Gamocosm
 
   def self.minecraft_flavours
     return {
-      'vanilla/1.8.1' => { name: 'Vanilla (latest)', time: 1 },
-      'mc-server/null' => { name: 'MCServer', time: 1 },
-      'forge/1.7.10-10.13.2.1230' => { name: 'Forge (1.7.10)', time: 1 },
-      'spigot/1.8' => { name: 'Spigot (1.8)', time: 10 },
-      'craftbukkit/1.8' => { name: 'CraftBukkit (1.8)', time: 10 },
-      'agrarianskies/1.6.4' => { name: 'Agrarian Skies (1.6.4) 2GB+ Recommended', time: 1 },
-	  'ftbresurrection/1.7.10' => { name: 'FTB Resurrection (1.7.10) 2GB+ Recommended', time: 2 },
-	  'crashlanding/1.6.4' => { name: 'Crash Landing (1.6.4) 2GB+ Recommended', time: 1 },
-	  'direwolf20/1.7.10' => { name: 'Direwolf20 (1.7.10) 2GB+ Recommended', time: 2 },
+      'vanilla/1.8.1' => {
+        name: 'Vanilla (latest)',
+        time: 1,
+        developers: ['Mojang'],
+        website: 'https://minecraft.net',
+        notes: [],
+      },
+      'mc-server/null' => {
+        name: 'MCServer',
+        time: 1,
+        developers: ['MCServer team'],
+        website: 'http://mc-server.org',
+        notes: [],
+      },
+      'forge/1.7.10-10.13.2.1230' => {
+        name: 'Forge (1.7.10)',
+        time: 1,
+        developers: ['Minecraft Forge team'],
+        website: 'http://minecraftforge.net',
+        notes: [],
+      },
+      'spigot/1.8' => {
+        name: 'Spigot (1.8)',
+        time: 10,
+        developers: ['Spigot team'],
+        website: 'http://spigotmc.org',
+        notes: [],
+      },
+      'craftbukkit/1.8' => {
+        name: 'CraftBukkit (1.8)',
+        time: 10,
+        developers: ['Spigot team', 'CraftBukkit team'],
+        website: 'http://spigotmc.org',
+        notes: [],
+      },
+      'agrarian_skies/1.6.4' => {
+        name: 'Agrarian Skies (1.6.4)',
+        time: 1,
+        developers: ['Jadedcat'],
+        website: 'http://forum.feed-the-beast.com/threads/41906/',
+        notes: [
+          '2GB+ recommended',
+        ],
+      },
+      'ftb_resurrection/1.7.10' => {
+        name: 'FTB Resurrection (1.7.10)',
+        time: 2,
+        developers: ['FTB team'],
+        website: 'http://feed-the-beast.com',
+        notes: [
+          '2GB+ recommended',
+        ],
+      },
+      'crash_landing/1.6.4' => {
+        name: 'Crash Landing (1.6.4)',
+        time: 1,
+        developers: ['Iskandar', 'others'],
+        website: 'http://forum.feed-the-beast.com/threads/46277/',
+        notes: [
+          '2GB+ recommended',
+        ],
+      },
+      'direwolf20/1.7.10' => {
+        name: 'Direwolf20 (1.7.10)',
+        time: 2,
+        developers: ['FTB team'],
+        website: 'http://feed-the-beast.com',
+        notes: [
+          '2GB+ recommended',
+        ],
+      },
     }
   end
 

@@ -1,4 +1,4 @@
 (($) ->
-	  $ ->
-		  $('[data-toggle="tooltip"]').tooltip()
+	$ ->
+		$('[data-toggle="tooltip"]').tooltip()
 )(jQuery)
