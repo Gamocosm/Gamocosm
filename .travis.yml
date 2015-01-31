@@ -11,7 +11,9 @@ env:
         - DATABASE_HOST=localhost
         - DEVISE_SECRET_KEY=1234abc
         - DIGITAL_OCEAN_API_KEY=abc123
+        - DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH=id_rsa.pub
 before_script:
     - psql -c 'create database gamocosm_test;' -U postgres
     - bundle exec rake db:schema:load
+    - ssh-keygen -t rsa -N "" -f id_rsa
 script: bundle exec rake test:functionals test:units
