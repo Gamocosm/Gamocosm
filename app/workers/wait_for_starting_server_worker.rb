@@ -7,7 +7,7 @@ class WaitForStartingServerWorker
     begin
       if times > 64
         server.minecraft.log('Digital Ocean took too long to start server. Aborting')
-        server.minecraft.reset_partial
+        server.reset_partial
         return
       elsif times > 32
         server.minecraft.log("Still waiting for Digital Ocean server to start, tried #{times} times")

@@ -11,7 +11,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def teardown
-    assert_equal 0, Sidekiq::Worker.jobs.count, 'Unexpected Sidekiq jobs remain'
+    assert_equal 0, Sidekiq::Worker.jobs.inject(0) { |total, kv| total + kv.second.size }, "Unexpected Sidekiq jobs remain: #{Sidekiq::Worker.jobs}"
   end
 
   def user_digital_ocean_before!
@@ -31,9 +31,22 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   test "a lot of things (\"test everything\" - so it goes)" do
+    if ENV['TEST_REAL'] == 'true'
+      begin
+        WebMock.allow_net_connect!
+        do_a_lot_of_things
+      ensure
+        WebMock.disable_net_connect!
+      end
+    else
+      do_a_lot_of_things
+    end
+  end
+
+  def do_a_lot_of_things
     user_digital_ocean_before!
     login_user('test@test.com', '1234test')
-    minecraft = create_server('test', 'vanilla/1.8.1', 'nyc3', '512mb')
+    minecraft = create_server('test2', 'vanilla/1.8.1', 'nyc3', '512mb')
     start_server(minecraft, { motd: 'A Minecraft Server' })
     update_minecraft_properties(minecraft, { motd: 'A Gamocosm Minecraft Server' })
     enable_autoshutdown_server(minecraft)
@@ -44,35 +57,17 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     logout_user
     user_digital_ocean_after!
   end
-=begin
-  test "mcserver" do
-    user_digital_ocean_before!
-    login_user('test@test.com', '1234test')
-    minecraft = create_server('test', 'mc-server/null', 'nyc3', '512mb')
-    start_server(minecraft, { })
-    delete_server(minecraft)
-    sleep 4
-    logout_user
-    user_digital_ocean_after!
-  end
 
-  test "forge server" do
-    user_digital_ocean_before!
-    login_user('test@test.com', '1234test')
-    minecraft = create_server('test', 'forge/1.7.10-10.13.2.1230', 'nyc3', '512mb')
-    start_server(minecraft, { motd: 'A Minecraft Server' })
-    update_minecraft_properties(minecraft, { motd: 'A Gamocosm Minecraft Server' })
-    delete_server(minecraft)
-    sleep 4
-    logout_user
-    user_digital_ocean_after!
-  end
-=end
   def start_server(minecraft, properties)
     get start_minecraft_path(minecraft)
     assert_redirected_to minecraft_path(minecraft)
     follow_redirect!
     assert_response :success
+    # this sometimes fails, leave here until fixed
+    if flash[:success].nil?
+      Rails.logger.error 'Start server not success'
+      Rails.logger.error response.body
+    end
     assert_not_nil flash[:success]
     assert_select 'meta[http-equiv=refresh]' do |elements|
       assert_equal 1, elements.count
@@ -100,7 +95,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     old_minecrafts_count = Minecraft.count
     post minecrafts_path, { minecraft: { name: name, flavour: flavour, server_attributes: { do_region_slug: do_region_slug, do_size_slug: do_size_slug } } }
     assert_equal old_minecrafts_count + 1, Minecraft.count
-    minecraft = Minecraft.first
+    minecraft = Minecraft.find_by(name: name)
     assert_redirected_to minecraft_path(minecraft)
     follow_redirect!
     assert_response :success
@@ -213,7 +208,15 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
 
   def wait_for_starting_server(minecraft)
     track_sidekiq_worker('WaitForStartingServerWorker', 16, 32)
-    track_sidekiq_worker('SetupServerWorker', 16, 16)
+    if ENV['TEST_REAL'] == 'true' || ENV['TEST_DOCKER'] == 'true'
+      track_sidekiq_worker('SetupServerWorker', 16, 16)
+    else
+      if SetupServerWorker.jobs.count > 0
+        assert_equal 1, SetupServerWorker.jobs.count, "More than 1 SetupServerWorker jobs: #{SetupServerWorker.jobs}"
+        SetupServerWorker.jobs.clear
+        StartMinecraftWorker.perform_in(0.seconds, minecraft.server.id)
+      end
+    end
     track_sidekiq_worker('StartMinecraftWorker', 4, 1)
     # workers do Server.find, here uses minceraft.server
     minecraft.reload
