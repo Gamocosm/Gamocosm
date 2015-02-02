@@ -11,7 +11,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def teardown
-    assert_equal 0, Sidekiq::Worker.jobs.inject(0) { |total, kv| total + kv.second.size }, "Unexpected Sidekiq jobs remain: #{Sidekiq::Worker.jobs}"
+    assert_equal 0, Sidekiq::Worker.jobs.total_count, "Unexpected Sidekiq jobs remain: #{Sidekiq::Worker.jobs}"
   end
 
   def user_digital_ocean_before!
@@ -44,14 +44,23 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def do_a_lot_of_things
+    mock_digital_ocean_base(200, [], [], [])
     user_digital_ocean_before!
     login_user('test@test.com', '1234test')
     minecraft = create_server('test2', 'vanilla/1.8.1', 'nyc3', '512mb')
+    minecraft.server.create_server_domain
+    mock_cloudflare_list_dns(200, [])
+    mock_cloudflare_add_dns(200, minecraft.server.server_domain.name, 'localhost')
+    mock_cloudflare_edit_dns(200, 1, minecraft.server.server_domain.name, 'localhost')
+    mock_cloudflare_delete_dns(200, 1)
+    mock_digital_ocean_droplet_create(200, minecraft)
     start_server(minecraft, { motd: 'A Minecraft Server' })
+    mock_minecraft_properties(200, minecraft, { motd: 'A Gamocosm Minecraft Server' })
     update_minecraft_properties(minecraft, { motd: 'A Gamocosm Minecraft Server' })
     enable_autoshutdown_server(minecraft)
     wait_for_autoshutdown_server minecraft
     wait_for_stopping_server minecraft
+    mock_digital_ocean_snapshot_delete(200, 1)
     delete_server(minecraft)
     sleep 4
     logout_user
@@ -100,6 +109,8 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
     assert_not_nil flash[:success]
+    # minecrafts controller updates server remote id when created
+    minecraft.reload
     return minecraft
   end
 
@@ -199,25 +210,34 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def wait_for_autoshutdown_server(minecraft)
-    track_sidekiq_worker('AutoshutdownMinecraftWorker', 4, 16)
-    # workers do Server.find, here uses minceraft.server
-    minecraft.reload
+    if have_user_server_for_test?
+      track_sidekiq_worker('AutoshutdownMinecraftWorker', 0, 16)
+    else
+      assert_equal 1, AutoshutdownMinecraftWorker.jobs.count, "Bad number of AutoshutdownMinecraftWorker jobs: #{AutoshutdownMinecraftWorker.jobs}"
+      AutoshutdownMinecraftWorker.jobs.clear
+      error = minecraft.stop
+      assert_nil error, "Error stopping Minecraft server: #{error}"
+    end
     assert_not minecraft.server.remote.error?, "Minecraft server remote error: #{minecraft.server.remote.error}"
     assert_includes ['stopping', 'saving'], minecraft.server.pending_operation
   end
 
   def wait_for_starting_server(minecraft)
-    track_sidekiq_worker('WaitForStartingServerWorker', 16, 32)
-    if ENV['TEST_REAL'] == 'true' || ENV['TEST_DOCKER'] == 'true'
-      track_sidekiq_worker('SetupServerWorker', 16, 16)
+    # workers do Server.find, here uses minceraft.server
+    minecraft.reload
+    mock_digital_ocean_server(200, minecraft.server, 'active')
+    mock_digital_ocean_action_after(mock_digital_ocean_action(200, 1, 1, 'in-progress').times(2).then, 200, 'completed')
+    track_sidekiq_worker('WaitForStartingServerWorker', 0, 32)
+    mock_minecraft_running(200, minecraft, 1)
+    mock_minecraft_properties(200, minecraft, { })
+    if have_user_server_for_test?
+      track_sidekiq_worker('SetupServerWorker', 0, 16)
     else
-      if SetupServerWorker.jobs.count > 0
-        assert_equal 1, SetupServerWorker.jobs.count, "More than 1 SetupServerWorker jobs: #{SetupServerWorker.jobs}"
-        SetupServerWorker.jobs.clear
-        StartMinecraftWorker.perform_in(0.seconds, minecraft.server.id)
-      end
+      assert_equal 1, SetupServerWorker.jobs.count, "More than 1 SetupServerWorker jobs: #{SetupServerWorker.jobs}"
+      SetupServerWorker.jobs.clear
+      StartMinecraftWorker.perform_in(0.seconds, minecraft.server.id)
     end
-    track_sidekiq_worker('StartMinecraftWorker', 4, 1)
+    track_sidekiq_worker('StartMinecraftWorker', 0, 1)
     # workers do Server.find, here uses minceraft.server
     minecraft.reload
     assert minecraft.server.remote.exists?, 'Minecraft server remote does not exist'
@@ -231,8 +251,11 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def wait_for_stopping_server(minecraft)
-    track_sidekiq_worker('WaitForStoppingServerWorker', 16, 16)
-    track_sidekiq_worker('WaitForSnapshottingServerWorker', 16, 32)
+    mock_digital_ocean_server(200, minecraft.server, 'off')
+    mock_digital_ocean_action_after(mock_digital_ocean_action(200, 1, 1, 'in-progress').times(2).then, 200, 'completed')
+    track_sidekiq_worker('WaitForStoppingServerWorker', 0, 16)
+    mock_digital_ocean_action_after(mock_digital_ocean_action(200, 1, 1, 'in-progress').times(2).then, 200, 'completed')
+    track_sidekiq_worker('WaitForSnapshottingServerWorker', 0, 32)
     # workers do Server.find, here uses minceraft.server
     minecraft.reload
     assert_not minecraft.server.remote.exists?, 'Minecraft server remote exists'

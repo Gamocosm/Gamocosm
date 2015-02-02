@@ -236,7 +236,7 @@ class MinecraftsController < ApplicationController
     if error
       return redirect_to minecraft_path(@minecraft), flash: { error: error }
     end
-    return redirect_to minecraft_path(@minecraft), flash: { succes: 'Added SSH public key to Digital Ocean' }
+    return redirect_to minecraft_path(@minecraft), flash: { success: 'Added SSH public key to Digital Ocean' }
   end
 
   def delete_digital_ocean_ssh_key
@@ -245,7 +245,7 @@ class MinecraftsController < ApplicationController
     if error
       return redirect_to minecraft_path(@minecraft), flash: { error: error }
     end
-    return redirect_to minecraft_path(@minecraft), flash: { notice: 'Deleted SSH public key from Digital Ocean' }
+    return redirect_to minecraft_path(@minecraft), flash: { success: 'Deleted SSH public key from Digital Ocean' }
   end
 
   def delete_digital_ocean_droplet

@@ -25,6 +25,13 @@ class UserTest < ActiveSupport::TestCase
   #   assert true
   # end
 
+  def setup
+    @owner = User.find(1)
+  end
+
+  def teardown
+  end
+
   test 'validate user' do
     a = User.new
     a.digital_ocean_api_key = " AB\n\0 "
@@ -36,5 +43,10 @@ class UserTest < ActiveSupport::TestCase
     a.digital_ocean_api_key = " \r\t\0 "
     assert_not a.valid?, 'User passed bad validation'
     assert_nil a.digital_ocean_api_key, 'Digital Ocean API key should be strip -> blank -> nil'
+  end
+
+  test 'get digital ocean ssh key' do
+    mock_digital_ocean_ssh_key_get(200, 1, 'a b c')
+    assert_equal 'a b c', @owner.digital_ocean_ssh_public_key(1), 'Failed to get Digital Ocean SSH key'
   end
 end

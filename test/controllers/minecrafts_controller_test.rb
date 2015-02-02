@@ -10,12 +10,12 @@ class MinecraftsControllerTest < ActionController::TestCase
     @minecraft = Minecraft.first
     @minecraft.server.update_columns(remote_id: nil, pending_operation: nil)
     mock_http_reset!
-    mock_base
+    mock_digital_ocean_base(200, [], [], [])
     Rails.cache.clear
   end
 
   def teardown
-    assert_equal 0, Sidekiq::Worker.jobs.inject(0) { |total, kv| total + kv.second.size }, "Unexpected Sidekiq jobs remain: #{Sidekiq::Worker.jobs}"
+    assert_equal 0, Sidekiq::Worker.jobs.total_count, "Unexpected Sidekiq jobs remain: #{Sidekiq::Worker.jobs}"
   end
 
   test 'servers page with digital ocean api token' do
@@ -39,8 +39,7 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'servers page with invalid digital ocean api token' do
-    mock_http_reset!
-    mock_base(400)
+    mock_digital_ocean_base(400, [], [], [])
     sign_in @owner
     get :index
     assert_response :success
@@ -66,7 +65,7 @@ class MinecraftsControllerTest < ActionController::TestCase
       assert_redirected_to minecraft_path(mc2)
       assert_not_nil flash[:success], 'No new server message'
       mc2.server.update_columns(remote_id: 1)
-      mock_minecraft_running mc2, 1
+      mock_minecraft_running 200, mc2, 1
       delete :destroy, { id: @minecraft.id }
       assert_redirected_to minecrafts_path
       assert_equal 'Server is deleting', flash[:success], 'Minecraft delete not success'
@@ -89,36 +88,20 @@ class MinecraftsControllerTest < ActionController::TestCase
   test 'friend can start and stop server' do
     sign_in @friend
     view_server @minecraft
-    mock_digital_ocean(:post, '/droplets', { droplet: { id: 1 } }, {
-      name: 'test.minecraft.gamocosm',
-      size: @minecraft.server.do_size_slug,
-      region: @minecraft.server.do_region_slug,
-      image: Gamocosm.digital_ocean_base_image_slug,
-      ssh_keys: ['1'],
-    })
-    mock_digital_ocean(:get, '/droplets/1/actions', { actions: [{ id: 1 }] })
-    mock_digital_ocean(:post, '/account/keys', { ssh_key: { id: 1 } }, {
-      name: 'gamocosm',
-      public_key: Gamocosm.digital_ocean_public_key,
-    })
+    mock_digital_ocean_server(200, @minecraft.server, 'new')
+    mock_digital_ocean_droplet_create(200, @minecraft)
     start_server @minecraft
     @minecraft.server.update_columns(pending_operation: nil)
-    mock_minecraft_running @minecraft, 1
+    mock_minecraft_running 200,  @minecraft, 1
     view_server @minecraft
     assert @minecraft.running?, 'Minecraft server isn\'t running'
-    mock_digital_ocean(:post, '/droplets/1/actions', { action: { id: 1 } }, {
-      type: 'shutdown',
-    })
     stop_server @minecraft
   end
 
   test 'reboot server' do
     sign_in @owner
     @minecraft.server.update_columns(remote_id: 1)
-    mock_minecraft_running @minecraft, 1
-    mock_digital_ocean(:post, '/droplets/1/actions', { action: { id: 1 } }, {
-      type: 'reboot',
-    })
+    mock_minecraft_running 200, @minecraft, 1
     get :reboot, { id: @minecraft.id }
     assert_redirected_to minecraft_path(@minecraft)
     view_server(@minecraft)
@@ -132,7 +115,7 @@ class MinecraftsControllerTest < ActionController::TestCase
   test 'control panel download minecraft' do
     sign_in @friend
     @minecraft.server.update_columns(remote_id: 1)
-    mock_minecraft_running @minecraft, 0
+    mock_minecraft_running 200, @minecraft, 0
     get :download, { id: @minecraft.id }
     assert_redirected_to "http://#{Gamocosm.minecraft_wrapper_username}:#{@minecraft.minecraft_wrapper_password}@#{@minecraft.server.remote.ip_address}:#{Minecraft::Node::MCSW_PORT}/download_world"
   end
@@ -140,7 +123,7 @@ class MinecraftsControllerTest < ActionController::TestCase
   test 'update minecraft properties' do
     sign_in @owner
     @minecraft.server.update_columns(remote_id: 1)
-    mock_minecraft_running @minecraft, 1
+    mock_minecraft_running 200, @minecraft, 1
     put :update_properties, {
       id: @minecraft.id,
       minecraft_properties: {
@@ -155,19 +138,11 @@ class MinecraftsControllerTest < ActionController::TestCase
   test 'pause and resume minecraft' do
     sign_in @friend
     @minecraft.server.update_columns(remote_id: 1)
-    mock_minecraft_running @minecraft, 1
-    mock_minecraft_node(:get, @minecraft, :stop, { })
+    mock_minecraft_running 200, @minecraft, 1
     get :pause, { id: @minecraft.id }
     assert_redirected_to minecraft_path(@minecraft)
     assert_equal 'Server paused', flash[:success], 'Minecraft pause not successful'
-    mock_http_reset!
-    mock_base
-    mock_minecraft_running @minecraft, 0
-    mock_minecraft_node(:post, @minecraft, :start, {
-      pid: 1,
-    }, {
-      ram: "#{@minecraft.server.ram}M",
-    })
+    mock_minecraft_running 200, @minecraft, 0
     get :resume, { id: @minecraft.id }
     assert_redirected_to minecraft_path(@minecraft)
     assert_equal 'Server resumed', flash[:success], 'Minecraft resume not successful'
@@ -176,10 +151,7 @@ class MinecraftsControllerTest < ActionController::TestCase
   test 'exec minecraft command' do
     sign_in @owner
     @minecraft.server.update_columns(remote_id: 1)
-    mock_minecraft_running @minecraft, 1
-    mock_minecraft_node(:post, @minecraft, :exec, { }, {
-      command: 'help',
-    })
+    mock_minecraft_running 200, @minecraft, 1
     post :command, { id: @minecraft.id, command: { data: 'help' } }
     assert_redirected_to minecraft_path(@minecraft)
     assert_equal 'Command sent', flash[:success], 'Minecraft exec command not successful'
@@ -188,8 +160,7 @@ class MinecraftsControllerTest < ActionController::TestCase
   test 'backup minecraft' do
     sign_in @friend
     @minecraft.server.update_columns(remote_id: 1)
-    mock_minecraft_running @minecraft, 0
-    mock_minecraft_node(:post, @minecraft, :backup, { })
+    mock_minecraft_running 200, @minecraft, 0
     post :backup, { id: @minecraft.id }
     assert_redirected_to minecraft_path(@minecraft)
     assert_equal 'World backed up remotely on server', flash[:success], 'Minecraft backup not successful'
@@ -343,32 +314,54 @@ class MinecraftsControllerTest < ActionController::TestCase
     assert_select 'td', { text: friend.email, count: 0 }
   end
 
-  def mock_base(status = 200)
-    mock_digital_ocean(:get, '/droplets', { droplets: [] }, nil, status)
-    mock_digital_ocean(:get, '/images', { images: [] }, nil, status)
-    mock_digital_ocean(:get, '/account/keys', { ssh_keys: [] }, nil, status)
-    mock_digital_ocean(:get, '/sizes', { sizes: DigitalOcean::Size::DEFAULT_SIZES }, nil, status)
-    mock_digital_ocean(:get, '/regions', { sizes: DigitalOcean::Region::DEFAULT_REGIONS }, nil, status)
+  # TODO: these don't really belong here
+  test 'delete digital ocean droplet' do
+    sign_in @owner
+    mock_digital_ocean_droplet_actions(200, 1)
+    post :delete_digital_ocean_droplet, { digital_ocean_droplet: { remote_id: 1 } }
+    assert_redirected_to minecrafts_path
+    get :index
+    assert_response :success
+    assert_match /deleted droplet/i, flash[:notice], 'Something went wrong deleting Digital Ocean droplet from Digital Ocean control panel'
   end
 
-  def mock_minecraft_running(minecraft, pid)
-    mock_digital_ocean(:get, '/droplets/1', {
-      droplet: {
-        id: 1,
-        networks: { v4: [{ ip_address: '12.34.56.78', type: 'public' }] },
-        status: 'active'
+  test 'delete digital ocean snapshot' do
+    sign_in @owner
+    mock_digital_ocean_snapshot_delete(200, 1)
+    post :delete_digital_ocean_snapshot, { digital_ocean_snapshot: { remote_id: 1 } }
+    assert_redirected_to minecrafts_path
+    get :index
+    assert_response :success
+    assert_match /deleted snapshot/i, flash[:notice], 'Something went wrong deleting Digital Ocean snapshot from Digital Ocean control panel'
+  end
+
+  test 'add digital ocean ssh key' do
+    sign_in @owner
+    mock_digital_ocean_ssh_key_add(200, 'me', 'a b c')
+    post :add_digital_ocean_ssh_key, {
+      id: @minecraft.id,
+      digital_ocean_ssh_key: {
+        name: 'me',
+        data: 'a b c',
       },
-    })
-    assert minecraft.server.running?, 'Server is\'t running'
-    mock_minecraft_node(:get, minecraft, :pid, {
-      pid: pid,
-    })
-    mock_minecraft_node(:get, minecraft, :minecraft_properties, {
-      properties: Minecraft::Properties::DEFAULT_PROPERTIES,
-    })
-    mock_minecraft_node(:post, minecraft, :minecraft_properties, {
-      properties: Minecraft::Properties::DEFAULT_PROPERTIES,
-    })
+    }
+    assert_redirected_to minecraft_path(@minecraft)
+    view_server @minecraft
+    assert_match /added ssh public key/i, flash[:success], 'Adding Digital Ocean SSH key not success'
+  end
+
+  test 'delete digital ocean ssh key' do
+    sign_in @owner
+    mock_digital_ocean_ssh_key_delete(204, 1)
+    post :delete_digital_ocean_ssh_key, {
+      id: @minecraft.id,
+      digital_ocean_ssh_key: {
+        remote_id: 1,
+      },
+    }
+    assert_redirected_to minecraft_path(@minecraft)
+    view_server @minecraft
+    assert_match /deleted ssh public key/i, flash[:success], 'Deleting Digital Ocean SSH key not success'
   end
 
 end

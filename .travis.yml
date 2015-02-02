@@ -16,4 +16,4 @@ before_script:
     - psql -c 'create database gamocosm_test;' -U postgres
     - bundle exec rake db:schema:load
     - ssh-keygen -t rsa -N "" -f id_rsa
-script: bundle exec rake test:functionals test:units
+script: bundle exec rake test
