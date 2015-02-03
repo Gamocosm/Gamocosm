@@ -24,8 +24,8 @@ class ActiveSupport::TestCase
 
   # Add more helper methods to be used by all tests here...
 
-  def have_user_server_for_test?
-    return ENV['TEST_REAL'] == 'true' || ENV['TEST_DOCKER'] == 'true'
+  def have_user_server?
+    return ENV['TEST_DOCKER'] == 'true'
   end
 
   # WebMock base helpers

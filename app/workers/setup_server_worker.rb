@@ -5,6 +5,17 @@ class SetupServerWorker
   include Sidekiq::Worker
   sidekiq_options retry: 0
 
+  SYSTEM_PACKAGES = [
+    'yum-plugin-security',
+    'firewalld',
+    'java-1.7.0-openjdk-headless',
+    'python3',
+    'python3-devel',
+    'python3-pip',
+    'git',
+    'tmux',
+  ]
+
   def perform(user_id, server_id, times = 0)
     user = User.find(user_id)
     server = Server.find(server_id)
@@ -89,7 +100,7 @@ class SetupServerWorker
                 execute :echo, '/swapfile none swap defaults 0 0', '>>', '/etc/fstab'
               end
               server.update_columns(remote_setup_stage: 2)
-              execute :yum, '-y', 'install', 'yum-plugin-security', 'java-1.7.0-openjdk-headless', 'python3', 'python3-devel', 'python3-pip', 'git', 'tmux'
+              execute :yum, '-y', 'install', *SYSTEM_PACKAGES
               execute :yum, '-y', 'update', '--security'
               execute 'firewall-cmd', '--add-port=5000/tcp'
               execute 'firewall-cmd', '--permanent', '--add-port=5000/tcp'

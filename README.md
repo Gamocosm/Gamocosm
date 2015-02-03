@@ -6,30 +6,19 @@ Digital Ocean is used as the backend/hosting service, due to cost, reliability, 
 Gamocosm works well for friends who play together, but not 24/7.
 Running a server 14 hours a week (2 hours every day) may cost 40 cents a month, instead of $5.
 
-### Minecraft Server Wrapper
+## Minecraft Server Wrapper
 The [Minecraft Server Wrapper][4] (for lack of a better name) is a light python webserver.
 It provides an HTTP API for starting and stopping Minecraft servers, downloading the world, etc.
 Please check it out and help improve it too!
 
-### Gamocosm Minecraft Flavours
+## Gamocosm Minecraft Flavours
 The [gamocosm-minecraft-flavours][10] repository includes the setup scripts used to install different flavours of Minecraft on a new server.
 Read this [wiki page][11] for adding support for new flavours, or manually installing something yourself.
 
-### Contributing
+## Contributing
 Pull requests are welcome!
 
-#### Tests
-
-- `./env.sh rake test` for everything (uses API token from "env.sh")
-- `./env.sh rake test:functionals test:units` for local tests
-- If nothing fails tests should delete everything they create.
-
-- Because there's a lot of infrastructure (see below, "Technical details"), sometimes tests will fail for random reasons
-- I have not found a good workaround for this
-- Run `RAILS_ENV=test ./env.sh rails [s|c]` to run the server or console (respectively) in test mode
-- Note: the test server does not automatically reload source files when you edit them. You must restart the server
-
-#### Setting up your development environment
+### Setting up your development environment
 You should have a Unix/Linux system.
 The following instructions were made for Fedora 20, but the steps should be similar on other distributions.
 
@@ -39,15 +28,16 @@ The following instructions were made for Fedora 20, but the steps should be simi
 1. Install Bundler: `gem install bundler`
 1. Install gem dependencies: `bundle install`
 1. Run `cp env.sh.template env.sh`
-1. Run `chmod u+x env.sh`
 1. Enter config in `env.sh`
 1. Initialize postgresql: `(sudo) postgresql-setup initdb`
 1. Start postgresql, memcached, and redis manually: `(sudo) service start postgresql/memcached/redis`, or enable them to start at boot time: `(sudo) service enable postgresql/memcached/redis`
-1. After configuring the database, run `./env.sh rake db:setup`
-1. Start the server: `./env.sh rails s`
-1. Start the Sidekiq worker: `./env.sh sidekiq`
+1. After configuring the database, run `./run.sh rake db:setup`
+1. Start the server: `./run.sh rails s`
+1. Start the Sidekiq worker: `./run.sh sidekiq`
 
-##### env.sh options
+### run.sh and env.sh options
+`run.sh` and `tests.sh` both source `env.sh` for environment variables/configuration.
+`run.sh` also does `bundle exec` for you, so you just do `./run.sh GEM ARGS ...`.
 
 - `DIGITAL_OCEAN_API_KEY`: your Digital Ocean api token
 - `DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH`: ssh key to be added to new servers to SSH into
@@ -69,7 +59,7 @@ The following instructions were made for Fedora 20, but the steps should be simi
 - `DEVELOPER_EMAILS`: comma separated list of emails to send exceptions to
 - `BADNESS_SECRET`: secret to protect `/badness` endpoint
 
-##### Database configuration
+### Database configuration
 Locate `pg_hba.conf`. On Fedora this is in `/var/lib/pgsql/data/`.
 This file tells postgresql how to authenticate users. Read about it on the [PostgreSQL docs][1].
 To restart postgresql: `(sudo) service postgresql restart`
@@ -106,23 +96,22 @@ Depending on what method you want to use, add the following under the line that 
 
 Example: `local postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm md5`
 
-#### Technical details
+### Technical details
 Hmmmm.
 
-##### Data
+#### Data
 - Gamocosm has a lot of infrastructure: Digital Ocean's API, Digital Ocean servers/droplets, Minecraft and the server wrapper, the Gamocosm rails server, and the Gamocosm sidekiq worker
 - Avoid state whenever possible; less chance of corruption with less data
 - Idempotency is good
 
-##### Error handling
-
+#### Error handling
 - Methods that "do things" should return nil on success, or a message or object on error.
 - Methods that "return things" should use `.error!` to mark a return value is an error. These errors should always be strings.
 - You can use `.error?` to check if a return value is an error. `nil` cannot be made an error.
 - These methods are defined on `Object` in `config/initializers/my_extensions.rb`
 - I prefer only throwing exceptions in "exceptional cases", not when I expect something to go wrong (e.g. user input).
 
-##### Important checks
+#### Important checks
 - `server.remote.exists?`: `!server.remote_id.nil?`
 - `server.remote.error?`: whether there was an error or not retrieving info about a droplet from Digital Ocean
 	- true if the user is missing his Digital Ocean API token, or if it's invalid
@@ -133,7 +122,7 @@ Hmmmm.
 - `minecraft.node.error?`: error communicating with Minecraft wrapper on server
 - `minecraft.running?`: `server.running? && !node.error? && node.pid > 0` (notice symmetry with `server.running?`)
 
-##### Background workers
+#### Background workers
 - Idempotent
 - Use `ActiveRecord::Base.connection_pool.with_connection do |conn|` if threads (e.g. teimout) access the database
 - Run finite amount of times (keep track of how many times looped)
@@ -144,15 +133,34 @@ Hmmmm.
 
 #### Other useful stuff
 - Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `env.sh`
+	- the current tests don't use this, and mock all HTTP requests/responses
 - The Sidekiq web interface is mounted at `/sidekiq`
 - Sidekiq doesn't automatically reload source files when you edit them. You must restart it for changes to take effect
 - New Relic RPM is available in developer mode at `/newrelic`
-- Run the console: `./env.sh rails c`
-- Reset the database: `./env.sh rake db:reset`
+- Run the console: `./run.sh rails c`
+- Reset the database: `./run.sh rake db:reset`
 - Reset Sidekiq jobs: `Sidekiq::Queue.new.each { |job| job.delete }` in the rails console
 - Reset Sidekiq stats: `Sidekiq::Stats.new.reset` in the rails console
 - The deployment scripts and configuration are in the `sysadmin/` directory
 - List of `rake db` commands: [Stack Overflow][3]
+
+## Tests
+- `./run.sh rake test` or `./tests.sh`
+- tests use WebMock to mock http requests (no external requests)
+- `RAILS_ENV=test ./run.sh rails [s|c]` to run the server or console (respectively) in test mode
+- Note: the test server, unlike the dev server, does not automatically reload source files when you change them
+
+### More testing by simulating a user server with Docker
+Without a server to connect to, Gamocosm can't try SetupServerWorker or AutoshutdownMinecraftWorker.
+"test-docker/" contains a Dockerfile for building a basic Fedora container with an SSH server (simulating a bare Digital Ocean server).
+If you set `$TEST_DOCKER` to "true", the tests will assume there is a running Docker Gamocosm container to connect to.
+
+`tests.sh` will build the image, start the container, and delete the container for you if you specify to use Docker.
+Otherwise, it will run the tests normally (equivalent to `./run.sh rake test`).
+You should have non-root access to Docker.
+You could also manage Docker yourself; you can look at the `tests.sh` file for reference.
+
+Example: `TEST_DOCKER=true ./tests.sh`
 
 ### Credits
 - Special thanks to [geetfun][2] who helped with the original development

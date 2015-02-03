@@ -31,19 +31,6 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   test "a lot of things (\"test everything\" - so it goes)" do
-    if ENV['TEST_REAL'] == 'true'
-      begin
-        WebMock.allow_net_connect!
-        do_a_lot_of_things
-      ensure
-        WebMock.disable_net_connect!
-      end
-    else
-      do_a_lot_of_things
-    end
-  end
-
-  def do_a_lot_of_things
     mock_digital_ocean_base(200, [], [], [])
     user_digital_ocean_before!
     login_user('test@test.com', '1234test')
@@ -210,8 +197,11 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def wait_for_autoshutdown_server(minecraft)
-    if have_user_server_for_test?
+    if have_user_server?
+      sleep 64
       track_sidekiq_worker('AutoshutdownMinecraftWorker', 0, 16)
+      # workers do Server.find, here uses minecraft.server
+      minecraft.reload
     else
       assert_equal 1, AutoshutdownMinecraftWorker.jobs.count, "Bad number of AutoshutdownMinecraftWorker jobs: #{AutoshutdownMinecraftWorker.jobs}"
       AutoshutdownMinecraftWorker.jobs.clear
@@ -230,7 +220,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     track_sidekiq_worker('WaitForStartingServerWorker', 0, 32)
     mock_minecraft_running(200, minecraft, 1)
     mock_minecraft_properties(200, minecraft, { })
-    if have_user_server_for_test?
+    if have_user_server?
       track_sidekiq_worker('SetupServerWorker', 0, 16)
     else
       assert_equal 1, SetupServerWorker.jobs.count, "More than 1 SetupServerWorker jobs: #{SetupServerWorker.jobs}"
@@ -238,7 +228,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
       StartMinecraftWorker.perform_in(0.seconds, minecraft.server.id)
     end
     track_sidekiq_worker('StartMinecraftWorker', 0, 1)
-    # workers do Server.find, here uses minceraft.server
+    # workers do Server.find, here uses minecraft.server
     minecraft.reload
     assert minecraft.server.remote.exists?, 'Minecraft server remote does not exist'
     assert_not minecraft.server.remote.error?, "Minecraft server remote error: #{minecraft.server.remote.error}"
@@ -256,7 +246,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     track_sidekiq_worker('WaitForStoppingServerWorker', 0, 16)
     mock_digital_ocean_action_after(mock_digital_ocean_action(200, 1, 1, 'in-progress').times(2).then, 200, 'completed')
     track_sidekiq_worker('WaitForSnapshottingServerWorker', 0, 32)
-    # workers do Server.find, here uses minceraft.server
+    # workers do Server.find, here uses minecraft.server
     minecraft.reload
     assert_not minecraft.server.remote.exists?, 'Minecraft server remote exists'
     assert_not minecraft.server.busy?, "Minecraft server busy: #{minecraft.inspect}, #{minecraft.server.inspect}"

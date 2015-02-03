@@ -16,4 +16,6 @@
 /tmp
 
 env.sh
-coverage/
+/coverage
+/test-docker/id_rsa
+/test-docker/id_rsa.pub

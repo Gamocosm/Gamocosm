@@ -49,7 +49,6 @@ git checkout release
 mkdir tmp
 touch tmp/restart.txt
 cp env.sh.template env.sh
-chmod u+x env.sh
 chown -R http:http .
 
 sudo -u http gem install bundler
@@ -64,9 +63,9 @@ read -p "Please fill in the information in env.sh (press any key to continue)...
 vi env.sh
 # no more sed -i "/SIDEKIQ_ADMIN_PASSWORD/ s/=.*$/=$SIDEKIQ_ADMIN_PASSWORD/" env.sh :(
 
-su - http -c "cd $(pwd) && RAILS_ENV=production ./env.sh --bundler rake db:setup"
+su - http -c "cd $(pwd) && RAILS_ENV=production ./run.sh --bundler rake db:setup"
 
-su - http -c "cd $(pwd) && RAILS_ENV=production ./env.sh --bundler rake assets:precompile"
+su - http -c "cd $(pwd) && RAILS_ENV=production ./run.sh --bundler rake assets:precompile"
 
 OUTDOORS_IP_ADDRESS=$(ifconfig | grep -m 1 "inet" | awk "{ print \$2 }")
 echo "$OUTDOORS_IP_ADDRESS gamocosm.com" >> /etc/hosts
