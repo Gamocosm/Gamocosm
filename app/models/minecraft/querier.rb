@@ -10,30 +10,36 @@ class Minecraft::Querier
     @port = port
   end
 
-  def handshake
-    @connection.send(self.create_packet(PACKET_TYPE_CHALLENGE), 0)
-    data = @connection.recvfrom(256)[0]
-    @challenge = data[5...-1].to_i
+  def handshake(connection)
+    connection.send(self.create_packet(PACKET_TYPE_CHALLENGE), 0)
+    data = connection.recvfrom(256)[0]
+    challenge = data[5...-1].to_i
+    return challenge
   end
 
   def read_all(tries = 4)
-    @connection = UDPSocket.new
-    @connection.connect(@ip_address, @port)
-    begin
-      for i in 0...tries do
-        begin
-          @challenge = 0
-          self.handshake
-          @connection.send(self.create_packet(PACKET_TYPE_QUERY) + [@challenge].pack('N'), 0) # 32 bit unsigned big endian
-          data = @connection.recvfrom(4096)[0][5...-1].split("\x00")
-          return data
-        rescue
-        end
+    data = nil
+    i = 0
+    while data.nil? && i < tries
+      if i != 0
+        sleep 2
       end
-    ensure
-      @connection.close()
+      connection = UDPSocket.new
+      begin
+        Timeout::timeout(2) do
+          connection.connect(@ip_address, @port)
+          challenge = self.handshake(connection)
+          connection.send(self.create_packet(PACKET_TYPE_QUERY) + [challenge].pack('N'), 0) # 32 bit unsigned big endian
+          data = connection.recvfrom(4096)[0][5...-1].split("\x00")
+        end
+      rescue => e
+        Rails.logger.info "Exception in #{self.class}#read_all, try #{i}: #{e}"
+      ensure
+        connection.close
+      end
+      i += 1
     end
-    return nil
+    return data
   end
 
   def create_packet(id)

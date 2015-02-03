@@ -33,10 +33,12 @@ source env.sh
 if use_docker; then
 	echo "Preparing Docker image and container..."
 	pushd test-docker
-	rm -f id_rsa
-	rm -f id_rsa.pub
-	cp "$DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH" id_rsa
-	cp "$DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH" id_rsa.pub
+	if [[ ! -f "id_rsa" ]]; then
+		cp "$DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH" id_rsa
+	fi
+	if [[ ! -f "id_rsa.pub" ]]; then
+		cp "$DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH" id_rsa.pub
+	fi
 	docker build -t gamocosm .
 	docker run -d -p 22:22 -p 4022:4022 -p 5000:5000 -p 25565:25565/udp --name gamocosm_container gamocosm
 	popd

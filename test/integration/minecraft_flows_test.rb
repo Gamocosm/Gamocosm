@@ -198,8 +198,8 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
 
   def wait_for_autoshutdown_server(minecraft)
     if have_user_server?
-      sleep 64
-      track_sidekiq_worker('AutoshutdownMinecraftWorker', 0, 16)
+      sleep 32
+      track_sidekiq_worker('AutoshutdownMinecraftWorker', 1, 16)
       # workers do Server.find, here uses minecraft.server
       minecraft.reload
     else
