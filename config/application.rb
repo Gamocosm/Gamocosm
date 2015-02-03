@@ -124,6 +124,15 @@ module Gamocosm
           '2GB+ recommended',
         ],
       },
+      'tppi/1.6.4' => {
+        name: 'Test Pack Please Ignore (1.6.4)',
+        time: 2,
+        developers: ['TPPI Dev Team'],
+        website: 'http://www.reddit.com/r/TestPackPleaseIgnore/',
+        notes: [
+          '2GB+ recommended',
+        ],
+      },
     }
   end
 
