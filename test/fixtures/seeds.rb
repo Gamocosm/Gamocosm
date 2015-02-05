@@ -14,12 +14,12 @@ ActiveRecord::Base.connection.reset_pk_sequence!(:users)
 end
 
 user = User.first
-user.update_columns(digital_ocean_api_key: Gamocosm.digital_ocean_api_key)
+user.update_columns(digital_ocean_api_key: Gamocosm::DIGITAL_OCEAN_API_KEY)
 
 mc = Minecraft.new
 mc.name = 'test'
 mc.user = User.find(1)
-mc.flavour = Gamocosm.minecraft_flavours.first[0]
+mc.flavour = Gamocosm::MINECRAFT_FLAVOURS.first[0]
 
 server = Server.new
 server.do_region_slug = 'nyc3'

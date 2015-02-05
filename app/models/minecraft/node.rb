@@ -14,8 +14,8 @@ class Minecraft::Node
         'Content-Type' => 'application/json'
       },
       basic_auth: {
-        username: Gamocosm.minecraft_wrapper_username,
-        password: @local_minecraft.minecraft_wrapper_password
+        username: Gamocosm::MCSW_USERNAME,
+        password: @local_minecraft.minecraft_wrapper_password,
       }
     }
   end

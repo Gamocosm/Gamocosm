@@ -21,7 +21,7 @@ module ApplicationHelper
       if minecraft.server.server_domain.nil?
         return minecraft.server.remote.ip_address
       else
-        return "#{minecraft.server.server_domain.name}.#{Gamocosm.user_servers_domain} (or #{minecraft.server.remote.ip_address})"
+        return "#{minecraft.server.server_domain.name}.#{Gamocosm::USER_SERVERS_DOMAIN} (or #{minecraft.server.remote.ip_address})"
       end
     end
     return fallback || 'Not running'

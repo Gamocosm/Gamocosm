@@ -16,7 +16,7 @@ class DigitalOcean::Region
     @all = Rails.cache.read(:digital_ocean_regions)
     if @all.nil?
       begin
-        connection = DigitalOcean::Connection.new(Gamocosm.digital_ocean_api_key).request
+        connection = DigitalOcean::Connection.new(Gamocosm::DIGITAL_OCEAN_API_KEY).request
         response = connection.region.all
         if response.success?
           @all = response.regions.select { |x| x.available }.map { |x| { name: x.name, slug: x.slug } }

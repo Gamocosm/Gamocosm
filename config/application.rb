@@ -7,6 +7,35 @@ require 'rails/all'
 Bundler.require(*Rails.groups)
 
 module Gamocosm
+  DIGITAL_OCEAN_API_KEY = ENV['DIGITAL_OCEAN_API_KEY']
+  DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH = ENV['DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH']
+  DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH = ENV['DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH']
+  DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE = ENV['DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE']
+  SIDEKIQ_ADMIN_USERNAME = ENV['SIDEKIQ_ADMIN_USERNAME']
+  SIDEKIQ_ADMIN_PASSWORD = ENV['SIDEKIQ_ADMIN_PASSWORD']
+  USER_SERVERS_DOMAIN = ENV['USER_SERVERS_DOMAIN']
+  CLOUDFLARE_API_TOKEN = ENV['CLOUDFLARE_API_TOKEN']
+  CLOUDFLARE_EMAIL = ENV['CLOUDFLARE_EMAIL']
+
+  MINECRAFT_FLAVOURS = YAML.load_file(File.expand_path('config/minecraft_flavours.yml', Rails.root)).inject({}) do |a, x|
+    x.second['versions'].each do |v|
+      a["#{x.first}/#{v['tag']}"] = {
+        name: v['name'],
+        time: x.second['time'],
+        developers: x.second['developers'],
+        website: x.second['website'],
+        notes: x.second['notes'],
+      }
+    end
+    a
+  end
+  MINECRAFT_FLAVOURS_GIT_URL = 'https://github.com/Gamocosm/gamocosm-minecraft-flavours.git'
+  MCSW_GIT_URL = 'https://github.com/Gamocosm/minecraft-server_wrapper.git'
+  MCSW_USERNAME = 'gamocosm-mothership'
+  DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-20-x64'
+  DIGITAL_OCEAN_SSH_PUBLIC_KEY = File.read(DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH)
+  DIGITAL_OCEAN_SSH_PUBLIC_KEY_FINGERPRINT = Digest::MD5.hexdigest(Base64.decode64(DIGITAL_OCEAN_SSH_PUBLIC_KEY.split(/\s+/m)[1])).scan(/../).join(':')
+
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -33,152 +62,5 @@ module Gamocosm
       authentication: 'plain',
       enable_starttls_auto: true
     }
-  end
-
-  def self.minecraft_flavours_git_url
-    'https://github.com/Gamocosm/gamocosm-minecraft-flavours.git'
-  end
-
-  def self.minecraft_server_wrapper_git_url
-    'https://github.com/Gamocosm/minecraft-server_wrapper.git'
-  end
-
-  def self.minecraft_wrapper_username
-    'gamocosm-mothership'
-  end
-
-  def self.digital_ocean_base_image_slug
-    'fedora-20-x64'
-  end
-
-  def self.minecraft_flavours
-    return {
-      'vanilla/1.8.1' => {
-        name: 'Vanilla (latest)',
-        time: 1,
-        developers: ['Mojang'],
-        website: 'https://minecraft.net',
-        notes: [],
-      },
-      'mc-server/null' => {
-        name: 'MCServer',
-        time: 1,
-        developers: ['MCServer team'],
-        website: 'http://mc-server.org',
-        notes: [],
-      },
-      'forge/1.7.10-10.13.2.1230' => {
-        name: 'Forge (1.7.10)',
-        time: 1,
-        developers: ['Minecraft Forge team'],
-        website: 'http://minecraftforge.net',
-        notes: [],
-      },
-      'spigot/1.8' => {
-        name: 'Spigot (1.8)',
-        time: 10,
-        developers: ['Spigot team'],
-        website: 'http://spigotmc.org',
-        notes: [],
-      },
-      'craftbukkit/1.8' => {
-        name: 'CraftBukkit (1.8)',
-        time: 10,
-        developers: ['Spigot team', 'CraftBukkit team'],
-        website: 'http://spigotmc.org',
-        notes: [],
-      },
-      'agrarian_skies/1.6.4' => {
-        name: 'Agrarian Skies (1.6.4)',
-        time: 1,
-        developers: ['Jadedcat'],
-        website: 'http://forum.feed-the-beast.com/threads/41906/',
-        notes: [
-          '2GB+ recommended',
-        ],
-      },
-      'ftb_resurrection/1.7.10' => {
-        name: 'FTB Resurrection (1.7.10)',
-        time: 2,
-        developers: ['FTB team'],
-        website: 'http://feed-the-beast.com',
-        notes: [
-          '2GB+ recommended',
-        ],
-      },
-      'crash_landing/1.6.4' => {
-        name: 'Crash Landing (1.6.4)',
-        time: 1,
-        developers: ['Iskandar', 'others'],
-        website: 'http://forum.feed-the-beast.com/threads/46277/',
-        notes: [
-          '2GB+ recommended',
-        ],
-      },
-      'direwolf20/1.7.10' => {
-        name: 'Direwolf20 (1.7.10)',
-        time: 2,
-        developers: ['FTB team'],
-        website: 'http://feed-the-beast.com',
-        notes: [
-          '2GB+ recommended',
-        ],
-      },
-      'tppi/1.6.4' => {
-        name: 'Test Pack Please Ignore (1.6.4)',
-        time: 2,
-        developers: ['TPPI Dev Team'],
-        website: 'http://www.reddit.com/r/TestPackPleaseIgnore/',
-        notes: [
-          '2GB+ recommended',
-        ],
-      },
-    }
-  end
-
-  def self.digital_ocean_public_key
-    public_key = File.read(Gamocosm.digital_ocean_ssh_public_key_path)
-    return public_key
-  end
-
-  def self.digital_ocean_public_key_fingerprint
-    public_key = self.digital_ocean_public_key
-    fingerprint = Digest::MD5.hexdigest(Base64.decode64(public_key.split(/\s+/m)[1])).scan(/../).join(':')
-  end
-
-  def self.digital_ocean_api_key
-    ENV['DIGITAL_OCEAN_API_KEY']
-  end
-
-  def self.digital_ocean_ssh_public_key_path
-    ENV['DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH']
-  end
-
-  def self.digital_ocean_ssh_private_key_path
-    ENV['DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH']
-  end
-
-  def self.digital_ocean_ssh_private_key_passphrase
-    ENV['DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE']
-  end
-
-  def self.sidekiq_admin_username
-    ENV['SIDEKIQ_ADMIN_USERNAME']
-  end
-
-  def self.sidekiq_admin_password
-    ENV['SIDEKIQ_ADMIN_PASSWORD']
-  end
-
-  def self.user_servers_domain
-    ENV['USER_SERVERS_DOMAIN']
-  end
-
-  def self.cloudflare_api_token
-    ENV['CLOUDFLARE_API_TOKEN']
-  end
-
-  def self.cloudflare_email
-    ENV['CLOUDFLARE_EMAIL']
   end
 end

@@ -146,7 +146,7 @@ class Server < ActiveRecord::Base
   end
 
   def refresh_domain
-    cf = CloudFlare::Client.new(Gamocosm.cloudflare_email, Gamocosm.cloudflare_api_token, Gamocosm.user_servers_domain)
+    cf = self.cloudflare_client
     if self.server_domain.nil?
       while true do
         begin
@@ -164,8 +164,12 @@ class Server < ActiveRecord::Base
     if self.server_domain.nil?
       return nil
     end
-    cf = CloudFlare::Client.new(Gamocosm.cloudflare_email, Gamocosm.cloudflare_api_token, Gamocosm.user_servers_domain)
+    cf = self.cloudflare_client
     return cf.delete_dns(self.server_domain.name)
+  end
+
+  def cloudflare_client
+    return CloudFlare::Client.new(Gamocosm::CLOUDFLARE_EMAIL, Gamocosm::CLOUDFLARE_API_TOKEN, Gamocosm::USER_SERVERS_DOMAIN)
   end
 
 end

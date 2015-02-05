@@ -46,7 +46,7 @@ Rails.application.routes.draw do
   end
 
   Sidekiq::Web.use Rack::Auth::Basic, 'Protected Area' do |u, p|
-    u == Gamocosm.sidekiq_admin_username && p == Gamocosm.sidekiq_admin_password
+    u == Gamocosm::SIDEKIQ_ADMIN_USERNAME && p == Gamocosm::SIDEKIQ_ADMIN_PASSWORD
   end
   mount Sidekiq::Web => '/sidekiq'
 

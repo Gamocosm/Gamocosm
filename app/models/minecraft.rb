@@ -35,7 +35,7 @@ class Minecraft < ActiveRecord::Base
   def before_validate_callback
     self.name = self.name.strip.downcase.gsub(' ', '-')
     if self.new_record?
-      if !Gamocosm.minecraft_flavours.has_key?(self.flavour)
+      if !Gamocosm::MINECRAFT_FLAVOURS.has_key?(self.flavour)
         self.errors.add(:flavour, 'Invalid flavour')
       end
     end
@@ -114,7 +114,7 @@ class Minecraft < ActiveRecord::Base
 
   def world_download_url
     if server.running?
-      return "http://#{Gamocosm.minecraft_wrapper_username}:#{minecraft_wrapper_password}@#{server.remote.ip_address}:#{Minecraft::Node::MCSW_PORT}/download_world"
+      return "http://#{Gamocosm::MCSW_USERNAME}:#{minecraft_wrapper_password}@#{server.remote.ip_address}:#{Minecraft::Node::MCSW_PORT}/download_world"
     end
     return nil
   end
@@ -138,7 +138,7 @@ class Minecraft < ActiveRecord::Base
   end
 
   def flavour_info
-    return Gamocosm.minecraft_flavours[self.flavour]
+    return Gamocosm::MINECRAFT_FLAVOURS[self.flavour]
   end
 
   def owner?(someone)

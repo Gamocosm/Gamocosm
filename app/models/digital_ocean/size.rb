@@ -23,7 +23,7 @@ class DigitalOcean::Size
     @all = Rails.cache.read(:digital_ocean_sizes)
     if @all.nil?
       begin
-        connection = DigitalOcean::Connection.new(Gamocosm.digital_ocean_api_key).request
+        connection = DigitalOcean::Connection.new(Gamocosm::DIGITAL_OCEAN_API_KEY).request
         response = connection.size.all
         if response.success?
           @all = response.sizes.map { |x| {

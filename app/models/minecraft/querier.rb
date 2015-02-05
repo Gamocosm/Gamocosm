@@ -30,7 +30,7 @@ class Minecraft::Querier
           connection.connect(@ip_address, @port)
           challenge = self.handshake(connection)
           connection.send(self.create_packet(PACKET_TYPE_QUERY) + [challenge].pack('N'), 0) # 32 bit unsigned big endian
-          data = connection.recvfrom(4096)[0][5...-1].split("\x00")
+          data = connection.recvfrom(4096).first[5...-1].split("\x00")
         end
       rescue => e
         Rails.logger.info "Exception in #{self.class}#read_all, try #{i}: #{e}"

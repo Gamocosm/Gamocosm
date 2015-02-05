@@ -53,9 +53,9 @@ class ActiveSupport::TestCase
     stub = stub_request(verb, CloudFlare::Client::CLOUDFLARE_API_URL)
     stub.with(query: {
       a: a,
-      tkn: Gamocosm.cloudflare_api_token,
-      email: Gamocosm.cloudflare_email,
-      z: Gamocosm.user_servers_domain,
+      tkn: Gamocosm::CLOUDFLARE_API_TOKEN,
+      email: Gamocosm::CLOUDFLARE_EMAIL,
+      z: Gamocosm::USER_SERVERS_DOMAIN,
     }.merge(req))
     mock_http_return_json(stub, status, res)
   end
@@ -63,7 +63,7 @@ class ActiveSupport::TestCase
   def mock_minecraft_node(verb, minecraft, endpoint, status, res, req)
     mock_http_json(
       verb,
-      minecraft.node.full_url(endpoint).sub('http://', "http://#{Gamocosm.minecraft_wrapper_username}:#{minecraft.minecraft_wrapper_password}@"),
+      minecraft.node.full_url(endpoint).sub('http://', "http://#{Gamocosm::MCSW_USERNAME}:#{minecraft.minecraft_wrapper_password}@"),
       status,
       res,
       req,
@@ -79,7 +79,7 @@ class ActiveSupport::TestCase
     mock_digital_ocean(:get, '/regions', status, { sizes: DigitalOcean::Region::DEFAULT_REGIONS }, nil)
     mock_digital_ocean(:post, '/account/keys', status, { ssh_key: { id: 1 } }, {
       name: 'gamocosm',
-      public_key: Gamocosm.digital_ocean_public_key,
+      public_key: Gamocosm::DIGITAL_OCEAN_SSH_PUBLIC_KEY,
     })
   end
 
@@ -157,7 +157,7 @@ class ActiveSupport::TestCase
       name: "#{minecraft.name}.minecraft.gamocosm",
       size: minecraft.server.do_size_slug,
       region: minecraft.server.do_region_slug,
-      image: Gamocosm.digital_ocean_base_image_slug,
+      image: Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG,
       ssh_keys: ['1'],
     })
     mock_digital_ocean_droplet_actions(status, 1)

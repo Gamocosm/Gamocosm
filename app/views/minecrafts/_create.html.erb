@@ -14,9 +14,9 @@
 			<%= s_f.input :do_size_slug, collection: DigitalOcean::Size.new.all.collect { |x| [x[:descriptor], x[:slug]] }, as: :select, include_blank: false, label: 'Size' %>
 			<%= s_f.input :do_region_slug, collection: DigitalOcean::Region.new.all.collect { |x| [x[:name], x[:slug]] }, as: :select, include_blank: false, label: 'Region (higher tier better)' %>
 		<% end %>
-		<%= f.input :flavour, collection: Gamocosm.minecraft_flavours.collect { |k, v| [v[:name], k] }, as: :select, include_blank: false, label: 'Minecraft flavour', required: true %>
+		<%= f.input :flavour, collection: Gamocosm::MINECRAFT_FLAVOURS.collect { |k, v| [v[:name], k] }, as: :select, include_blank: false, label: 'Minecraft flavour', required: true %>
 		<div>
-			<%= render partial: 'flavour', collection: Gamocosm.minecraft_flavours.map { |k, v| [k, v] } %>
+			<%= render partial: 'flavour', collection: Gamocosm::MINECRAFT_FLAVOURS.map { |k, v| [k, v] } %>
 		</div>
 		<p class="help-block">
 			We recommend vanilla or <%= link_to 'MCServer', mcserver_website_path %>, the performant C++ Minecraft server (you can always change this later).

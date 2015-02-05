@@ -63,6 +63,10 @@ class DigitalOcean::Droplet
     @action_id = nil
   end
 
+  def action_id
+    return @action_id
+  end
+
   def latest_snapshot_id
     data = self.sync
     if data.success?
@@ -85,7 +89,7 @@ class DigitalOcean::Droplet
       name: @server.host_name,
       size: @server.do_size_slug,
       region: @server.do_region_slug,
-      image: @server.do_saved_snapshot_id || Gamocosm.digital_ocean_base_image_slug,
+      image: @server.do_saved_snapshot_id || Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG,
       ssh_keys: [ssh_key_id.to_s],
     }
     @server.minecraft.user.invalidate
@@ -182,10 +186,6 @@ class DigitalOcean::Droplet
     Rails.logger.error msg
     Rails.logger.error e.backtrace.join("\n")
     return msg
-  end
-
-  def action_id
-    return @action_id
   end
 
   def destroy

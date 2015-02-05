@@ -33,9 +33,9 @@ class SetupServerWorker
       host = SSHKit::Host.new(server.remote.ip_address.to_s)
       host.port = !server.done_setup? ? 22 : server.ssh_port
       host.user = 'root'
-      host.key = Gamocosm.digital_ocean_ssh_private_key_path
+      host.key = Gamocosm::DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH
       host.ssh_options = {
-        passphrase: Gamocosm.digital_ocean_ssh_private_key_passphrase,
+        passphrase: Gamocosm::DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE,
         paranoid: false,
         timeout: 4
       }
@@ -141,18 +141,18 @@ class SetupServerWorker
       fi = server.minecraft.flavour_info
       if fi.nil?
         server.minecraft.log("Flavour #{server.minecraft.flavour} not found! Installing default vanilla")
-        server.minecraft.update_columns(flavour: Gamocosm.minecraft_flavours.first[0])
-        fi = Gamocosm.minecraft_flavours.first[1]
+        server.minecraft.update_columns(flavour: Gamocosm::MINECRAFT_FLAVOURS.first[0])
+        fi = Gamocosm::MINECRAFT_FLAVOURS.first[1]
       end
       fv = server.minecraft.flavour.split('/')
       minecraft_script = "/tmp/gamocosm-minecraft-flavours/#{fv[0]}.sh"
-      mc_flv_git_url = Gamocosm.minecraft_flavours_git_url
+      mc_flavours_git_url = Gamocosm::MINECRAFT_FLAVOURS_GIT_URL
       # estimated minutes * 60 secs/minute * 2 (buffer)
       Timeout::timeout(fi[:time] * 60 * 2) do
         on host do
           within '/tmp/' do
             execute :rm, '-rf', 'gamocosm-minecraft-flavours'
-            execute :git, 'clone', mc_flv_git_url, 'gamocosm-minecraft-flavours'
+            execute :git, 'clone', mc_flavours_git_url, 'gamocosm-minecraft-flavours'
           end
           within '/home/mcuser/' do
             execute :mkdir, '-p', 'minecraft'
@@ -172,8 +172,8 @@ class SetupServerWorker
   end
 
   def install_mcsw(user, server, host)
-    mcsw_git_url = Gamocosm.minecraft_server_wrapper_git_url
-    mcsw_username = Gamocosm.minecraft_wrapper_username
+    mcsw_git_url = Gamocosm::MCSW_GIT_URL
+    mcsw_username = Gamocosm::MCSW_USERNAME
     mcsw_password = server.minecraft.minecraft_wrapper_password
     begin
       Timeout::timeout(16) do

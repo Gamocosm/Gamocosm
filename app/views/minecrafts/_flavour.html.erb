@@ -1,13 +1,11 @@
 <div class="minecraft_flavour-info well" data-flavour="<%= flavour.first %>">
 	<dl>
-		<dt>Flavour Info</dt>
-		<dd><%= flavour.second[:name] %></dd>
-		<dt>Install (first time only)</dt>
-		<dd><%= pluralize(flavour.second[:time], 'minute') %> (+4 minutes base)</dd>
-		<dt>Developers</dt>
-		<dd><%= flavour.second[:developers].join(', ') %></dd>
 		<dt>Website</dt>
 		<dd><%= link_to flavour.second[:website], flavour.second[:website] %></dd>
+		<dt>Developers</dt>
+		<dd><%= flavour.second[:developers].join(', ') %></dd>
+		<dt>Install (first time only)</dt>
+		<dd><%= pluralize(flavour.second[:time], 'minute') %> (+4 minutes base)</dd>
 		<% if !flavour.second[:notes].blank? %>
 			<dt>Notes</dt>
 			<dd><ul>

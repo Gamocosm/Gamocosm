@@ -117,7 +117,7 @@ class MinecraftsControllerTest < ActionController::TestCase
     @minecraft.server.update_columns(remote_id: 1)
     mock_minecraft_running 200, @minecraft, 0
     get :download, { id: @minecraft.id }
-    assert_redirected_to "http://#{Gamocosm.minecraft_wrapper_username}:#{@minecraft.minecraft_wrapper_password}@#{@minecraft.server.remote.ip_address}:#{Minecraft::Node::MCSW_PORT}/download_world"
+    assert_redirected_to "http://#{Gamocosm::MCSW_USERNAME}:#{@minecraft.minecraft_wrapper_password}@#{@minecraft.server.remote.ip_address}:#{Minecraft::Node::MCSW_PORT}/download_world"
   end
 
   test 'update minecraft properties' do

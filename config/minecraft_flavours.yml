@@ -1,0 +1,88 @@
+vanilla:
+    versions:
+        - { name: Vanilla (latest), tag: 1.8.1 }
+        - { name: Vanilla (1.7.10), tag: 1.7.10 }
+    time: 1
+    developers:
+        - Mojang
+    website: https://minecraft.net
+    notes: []
+mc-server:
+    versions:
+        - { name: MCServer, tag: "null" }
+    time: 1
+    developers:
+        - MCServer team
+    website: http://mc-server.org
+    notes: []
+forge:
+    versions:
+        - { name: Forge (1.7.10), tag: 1.7.10-10.13.2.1230 }
+    time: 1
+    developers:
+        - Minecraft Forge team
+    website: http://minecraftforge.net
+    notes: []
+spigot:
+    versions:
+        - { name: Spigot (1.8), tag: 1.8 }
+    time: 10
+    developers:
+        - Spigot team
+    website: http://spigotmc.org
+    notes: []
+craftbukkit:
+    versions:
+        - { name: CraftBukkit (1.8), tag: 1.8 }
+    time: 10
+    developers:
+        - Spigot team
+        - CraftBukkit team
+    website: http://spigotmc.org
+    notes: []
+agrarian_skies:
+    versions:
+        - { name: Agrarian Skies (1.6.4), tag: 1.6.4 }
+    time: 1
+    developers:
+        - Jadedcat
+    website: http://forum.feed-the-beast.com/threads/41906/
+    notes:
+        - 2GB+ recommended
+ftb_resurrection:
+    versions:
+        - { name: FTB Resurrection (1.7.10), tag: 1.7.10 }
+    time: 2
+    developers:
+        - FTB team
+    website: http://feed-the-beast.com
+    notes:
+        - 2GB+ recommended
+crash_landing:
+    versions:
+        - { name: Crash Landing (1.6.4), tag: 1.6.4 }
+    time: 1
+    developers:
+        - Iskandar
+        - others
+    website: http://forum.feed-the-beast.com/threads/46277/
+    notes:
+        - 2GB+ recommended
+direwolf20:
+    versions:
+        - { name: Direwolf20 (1.7.10), tag: 1.7.10 }
+    time: 2
+    developers:
+        - FTB team
+    website: http://feed-the-beast.com
+    notes:
+        - 2GB+ recommended
+tppi:
+    versions:
+        - { name: Test Pack Please Ignore (1.6.4), tag: 1.6.4 }
+    time: 2
+    developers:
+        - TPPI team
+    website: http://www.reddit.com/r/TestPackPleaseIgnore/
+    notes:
+        - 2GB+ recommended
