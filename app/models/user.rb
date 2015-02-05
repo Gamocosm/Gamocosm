@@ -97,9 +97,8 @@ class User < ActiveRecord::Base
   end
 
   def digital_ocean_snapshots
-    # mostly parallel to User#digital_ocean_droplets
-    # if we had an error getting the droplets, don't try to get the snapshots
-    if digital_ocean_invalid?
+    # parallel to User#digital_ocean_droplets
+    if digital_ocean_missing?
       return nil
     end
     if @digital_ocean_snapshots.nil?

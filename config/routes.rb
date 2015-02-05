@@ -75,6 +75,8 @@ Rails.application.routes.draw do
       post 'delete_digital_ocean_droplet'
       post 'delete_digital_ocean_snapshot'
       post 'refresh_digital_ocean_cache'
+      get 'digital_ocean_droplets', to: 'minecrafts#show_digital_ocean_droplets'
+      get 'digital_ocean_snapshots', to: 'minecrafts#show_digital_ocean_snapshots'
     end
   end
 

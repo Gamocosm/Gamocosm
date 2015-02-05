@@ -38,15 +38,6 @@ class MinecraftsControllerTest < ActionController::TestCase
     assert_select '.panel-body', /Gamocosm is an open source project to help players host cloud Minecraft servers/
   end
 
-  test 'servers page with invalid digital ocean api token' do
-    mock_digital_ocean_base(400, [], [], [])
-    sign_in @owner
-    get :index
-    assert_response :success
-    assert_select '.panel-body', /The Digital Ocean API token you entered is invalid/
-    assert_select '.panel-body', /Your Digital Ocean API token is invalid/
-  end
-
   test 'create and destroy server' do
     sign_in @owner
     begin
@@ -364,4 +355,12 @@ class MinecraftsControllerTest < ActionController::TestCase
     assert_match /deleted ssh public key/i, flash[:success], 'Deleting Digital Ocean SSH key not success'
   end
 
+  test 'show digital ocean droplets and snapshots' do
+    sign_in @owner
+    mock_digital_ocean_base(200, [], [], [])
+    get :show_digital_ocean_droplets
+    assert_response :success
+    get :show_digital_ocean_snapshots
+    assert_response :success
+  end
 end

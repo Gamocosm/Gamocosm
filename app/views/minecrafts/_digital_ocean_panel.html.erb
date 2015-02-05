@@ -15,58 +15,14 @@
 			<div class="row">
 				<div class="col-sm-5">
 					<h4>Droplets</h4>
-					<table class="table table-striped table-no_fixed">
-						<% if @do_droplets.nil? %>
-							<tr><td><em>Your Digital Ocean API token is invalid</em></td></tr>
-						<% elsif @do_droplets.empty? %>
-							<tr><td><em>You have no droplets on Digital Ocean</em></td></tr>
-						<% else %>
-							<tr>
-								<th>Name</th>
-								<th class="text-right">ID</th>
-								<th>&nbsp;</th>
-							</tr>
-							<% @do_droplets.each do |x| %>
-								<tr>
-									<td><%= x.name %> (<%= x.created_at.to_datetime.in_time_zone(ActiveSupport::TimeZone[-8]).strftime('%Y %b %e %H:%M %Z') %>)</td>
-									<td class="text-right"><%= x.id %></td>
-									<td>
-										<%= simple_form_for :digital_ocean_droplet, url: delete_digital_ocean_droplet_minecrafts_path, method: :post, html: { onsubmit: 'return confirm("Are you sure you want to delete this droplet forever? (A really long time!)")' } do |f| %>
-											<%= f.input :remote_id, as: :hidden, input_html: { value: x.id } %>
-											<%= f.button :submit, 'Delete', class: 'btn btn-default pull-right' %>
-										<% end %>
-									</td>
-								</tr>
-							<% end %>
-						<% end %>
+					<table id="digital_ocean_droplets" class="table table-striped table-no_fixed" data-url="<%= digital_ocean_droplets_minecrafts_path %>">
+						<tr><td><i>Fetching data ...</i></td></tr>
 					</table>
 				</div>
 				<div class="col-sm-7">
 					<h4>Snapshots</h4>
-					<table class="table table-striped table-no_fixed">
-						<% if @do_snapshots.nil? %>
-							<tr><td><em>Your Digital Ocean API token is invalid</em></td></tr>
-						<% elsif @do_snapshots.empty? %>
-							<tr><td><em>You have no snapshots on Digital Ocean</em></td></tr>
-						<% else %>
-							<tr>
-								<th>Name</th>
-								<th class="text-right">ID</th>
-								<th>&nbsp;</th>
-							</tr>
-							<% @do_snapshots.each do |x| %>
-								<tr>
-									<td><%= x.name %> (<%= x.created_at.to_datetime.in_time_zone(ActiveSupport::TimeZone[-8]).strftime('%Y %b %e %H:%M %Z') %>)</td>
-									<td class="text-right"><%= x.id %></td>
-									<td>
-										<%= simple_form_for :digital_ocean_snapshot, url: delete_digital_ocean_snapshot_minecrafts_path, method: :post, html: { onsubmit: 'return confirm("Are you sure you want to delete this snapshot forever? (A really long time!)")' } do |f| %>
-											<%= f.input :remote_id, as: :hidden, input_html: { value: x.id } %>
-											<%= f.button :submit, 'Delete', class: 'btn btn-default pull-right' %>
-										<% end %>
-									</td>
-								</tr>
-							<% end %>
-						<% end %>
+					<table id="digital_ocean_snapshots" class="table table-striped table-no_fixed" data-url="<%= digital_ocean_snapshots_minecrafts_path %>">
+						<tr><td><i>Fetching data ...</i></td></tr>
 					</table>
 				</div>
 			</div>

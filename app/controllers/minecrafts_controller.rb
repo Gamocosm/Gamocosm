@@ -2,8 +2,6 @@ class MinecraftsController < ApplicationController
   before_action :authenticate_user!
 
   def load_index
-    @do_droplets = current_user.digital_ocean_droplets
-    @do_snapshots = current_user.digital_ocean_snapshots
     @friend_minecrafts = current_user.friend_minecrafts
   end
 
@@ -288,6 +286,16 @@ class MinecraftsController < ApplicationController
     @minecraft = find_minecraft_only_owner(params[:id])
     @minecraft.logs.delete_all
     return redirect_to minecraft_path(@minecraft), flash: { success: 'Server logs cleared' }
+  end
+
+  def show_digital_ocean_droplets
+    @do_droplets = current_user.digital_ocean_droplets
+    render layout: nil
+  end
+
+  def show_digital_ocean_snapshots
+    @do_snapshots = current_user.digital_ocean_snapshots
+    render layout: nil
   end
 
   def find_minecraft(id)
