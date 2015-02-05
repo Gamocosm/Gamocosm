@@ -215,6 +215,51 @@ class MinecraftsControllerTest < ActionController::TestCase
     assert_not_nil flash[:error], 'Updating ssh keys bad value, no error message'
   end
 
+  test 'busy page' do
+    sign_in @friend
+    begin
+      @minecraft.server.update_columns(remote_id: 1)
+      @minecraft.server.update_columns(pending_operation: 'starting')
+      @minecraft.server.update_columns(remote_setup_stage: 0)
+      @minecraft.reload
+      view_server @minecraft
+      ensure_busy
+      assert_select 'div', /this should take a few minutes/i
+      @minecraft.server.update_columns(remote_setup_stage: 5)
+      view_server @minecraft
+      ensure_busy
+      assert_select 'div', /this should take about a minute/i
+      @minecraft.server.update_columns(pending_operation: 'preparing')
+      [
+        /connecting/i,
+        /connected/i,
+        /installing and updating software/i,
+        /downloading and installing minecraft/i,
+        /finishing up/i,
+        /keeping system up to date/i,
+      ].each_with_index do |x, i|
+        @minecraft.server.update_columns(remote_setup_stage: i)
+        view_server @minecraft
+        ensure_busy
+        assert_select 'div', x
+      end
+      @minecraft.server.update_columns(pending_operation: 'stopping')
+      view_server @minecraft
+      ensure_busy
+      assert_select 'div', /your server is shutting down/i
+      @minecraft.server.update_columns(pending_operation: 'saving')
+      view_server @minecraft
+      ensure_busy
+      assert_select 'div', /your server is being backed up/i
+      @minecraft.server.update_columns(pending_operation: 'rebooting')
+      view_server @minecraft
+      ensure_busy
+      assert_select 'div', /your server is rebooting/i
+    ensure
+      @minecraft.server.update_columns(remote_id: nil, pending_operation: nil, remote_setup_stage: 0)
+    end
+  end
+
   test 'log message and clear' do
     sign_in @owner
     view_server @minecraft
@@ -256,7 +301,7 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   def view_server(minecraft, advanced_tab = { })
-    get :show, { id: @minecraft.id }
+    get :show, { id: minecraft.id }
     assert_response :success
     advanced_tab.each do |k, v|
       assert_select "#minecraft_server_attributes_#{k}[value=?]", v
@@ -265,7 +310,7 @@ class MinecraftsControllerTest < ActionController::TestCase
 
   def start_server(minecraft)
     get :start, { id: minecraft.id }
-    assert_redirected_to minecraft_path(@minecraft)
+    assert_redirected_to minecraft_path(minecraft)
     view_server(minecraft)
     assert_equal flash[:success], 'Server starting'
     ensure_busy
@@ -276,7 +321,7 @@ class MinecraftsControllerTest < ActionController::TestCase
 
   def stop_server(minecraft)
     get :stop, { id: minecraft.id }
-    assert_redirected_to minecraft_path(@minecraft)
+    assert_redirected_to minecraft_path(minecraft)
     view_server(minecraft)
     assert_equal flash[:success], 'Server stopping'
     ensure_busy

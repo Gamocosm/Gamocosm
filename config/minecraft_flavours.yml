@@ -30,7 +30,8 @@ spigot:
     developers:
         - Spigot team
     website: http://spigotmc.org
-    notes: []
+    notes:
+        - This is a ~10 minute build/installation process. Sometimes it fails for random reasons. 1GB+ recommended
 craftbukkit:
     versions:
         - { name: CraftBukkit (1.8), tag: 1.8 }
@@ -39,7 +40,8 @@ craftbukkit:
         - Spigot team
         - CraftBukkit team
     website: http://spigotmc.org
-    notes: []
+    notes:
+        - This is a ~10 minute build/installation process. Sometimes it fails for random reasons. 1GB+ recommended
 agrarian_skies:
     versions:
         - { name: Agrarian Skies (1.6.4), tag: 1.6.4 }

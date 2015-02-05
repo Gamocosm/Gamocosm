@@ -48,8 +48,6 @@ The following instructions were made for Fedora 20, but the steps should be simi
 - `DATABASE_USER`: hmmmm
 - `DATABASE_PASSWORD`: hmmmm
 - `DATABASE_HOST`: database host. If specified, Rails will use a TCP connection (e.g. "localhost"). If left blank, Rails will use a local Unix socket connection
-- `MEMCACHED_HOST`: hmmmm
-- `SIDEKIQ_REDIS_URL`: see [advanced options][5] in the Sidekiq wiki
 - `MAIL_SERVER_*`: see [action mailer configuration][6] in the Rails guide
 - `USER_SERVERS_DOMAIN`: subdomain for user servers (e.g. `gamocosm.com`)
 - `CLOUDFLARE_API_TOKEN`: hmmm

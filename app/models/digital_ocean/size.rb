@@ -35,6 +35,7 @@ class DigitalOcean::Size
             name: x.slug.upcase,
             slug: x.slug
           } }
+          Rails.cache.write(:digital_ocean_sizes, @all, expires_in: 24.hours)
         else
           Rails.logger.error "Unable to get Digital Ocean sizes in DO::Size; #{response}"
         end
@@ -43,8 +44,6 @@ class DigitalOcean::Size
     end
     if @all.nil?
       @all = DEFAULT_SIZES
-    else
-      Rails.cache.write(:digital_ocean_sizes, @all)
     end
     @all.map! do |x|
       x[:price] = "#{(x[:price_hourly] * 100).round(1)} cents/hour"

@@ -33,8 +33,8 @@ class ActiveSupport::TestCase
     WebMock.reset!
   end
 
-  def mock_http_return_json(stub, status, res)
-    return stub.to_return(status: status, body: res.to_json, headers: { 'Content-Type' => 'application/json' })
+  def mock_http_response_body_json(status, res)
+    return { status: status, body: res.to_json, headers: { 'Content-Type' => 'application/json' } }
   end
 
   def mock_http_json(verb, path, status, res, req)
@@ -42,11 +42,11 @@ class ActiveSupport::TestCase
     if !req.nil?
       stub.with(body: hash_including(req))
     end
-    return mock_http_return_json(stub, status, res)
+    stub.to_return(mock_http_response_body_json(status, res))
   end
 
   def mock_digital_ocean(verb, path, status, res, req)
-    return mock_http_json(verb, /#{File.join(Barge::Client::DIGITAL_OCEAN_URL, path)}/, status, res, req)
+    mock_http_json(verb, /#{File.join(Barge::Client::DIGITAL_OCEAN_URL, path)}/, status, res, req)
   end
 
   def mock_cloudflare(verb, a, status, res, req)
@@ -57,7 +57,7 @@ class ActiveSupport::TestCase
       email: Gamocosm::CLOUDFLARE_EMAIL,
       z: Gamocosm::USER_SERVERS_DOMAIN,
     }.merge(req))
-    mock_http_return_json(stub, status, res)
+    stub.to_return(mock_http_response_body_json(status, res))
   end
 
   def mock_minecraft_node(verb, minecraft, endpoint, status, res, req)
@@ -104,11 +104,11 @@ class ActiveSupport::TestCase
   end
 
   def mock_digital_ocean_action_after(stub, status, remote_status)
-    mock_http_return_json(stub, status, {
+    stub.to_return(mock_http_response_body_json(status, {
       action: {
         status: remote_status,
       },
-    })
+    }))
   end
 
   def mock_digital_ocean_snapshot_delete(status, remote_id)

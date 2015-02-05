@@ -20,6 +20,7 @@ class DigitalOcean::Region
         response = connection.region.all
         if response.success?
           @all = response.regions.select { |x| x.available }.map { |x| { name: x.name, slug: x.slug } }
+          Rails.cache.write(:digital_ocean_regions, @all, expires_in: 24.hours)
         else
           Rails.logger.error "Unable to get Digital Ocean regions in DO::Region; #{response}"
         end
@@ -28,8 +29,6 @@ class DigitalOcean::Region
     end
     if @all.nil?
       @all = DEFAULT_REGIONS
-    else
-      Rails.cache.write(:digital_ocean_regions, @all)
     end
   end
 
