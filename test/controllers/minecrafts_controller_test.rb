@@ -351,20 +351,20 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   # TODO: these don't really belong here
-  test 'delete digital ocean droplet' do
+  test 'destroy digital ocean droplet' do
     sign_in @owner
     mock_digital_ocean_droplet_actions(200, 1)
-    post :delete_digital_ocean_droplet, { digital_ocean_droplet: { remote_id: 1 } }
+    post :destroy_digital_ocean_droplet, { id: 1 }
     assert_redirected_to minecrafts_path
     get :index
     assert_response :success
     assert_match /deleted droplet/i, flash[:notice], 'Something went wrong deleting Digital Ocean droplet from Digital Ocean control panel'
   end
 
-  test 'delete digital ocean snapshot' do
+  test 'destroy digital ocean snapshot' do
     sign_in @owner
     mock_digital_ocean_snapshot_delete(200, 1)
-    post :delete_digital_ocean_snapshot, { digital_ocean_snapshot: { remote_id: 1 } }
+    post :destroy_digital_ocean_snapshot, { id: 1 }
     assert_redirected_to minecrafts_path
     get :index
     assert_response :success
@@ -374,6 +374,8 @@ class MinecraftsControllerTest < ActionController::TestCase
   test 'add digital ocean ssh key' do
     sign_in @owner
     mock_digital_ocean_ssh_key_add(200, 'me', 'a b c')
+    request.host = 'example.com'
+    request.env['HTTP_REFERER'] = Rails.application.routes.url_helpers.minecraft_path(@minecraft, only_path: false, host: 'example.com')
     post :add_digital_ocean_ssh_key, {
       id: @minecraft.id,
       digital_ocean_ssh_key: {
@@ -386,14 +388,13 @@ class MinecraftsControllerTest < ActionController::TestCase
     assert_match /added ssh public key/i, flash[:success], 'Adding Digital Ocean SSH key not success'
   end
 
-  test 'delete digital ocean ssh key' do
+  test 'destroy digital ocean ssh key' do
     sign_in @owner
     mock_digital_ocean_ssh_key_delete(204, 1)
-    post :delete_digital_ocean_ssh_key, {
-      id: @minecraft.id,
-      digital_ocean_ssh_key: {
-        remote_id: 1,
-      },
+    request.host = 'example.com'
+    request.env['HTTP_REFERER'] = Rails.application.routes.url_helpers.minecraft_path(@minecraft, only_path: false, host: 'example.com')
+    post :destroy_digital_ocean_ssh_key, {
+      id: 1,
     }
     assert_redirected_to minecraft_path(@minecraft)
     view_server @minecraft

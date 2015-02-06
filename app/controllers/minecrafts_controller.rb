@@ -226,47 +226,6 @@ class MinecraftsController < ApplicationController
     return redirect_to minecraft_path(@minecraft), flash: { success: "User #{email} removed from the server" }
   end
 
-  def add_digital_ocean_ssh_key
-    @minecraft = find_minecraft_only_owner(params[:id])
-    ssh_key_name = params[:digital_ocean_ssh_key][:name]
-    ssh_public_key = params[:digital_ocean_ssh_key][:data]
-    ssh_key_id = current_user.digital_ocean_add_ssh_key(ssh_key_name, ssh_public_key)
-    if ssh_key_id.error?
-      return redirect_to minecraft_path(@minecraft), flash: { error: ssh_key_id }
-    end
-    return redirect_to minecraft_path(@minecraft), flash: { success: 'Added SSH public key to Digital Ocean' }
-  end
-
-  def delete_digital_ocean_ssh_key
-    @minecraft = find_minecraft_only_owner(params[:id])
-    error = current_user.digital_ocean_delete_ssh_key(params[:digital_ocean_ssh_key][:remote_id])
-    if error
-      return redirect_to minecraft_path(@minecraft), flash: { error: error }
-    end
-    return redirect_to minecraft_path(@minecraft), flash: { success: 'Deleted SSH public key from Digital Ocean' }
-  end
-
-  def delete_digital_ocean_droplet
-    error = current_user.digital_ocean_delete_droplet(params[:digital_ocean_droplet][:remote_id])
-    if error
-      return redirect_to minecrafts_path, flash: { error: error }
-    end
-    return redirect_to minecrafts_path, flash: { notice: 'Deleted droplet on Digital Ocean' }
-  end
-
-  def delete_digital_ocean_snapshot
-    error = current_user.digital_ocean_delete_snapshot(params[:digital_ocean_snapshot][:remote_id])
-    if error
-      return redirect_to minecrafts_path, flash: { error: error }
-    end
-    return redirect_to minecrafts_path, flash: { notice: 'Deleted snapshot on Digital Ocean' }
-  end
-
-  def refresh_digital_ocean_cache
-    current_user.invalidate
-    return redirect_to minecrafts_path, flash: { success: 'Cache refreshed' }
-  end
-
   def autoshutdown_enable
     @minecraft = find_minecraft_only_owner(params[:id])
     @minecraft.update_columns(autoshutdown_enabled: true)
@@ -293,9 +252,58 @@ class MinecraftsController < ApplicationController
     render layout: nil
   end
 
+  def destroy_digital_ocean_droplet
+    error = current_user.digital_ocean_delete_droplet(params[:id])
+    if error
+      return redirect_to minecrafts_path, flash: { error: error }
+    end
+    return redirect_to minecrafts_path, flash: { notice: 'Deleted droplet on Digital Ocean' }
+  end
+
   def show_digital_ocean_snapshots
     @do_snapshots = current_user.digital_ocean_snapshots
     render layout: nil
+  end
+
+  def destroy_digital_ocean_snapshot
+    error = current_user.digital_ocean_delete_snapshot(params[:id])
+    if error
+      return redirect_to minecrafts_path, flash: { error: error }
+    end
+    return redirect_to minecrafts_path, flash: { notice: 'Deleted snapshot on Digital Ocean' }
+  end
+
+  def add_digital_ocean_ssh_key
+    ssh_key_name = params[:digital_ocean_ssh_key][:name]
+    ssh_public_key = params[:digital_ocean_ssh_key][:data]
+    ssh_key_id = current_user.digital_ocean_add_ssh_key(ssh_key_name, ssh_public_key)
+    f = { success: 'Added SSH public key to Digital Ocean' }
+    if ssh_key_id.error?
+      f = { error: ssh_key_id }
+    end
+    begin
+      return redirect_to :back, flash: f
+    rescue ActionController::RedirectBackError
+      return redirect_to minecrafts_path, flash: f
+    end
+  end
+
+  def destroy_digital_ocean_ssh_key
+    error = current_user.digital_ocean_delete_ssh_key(params[:id])
+    f = { success: 'Deleted SSH public key from Digital Ocean' }
+    if error
+      f = { error: error }
+    end
+    begin
+      return redirect_to :back, flash: f
+    rescue ActionController::RedirectBackError
+      return redirect_to minecrafts_path, flash: f
+    end
+  end
+
+  def refresh_digital_ocean_cache
+    current_user.invalidate
+    return redirect_to minecrafts_path, flash: { success: 'Cache refreshed' }
   end
 
   def find_minecraft(id)

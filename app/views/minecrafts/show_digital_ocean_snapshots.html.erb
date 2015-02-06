@@ -14,10 +14,7 @@
 				<td><%= x.name %> (<%= x.created_at.to_datetime.in_time_zone(ActiveSupport::TimeZone[-8]).strftime('%Y %b %e %H:%M %Z') %>)</td>
 				<td class="text-right"><%= x.id %></td>
 				<td>
-					<%= simple_form_for :digital_ocean_snapshot, url: delete_digital_ocean_snapshot_minecrafts_path, method: :post, html: { onsubmit: 'return confirm("Are you sure you want to delete this snapshot forever? (A really long time!)")' } do |f| %>
-						<%= f.input :remote_id, as: :hidden, input_html: { value: x.id } %>
-						<%= f.button :submit, 'Delete', class: 'btn btn-default pull-right' %>
-					<% end %>
+					<%= link_to 'Delete', destroy_digital_ocean_snapshot_path(id: x.id), method: :delete, class: 'btn btn-default pull-right', data: { confirm: 'Are you sure you want to delete this snapshot forever? (A really long time!)' } %>
 				</td>
 			</tr>
 		<% end %>

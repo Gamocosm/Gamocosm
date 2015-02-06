@@ -31,7 +31,8 @@ spigot:
         - Spigot team
     website: http://spigotmc.org
     notes:
-        - This is a ~10 minute build/installation process. Sometimes it fails for random reasons. 1GB+ recommended
+        - 1GB+ recommended
+        - This involves a long build process. It occasionally fails and you can try again or install it manually
 craftbukkit:
     versions:
         - { name: CraftBukkit (1.8), tag: 1.8 }
@@ -41,7 +42,8 @@ craftbukkit:
         - CraftBukkit team
     website: http://spigotmc.org
     notes:
-        - This is a ~10 minute build/installation process. Sometimes it fails for random reasons. 1GB+ recommended
+        - 1GB+ recommended
+        - This involves a long build process. It occasionally fails and you can try again or install it manually
 agrarian_skies:
     versions:
         - { name: Agrarian Skies (1.6.4), tag: 1.6.4 }

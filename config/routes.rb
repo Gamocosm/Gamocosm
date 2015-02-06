@@ -8,7 +8,6 @@ Rails.application.routes.draw do
   get '/info', to: 'pages#info', as: :info
   get '/tos', to: 'pages#tos', as: :tos
   get '/demo', to: 'pages#demo', as: :demo
-  get '/digital_ocean_setup', to: 'pages#digital_ocean_setup', as: :digital_ocean_setup
 
   get '/badness/:secret', to: 'pages#badness'
 
@@ -31,6 +30,8 @@ Rails.application.routes.draw do
   end
 
   scope '/digital_ocean' do
+    get '/setup', to: 'pages#digital_ocean_setup', as: :digital_ocean_setup
+
     match '/index' => redirect('https://www.digitalocean.com/?refcode=f787055e1099'), as: :digital_ocean_index, via: :get
     match '/index_no_ref' => redirect('https://www.digitalocean.com/'), as: :digital_ocean_index_no_ref, via: :get
     match '/pricing' => redirect('https://www.digitalocean.com/pricing/?refcode=f787055e1099'), as: :digital_ocean_pricing, via: :get
@@ -38,6 +39,14 @@ Rails.application.routes.draw do
     match '/help' => redirect('https://www.digitalocean.com/help/'), as: :digital_ocean_help, via: :get
     match '/control_panel' => redirect('https://cloud.digitalocean.com'), as: :digital_ocean_control_panel, via: :get
     match '/status' => redirect('https://status.digitalocean.com'), as: :digital_ocean_status, via: :get
+
+    get 'droplets', to: 'minecrafts#show_digital_ocean_droplets', as: :show_digital_ocean_droplets
+    delete 'droplets/:id', to: 'minecrafts#destroy_digital_ocean_droplet', as: :destroy_digital_ocean_droplet
+    get 'snapshots', to: 'minecrafts#show_digital_ocean_snapshots', as: :show_digital_ocean_snapshots
+    delete 'snapshots/:id', to: 'minecrafts#destroy_digital_ocean_snapshot', as: :destroy_digital_ocean_snapshot
+    post 'ssh_keys', to: 'minecrafts#add_digital_ocean_ssh_key', as: :add_digital_ocean_ssh_key
+    delete 'ssh_keys/:id', to: 'minecrafts#destroy_digital_ocean_ssh_key', as: :destroy_digital_ocean_ssh_key
+    delete 'cache', to: 'minecrafts#refresh_digital_ocean_cache', as: :refresh_digital_ocean_cache
   end
 
   scope '/mcserver' do
@@ -65,18 +74,9 @@ Rails.application.routes.draw do
       post 'add_friend'
       post 'remove_friend'
       post 'command'
-      post 'add_digital_ocean_ssh_key'
-      post 'delete_digital_ocean_ssh_key'
       get 'autoshutdown_enable'
       get 'autoshutdown_disable'
       get 'clear_logs'
-    end
-    collection do
-      post 'delete_digital_ocean_droplet'
-      post 'delete_digital_ocean_snapshot'
-      post 'refresh_digital_ocean_cache'
-      get 'digital_ocean_droplets', to: 'minecrafts#show_digital_ocean_droplets'
-      get 'digital_ocean_snapshots', to: 'minecrafts#show_digital_ocean_snapshots'
     end
   end
 
