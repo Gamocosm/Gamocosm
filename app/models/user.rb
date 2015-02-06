@@ -62,11 +62,6 @@ class User < ActiveRecord::Base
     Rails.cache.delete(self.digital_ocean_snapshots_cache)
   end
 
-  def digital_ocean_invalid?
-    # checks digital ocean droplets
-    return self.digital_ocean_missing? || self.digital_ocean_droplets.nil?
-  end
-
   def digital_ocean_droplets
     if digital_ocean_missing?
       return nil
@@ -80,12 +75,14 @@ class User < ActiveRecord::Base
           response = self.digital_ocean.droplet.all
           if response.success?
             droplets = response.droplets
-            Rails.cache.write(self.digital_ocean_servers_cache, droplets.map { |x| x.to_hash }, expires_in: 512.seconds)
+            Rails.cache.write(self.digital_ocean_servers_cache, droplets.map { |x| x.to_hash }, expires_in: 1024.seconds)
           else
-            droplets = false
+            droplets = "Error communicating with Digital Ocean: #{response}".error!
           end
-        rescue Faraday::TimeoutError
-          droplets = false
+        rescue Faraday::Error => e
+          Rails.logger.error e.inspect
+          Rails.logger.error e.backtrace.join("\n")
+          droplets = "Exception communicating with Digital Ocean: #{e}".error!
         end
       else
         droplets = droplets.map { |x| Hashie::Mash.new(x) }
@@ -93,7 +90,7 @@ class User < ActiveRecord::Base
       # cache the result for this request (if there was an error, don't keep trying)
       @digital_ocean_droplets = droplets
     end
-    return @digital_ocean_droplets == false ? nil : @digital_ocean_droplets
+    return @digital_ocean_droplets
   end
 
   def digital_ocean_snapshots
@@ -108,34 +105,39 @@ class User < ActiveRecord::Base
           response = self.digital_ocean.image.all
           if response.success?
             snapshots = response.images.select { |x| !x.public }
-            Rails.cache.write(self.digital_ocean_snapshots_cache, snapshots.map { |x| x.to_hash }, expires_in: 512.seconds)
+            Rails.cache.write(self.digital_ocean_snapshots_cache, snapshots.map { |x| x.to_hash }, expires_in: 1024.seconds)
           else
-            snapshots = false
+            snapshots = "Error communicating with Digital Ocean: #{response}".error!
           end
-        rescue Faraday::TimeoutError
-          snapshots = false
+        rescue Faraday::Error => e
+          Rails.logger.error e.inspect
+          Rails.logger.error e.backtrace.join("\n")
+          snapshots = "Exception communicating with Digital Ocean: #{e}".error!
         end
       else
         snapshots = snapshots.map { |x| Hashie::Mash.new(x) }
       end
       @digital_ocean_snapshots = snapshots
     end
-    return @digital_ocean_snapshots == false ? nil : @digital_ocean_snapshots
+    return @digital_ocean_snapshots
   end
 
   def digital_ocean_add_ssh_key(name, public_key)
     if digital_ocean_missing?
       return 'Digital Ocean API token missing'
     end
+    response = nil
     begin
       response = digital_ocean.key.create(name: name, public_key: public_key)
-    rescue
-      return 'Timed out adding Digital Ocean SSH key'
+      if !response.success?
+        return "Error adding Digital Ocean SSH key: #{response}".error!
+      end
+    rescue Faraday::Error => e
+      Rails.logger.error e.inspect
+      Rails.logger.error e.backtrace.join("\n")
+      return "Exception communicating with Digital Ocean: #{e}".error!
     end
-    if !response.success?
-      return "Error adding Digital Ocean SSH key; they responded with #{response}"
-    end
-    return nil
+    return response.ssh_key.id
   end
 
   def digital_ocean_delete_ssh_key(remote_id)
@@ -144,11 +146,13 @@ class User < ActiveRecord::Base
     end
     begin
       response = digital_ocean.key.destroy(remote_id)
-    rescue Faraday::TimeoutError
-      return "Timed out deleting Digital Ocean SSH key #{remote_id}"
-    end
-    if !response.success?
-      return "Error deleting Digital Ocean SSH key; they responded with #{response}"
+      if !response.success?
+        return "Error deleting Digital Ocean SSH key: #{response}"
+      end
+    rescue Faraday::Error => e
+      Rails.logger.error e.inspect
+      Rails.logger.error e.backtrace.join("\n")
+      return "Exception communicating with Digital Ocean: #{e}"
     end
     return nil
   end
@@ -157,14 +161,15 @@ class User < ActiveRecord::Base
     if digital_ocean_missing?
       return 'Digital Ocean API token missing'
     end
-    self.invalidate
     begin
       response = digital_ocean.droplet.destroy(remote_id)
-    rescue Faraday::TimeoutError
-      return "Timed out deleting Digital Ocean droplet #{remote_id}"
-    end
-    if !response.success?
-      return "Error deleting Digital Ocean droplet; they responded with #{response}"
+      if !response.success?
+        return "Error deleting Digital Ocean droplet: #{response}"
+      end
+    rescue Faraday::Error => e
+      Rails.logger.error e.inspect
+      Rails.logger.error e.backtrace.join("\n")
+      return "Exception communicating with Digital Ocean: #{e}"
     end
     return nil
   end
@@ -176,11 +181,13 @@ class User < ActiveRecord::Base
     self.invalidate
     begin
       response = digital_ocean.image.destroy(remote_id)
-    rescue Faraday::TimeoutError
-      return "Timed out deleting Digital Ocean snapshot #{remote_id}"
-    end
-    if !response.success?
-      return "Error deleting Digital Ocean snapshot; they responded with #{response}"
+      if !response.success?
+        return "Error deleting Digital Ocean snapshot: #{response}"
+      end
+    rescue Faraday::Error => e
+      Rails.logger.error e.inspect
+      Rails.logger.error e.backtrace.join("\n")
+      return "Exception communicating with Digital Ocean: #{e}"
     end
     return nil
   end
@@ -189,13 +196,16 @@ class User < ActiveRecord::Base
     if digital_ocean_missing?
       return 'Digital Ocean API token missing'.error!
     end
+    response = nil
     begin
       response = digital_ocean.key.show(id)
-    rescue Faraday::TimeoutError
-      return "Timed out getting Digital Ocean SSH key #{id}".error!
-    end
-    if !response.success?
-      return "Error getting Digital Ocean SSH key #{id}; they responded with #{response}".error!
+      if !response.success?
+        return "Error getting Digital Ocean SSH key: #{response}".error!
+      end
+    rescue Faraday::Error => e
+      Rails.logger.error e.inspect
+      Rails.logger.error e.backtrace.join("\n")
+      return "Exception communicating with Digital Ocean: #{e}".error!
     end
     return response.ssh_key.public_key
   end
@@ -204,20 +214,23 @@ class User < ActiveRecord::Base
     if digital_ocean_missing?
       return nil
     end
+    keys = nil
     if @digital_ocean_ssh_keys.nil?
       begin
         response = digital_ocean.key.all
-      rescue Faraday::TimeoutError
-        @digital_ocean_ssh_keys = false
-        return nil
+        if response.success?
+          keys = response.ssh_keys
+        else
+          keys = "Error getting Digital Ocean SSH keys: #{response}".error!
+        end
+      rescue Faraday::Error => e
+        Rails.logger.error e.inspect
+        Rails.logger.error e.backtrace.join("\n")
+        keys = "Exception communicating with Digital Ocean: #{e}".error!
       end
-      if !response.success?
-        @digital_ocean_ssh_keys = false
-      else
-        @digital_ocean_ssh_keys = response.ssh_keys
-      end
+      @digital_ocean_ssh_keys = keys
     end
-    return @digital_ocean_ssh_keys == false ? nil : @digital_ocean_ssh_keys
+    return @digital_ocean_ssh_keys
   end
 
   def digital_ocean_gamocosm_ssh_key_id
@@ -226,27 +239,15 @@ class User < ActiveRecord::Base
     end
     public_key = Gamocosm::DIGITAL_OCEAN_SSH_PUBLIC_KEY
     fingerprint = Gamocosm::DIGITAL_OCEAN_SSH_PUBLIC_KEY_FINGERPRINT
-    begin
-      keys = digital_ocean.key.all
-    rescue Faraday::TimeoutError
-      return "Unable to get keys; timed out getting data from Digital Ocean".error!
+    keys = self.digital_ocean_ssh_keys
+    if keys.error?
+      return keys
     end
-    if !keys.success?
-      return "Unable to get keys; Digital Ocean responded with #{keys}".error!
-    end
-    for x in keys.ssh_keys
+    for x in keys
       if x.fingerprint == fingerprint
         return x.id
       end
     end
-    begin
-      response = digital_ocean.key.create(name: 'gamocosm', public_key: public_key)
-    rescue Faraday::TimeoutError
-      return "Unable to add key; Digital Ocean timed out".error!
-    end
-    if response.success?
-      return response.ssh_key.id
-    end
-    return "Unable to add key; Digital Ocean responded with #{response}".error!
+    return self.digital_ocean_add_ssh_key('gamocosm', public_key)
   end
 end

@@ -230,9 +230,9 @@ class MinecraftsController < ApplicationController
     @minecraft = find_minecraft_only_owner(params[:id])
     ssh_key_name = params[:digital_ocean_ssh_key][:name]
     ssh_public_key = params[:digital_ocean_ssh_key][:data]
-    error = current_user.digital_ocean_add_ssh_key(ssh_key_name, ssh_public_key)
-    if error
-      return redirect_to minecraft_path(@minecraft), flash: { error: error }
+    ssh_key_id = current_user.digital_ocean_add_ssh_key(ssh_key_name, ssh_public_key)
+    if ssh_key_id.error?
+      return redirect_to minecraft_path(@minecraft), flash: { error: ssh_key_id }
     end
     return redirect_to minecraft_path(@minecraft), flash: { success: 'Added SSH public key to Digital Ocean' }
   end
