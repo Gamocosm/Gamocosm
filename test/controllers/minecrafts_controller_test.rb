@@ -67,7 +67,6 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'add and remove friends from server' do
-    mock_do_ssh_keys_list(200, [])
     no_friends = 'Tell your friends to sign up and add them to your server to let them start and stop it when you\'re offline.'
     sign_in @owner
     view_server @minecraft
@@ -78,7 +77,7 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'friend can start and stop server' do
-    mock_do_ssh_keys_list(200, [])
+    mock_do_ssh_keys_list(200, []).times_only(1)
     mock_do_ssh_key_gamocosm(200)
     mock_do_droplet_create().stub_do_droplet_create(200, @minecraft.name, @minecraft.server.do_size_slug, @minecraft.server.do_region_slug)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'new').times(1).stub_do_droplet_show(200, 'active')
@@ -95,7 +94,6 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'reboot server' do
-    mock_do_ssh_keys_list(200, [])
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')
     mock_do_droplet_action(1).stub_do_droplet_action(200, 'reboot')
     mock_mcsw_pid(@minecraft).stub_mcsw_pid(200, 1)
@@ -181,7 +179,6 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'edit advanced tab' do
-    mock_do_ssh_keys_list(200, [])
     sign_in @owner
     # initial values
     view_server @minecraft, { remote_setup_stage: 0, do_region_slug: 'nyc3', do_size_slug: '512mb' }
@@ -200,7 +197,6 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'edit ssh keys' do
-    mock_do_ssh_keys_list(200, [])
     sign_in @owner
     view_server @minecraft
     assert_select '#minecraft_server_attributes_ssh_keys', 1
@@ -287,7 +283,6 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'log message and clear' do
-    mock_do_ssh_keys_list(200, [])
     sign_in @owner
     view_server @minecraft
     assert_select '.panel-body em', 'No messages'
@@ -402,7 +397,6 @@ class MinecraftsControllerTest < ActionController::TestCase
 
   test 'add digital ocean ssh key' do
     mock_do_ssh_key_add().stub_do_ssh_key_add(200, 'me', 'a b c')
-    mock_do_ssh_keys_list(200, [])
     sign_in @owner
     request.host = 'example.com'
     request.env['HTTP_REFERER'] = Rails.application.routes.url_helpers.minecraft_path(@minecraft, only_path: false, host: 'example.com')
@@ -420,7 +414,6 @@ class MinecraftsControllerTest < ActionController::TestCase
 
   test 'destroy digital ocean ssh key' do
     mock_do_ssh_key_delete(204, 1)
-    mock_do_ssh_keys_list(200, [])
     sign_in @owner
     request.host = 'example.com'
     request.env['HTTP_REFERER'] = Rails.application.routes.url_helpers.minecraft_path(@minecraft, only_path: false, host: 'example.com')
@@ -432,13 +425,104 @@ class MinecraftsControllerTest < ActionController::TestCase
     assert_match /deleted ssh public key/i, flash[:success], 'Deleting Digital Ocean SSH key not success'
   end
 
-  test 'show digital ocean droplets and snapshots' do
-    mock_do_droplets_list(200, []).times(1).to_raise(RuntimeError)
-    mock_do_images_list(200, []).times(1).to_raise(RuntimeError)
-    sign_in @owner
+  test 'show digital ocean droplets' do
+    sign_in @friend
     get :show_digital_ocean_droplets
     assert_response :success
+    assert_select 'em', /you haven't entered your digital ocean api token/i
+    sign_out @friend
+
+    sign_in @owner
+    mock_do_droplets_list(200, []).times_only(1)
+    get :show_digital_ocean_droplets
+    assert_response :success
+    assert_select 'em', /you have no droplets on digital ocean/i
+
+    delete :refresh_digital_ocean_cache
+    assert_redirected_to minecrafts_path
+    mock_do_droplets_list(200, [
+      {
+        id: 1,
+        name: 'abc',
+        created_at: DateTime.current.to_s,
+      },
+    ]).times_only(1)
+    get :show_digital_ocean_droplets
+    assert_response :success
+    assert_select 'td', /abc/
+
+    delete :refresh_digital_ocean_cache
+    assert_redirected_to minecrafts_path
+    mock_do_droplets_list(401, []).times_only(1)
+    get :show_digital_ocean_droplets
+    assert_response :success
+    assert_select 'em', /unable to get digital ocean droplets/i
+  end
+
+  test 'show digital ocean snapshots' do
+    sign_in @friend
     get :show_digital_ocean_snapshots
     assert_response :success
+    assert_select 'em', /you haven't entered your digital ocean api token/i
+    sign_out @friend
+
+    sign_in @owner
+    mock_do_images_list(200, []).times_only(1)
+    get :show_digital_ocean_snapshots
+    assert_response :success
+    assert_select 'em', /you have no snapshots on digital ocean/i
+
+    delete :refresh_digital_ocean_cache
+    assert_redirected_to minecrafts_path
+    mock_do_images_list(200, [
+      {
+        id: 1,
+        name: 'def',
+        created_at: DateTime.current.to_s,
+      },
+    ]).times_only(1)
+    get :show_digital_ocean_snapshots
+    assert_response :success
+    assert_select 'td', /def/
+
+    delete :refresh_digital_ocean_cache
+    assert_redirected_to minecrafts_path
+    mock_do_images_list(401, []).times_only(1)
+    get :show_digital_ocean_snapshots
+    assert_response :success
+    assert_select 'em', /unable to get digital ocean snapshots/i
+  end
+
+  test 'show digital ocean ssh keys' do
+    sign_in @friend
+    get :show_digital_ocean_ssh_keys
+    assert_response :success
+    assert_select 'em', /you haven't entered your digital ocean api token/i
+    sign_out @friend
+
+    sign_in @owner
+    mock_do_ssh_keys_list(200, []).times_only(1)
+    get :show_digital_ocean_ssh_keys
+    assert_response :success
+    assert_select 'em', /you have no ssh keys on digital ocean/i
+
+    delete :refresh_digital_ocean_cache
+    assert_redirected_to minecrafts_path
+    mock_do_ssh_keys_list(200, [
+      {
+        id: 1,
+        name: 'ghi',
+      },
+    ]).times_only(1)
+    get :show_digital_ocean_ssh_keys
+    assert_response :success
+    assert_select 'td', 'ghi'
+
+    delete :refresh_digital_ocean_cache
+    assert_redirected_to minecrafts_path
+    mock_do_ssh_keys_list(401, []).times_only(1)
+    get :show_digital_ocean_ssh_keys
+    assert_response :success
+    assert_select 'em', /unable to get digital ocean ssh keys/i
   end
 end

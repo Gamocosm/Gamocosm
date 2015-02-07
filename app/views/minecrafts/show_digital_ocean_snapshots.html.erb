@@ -1,6 +1,8 @@
 <tbody>
 	<% if @do_snapshots.nil? %>
-		<tr><td><em>Your Digital Ocean API token is invalid</em></td></tr>
+		<tr><td><em>You haven't entered your Digital Ocean API token</em></td></tr>
+	<% elsif @do_snapshots.error? %>
+		<tr><td><em>Unable to get Digital Ocean snapshots: <%= @do_snapshots %></em></td></tr>
 	<% elsif @do_snapshots.empty? %>
 		<tr><td><em>You have no snapshots on Digital Ocean</em></td></tr>
 	<% else %>

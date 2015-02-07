@@ -1,6 +1,8 @@
 <tbody>
 	<% if @do_droplets.nil? %>
-		<tr><td><em>Your Digital Ocean API token is invalid</em></td></tr>
+		<tr><td><em>You haven't entered your Digital Ocean API token</em></td></tr>
+	<% elsif @do_droplets.error? %>
+		<tr><td><em>Unable to get Digital Ocean droplets: <%= @do_droplets %></em></td></tr>
 	<% elsif @do_droplets.empty? %>
 		<tr><td><em>You have no droplets on Digital Ocean</em></td></tr>
 	<% else %>

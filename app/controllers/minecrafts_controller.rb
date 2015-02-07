@@ -6,7 +6,6 @@ class MinecraftsController < ApplicationController
   end
 
   def load_show
-    @do_ssh_keys = current_user.digital_ocean_ssh_keys
     @minecraft.properties.try(:refresh)
   end
 
@@ -269,6 +268,11 @@ class MinecraftsController < ApplicationController
       return redirect_to minecrafts_path, flash: { error: error }
     end
     return redirect_to minecrafts_path, flash: { notice: 'Deleted snapshot on Digital Ocean' }
+  end
+
+  def show_digital_ocean_ssh_keys
+    @do_ssh_keys = current_user.digital_ocean_ssh_keys
+    render layout: nil
   end
 
   def add_digital_ocean_ssh_key

@@ -1,5 +1,4 @@
 class DigitalOcean::Droplet
-  include HTTParty
 
   def initialize(server, connection)
     @server = server

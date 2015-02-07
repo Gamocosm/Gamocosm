@@ -14,6 +14,7 @@
 
 		do_droplets = $('#digital_ocean_droplets')
 		do_snapshots = $('#digital_ocean_snapshots')
+		do_ssh_keys = $('#digital_ocean_ssh_keys')
 		if do_droplets.length
 			$.ajax
 				url: do_droplets.data('url')
@@ -34,4 +35,14 @@
 					do_snapshots.html(data)
 				error: (jqXHR, textStatus, errorThrown) ->
 					do_snapshots.find('td').html("Unable to get Digital Ocean snapshots (#{textStatus})")
+		if do_ssh_keys.length
+			$.ajax
+				url: do_ssh_keys.data('url')
+				dataType: 'html'
+				timeout: 8 * 1000
+				type: 'GET'
+				success: (data, textStatus, jqXHR) ->
+					do_ssh_keys.html(data)
+				error: (jqXHR, textStatus, errorThrown) ->
+					do_ssh_keys.find('td').html("Unable to get Digital Ocean SSH keys (#{textStatus})")
 )(jQuery)

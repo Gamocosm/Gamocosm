@@ -16,7 +16,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
 
   test "a lot of things (\"test everything\" - so it goes)" do
     mock_do_base(200)
-    mock_do_ssh_keys_list(200, [])
+    mock_do_ssh_keys_list(200, []).times_only(1)
 
     login_user('test@test.com', '1234test')
     minecraft = create_server('test2', 'vanilla/1.8.1', 'nyc3', '512mb')

@@ -44,6 +44,7 @@ Rails.application.routes.draw do
     delete 'droplets/:id', to: 'minecrafts#destroy_digital_ocean_droplet', as: :destroy_digital_ocean_droplet
     get 'snapshots', to: 'minecrafts#show_digital_ocean_snapshots', as: :show_digital_ocean_snapshots
     delete 'snapshots/:id', to: 'minecrafts#destroy_digital_ocean_snapshot', as: :destroy_digital_ocean_snapshot
+    get 'ssh_keys', to: 'minecrafts#show_digital_ocean_ssh_keys', as: :show_digital_ocean_ssh_keys
     post 'ssh_keys', to: 'minecrafts#add_digital_ocean_ssh_key', as: :add_digital_ocean_ssh_key
     delete 'ssh_keys/:id', to: 'minecrafts#destroy_digital_ocean_ssh_key', as: :destroy_digital_ocean_ssh_key
     delete 'cache', to: 'minecrafts#refresh_digital_ocean_cache', as: :refresh_digital_ocean_cache
