@@ -23,218 +23,264 @@ class ActiveSupport::TestCase
   fixtures :all
 
   # Add more helper methods to be used by all tests here...
+  self.use_transactional_fixtures = false
 
   setup do
+    Rails.cache.clear
+    WebMock.reset!
   end
 
   def have_user_server?
     return ENV['TEST_DOCKER'] == 'true'
   end
 
-  # WebMock base helpers
-  def mock_http_reset!
-    WebMock.reset!
-  end
-
-  def mock_http_response_body_json(status, res)
-    return { status: status, body: res.to_json, headers: { 'Content-Type' => 'application/json' } }
-  end
-
-  def mock_http_json(verb, path, status, res, req)
-    stub = stub_request(verb, path)
-    if !req.nil?
-      stub.with(body: hash_including(req))
+  # WebMock basic helpers
+  def mock_digital_ocean(verb, path)
+    query = ''
+    if verb == :get
+      query = "?per_page=#{Barge::Resource::Base::PER_PAGE}"
     end
-    stub.to_return(mock_http_response_body_json(status, res))
+    return stub_request(verb, "#{File.join(Barge::Client::DIGITAL_OCEAN_URL, path)}#{query}")
   end
 
-  def mock_digital_ocean(verb, path, status, res, req)
-    mock_http_json(verb, /#{File.join(Barge::Client::DIGITAL_OCEAN_URL, path)}/, status, res, req)
+  def mock_cloudflare
+    return stub_request(:post, CloudFlare::Client::CLOUDFLARE_API_URL)
   end
 
-  def mock_cloudflare(verb, a, status, res, req)
-    stub = stub_request(verb, CloudFlare::Client::CLOUDFLARE_API_URL)
-    stub.with(query: {
-      a: a,
-      tkn: Gamocosm::CLOUDFLARE_API_TOKEN,
-      email: Gamocosm::CLOUDFLARE_EMAIL,
-      z: Gamocosm::USER_SERVERS_DOMAIN,
-    }.merge(req))
-    stub.to_return(mock_http_response_body_json(status, res))
+  def mock_mcsw(verb, minecraft, endpoint)
+    return stub_request(verb, "http://#{Gamocosm::MCSW_USERNAME}:#{minecraft.minecraft_wrapper_password}@localhost:#{Minecraft::Node::MCSW_PORT}/#{endpoint}")
   end
 
-  def mock_minecraft_node(verb, minecraft, endpoint, status, res, req)
-    mock_http_json(
-      verb,
-      minecraft.node.full_url(endpoint).sub('http://', "http://#{Gamocosm::MCSW_USERNAME}:#{minecraft.minecraft_wrapper_password}@"),
-      status,
-      res,
-      req,
-    )
+  # WebMock helpers that include response
+  def mock_do_base(status)
+    mock_digital_ocean(:get, '/sizes').to_return_json(status, { sizes: DigitalOcean::Size::DEFAULT_SIZES })
+    mock_digital_ocean(:get, '/regions').to_return_json(status, { regions: DigitalOcean::Region::DEFAULT_REGIONS })
   end
 
-  # WebMock abstraction helpers
-  def mock_digital_ocean_base(status, droplets, images, ssh_keys)
-    mock_digital_ocean(:get, '/droplets', status, { droplets: droplets }, nil)
-    mock_digital_ocean(:get, '/images', status, { images: images }, nil)
-    mock_digital_ocean(:get, '/account/keys', status, { ssh_keys: ssh_keys }, nil)
-    mock_digital_ocean(:get, '/sizes', status, { sizes: DigitalOcean::Size::DEFAULT_SIZES }, nil)
-    mock_digital_ocean(:get, '/regions', status, { sizes: DigitalOcean::Region::DEFAULT_REGIONS }, nil)
-    mock_digital_ocean(:post, '/account/keys', status, { ssh_key: { id: 1 } }, {
-      name: 'gamocosm',
-      public_key: Gamocosm::DIGITAL_OCEAN_SSH_PUBLIC_KEY,
-    })
+  def mock_do_droplet_actions_list(status, droplet_id)
+    return mock_digital_ocean(:get, "/droplets/#{droplet_id}/actions").to_return_json(status, { actions: [{ id: 1 }] })
   end
 
-  def mock_digital_ocean_droplet_actions(status, remote_id)
-    mock_digital_ocean(:get, "/droplets/#{remote_id}/actions", status, {
-      actions: [{ id: 1 }],
-    }, nil)
-    mock_digital_ocean(:post, "/droplets/#{remote_id}/actions", status, {
-      action: { id: 1 }
-    }, {
-      type: /shutdown|reboot|snapshot/,
-    })
-    mock_digital_ocean(:delete, "/droplets/#{remote_id}", status, { }, nil)
+  def mock_do_droplet_delete(status, droplet_id)
+    return mock_digital_ocean(:delete, "/droplets/#{droplet_id}").to_return_json(status, { })
   end
 
-  def mock_digital_ocean_action(status, droplet_id, action_id, remote_status)
-    mock_digital_ocean(:get, "/droplets/#{droplet_id}/actions/#{action_id}", status, {
+  def mock_do_image_delete(status, image_id)
+    return mock_digital_ocean(:delete, "/images/#{image_id}").to_return_json(status, { })
+  end
+
+  def mock_do_ssh_key_delete(status, key_id)
+    return mock_digital_ocean(:delete, "/account/keys/#{key_id}").to_return_json(status, { })
+  end
+
+  def mock_do_ssh_key_gamocosm(status)
+    return mock_do_ssh_key_add().stub_do_ssh_key_add(status, 'gamocosm', Gamocosm::DIGITAL_OCEAN_SSH_PUBLIC_KEY)
+  end
+
+  def mock_do_droplets_list(status, droplets)
+    return mock_digital_ocean(:get, '/droplets').to_return_json(status, droplets: droplets)
+  end
+
+  def mock_do_images_list(status, images)
+    return mock_digital_ocean(:get, '/images').to_return_json(status, images: images)
+  end
+
+  def mock_do_ssh_keys_list(status, ssh_keys)
+    return mock_digital_ocean(:get, '/account/keys').to_return_json(status, ssh_keys: ssh_keys)
+  end
+
+  def mock_mcsw_stop(status, mc)
+    return mock_mcsw(:get, mc, :stop).to_return_json(status, { })
+  end
+
+  def mock_mcsw_backup(status, mc)
+    return mock_mcsw(:post, mc, :backup).to_return_json(status, { })
+  end
+
+  # WebMock helpers just urls
+  def mock_do_droplet_action(droplet_id)
+    return mock_digital_ocean(:post, "/droplets/#{droplet_id}/actions")
+  end
+
+  def mock_do_droplet_action_show(droplet_id, action_id)
+    return mock_digital_ocean(:get, "/droplets/#{droplet_id}/actions/#{action_id}")
+  end
+
+  def mock_do_ssh_key_add()
+    return mock_digital_ocean(:post, '/account/keys')
+  end
+
+  def mock_do_ssh_key_show(key_id)
+    return mock_digital_ocean(:get, "/account/keys/#{key_id}")
+  end
+
+  def mock_do_droplet_show(remote_id)
+    return mock_digital_ocean(:get, "/droplets/#{remote_id}")
+  end
+
+  def mock_do_droplet_create()
+    mock_digital_ocean(:post, '/droplets')
+  end
+
+  def mock_mcsw_start(mc)
+    return mock_mcsw(:post, mc, :start)
+  end
+
+  def mock_mcsw_pid(mc)
+    return mock_mcsw(:get, mc, :pid)
+  end
+
+  def mock_mcsw_exec(mc)
+    return mock_mcsw(:post, mc, :exec)
+  end
+
+  def mock_mcsw_properties_fetch(mc)
+    return mock_mcsw(:get, mc, :minecraft_properties)
+  end
+
+  def mock_mcsw_properties_update(mc)
+    return mock_mcsw(:post, mc, :minecraft_properties)
+  end
+end
+
+class WebMock::RequestStub
+  def to_return_json(status, res)
+    return self.to_return({ status: status, body: res.to_json, headers: { 'Content-Type' => 'application/json' } })
+  end
+
+  def with_body_hash_including(req)
+    return self.with(body: WebMock::API.hash_including(req))
+  end
+
+  def times_only(n)
+    return self.times(n).to_raise(RuntimeError)
+  end
+
+  def stub_do_droplet_action(status, action)
+    return self.with_body_hash_including({
+      type: action,
+    }).to_return_json(status, { action: { id: 1 } })
+  end
+
+  def stub_do_droplet_action_show(status, remote_status)
+    return self.to_return_json(status, {
       action: {
-        status: remote_status,
-      },
-    }, nil)
-  end
-
-  def mock_digital_ocean_action_after(stub, status, remote_status)
-    stub.to_return(mock_http_response_body_json(status, {
-      action: {
-        status: remote_status,
-      },
-    }))
-  end
-
-  def mock_digital_ocean_snapshot_delete(status, remote_id)
-    mock_digital_ocean(:delete, "/images/#{remote_id}", status, { }, nil)
-  end
-
-  def mock_digital_ocean_ssh_key_add(status, name, public_key)
-    mock_digital_ocean(:post, '/account/keys', status, {
-      ssh_key: {
-        id: 1,
-      },
-    }, {
-      name: name,
-      public_key: public_key,
+        status: remote_status
+      }
     })
   end
 
-  def mock_digital_ocean_ssh_key_delete(status, key_id)
-    mock_digital_ocean(:delete, "/account/keys/#{key_id}", status, { }, nil)
-  end
-
-  def mock_digital_ocean_ssh_key_get(status, key_id, public_key)
-    mock_digital_ocean(:get, "/account/keys/#{key_id}", status, {
-      ssh_key: {
-        public_key: public_key,
-      },
-    }, nil)
-  end
-
-  def mock_digital_ocean_server(status, server, remote_status)
-    mock_digital_ocean(:get, "/droplets/#{server.remote_id}", status, {
+  def stub_do_droplet_show(status, remote_status)
+    return self.to_return_json(status, {
       droplet: {
         id: 1,
         networks: { v4: [{ ip_address: 'localhost', type: 'public' }] },
         status: remote_status,
         snapshot_ids: [1],
       },
-    }, nil)
-    if !server.remote_id.nil?
-      mock_digital_ocean_droplet_actions(status, server.remote_id)
-    end
+    })
   end
 
-  def mock_digital_ocean_droplet_create(status, minecraft)
-    mock_digital_ocean(:post, '/droplets', status, { droplet: { id: 1 } }, {
-      name: "#{minecraft.name}.minecraft.gamocosm",
-      size: minecraft.server.do_size_slug,
-      region: minecraft.server.do_region_slug,
+  def stub_do_droplet_create(status, name, size, region)
+    return self.with_body_hash_including({
+      name: "#{name}.minecraft.gamocosm",
+      size: size,
+      region: region,
       image: Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG,
       ssh_keys: ['1'],
-    })
-    mock_digital_ocean_droplet_actions(status, 1)
+    }).stub_do_droplet_show(status, 'new')
   end
 
-  def mock_cloudflare_list_dns(status, recs)
-    mock_cloudflare(:post, 'rec_load_all', status, {
-      result: 'success',
-      response: {
+  def stub_do_ssh_key_show(status, name, public_key)
+    return self.to_return_json(status, {
+      ssh_key: {
+        id: 1,
+        name: name,
+        public_key: public_key,
+      },
+    })
+  end
+
+  def stub_do_ssh_key_add(status, name, public_key)
+    return self.with_body_hash_including({
+      name: name,
+      public_key: public_key,
+    }).stub_do_ssh_key_show(status, name, public_key)
+  end
+
+  def stub_cf_request(a, req)
+    return self.with(query: {
+      a: a,
+      tkn: Gamocosm::CLOUDFLARE_API_TOKEN,
+      email: Gamocosm::CLOUDFLARE_EMAIL,
+      z: Gamocosm::USER_SERVERS_DOMAIN,
+    }.merge(req))
+  end
+
+  def stub_cf_response(status, result, res)
+    return self.to_return_json(status, {
+      result: result,
+      response: res,
+    })
+  end
+
+  def stub_cf_dns_list(status, result, recs)
+    return self.stub_cf_request('rec_load_all', { })
+      .stub_cf_response(status, result, {
         recs: {
           objs: recs,
         },
-      },
-    }, { })
+      })
   end
 
-  def mock_cloudflare_add_dns(status, name, content)
-    mock_cloudflare(:post, 'rec_new', status, {
-      result: 'success',
-    }, {
+  def stub_cf_dns_add(status, result, name, content)
+    return self.stub_cf_request('rec_new', {
       type: 'A',
       ttl: 120,
       name: name,
       content: content,
-    })
+    }).stub_cf_response(status, result, { })
   end
 
-  def mock_cloudflare_edit_dns(status, id, name, content)
-    mock_cloudflare(:post, 'rec_edit', status, {
-      result: 'success',
-    }, {
+  def stub_cf_dns_edit(status, result, id, name, content)
+    return self.stub_cf_request('rec_edit', {
       type: 'A',
       ttl: 120,
       id: id,
       name: name,
       content: content,
-    })
+    }).stub_cf_response(status, result, { })
   end
 
-  def mock_cloudflare_delete_dns(status, id)
-    mock_cloudflare(:post, 'rec_delete', status, {
-      result: 'success',
-    }, {
+  def stub_cf_dns_delete(status, result, id)
+    return self.stub_cf_request('rec_delete', {
       id: id,
+    }).stub_cf_response(status, result, { })
+  end
+
+  def stub_mcsw_pid(status, pid)
+    return self.to_return_json(status, pid: pid)
+  end
+
+  def stub_mcsw_start(status, ram)
+    return self.with_body_hash_including({
+      ram: "#{ram}M",
+    }).stub_mcsw_pid(status, 1)
+  end
+
+  def stub_mcsw_exec(status, command)
+    return self.with_body_hash_including({
+      command: command,
+    }).to_return_json(status, { })
+  end
+
+  def stub_mcsw_properties_fetch(status, properties)
+    return self.to_return_json(status, {
+      properties: Minecraft::Properties::DEFAULT_PROPERTIES.merge(properties),
     })
   end
 
-  # WebMock convenience helpers
-  def mock_minecraft_running(status, minecraft, pid)
-    mock_digital_ocean_server(200, minecraft.server, 'active')
-    assert minecraft.server.running?, 'Minecraft server isn\'t running'
-    mock_minecraft_node(:get, minecraft, :pid, status, {
-      pid: pid,
-    }, nil)
-    mock_minecraft_properties(status, minecraft, { })
-    mock_minecraft_node(:get, minecraft, :stop, status, { }, nil)
-    mock_minecraft_node(:post, minecraft, :backup, status, { }, nil)
-    mock_minecraft_node(:post, minecraft, :start, status, {
-      pid: 1,
-    }, {
-      ram: "#{minecraft.server.ram}M",
-    })
-    mock_minecraft_node(:post, minecraft, :exec, status, { }, {
-      command: 'help',
-    })
-  end
-
-  def mock_minecraft_properties(status, minecraft, updated_properties)
-    p = Minecraft::Properties::DEFAULT_PROPERTIES.merge(updated_properties)
-    mock_minecraft_node(:get, minecraft, :minecraft_properties, status, {
-      properties: p,
-    }, nil)
-    mock_minecraft_node(:post, minecraft, :minecraft_properties, status, {
-      properties: p,
-    }, nil)
+  def stub_mcsw_properties_update(status, properties)
+    return self.with_body_hash_including({ properties: properties }).stub_mcsw_properties_fetch(status, properties)
   end
 end

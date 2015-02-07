@@ -43,8 +43,7 @@ class CloudFlare::Client
 
   def add_dns(name, ip)
     begin
-      response = self.parse_response(self.class.post(CLOUDFLARE_API_URL, { query: self.make_post_params('rec_new', { type: 'A', name: name, content: ip, ttl: 120 }) }))
-      return response.error? ? response : nil
+      return self.parse_response(self.class.post(CLOUDFLARE_API_URL, { query: self.make_post_params('rec_new', { type: 'A', name: name, content: ip, ttl: 120 }) }))
     rescue Net::ReadTimeout => e
       Rails.logger.error "CloudFlare API read timeout: #{e}"
       Rails.logger.error e.backtrace.join("\n")
@@ -62,8 +61,7 @@ class CloudFlare::Client
       if x.nil?
         return self.add_dns(name, ip)
       end
-      response = self.parse_response(self.class.post(CLOUDFLARE_API_URL, { query: self.make_post_params('rec_edit', { id: records[x][:id], type: 'A', name: name, content: ip, ttl: 120 }) }))
-      return response.error? ? response : nil
+      return self.parse_response(self.class.post(CLOUDFLARE_API_URL, { query: self.make_post_params('rec_edit', { id: records[x][:id], type: 'A', name: name, content: ip, ttl: 120 }) }))
     rescue Net::ReadTimeout => e
       Rails.logger.error "CloudFlare API read timeout: #{e}"
       Rails.logger.error e.backtrace.join("\n")
@@ -81,8 +79,7 @@ class CloudFlare::Client
       if x.nil?
         return nil
       end
-      response = self.parse_response(self.class.post(CLOUDFLARE_API_URL, { query: self.make_post_params('rec_delete', { id: records[x][:id] }) }))
-      return response.error? ? response : nil
+      return self.parse_response(self.class.post(CLOUDFLARE_API_URL, { query: self.make_post_params('rec_delete', { id: records[x][:id] }) }))
     rescue Net::ReadTimeout => e
       Rails.logger.error "CloudFlare API read timeout: #{e}"
       Rails.logger.error e.backtrace.join("\n")

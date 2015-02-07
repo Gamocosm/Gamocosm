@@ -9,9 +9,6 @@ class MinecraftsControllerTest < ActionController::TestCase
     @other = User.find(3)
     @minecraft = Minecraft.first
     @minecraft.server.update_columns(remote_id: nil, pending_operation: nil)
-    mock_http_reset!
-    mock_digital_ocean_base(200, [], [], [])
-    Rails.cache.clear
   end
 
   def teardown
@@ -19,6 +16,9 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'servers page with digital ocean api token' do
+    mock_do_base(200)
+    mock_do_droplets_list(200, [])
+    mock_do_images_list(200, [])
     sign_in @owner
     get :index
     assert_response :success
@@ -39,6 +39,7 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'create and destroy server' do
+    mock_do_droplet_delete(200, 1)
     sign_in @owner
     begin
       post :create, {
@@ -56,8 +57,7 @@ class MinecraftsControllerTest < ActionController::TestCase
       assert_redirected_to minecraft_path(mc2)
       assert_not_nil flash[:success], 'No new server message'
       mc2.server.update_columns(remote_id: 1)
-      mock_minecraft_running 200, mc2, 1
-      delete :destroy, { id: @minecraft.id }
+      delete :destroy, { id: mc2.id }
       assert_redirected_to minecrafts_path
       assert_equal 'Server is deleting', flash[:success], 'Minecraft delete not success'
       assert_equal 1, Minecraft.count, 'Minecraft not actually deleted'
@@ -67,6 +67,7 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'add and remove friends from server' do
+    mock_do_ssh_keys_list(200, [])
     no_friends = 'Tell your friends to sign up and add them to your server to let them start and stop it when you\'re offline.'
     sign_in @owner
     view_server @minecraft
@@ -77,22 +78,29 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'friend can start and stop server' do
+    mock_do_ssh_keys_list(200, [])
+    mock_do_ssh_key_gamocosm(200)
+    mock_do_droplet_create().stub_do_droplet_create(200, @minecraft.name, @minecraft.server.do_size_slug, @minecraft.server.do_region_slug)
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'new').times(1).stub_do_droplet_show(200, 'active')
+    mock_do_droplet_actions_list(200, 1)
+    mock_mcsw_pid(@minecraft).stub_mcsw_pid(200, 1)
+    mock_do_droplet_action(1).stub_do_droplet_action(200, 'shutdown')
     sign_in @friend
     view_server @minecraft
-    mock_digital_ocean_server(200, @minecraft.server, 'new')
-    mock_digital_ocean_droplet_create(200, @minecraft)
     start_server @minecraft
     @minecraft.server.update_columns(pending_operation: nil)
-    mock_minecraft_running 200,  @minecraft, 1
     view_server @minecraft
     assert @minecraft.running?, 'Minecraft server isn\'t running'
     stop_server @minecraft
   end
 
   test 'reboot server' do
+    mock_do_ssh_keys_list(200, [])
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')
+    mock_do_droplet_action(1).stub_do_droplet_action(200, 'reboot')
+    mock_mcsw_pid(@minecraft).stub_mcsw_pid(200, 1)
     sign_in @owner
     @minecraft.server.update_columns(remote_id: 1)
-    mock_minecraft_running 200, @minecraft, 1
     get :reboot, { id: @minecraft.id }
     assert_redirected_to minecraft_path(@minecraft)
     view_server(@minecraft)
@@ -104,17 +112,25 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'control panel download minecraft' do
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')
+    mock_mcsw_pid(@minecraft).stub_mcsw_pid(200, 0)
     sign_in @friend
     @minecraft.server.update_columns(remote_id: 1)
-    mock_minecraft_running 200, @minecraft, 0
     get :download, { id: @minecraft.id }
     assert_redirected_to "http://#{Gamocosm::MCSW_USERNAME}:#{@minecraft.minecraft_wrapper_password}@#{@minecraft.server.remote.ip_address}:#{Minecraft::Node::MCSW_PORT}/download_world"
   end
 
   test 'update minecraft properties' do
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')
+    mock_mcsw_pid(@minecraft).stub_mcsw_pid(200, 0)
+    p = {
+      difficulty: '0',
+      motd: 'A Gamocosm Minecraft Server',
+    }
+    mock_mcsw_properties_update(@minecraft).stub_mcsw_properties_update(200, p)
+    mock_mcsw_properties_fetch(@minecraft).stub_mcsw_properties_fetch(200, p)
     sign_in @owner
     @minecraft.server.update_columns(remote_id: 1)
-    mock_minecraft_running 200, @minecraft, 1
     put :update_properties, {
       id: @minecraft.id,
       minecraft_properties: {
@@ -127,37 +143,45 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'pause and resume minecraft' do
+    mock_do_base(200)
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')
+    mock_mcsw_pid(@minecraft).stub_mcsw_pid(200, 1).times(1).stub_mcsw_pid(200, 0)
+    mock_mcsw_stop(200, @minecraft)
+    mock_mcsw_start(@minecraft).stub_mcsw_start(200, @minecraft.server.ram)
     sign_in @friend
     @minecraft.server.update_columns(remote_id: 1)
-    mock_minecraft_running 200, @minecraft, 1
     get :pause, { id: @minecraft.id }
     assert_redirected_to minecraft_path(@minecraft)
     assert_equal 'Server paused', flash[:success], 'Minecraft pause not successful'
-    mock_minecraft_running 200, @minecraft, 0
     get :resume, { id: @minecraft.id }
     assert_redirected_to minecraft_path(@minecraft)
     assert_equal 'Server resumed', flash[:success], 'Minecraft resume not successful'
   end
 
   test 'exec minecraft command' do
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')
+    mock_mcsw_pid(@minecraft).stub_mcsw_pid(200, 1)
+    mock_mcsw_exec(@minecraft).stub_mcsw_exec(200, 'help')
     sign_in @owner
     @minecraft.server.update_columns(remote_id: 1)
-    mock_minecraft_running 200, @minecraft, 1
     post :command, { id: @minecraft.id, command: { data: 'help' } }
     assert_redirected_to minecraft_path(@minecraft)
     assert_equal 'Command sent', flash[:success], 'Minecraft exec command not successful'
   end
 
   test 'backup minecraft' do
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')
+    mock_mcsw_pid(@minecraft).stub_mcsw_pid(200, 0)
+    mock_mcsw_backup(200, @minecraft)
     sign_in @friend
     @minecraft.server.update_columns(remote_id: 1)
-    mock_minecraft_running 200, @minecraft, 0
     post :backup, { id: @minecraft.id }
     assert_redirected_to minecraft_path(@minecraft)
     assert_equal 'World backed up remotely on server', flash[:success], 'Minecraft backup not successful'
   end
 
   test 'edit advanced tab' do
+    mock_do_ssh_keys_list(200, [])
     sign_in @owner
     # initial values
     view_server @minecraft, { remote_setup_stage: 0, do_region_slug: 'nyc3', do_size_slug: '512mb' }
@@ -176,6 +200,7 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'edit ssh keys' do
+    mock_do_ssh_keys_list(200, [])
     sign_in @owner
     view_server @minecraft
     assert_select '#minecraft_server_attributes_ssh_keys', 1
@@ -216,6 +241,7 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'busy page' do
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')
     sign_in @friend
     begin
       @minecraft.server.update_columns(remote_id: 1)
@@ -261,6 +287,7 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'log message and clear' do
+    mock_do_ssh_keys_list(200, [])
     sign_in @owner
     view_server @minecraft
     assert_select '.panel-body em', 'No messages'
@@ -301,6 +328,7 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   def view_server(minecraft, advanced_tab = { })
+    mock_mcsw_properties_fetch(@minecraft).stub_mcsw_properties_fetch(200, { }).times_only(1)
     get :show, { id: minecraft.id }
     assert_response :success
     advanced_tab.each do |k, v|
@@ -316,7 +344,7 @@ class MinecraftsControllerTest < ActionController::TestCase
     ensure_busy
     assert_equal 1, WaitForStartingServerWorker.jobs.count, 'No wait for starting server worker after start'
     WaitForStartingServerWorker.jobs.clear
-    @minecraft.reload
+    minecraft.reload
   end
 
   def stop_server(minecraft)
@@ -327,7 +355,7 @@ class MinecraftsControllerTest < ActionController::TestCase
     ensure_busy
     assert_equal 1, WaitForStoppingServerWorker.jobs.count, 'No wait for stopping server worker after stop'
     WaitForStoppingServerWorker.jobs.clear
-    @minecraft.reload
+    minecraft.reload
   end
 
   def ensure_busy
@@ -350,10 +378,10 @@ class MinecraftsControllerTest < ActionController::TestCase
     assert_select 'td', { text: friend.email, count: 0 }
   end
 
-  # TODO: these don't really belong here
   test 'destroy digital ocean droplet' do
+    mock_do_base(200)
+    mock_do_droplet_delete(200, 1)
     sign_in @owner
-    mock_digital_ocean_droplet_actions(200, 1)
     post :destroy_digital_ocean_droplet, { id: 1 }
     assert_redirected_to minecrafts_path
     get :index
@@ -362,8 +390,9 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'destroy digital ocean snapshot' do
+    mock_do_base(200)
+    mock_do_image_delete(200, 1)
     sign_in @owner
-    mock_digital_ocean_snapshot_delete(200, 1)
     post :destroy_digital_ocean_snapshot, { id: 1 }
     assert_redirected_to minecrafts_path
     get :index
@@ -372,8 +401,9 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'add digital ocean ssh key' do
+    mock_do_ssh_key_add().stub_do_ssh_key_add(200, 'me', 'a b c')
+    mock_do_ssh_keys_list(200, [])
     sign_in @owner
-    mock_digital_ocean_ssh_key_add(200, 'me', 'a b c')
     request.host = 'example.com'
     request.env['HTTP_REFERER'] = Rails.application.routes.url_helpers.minecraft_path(@minecraft, only_path: false, host: 'example.com')
     post :add_digital_ocean_ssh_key, {
@@ -389,8 +419,9 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'destroy digital ocean ssh key' do
+    mock_do_ssh_key_delete(204, 1)
+    mock_do_ssh_keys_list(200, [])
     sign_in @owner
-    mock_digital_ocean_ssh_key_delete(204, 1)
     request.host = 'example.com'
     request.env['HTTP_REFERER'] = Rails.application.routes.url_helpers.minecraft_path(@minecraft, only_path: false, host: 'example.com')
     post :destroy_digital_ocean_ssh_key, {
@@ -402,8 +433,9 @@ class MinecraftsControllerTest < ActionController::TestCase
   end
 
   test 'show digital ocean droplets and snapshots' do
+    mock_do_droplets_list(200, []).times(1).to_raise(RuntimeError)
+    mock_do_images_list(200, []).times(1).to_raise(RuntimeError)
     sign_in @owner
-    mock_digital_ocean_base(200, [], [], [])
     get :show_digital_ocean_droplets
     assert_response :success
     get :show_digital_ocean_snapshots

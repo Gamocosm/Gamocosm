@@ -58,11 +58,6 @@ class DigitalOcean::Droplet
     return data
   end
 
-  def invalidate
-    @remote_data = nil
-    @action_id = nil
-  end
-
   def action_id
     return @action_id
   end

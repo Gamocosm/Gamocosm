@@ -122,7 +122,8 @@ Hmmmm.
 
 #### Background workers
 - Idempotent
-- Use `ActiveRecord::Base.connection_pool.with_connection do |conn|` if threads (e.g. teimout) access the database
+- Keep blocks inside timeouts as simple as possible, cleanup outside of timeout, try to stick to plain old datatypes
+	- Use `ActiveRecord::Base.connection_pool.with_connection do |conn|` if threads (e.g. timeout) access the database
 - Run finite amount of times (keep track of how many times looped)
 - Reset the state of the server if anything goes wrong (any exit points)
 - Check that the remote exists and is not errored

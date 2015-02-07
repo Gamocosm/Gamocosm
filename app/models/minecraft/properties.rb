@@ -55,7 +55,6 @@ class Minecraft::Properties
 
   def initialize(minecraft)
     @minecraft = minecraft
-    refresh
   end
 
   def error

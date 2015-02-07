@@ -10,7 +10,7 @@ class DigitalOcean::Region
     { name: "San Francisco 1", slug: "sfo1" },
     { name: "London 1", slug: "lon1" },
     { name: "Singapore 1", slug: "sgp1" },
-  ]
+  ].map { |x| x[:available] = true; x }
 
   def initialize
     @all = Rails.cache.read(:digital_ocean_regions)

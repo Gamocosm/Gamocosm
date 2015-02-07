@@ -7,6 +7,7 @@ class MinecraftsController < ApplicationController
 
   def load_show
     @do_ssh_keys = current_user.digital_ocean_ssh_keys
+    @minecraft.properties.try(:refresh)
   end
 
   def index
@@ -34,8 +35,8 @@ class MinecraftsController < ApplicationController
   end
 
   def show
-    load_show
     @minecraft = find_minecraft(params[:id])
+    load_show
   end
 
   def edit
@@ -66,10 +67,7 @@ class MinecraftsController < ApplicationController
 
   def destroy
     @minecraft = find_minecraft_only_owner(params[:id])
-    error = @minecraft.server.remove_domain
-    if error
-      return redirect_to minecraft_path(@minecraft), flash: { error: "Unable to remove domain from Digital Ocean: #{error}" }
-    end
+    @minecraft.server.remove_domain
     error = @minecraft.server.remote.destroy_saved_snapshot
     if error
       return redirect_to minecraft_path(@minecraft), flash: { error: "Unable to delete saved server snapshot: #{error}" }

@@ -1,6 +1,12 @@
 require 'sshkit/dsl'
 require 'timeout'
 
+class String
+  def shell_escape
+    return "'#{self.gsub('\'', '\'"\'"\'')}'"
+  end
+end
+
 class SetupServerWorker
   include Sidekiq::Worker
   sidekiq_options retry: 0
@@ -83,7 +89,7 @@ class SetupServerWorker
   end
 
   def base_install(user, server, host)
-    mcuser_password_escaped = shell_escape("#{user.email}+#{server.minecraft.name}")
+    mcuser_password_escaped = "#{user.email}+#{server.minecraft.name}".shell_escape
     begin
       Timeout::timeout(512) do
         on host do
@@ -230,7 +236,7 @@ class SetupServerWorker
       if key.error?
         server.minecraft.log(key)
       else
-        key_contents.push(shell_escape(key))
+        key_contents.push(key.shell_escape)
       end
     end
     server.update_columns(ssh_keys: nil)
@@ -251,9 +257,5 @@ class SetupServerWorker
     rescue Timeout::Error
       raise 'Server setup (SSH): took too long adding SSH keys from Digital Ocean'
     end
-  end
-
-  def shell_escape(str)
-    return "'#{str.gsub('\'', '\'"\'"\'')}'"
   end
 end

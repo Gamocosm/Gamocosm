@@ -46,7 +46,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test 'get digital ocean ssh key' do
-    mock_digital_ocean_ssh_key_get(200, 1, 'a b c')
+    mock_do_ssh_key_show(1).stub_do_ssh_key_show(200, 'me', 'a b c')
     assert_equal 'a b c', @owner.digital_ocean_ssh_public_key(1), 'Failed to get Digital Ocean SSH key'
   end
 end

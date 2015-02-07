@@ -1,60 +1,54 @@
 require 'test_helper'
 
 class MinecraftFlowsTest < ActionDispatch::IntegrationTest
-  self.use_transactional_fixtures = false
   # test "the truth" do
   #   assert true
   # end
 
   def setup
     @user = User.find(1)
+    Minecraft.first.server.update_columns(remote_id: nil, pending_operation: nil)
   end
 
   def teardown
     assert_equal 0, Sidekiq::Worker.jobs.total_count, "Unexpected Sidekiq jobs remain: #{Sidekiq::Worker.jobs}"
   end
 
-  def user_digital_ocean_before!
-    @user = User.find(1)
-    @user_digital_ocean_droplets_before = @user.digital_ocean_droplets.map { |x| x.id }
-    @user_digital_ocean_snapshots_before = @user.digital_ocean_snapshots.map { |x| x.id }
-    assert_not_nil @user_digital_ocean_droplets_before
-    assert_not_nil @user_digital_ocean_snapshots_before
-  end
-
-  def user_digital_ocean_after!
-    @user.invalidate
-    @user_digital_ocean_droplets_after = @user.digital_ocean_droplets.map { |x| x.id }
-    @user_digital_ocean_snapshots_after = @user.digital_ocean_snapshots.map { |x| x.id }
-    assert_equal @user_digital_ocean_droplets_before, @user_digital_ocean_droplets_after
-    assert_equal @user_digital_ocean_snapshots_before, @user_digital_ocean_snapshots_after
-  end
-
   test "a lot of things (\"test everything\" - so it goes)" do
-    mock_digital_ocean_base(200, [], [], [])
-    user_digital_ocean_before!
+    mock_do_base(200)
+    mock_do_ssh_keys_list(200, [])
+
     login_user('test@test.com', '1234test')
     minecraft = create_server('test2', 'vanilla/1.8.1', 'nyc3', '512mb')
+
     minecraft.server.create_server_domain
-    mock_cloudflare_list_dns(200, [])
-    mock_cloudflare_add_dns(200, minecraft.server.server_domain.name, 'localhost')
-    mock_cloudflare_edit_dns(200, 1, minecraft.server.server_domain.name, 'localhost')
-    mock_cloudflare_delete_dns(200, 1)
-    mock_digital_ocean_droplet_create(200, minecraft)
+    mock_cloudflare.stub_cf_dns_list(200, 'success', []).times(1)
+      .stub_cf_dns_list(200, 'success', [
+        { rec_id: 1, display_name: minecraft.server.server_domain.name, type: 'A' },
+      ]).times_only(3)
+    mock_cloudflare.stub_cf_dns_add(200, 'success', minecraft.server.server_domain.name, 'localhost').times_only(1)
+    mock_cloudflare.stub_cf_dns_edit(200, 'success', 1, minecraft.server.server_domain.name, 'localhost').times_only(2)
+    mock_cloudflare.stub_cf_dns_delete(200, 'success', 1).times_only(1)
+
     start_server(minecraft, { motd: 'A Minecraft Server' })
-    mock_minecraft_properties(200, minecraft, { motd: 'A Gamocosm Minecraft Server' })
     update_minecraft_properties(minecraft, { motd: 'A Gamocosm Minecraft Server' })
     enable_autoshutdown_server(minecraft)
     wait_for_autoshutdown_server minecraft
     wait_for_stopping_server minecraft
-    mock_digital_ocean_snapshot_delete(200, 1)
+
+    mock_do_image_delete(200, 1).times_only(1)
+
     delete_server(minecraft)
     sleep 4
     logout_user
-    user_digital_ocean_after!
   end
 
   def start_server(minecraft, properties)
+    mock_do_droplet_create().stub_do_droplet_create(200, minecraft.name, minecraft.server.do_size_slug, minecraft.server.do_region_slug).times_only(1)
+    mock_do_droplet_actions_list(200, 1).times_only(1)
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'new').times_only(1)
+    mock_do_ssh_key_gamocosm(200).times_only(1)
+
     get start_minecraft_path(minecraft)
     assert_redirected_to minecraft_path(minecraft)
     follow_redirect!
@@ -102,6 +96,8 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def delete_server(minecraft)
+    mock_do_droplets_list(200, []).times_only(1)
+    mock_do_images_list(200, []).times_only(1)
     delete minecraft_path(minecraft)
     assert_redirected_to minecrafts_path
     follow_redirect!
@@ -109,10 +105,9 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     assert_not_nil flash[:success]
   end
 
-  def view_server(minecraft, properties, get = true)
-    minecraft.properties.refresh
-    Rails.logger.info "Viewing server, Minecraft properties is #{minecraft.properties.inspect}, expecting #{properties}"
-    if get
+  def view_server(minecraft, properties, do_get = true)
+    if do_get
+      mock_mcsw_properties_fetch(minecraft).stub_mcsw_properties_fetch(200, properties).times_only(1)
       get minecraft_path(minecraft)
       assert_response :success
     end
@@ -122,6 +117,8 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def update_minecraft_properties(minecraft, properties)
+    mock_mcsw_properties_update(minecraft).stub_mcsw_properties_update(200, properties).times_only(1)
+    mock_mcsw_properties_fetch(minecraft).stub_mcsw_properties_fetch(200, properties).times_only(1)
     put update_properties_minecraft_path(minecraft), { minecraft_properties: properties }
     assert_redirected_to minecraft_path(minecraft)
     follow_redirect!
@@ -148,6 +145,8 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def login_user(email, password)
+    mock_do_droplets_list(200, []).times_only(1)
+    mock_do_images_list(200, []).times_only(1)
     post user_session_path, { user: { email: email, password: password } }
     assert_redirected_to minecrafts_path
     follow_redirect!
@@ -197,6 +196,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def wait_for_autoshutdown_server(minecraft)
+    mock_do_droplet_action(1).stub_do_droplet_action(200, 'shutdown').times_only(1)
     if have_user_server?
       sleep 32
       track_sidekiq_worker('AutoshutdownMinecraftWorker', 1, 16)
@@ -213,13 +213,11 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def wait_for_starting_server(minecraft)
-    # workers do Server.find, here uses minceraft.server
-    minecraft.reload
-    mock_digital_ocean_server(200, minecraft.server, 'active')
-    mock_digital_ocean_action_after(mock_digital_ocean_action(200, 1, 1, 'in-progress').times(2).then, 200, 'completed')
+    # MARKER: unlimited http stub
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')
+    mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times(2).stub_do_droplet_action_show(200, 'completed').times_only(1)
+
     track_sidekiq_worker('WaitForStartingServerWorker', 0, 32)
-    mock_minecraft_running(200, minecraft, 1)
-    mock_minecraft_properties(200, minecraft, { })
     if have_user_server?
       track_sidekiq_worker('SetupServerWorker', 0, 16)
     else
@@ -227,24 +225,35 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
       SetupServerWorker.jobs.clear
       StartMinecraftWorker.perform_in(0.seconds, minecraft.server.id)
     end
+
+    mock_mcsw_start(minecraft).stub_mcsw_start(200, minecraft.server.ram).times_only(1)
+
     track_sidekiq_worker('StartMinecraftWorker', 0, 1)
     # workers do Server.find, here uses minecraft.server
     minecraft.reload
+
+    # MARKER: unlimited http stub
+    mock_mcsw_pid(minecraft).stub_mcsw_pid(200, 1)
+
     assert minecraft.server.remote.exists?, 'Minecraft server remote does not exist'
     assert_not minecraft.server.remote.error?, "Minecraft server remote error: #{minecraft.server.remote.error}"
     assert_not minecraft.server.busy?, "Minecraft server busy: #{minecraft.inspect}, #{minecraft.server.inspect}"
     assert minecraft.server.running?, "Minecraft server not running: #{minecraft.inspect}, #{minecraft.server.inspect}"
     minecraft.node.invalidate
     assert minecraft.running?, "Minecraft not running: #{minecraft.inspect}, #{minecraft.server.inspect}"
-    # give server time to generate files
-    sleep 16
   end
 
   def wait_for_stopping_server(minecraft)
-    mock_digital_ocean_server(200, minecraft.server, 'off')
-    mock_digital_ocean_action_after(mock_digital_ocean_action(200, 1, 1, 'in-progress').times(2).then, 200, 'completed')
+    # MARKER: unlimited http stub
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'off')
+    mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times(2).stub_do_droplet_action_show(200, 'completed').times_only(1)
+    mock_do_droplet_action(1).stub_do_droplet_action(200, 'snapshot').times_only(1)
+
     track_sidekiq_worker('WaitForStoppingServerWorker', 0, 16)
-    mock_digital_ocean_action_after(mock_digital_ocean_action(200, 1, 1, 'in-progress').times(2).then, 200, 'completed')
+
+    mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times(2).stub_do_droplet_action_show(200, 'completed').times_only(1)
+    mock_do_droplet_delete(200, 1).times_only(1)
+
     track_sidekiq_worker('WaitForSnapshottingServerWorker', 0, 32)
     # workers do Server.find, here uses minecraft.server
     minecraft.reload
