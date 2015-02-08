@@ -23,4 +23,7 @@ class String
     s = self.strip
     return s.blank? ? nil : s.downcase
   end
+  def ascii
+    self.force_encoding('ascii-8bit')
+  end
 end

@@ -11,8 +11,8 @@ class Minecraft::Querier
   end
 
   def handshake(connection)
-    connection.send(self.create_packet(PACKET_TYPE_CHALLENGE), 0)
-    data = connection.recvfrom(256)[0]
+    connection.send(self.class.create_packet(PACKET_TYPE_CHALLENGE, 0, ''), 0)
+    data = connection.recvfrom(256).first.ascii
     challenge = data[5...-1].to_i
     return challenge
   end
@@ -29,8 +29,9 @@ class Minecraft::Querier
         Timeout::timeout(2) do
           connection.connect(@ip_address, @port)
           challenge = self.handshake(connection)
-          connection.send(self.create_packet(PACKET_TYPE_QUERY) + [challenge].pack('N'), 0) # 32 bit unsigned big endian
-          data = connection.recvfrom(4096).first[5...-1].split("\x00")
+          # 32 bit unsigned big endian
+          connection.send(self.class.create_packet(PACKET_TYPE_QUERY, 0, [challenge].pack('N')), 0)
+          data = connection.recvfrom(4096).first.ascii[5..-1].split("\0")
         end
       rescue => e
         Rails.logger.info "Exception in #{self.class}#read_all, try #{i}: #{e}"
@@ -42,8 +43,9 @@ class Minecraft::Querier
     return data
   end
 
-  def create_packet(id)
-    return (MAGIC + [id].pack('C') + [0].pack('L')).force_encoding('ascii-8bit') # 8 bit unsigned, 32 bit unsigned native endian
+  def self.create_packet(id, session, data)
+    # 8 bit signed, 32 bit unsigned big endian
+    return MAGIC.ascii + [id].pack('c').ascii + [session].pack('N').ascii + data.ascii
   end
 
   def read_num_players

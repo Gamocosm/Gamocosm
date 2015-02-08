@@ -13,7 +13,12 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 require 'webmock/minitest'
 
+Sidekiq::Logging.logger = Rails.logger
 Sidekiq::Worker.jobs.define_singleton_method(:total_count, lambda { self.inject(0) { |total, kv| total + kv.second.size } })
+
+def test_have_user_server?
+  return ENV['TEST_DOCKER'] == 'true'
+end
 
 class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
@@ -30,8 +35,19 @@ class ActiveSupport::TestCase
     WebMock.reset!
   end
 
-  def have_user_server?
-    return ENV['TEST_DOCKER'] == 'true'
+  teardown do
+    assert_equal 0, Sidekiq::Worker.jobs.total_count, "Unexpected Sidekiq jobs remain: #{Sidekiq::Worker.jobs}"
+  end
+
+  def with_minecraft_query_server(&block)
+    mcqs = Minecraft::QueryServer.new
+    thread = Thread.new { mcqs.run }
+    begin
+      block.call(mcqs)
+    ensure
+      mcqs.so_it_goes = true
+      thread.join
+    end
   end
 
   # WebMock basic helpers
@@ -141,6 +157,17 @@ class ActiveSupport::TestCase
   def mock_mcsw_properties_update(mc)
     return mock_mcsw(:post, mc, :minecraft_properties)
   end
+
+  # Other helpers
+  def mock_cf_domain(domain_name, times)
+    mock_cloudflare.stub_cf_dns_list(200, 'success', []).times(1)
+      .stub_cf_dns_list(200, 'success', [
+        { rec_id: 1, display_name: domain_name, type: 'A' },
+      ]).times_only(times)
+    mock_cloudflare.stub_cf_dns_add(200, 'success', domain_name, 'localhost').times_only(1)
+    mock_cloudflare.stub_cf_dns_edit(200, 'success', 1, domain_name, 'localhost').times_only(times - 1)
+    mock_cloudflare.stub_cf_dns_delete(200, 'success', 1).times_only(1)
+  end
 end
 
 class WebMock::RequestStub
@@ -170,14 +197,14 @@ class WebMock::RequestStub
     })
   end
 
-  def stub_do_droplet_show(status, remote_status)
+  def stub_do_droplet_show(status, remote_status, opts = { })
     return self.to_return_json(status, {
       droplet: {
         id: 1,
         networks: { v4: [{ ip_address: 'localhost', type: 'public' }] },
         status: remote_status,
         snapshot_ids: [1],
-      },
+      }.merge(opts),
     })
   end
 
@@ -258,8 +285,8 @@ class WebMock::RequestStub
     }).stub_cf_response(status, result, { })
   end
 
-  def stub_mcsw_pid(status, pid)
-    return self.to_return_json(status, pid: pid)
+  def stub_mcsw_pid(status, pid, opts = { })
+    return self.to_return_json(status, { pid: pid }.merge(opts))
   end
 
   def stub_mcsw_start(status, ram)
@@ -282,5 +309,34 @@ class WebMock::RequestStub
 
   def stub_mcsw_properties_update(status, properties)
     return self.with_body_hash_including({ properties: properties }).stub_mcsw_properties_fetch(status, properties)
+  end
+end
+
+if !test_have_user_server?
+  # reference SetupServerWorker so it loads before we patch it
+  SetupServerWorker.class
+  class SetupServerWorker
+    def on(hosts, options = { }, &block)
+      Rails.logger.info "SSHKit mocking on: #{hosts}..."
+      block.call
+      Rails.logger.info "SSHKit mocking on: #{hosts}, done."
+    end
+    def test(command, args = [])
+      Rails.logger.info "SSHKit mocking test: #{command} #{args.join(' ')}"
+      return true
+    end
+    def within(directory, &block)
+      Rails.logger.info "SSHKit mocking within: #{directory}..."
+      block.call
+      Rails.logger.info "SSHKit mocking within: #{directory}, done."
+    end
+    def execute(*args)
+      Rails.logger.info "SSHKit mocking command: #{args.join(' ')}"
+    end
+    def with(environment, &block)
+      Rails.logger.info "SSHKit mocking with: #{environment}..."
+      block.call
+      Rails.logger.info "SSHKit mocking with: #{environment}, done."
+    end
   end
 end

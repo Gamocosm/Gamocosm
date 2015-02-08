@@ -17,7 +17,7 @@ module Gamocosm
   CLOUDFLARE_API_TOKEN = ENV['CLOUDFLARE_API_TOKEN']
   CLOUDFLARE_EMAIL = ENV['CLOUDFLARE_EMAIL']
 
-  MINECRAFT_FLAVOURS = YAML.load_file(File.expand_path('config/minecraft_flavours.yml', Rails.root)).inject({}) do |a, x|
+  MINECRAFT_FLAVOURS = YAML.load_file(File.expand_path('config/minecraft_flavours.yml', Rails.root)).inject({}, &lambda do |a, x|
     x.second['versions'].each do |v|
       a["#{x.first}/#{v['tag']}"] = {
         name: v['name'],
@@ -28,13 +28,14 @@ module Gamocosm
       }
     end
     a
-  end
+  end)
   MINECRAFT_FLAVOURS_GIT_URL = 'https://github.com/Gamocosm/gamocosm-minecraft-flavours.git'
   MCSW_GIT_URL = 'https://github.com/Gamocosm/minecraft-server_wrapper.git'
   MCSW_USERNAME = 'gamocosm-mothership'
   DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-20-x64'
   DIGITAL_OCEAN_SSH_PUBLIC_KEY = File.read(DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH)
   DIGITAL_OCEAN_SSH_PUBLIC_KEY_FINGERPRINT = Digest::MD5.hexdigest(Base64.decode64(DIGITAL_OCEAN_SSH_PUBLIC_KEY.split(/\s+/m)[1])).scan(/../).join(':')
+  GIT_HEAD=`git rev-parse HEAD`.strip
 
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.

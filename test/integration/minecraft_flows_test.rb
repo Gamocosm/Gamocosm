@@ -11,7 +11,6 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def teardown
-    assert_equal 0, Sidekiq::Worker.jobs.total_count, "Unexpected Sidekiq jobs remain: #{Sidekiq::Worker.jobs}"
   end
 
   test "a lot of things (\"test everything\" - so it goes)" do
@@ -22,13 +21,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     minecraft = create_server('test2', 'vanilla/1.8.1', 'nyc3', '512mb')
 
     minecraft.server.create_server_domain
-    mock_cloudflare.stub_cf_dns_list(200, 'success', []).times(1)
-      .stub_cf_dns_list(200, 'success', [
-        { rec_id: 1, display_name: minecraft.server.server_domain.name, type: 'A' },
-      ]).times_only(3)
-    mock_cloudflare.stub_cf_dns_add(200, 'success', minecraft.server.server_domain.name, 'localhost').times_only(1)
-    mock_cloudflare.stub_cf_dns_edit(200, 'success', 1, minecraft.server.server_domain.name, 'localhost').times_only(2)
-    mock_cloudflare.stub_cf_dns_delete(200, 'success', 1).times_only(1)
+    mock_cf_domain(minecraft.server.server_domain.name, 3)
 
     start_server(minecraft, { motd: 'A Minecraft Server' })
     update_minecraft_properties(minecraft, { motd: 'A Gamocosm Minecraft Server' })
@@ -197,16 +190,22 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
 
   def wait_for_autoshutdown_server(minecraft)
     mock_do_droplet_action(1).stub_do_droplet_action(200, 'shutdown').times_only(1)
-    if have_user_server?
-      sleep 32
+    thread = nil
+    mcqs = Minecraft::QueryServer.new
+    begin
+      if test_have_user_server?
+        sleep 32
+      else
+        thread = Thread.new { mcqs.run }
+      end
       track_sidekiq_worker('AutoshutdownMinecraftWorker', 1, 16)
       # workers do Server.find, here uses minecraft.server
       minecraft.reload
-    else
-      assert_equal 1, AutoshutdownMinecraftWorker.jobs.count, "Bad number of AutoshutdownMinecraftWorker jobs: #{AutoshutdownMinecraftWorker.jobs}"
-      AutoshutdownMinecraftWorker.jobs.clear
-      error = minecraft.stop
-      assert_nil error, "Error stopping Minecraft server: #{error}"
+    ensure
+      if !thread.nil?
+        mcqs.so_it_goes = true
+        thread.join
+      end
     end
     assert_not minecraft.server.remote.error?, "Minecraft server remote error: #{minecraft.server.remote.error}"
     assert_includes ['stopping', 'saving'], minecraft.server.pending_operation
@@ -218,13 +217,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times(2).stub_do_droplet_action_show(200, 'completed').times_only(1)
 
     track_sidekiq_worker('WaitForStartingServerWorker', 0, 32)
-    if have_user_server?
-      track_sidekiq_worker('SetupServerWorker', 0, 16)
-    else
-      assert_equal 1, SetupServerWorker.jobs.count, "More than 1 SetupServerWorker jobs: #{SetupServerWorker.jobs}"
-      SetupServerWorker.jobs.clear
-      StartMinecraftWorker.perform_in(0.seconds, minecraft.server.id)
-    end
+    track_sidekiq_worker('SetupServerWorker', 0, 16)
 
     mock_mcsw_start(minecraft).stub_mcsw_start(200, minecraft.server.ram).times_only(1)
 

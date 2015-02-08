@@ -117,8 +117,8 @@ class Minecraft::Node
   end
 
   def parse_response(response, endpoint, data = nil)
-    if response['status'] != nil && response['status'] != 0
-      return "Minecraft node #{endpoint} response status not OK, was #{response}".error!
+    if response.code != 200 || (response['status'] != nil && response['status'] != 0)
+      return "Minecraft node #{endpoint} response status not OK, was #{response.code}, #{response}".error!
     end
     return response
   end

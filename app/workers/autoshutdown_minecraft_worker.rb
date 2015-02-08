@@ -2,7 +2,7 @@ class AutoshutdownMinecraftWorker
   include Sidekiq::Worker
   sidekiq_options retry: 0
 
-  TIMES_TO_CHECK_MINUS_ONE = 7
+  TIMES_TO_CHECK_MINUS_ONE = Rails.env.test? ? 2 : 7
   CHECK_INTERVAL = 64.seconds
 
   def perform(minecraft_id, last_check_successful = true, last_check_has_players = true, times = 0)
@@ -27,7 +27,7 @@ class AutoshutdownMinecraftWorker
       end
       if server.remote.status != 'active'
         minecraft.log("Checking for autoshutdown: remote status was #{server.remote.status}; something bad happened!")
-        self.handle_failure(minecraft, last_check_has_players, times)
+        self.handle_failure(minecraft, last_check_successful, times)
         return
       end
       # !server.running? and the next two checks are !minecraft.running?
@@ -48,7 +48,6 @@ class AutoshutdownMinecraftWorker
       end
       self.handle_success(minecraft, num_players, last_check_successful, last_check_has_players, times)
     rescue => e
-      minecraft = Minecraft.find(minecraft_id)
       minecraft.log("Background job checking for autoshutdown failed: #{e}")
       UserMailer.autoshutdown_error_email(minecraft.user).deliver
       raise

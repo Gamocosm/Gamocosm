@@ -5,20 +5,13 @@ class WaitForSnapshottingServerWorker
   def perform(server_id, digital_ocean_action_id, times = 0)
     server = Server.find(server_id)
     begin
-      if times > 64
-        server.minecraft.log('Digital Ocean took too long to snapshot server. Aborting')
-        server.reset_partial
-        return
-      elsif times > 32
-        server.minecraft.log("Still waiting for Digital Ocean server to snapshot, tried #{times} times")
-      end
       if !server.remote.exists?
-        server.minecraft.log('Error stopping server; remote_id is nil. Aborting')
+        server.minecraft.log('Error snapshotting server; remote_id is nil. Aborting')
         server.reset_partial
         return
       end
       if server.remote.error?
-        server.minecraft.log("Error communicating with Digital Ocean while stopping server; they responded with #{server.remote.error}. Aborting")
+        server.minecraft.log("Error communicating with Digital Ocean while snapshotting server; they responded with #{server.remote.error}. Aborting")
         server.reset_partial
         return
       end
@@ -29,7 +22,15 @@ class WaitForSnapshottingServerWorker
         server.minecraft.user.invalidate
         return
       elsif !event.done?
-        WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times + 1)
+        times += 1
+        if times >= 64
+          server.minecraft.log('Digital Ocean took too long to snapshot server. Aborting')
+          server.reset_partial
+          return
+        elsif times >= 32
+          server.minecraft.log("Still waiting for Digital Ocean server to snapshot, tried #{times} times")
+        end
+        WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times)
         return
       end
       server.minecraft.user.invalidate

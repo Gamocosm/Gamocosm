@@ -22,7 +22,7 @@ class StartMinecraftWorker
       end
       error = minecraft.server.remote.destroy_saved_snapshot
       if error
-        minecraft.log("Error deleting saved snapshot on Digital Ocean after starting server; #{response}")
+        minecraft.log("Error deleting saved snapshot on Digital Ocean after starting server; #{error}")
       end
       if minecraft.autoshutdown_enabled
         AutoshutdownMinecraftWorker.perform_in(64.seconds, minecraft.id)

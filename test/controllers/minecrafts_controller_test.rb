@@ -8,11 +8,11 @@ class MinecraftsControllerTest < ActionController::TestCase
     @friend = User.find(2)
     @other = User.find(3)
     @minecraft = Minecraft.first
+    @minecraft.logs.delete_all
     @minecraft.server.update_columns(remote_id: nil, pending_operation: nil)
   end
 
   def teardown
-    assert_equal 0, Sidekiq::Worker.jobs.total_count, "Unexpected Sidekiq jobs remain: #{Sidekiq::Worker.jobs}"
   end
 
   test 'servers page with digital ocean api token' do

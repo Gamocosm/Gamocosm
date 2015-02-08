@@ -5,13 +5,6 @@ class WaitForStartingServerWorker
   def perform(user_id, server_id, digital_ocean_action_id, times = 0)
     server = Server.find(server_id)
     begin
-      if times > 64
-        server.minecraft.log('Digital Ocean took too long to start server. Aborting')
-        server.reset_partial
-        return
-      elsif times > 32
-        server.minecraft.log("Still waiting for Digital Ocean server to start, tried #{times} times")
-      end
       if !server.remote.exists?
         server.minecraft.log('Error starting server; remote_id is nil. Aborting')
         server.reset_partial
@@ -29,7 +22,15 @@ class WaitForStartingServerWorker
         server.reset_partial
         return
       elsif !event.done?
-        WaitForStartingServerWorker.perform_in(4.seconds, user_id, server_id, digital_ocean_action_id, times + 1)
+        times += 1
+        if times >= 64
+          server.minecraft.log('Digital Ocean took too long to start server. Aborting')
+          server.reset_partial
+          return
+        elsif times >= 32
+          server.minecraft.log("Still waiting for Digital Ocean server to start, tried #{times} times")
+        end
+        WaitForStartingServerWorker.perform_in(4.seconds, user_id, server_id, digital_ocean_action_id, times)
         return
       end
       if server.remote.status != 'active'
