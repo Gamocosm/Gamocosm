@@ -1,23 +1,25 @@
 class Minecraft::Node
-  include HTTParty
-  default_timeout 2
 
   MCSW_PORT = 5000
+  HTTP_REQUEST_TIMEOUT = 4
 
   def initialize(local_minecraft, ip_address)
     @local_minecraft = local_minecraft
     @ip_address = ip_address
     @port = MCSW_PORT
-    @options = {
-      headers: {
-        'User-Agent' => 'Gamocosm',
-        'Content-Type' => 'application/json'
-      },
-      basic_auth: {
-        username: Gamocosm::MCSW_USERNAME,
-        password: @local_minecraft.minecraft_wrapper_password,
-      }
-    }
+    @conn = Faraday.new(url: "http://#{@ip_address}:#{@port}") do |conn|
+      conn.response :json
+      conn.basic_auth(Gamocosm::MCSW_USERNAME, @local_minecraft.minecraft_wrapper_password)
+      conn.adapter Faraday.default_adapter
+    end
+  end
+
+  def invalidate
+    @pid = nil
+  end
+
+  def error?
+    return pid.error?
   end
 
   def pid
@@ -31,10 +33,6 @@ class Minecraft::Node
       end
     end
     return @pid
-  end
-
-  def error?
-    return pid.error?
   end
 
   def resume
@@ -93,38 +91,45 @@ class Minecraft::Node
 
   def do_get(endpoint)
     begin
-      response = self.class.get(full_url(endpoint), @options)
-      response = parse_response(response, endpoint)
-      return response
-    rescue => e
-      return "Exception in Minecraft node #{endpoint}: #{e}".error!
+      res = @conn.get do |req|
+        req.url "/#{endpoint}"
+        req.options.timeout = HTTP_REQUEST_TIMEOUT
+      end
+      return parse_response(res, endpoint)
+    rescue Faraday::Error => e
+      msg = "MCSW API exception: #{e}"
+      Rails.logger.error msg
+      Rails.logger.error e.backtrace.join("\n")
+      return msg.error!
     end
   end
 
   def do_post(endpoint, data, options = {})
     begin
-      options = @options.merge(options)
-      options[:body] = data.to_json
-      response = parse_response(self.class.post(full_url(endpoint), options), endpoint, data)
-      return response
-    rescue => e
-      return "Exception in Minecraft node #{endpoint}: #{e}".error!
+      res = @conn.post do |req|
+        req.url "/#{endpoint}"
+        req.options.timeout = HTTP_REQUEST_TIMEOUT
+        req.headers['Content-Type'] = 'application/json'
+        req.body = data.to_json
+      end
+      return parse_response(res, endpoint)
+    rescue Faraday::Error => e
+      msg = "MCSW API exception: #{e}"
+      Rails.logger.error msg
+      Rails.logger.error e.backtrace.join("\n")
+      return msg.error!
     end
   end
 
-  def full_url(endpoint)
-    return "http://#{@ip_address}:#{@port}/#{endpoint}"
-  end
-
-  def parse_response(response, endpoint, data = nil)
-    if response.code != 200 || (response['status'] != nil && response['status'] != 0)
-      return "Minecraft node #{endpoint} response status not OK, was #{response.code}, #{response}".error!
+  def parse_response(res, endpoint)
+    if res.status != 200
+      msg = "MCSW API error: HTTP response code #{res.status}, #{res.body}"
+      return msg.error!
     end
-    return response
+    if !res.body['status'].nil?
+      msg = "MCSW API error: action #{endpoint} response status not OK, was #{res.body['status']}, #{res.body}"
+      return msg.error!
+    end
+    return res.body
   end
-
-  def invalidate
-    @pid = nil
-  end
-
 end

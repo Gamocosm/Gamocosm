@@ -98,8 +98,14 @@ Example: `local postgres,gamocosm_development,gamocosm_test,gamocosm_production 
 Hmmmm.
 
 #### Data
-- Gamocosm has a lot of infrastructure: Digital Ocean's API, Digital Ocean servers/droplets, Minecraft and the server wrapper, the Gamocosm rails server, and the Gamocosm sidekiq worker
-- Avoid state whenever possible; less chance of corruption with less data
+- Gamocosm has a lot of infrastructure:
+	- CloudFlare DNS API
+	- Digital Ocean API
+	- Digital Ocean servers/droplets
+	- Minecraft and the server wrapper
+	- Gamocosm Rails server
+	- Gamocosm Sidekiq background workers
+- Avoid state and duplicating data (less chance of corruption, logic easier to debug than data)
 - Idempotency is good
 
 #### Error handling
@@ -107,7 +113,7 @@ Hmmmm.
 - Methods that "return things" should use `.error!` to mark a return value is an error. These errors should always be strings.
 - You can use `.error?` to check if a return value is an error. `nil` cannot be made an error.
 - These methods are defined on `Object` in `config/initializers/my_extensions.rb`
-- I prefer only throwing exceptions in "exceptional cases", not when I expect something to go wrong (e.g. user input).
+- Throw exceptions in "exceptional cases", when something is unexpected (e.g. bad user input *is* expected) or can't be handled without "blowing up"
 
 #### Important checks
 - `server.remote.exists?`: `!server.remote_id.nil?`

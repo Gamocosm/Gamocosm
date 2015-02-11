@@ -18,6 +18,7 @@ class PagesControllerTest < ActionController::TestCase
   end
 
   test "basically static pages" do
+    mock_do_base(200)
     get :about
     assert_response :success
     get :info

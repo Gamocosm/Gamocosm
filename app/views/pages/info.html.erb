@@ -75,7 +75,7 @@
 
 		<dt>How do I edit the ops or whitelist?</dt>
 		<dd><ul>
-			<li>If there is already an operator on the server, he can op/deop/whitelist other players in chat</li>
+			<li>If there is already an operator on the server, he can op/deop/whitelist other players in chat; otherwise</li>
 			<li>Start the Minecraft server</li>
 			<li>Under "Send Command to Server", <code>op</code>, <code>deop</code>, or <code>whitelist add/remove</code> players</li>
 		</ul></dd>
@@ -89,10 +89,22 @@
 		<dd>See this <%= link_to 'wiki page', wiki_ftp_ssh_path %>.</dd>
 
 		<dt>How do I run different Minecraft versions, modded, or custom servers (e.g. Bukkit, Forge, MC-Server)?</dt>
-		<dd>See <%= link_to 'this page', wiki_minecraft_versions_path %></dd>
+		<dd>See this <%= link_to 'wiki page', wiki_minecraft_versions_path %></dd>
 
 		<dt>Why/how do I set up Gamocosm with Digital Ocean?</dt>
 		<dd>See <%= link_to 'this page', digital_ocean_setup_path %></dd>
+
+		<dt>How do I resize a server?</dt>
+		<dd>
+			To increase the size:
+			<ul>
+				<li>Stop the server</li>
+				<li>Under the "Advanced" tab, update "Digital Ocean size slug" to be one of [<%= DigitalOcean::Size.new.all.map { |x| x[:slug] }.join(', ') %>]</li>
+				<li>Start the server</li>
+			</ul>
+			To decrease the size, you need to FTP or SSH to backup any files you want to keep (such as your world folder), and create a new server.
+			Upload your files back on the server.
+		</dd>
 
 		<dt>What do you mean "Autoshutdown is experimental"?</dt>
 		<dd>

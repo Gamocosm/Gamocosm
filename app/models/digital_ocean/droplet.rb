@@ -19,12 +19,6 @@ class DigitalOcean::Droplet
     return !@server.remote_id.nil?
   end
 
-  # Should be unused
-  def busy?
-    data = self.sync
-    return data.try(:droplet).try(:locked)
-  end
-
   def error?
     if !exists?
       return false

@@ -5,10 +5,6 @@ class MinecraftsController < ApplicationController
     @friend_minecrafts = current_user.friend_minecrafts
   end
 
-  def load_show
-    @minecraft.properties.try(:refresh)
-  end
-
   def index
     @minecraft = Minecraft.new
     @minecraft.server = Server.new
@@ -35,7 +31,6 @@ class MinecraftsController < ApplicationController
 
   def show
     @minecraft = find_minecraft(params[:id])
-    load_show
   end
 
   def edit
@@ -59,7 +54,6 @@ class MinecraftsController < ApplicationController
       end
       @minecraft_ftp_ssh_tab = true
     end
-    load_show
     flash[:error] = 'Something went wrong. Please try again'
     return render :show
   end

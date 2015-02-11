@@ -50,14 +50,24 @@ class SetupServerWorker
           execute :true
         end
       rescue SSHKit::Runner::ExecuteError => e
+        Rails.logger.error "Debugging #{self.class}: SSHKit error:"
+        Rails.logger.error "Debugging #{self.class}: SSHKit error to_s: #{e}"
+        Rails.logger.error "Debugging #{self.class}: SSHKit error inspect: #{e.inspect}"
+        Rails.logger.error "Debugging #{self.class}: SSHKit error cause to_s: #{e.cause}"
+        Rails.logger.error "Debugging #{self.class}: SSHKit error cause inspect: #{e.cause.inspect}"
+        if times == 11
+          server.minecraft.log('Error connecting to server; failed to SSH. Aborting')
+          server.reset_partial
+          return
+        end
         if e.cause.is_a?(Timeout::Error)
-          if times == 11
-            server.minecraft.log('Error connecting to server; failed to SSH. Aborting')
-            server.reset_partial
-          else
-            server.minecraft.log("Server started, but timed out while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
-            SetupServerWorker.perform_in(16.seconds, user_id, server_id, times + 1)
-          end
+          server.minecraft.log("Server started, but timed out while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
+          SetupServerWorker.perform_in(16.seconds, user_id, server_id, times + 1)
+          return
+        end
+        if e.cause.is_a?(Errno::EHOSTUNREACH)
+          server.minecraft.log("Server started, but unreachable while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
+          SetupServerWorker.perform_in(16.seconds, user_id, server_id, times + 1)
           return
         end
         raise

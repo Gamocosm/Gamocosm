@@ -1,7 +1,7 @@
 <br />
 <% if @minecraft.properties.nil? %>
 	<p>Start server to edit Minecraft settings (<code><a href="http://minecraft.gamepedia.com/Server.properties">server.properties</a></code>)</p>
-<% elsif @minecraft.properties.error? %>
+<% elsif @minecraft.properties.refresh.error? %>
 	<p>Error getting Minecraft properties: <%= @minecraft.properties.error %></p>
 <% else %>
 	<%= simple_form_for @minecraft.properties, (@demo.nil? ? { url: update_properties_minecraft_path(@minecraft), method: :put } : { url: root_url, html: { onsubmit: 'return false;' } }) do |f| %>

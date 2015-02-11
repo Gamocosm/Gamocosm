@@ -163,6 +163,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
   end
 
   def enable_autoshutdown_server(minecraft)
+    mock_mcsw_properties_fetch(minecraft).stub_mcsw_properties_fetch(200, {}).times_only(1)
     get autoshutdown_enable_minecraft_path(minecraft)
     assert_redirected_to minecraft_path(minecraft)
     follow_redirect!

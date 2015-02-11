@@ -44,7 +44,7 @@ class PagesController < ApplicationController
     end
     def @minecraft.node
       if @minecraft_node.nil?
-        node = Minecraft::Node.new(self, nil)
+        node = Minecraft::Node.new(self, '12.34.56.78')
         def node.properties
           return Minecraft::Properties::DEFAULT_PROPERTIES
         end

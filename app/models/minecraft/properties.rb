@@ -67,9 +67,10 @@ class Minecraft::Properties
       @error = response
       @minecraft.log("Error getting Minecraft properties: #{response}")
       error!
-      return
+    else
+      refresh_properties(response)
     end
-    refresh_properties(response)
+    self
   end
 
   def refresh_properties(response)

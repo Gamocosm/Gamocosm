@@ -39,12 +39,13 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
 # gem 'debugger', group: [:development, :test]
 
 # Custom
-gem 'devise', '~> 3.2.4'
+gem 'devise', '~> 3.4.1'
 gem 'sidekiq'
 gem 'bootstrap-sass', '~> 3.3.3'
 gem 'annotate'
 gem 'barge'
-gem 'httparty'
+gem 'faraday'
+gem 'faraday_middleware'
 gem 'sinatra', :require => nil
 gem 'font-awesome-sass'
 gem 'simple_form', '~> 3.1.0.rc1'
