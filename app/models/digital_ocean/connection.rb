@@ -52,71 +52,81 @@ module DigitalOcean
   end
 
   class Connection
+    API_URL = 'https://api.digitalocean.com/v2'
+    PER_PAGE = 200
+    HTTP_REQUEST_TIMEOUT = 16
     def initialize(api_key)
-      @client = api_key.nil? ? nil : Barge::Client.new(access_token: api_key)
+      @con = api_key.nil? ? nil : Faraday.new({
+        url: API_URL,
+        headers: {
+          authorization: "Bearer #{api_key}",
+          content_type: 'application/json',
+        },
+      }) do |f|
+        f.response :json
+        f.adapter Faraday.default_adapter
+      end
     end
 
     def droplet_list
       silence do
-        res = wrap { @client.droplet.all }
+        res = do_get('droplets')
         if res.error?
           return res
         end
-        res.droplets.map { |x| self.class.droplet_from_response(x) }
+        res['droplets'].map { |x| self.class.droplet_from_response(x) }
       end
     end
 
     def droplet_show(id)
       silence do
-        res = wrap { @client.droplet.show(id) }
+        res = do_get("droplets/#{id}")
         if res.error?
           return res
         end
-        self.class.droplet_from_response(res.droplet)
+        self.class.droplet_from_response(res['droplet'])
       end
     end
 
     def droplet_action_list(id)
       silence do
-        res = wrap { @client.droplet.actions(id) }
+        res = do_get("droplets/#{id}/actions")
         if res.error?
           return res
         end
-        res.actions.map { |x| self.class.action_from_response(x) }.sort { |a, b| a.id <=> b.id }
+        res['actions'].map { |x| self.class.action_from_response(x) }.sort { |a, b| a.id <=> b.id }
       end
     end
 
     def droplet_create(name, region, size, image, ssh_keys)
       silence do
-        res = wrap do
-          @client.droplet.create({
-            name: name,
-            region: region,
-            size: size,
-            image: image,
-            ssh_keys: ssh_keys.map { |x| x.to_s },
-          })
-        end
+        res = do_post('droplets', {
+          name: name,
+          region: region,
+          size: size,
+          image: image,
+          ssh_keys: ssh_keys.map { |x| x.to_s },
+        })
         if res.error?
           return res
         end
-        self.class.droplet_from_response(res.droplet)
+        self.class.droplet_from_response(res['droplet'])
       end
     end
 
     def droplet_snapshot(id, name)
       silence do
-        res = wrap { @client.droplet.snapshot(id, name: name) }
+        res = do_droplet_action(id, 'snapshot', { name: name })
         if res.error?
           return res
         end
-        self.class.action_from_response(res.action)
+        self.class.action_from_response(res['action'])
       end
     end
 
     def droplet_delete(id)
       silence do
-        res = wrap { @client.droplet.destroy(id) }
+        res = do_delete("droplets/#{id}")
         if res.error?
           return res
         end
@@ -126,57 +136,57 @@ module DigitalOcean
 
     def droplet_shutdown(id)
       silence do
-        res = wrap { @client.droplet.shutdown(id) }
+        res = do_droplet_action(id, 'shutdown', {})
         if res.error?
           return res
         end
-        self.class.action_from_response(res.action)
+        self.class.action_from_response(res['action'])
       end
     end
 
     def droplet_reboot(id)
       silence do
-        res = wrap { @client.droplet.reboot(id) }
+        res = do_droplet_action(id, 'reboot', {})
         if res.error?
           return res
         end
-        self.class.action_from_response(res.action)
+        self.class.action_from_response(res['action'])
       end
     end
 
     def droplet_power_on(id)
       silence do
-        res = wrap { @client.droplet.power_on(id) }
+        res = do_droplet_action(id, 'power_on', {})
         if res.error?
           return res
         end
-        self.class.action_from_response(res.action)
+        self.class.action_from_response(res['action'])
       end
     end
 
     def droplet_action_show(droplet_id, action_id)
       silence do
-        res = wrap { @client.droplet.show_action(droplet_id, action_id) }
+        res = do_get("droplets/#{droplet_id}/actions/#{action_id}")
         if res.error?
           return res
         end
-        self.class.action_from_response(res.action)
+        self.class.action_from_response(res['action'])
       end
     end
 
     def image_list(private_only = true)
       silence do
-        res = wrap { @client.image.all({ private: private_only }) }
+        res = do_get('images', { private: private_only })
         if res.error?
           return res
         end
-        res.images.map { |x| self.class.image_from_response(x) }
+        res['images'].map { |x| self.class.image_from_response(x) }
       end
     end
 
     def image_delete(id)
       silence do
-        res = wrap { @client.image.destroy(id) }
+        res = do_delete("images/#{id}")
         if res.error?
           return res
         end
@@ -186,37 +196,37 @@ module DigitalOcean
 
     def ssh_key_list
       silence do
-        res = wrap { @client.key.all }
+        res = do_get('account/keys')
         if res.error?
           return res
         end
-        res.ssh_keys.map { |x| self.class.ssh_key_from_response(x) }
+        res['ssh_keys'].map { |x| self.class.ssh_key_from_response(x) }
       end
     end
 
     def ssh_key_show(id)
       silence do
-        res = wrap { @client.key.show(id) }
+        res = do_get("account/keys/#{id}")
         if res.error?
           return res
         end
-        self.class.ssh_key_from_response(res.ssh_key)
+        self.class.ssh_key_from_response(res['ssh_key'])
       end
     end
 
     def ssh_key_create(name, public_key)
       silence do
-        res = wrap { @client.key.create(name: name, public_key: public_key) }
+        res = do_post('account/keys', { name: name, public_key: public_key })
         if res.error?
           return res
         end
-        self.class.ssh_key_from_response(res.ssh_key)
+        self.class.ssh_key_from_response(res['ssh_key'])
       end
     end
 
     def ssh_key_delete(id)
       silence do
-        res = wrap { @client.key.destroy(id) }
+        res = do_delete("account/keys/#{id}")
         if res.error?
           return res
         end
@@ -226,21 +236,21 @@ module DigitalOcean
 
     def region_list_uncached
       silence do
-        res = wrap { @client.region.all }
+        res = do_get('regions')
         if res.error?
           return res
         end
-        res.regions.map { |x| self.class.region_from_response(x) }
+        res['regions'].map { |x| self.class.region_from_response(x) }
       end
     end
 
     def size_list_uncached
       silence do
-        res = wrap { @client.size.all }
+        res = do_get('sizes')
         if res.error?
           return res
         end
-        res.sizes.map { |x| self.class.size_from_response(x) }
+        res['sizes'].map { |x| self.class.size_from_response(x) }
       end
     end
 
@@ -289,61 +299,95 @@ module DigitalOcean
     end
 
     private
-    def wrap(&block)
+    def do_droplet_action(droplet_id, action, body)
+      do_post("droplets/#{droplet_id}/actions", { type: action }.merge(body))
+    end
+
+    def do_get(endpoint, query = {})
+      make_request(:get, endpoint, query.merge({ per_page: PER_PAGE }), nil)
+    end
+
+    def do_post(endpoint, body)
+      make_request(:post, endpoint, nil, body)
+    end
+
+    def do_delete(endpoint)
+      make_request(:delete, endpoint, nil, nil)
+    end
+
+    def make_request(verb, endpoint, query, body)
+      if @con.nil?
+        return 'You have not entered your Digital Ocean API token'.error!
+      end
       begin
-        #if @client.nil?
-        #  msg = "You have not entered your Digital Ocean API token"
-        #  msg.error!
-        #else
-        res = block.call
-        if res.response.status == 401
-          msg = "Unable to authenticate your Digital Ocean API token"
-          msg.error!
-        elsif res.response.status / 100 == 2
-          res
+        res = case verb
+        when :get
+          @con.get do |req|
+            req.url endpoint
+            req.params = query
+            req.options.timeout = HTTP_REQUEST_TIMEOUT
+          end
+        when :post
+          @con.post do |req|
+            req.url endpoint
+            req.body = body.to_json
+            req.options.timeout = HTTP_REQUEST_TIMEOUT
+          end
+        when :delete
+          @con.delete do |req|
+            req.url endpoint
+            req.options.timeout = HTTP_REQUEST_TIMEOUT
+          end
         else
-          msg = "Digital Ocean API error: HTTP response status not ok, was #{res.response.status}, #{res}"
-          Rails.logger.error msg
-          msg.error!
+          raise ArgumentError, "Bad HTTP method #{verb}"
         end
-        #end
+        if res.status == 401
+          msg = "Unable to authenticate your Digital Ocean API token"
+          return msg.error!
+        elsif res.status / 100 == 2
+          return res.body
+        else
+          msg = "Digital Ocean API error: HTTP response status not ok, was #{res.status}, #{res.inspect}"
+          Rails.logger.error msg
+          return msg.error!
+        end
       rescue Faraday::Error => e
         msg = "Digital Ocean API network exception: #{e}"
         Rails.logger.error msg
         Rails.logger.error e.backtrace.join("\n")
-        msg.error!
+        return msg.error!
       end
     end
 
     def self.droplet_from_response(res)
-      Droplet.new(res.id,
-        res.name,
-        res.created_at,
-        res.memory,
-        res.status,
-        res.snapshot_ids.sort,
-        res.networks.v4.select { |y| y.type == 'public' }.first.ip_address,
+      Droplet.new(res['id'],
+        res['name'],
+        res['created_at'],
+        res['memory'],
+        res['status'],
+        res['snapshot_ids'].sort,
+        res['networks']['v4'].select { |x| x['type'] == 'public' }.first['ip_address'],
       )
     end
 
     def self.image_from_response(res)
-      Image.new(res.id, res.name, res.created_at)
+      Image.new(res['id'], res['name'], res['created_at'])
     end
 
     def self.action_from_response(res)
-      Action.new(res.id, res.status)
+      Action.new(res['id'], res['status'])
     end
 
     def self.ssh_key_from_response(res)
-      SSHKey.new(res.id, res.name, res.fingerprint, res.public_key)
+      SSHKey.new(res['id'], res['name'], res['fingerprint'], res['public_key'])
     end
 
     def self.size_from_response(res)
-      Size.new(res.slug, res.name, res.memory, res.disk, res.cpu, res.price_hourly, res.price_monthly)
+      Size.new(res['slug'], res['name'], res['memory'], res['disk'], res['cpu'], res['price_hourly'], res['price_monthly'])
     end
 
     def self.region_from_response(res)
-      Region.new(res.slug, res.name, res.available)
+      Region.new(res['slug'], res['name'], res['available'])
     end
   end
 end

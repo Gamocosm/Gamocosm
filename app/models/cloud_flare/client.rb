@@ -13,73 +13,57 @@ class CloudFlare::Client
     end
   end
 
-  def list_dns
-    response = do_request(:rec_load_all, {})
-    if response.error?
-      return response
-    end
-    records = []
-    response['recs']['objs'].each do |x|
-      if x['type'] == 'A'
-        records.push({ id: x['rec_id'].to_i, name: x['display_name'], content: x['content']})
+  def dns_list
+    silence do
+      response = do_request(:rec_load_all, {})
+      if response.error?
+        return response
       end
-    end
-    return records
-  rescue => e
-    msg = "Badness in #{self.class}: #{e}"
-    Rails.logger.error msg
-    Rails.logger.error e.backtrace.join("\n")
-    ExceptionNotifier.notify_exception(e)
-    return msg.error!
-  end
-
-  def add_dns(name, ip)
-    res = do_request(:rec_new, { type: 'A', name: name, content: ip, ttl: 120 })
-    return res.error? ? res : nil
-  rescue => e
-    msg = "Badness in #{self.class}: #{e}"
-    Rails.logger.error msg
-    Rails.logger.error e.backtrace.join("\n")
-    ExceptionNotifier.notify_exception(e)
-    return msg.error!
-  end
-
-  def update_dns(name, ip)
-    records = self.list_dns
-    if records.error?
+      records = []
+      response['recs']['objs'].each do |x|
+        if x['type'] == 'A'
+          records.push({ id: x['rec_id'].to_i, name: x['display_name'], content: x['content']})
+        end
+      end
       return records
     end
-    x = records.index { |x| x[:name] == name }
-    if x.nil?
-      return self.add_dns(name, ip)
-    end
-    res = do_request(:rec_edit, { id: records[x][:id], type: 'A', name: name, content: ip, ttl: 120 })
-    return res.error? ? res : nil
-  rescue => e
-    msg = "Badness in #{self.class}: #{e}"
-    Rails.logger.error msg
-    Rails.logger.error e.backtrace.join("\n")
-    ExceptionNotifier.notify_exception(e)
-    return msg.error!
   end
 
-  def delete_dns(name)
-    records = self.list_dns
-    if records.error?
-      return records
+  def dns_add(name, ip)
+    silence do
+      res = do_request(:rec_new, { type: 'A', name: name, content: ip, ttl: 120 })
+      return res.error? ? res : nil
     end
-    x = records.index { |x| x[:name] == name }
-    if x.nil?
-      return nil
+  end
+
+  def dns_update(name, ip)
+    silence do
+      records = self.dns_list
+      if records.error?
+        return records
+      end
+      x = records.index { |x| x[:name] == name }
+      if x.nil?
+        return self.dns_add(name, ip)
+      end
+      res = do_request(:rec_edit, { id: records[x][:id], type: 'A', name: name, content: ip, ttl: 120 })
+      return res.error? ? res : nil
     end
-    res = do_request(:rec_delete, { id: records[x][:id] })
-    return res.error? ? res : nil
-  rescue => e
-    msg = "Badness in #{self.class}: #{e}"
-    Rails.logger.error msg
-    Rails.logger.error e.backtrace.join("\n")
-    ExceptionNotifier.notify_exception(e)
-    return msg.error!
+  end
+
+  def dns_delete(name)
+    silence do
+      records = self.dns_list
+      if records.error?
+        return records
+      end
+      x = records.index { |x| x[:name] == name }
+      if x.nil?
+        return nil
+      end
+      res = do_request(:rec_delete, { id: records[x][:id] })
+      return res.error? ? res : nil
+    end
   end
 
   private

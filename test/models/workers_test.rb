@@ -428,4 +428,20 @@ class WorkersTest < ActiveSupport::TestCase
     assert_match /error querying minecraft server/i, @minecraft.logs.first.message, 'Should have server log about error querying'
     assert_nil @minecraft.server.pending_operation, 'Autoshutdown Minecraft worker shouldn\'t have changed anything'
   end
+
+  test 'setup server worker add ssh keys' do
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1)
+    mock_do_ssh_key_show(1).stub_do_ssh_key_show(200, 'a', 'b').times_only(1)
+    mock_do_ssh_key_show(2).stub_do_ssh_key_show(400, nil, nil).times_only(1)
+    @minecraft.server.update_columns(ssh_keys: '1,2')
+    SetupServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id)
+    SetupServerWorker.perform_one
+    @minecraft.reload
+    assert_equal 0, SetupServerWorker.jobs.size, 'Setup server worker should be done'
+    assert_equal 1, @minecraft.logs.count, 'Should have 1 server log'
+    assert_match /digital ocean api error/i, @minecraft.logs.first.message, 'Should have server log about error getting SSH key'
+    assert_nil @minecraft.server.ssh_keys, 'Setup server worker should have added and reset ssh keys'
+    assert_equal 1, StartMinecraftWorker.jobs.size, 'Setup server worker should have queued Start Minecraft worker'
+    StartMinecraftWorker.jobs.clear
+  end
 end

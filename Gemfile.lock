@@ -35,10 +35,6 @@ GEM
     autoprefixer-rails (5.0.0.3)
       execjs
       json
-    barge (0.10.0)
-      faraday (~> 0.9)
-      faraday_middleware (~> 0.9)
-      hashie (~> 3.2)
     bcrypt (3.1.10)
     bootstrap-sass (3.3.3)
       autoprefixer-rails (>= 5.0.0.1)
@@ -85,7 +81,6 @@ GEM
       sass (~> 3.2)
     foreigner (1.6.1)
       activerecord (>= 3.0.0)
-    hashie (3.3.1)
     hike (1.2.3)
     i18n (0.6.11)
     jbuilder (2.2.2)
@@ -203,7 +198,6 @@ PLATFORMS
 
 DEPENDENCIES
   annotate
-  barge
   bootstrap-sass (~> 3.3.3)
   coffee-rails (~> 4.0.0)
   coveralls

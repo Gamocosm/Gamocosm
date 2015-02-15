@@ -11,11 +11,7 @@ class ServerRemote
 
   def sync
     if @data.nil?
-      if @user.digital_ocean_missing?
-        @data = 'You have not entered your Digital Ocean API token'.error!
-      else
-        @data = @con.droplet_show(@server.remote_id)
-      end
+      @data = @con.droplet_show(@server.remote_id)
     end
     @data
   end
@@ -48,9 +44,6 @@ class ServerRemote
   end
 
   def create
-    if @user.digital_ocean_missing?
-      return 'You have not entered your Digital Ocean API token'.error!
-    end
     ssh_key_id = @user.digital_ocean_gamocosm_ssh_key_id
     if ssh_key_id.error?
       return ssh_key_id
@@ -68,30 +61,18 @@ class ServerRemote
   end
 
   def shutdown
-    if @user.digital_ocean_missing?
-      return 'You have not entered your Digital Ocean API token'.error!
-    end
     @con.droplet_shutdown(@server.remote_id)
   end
 
   def reboot
-    if @user.digital_ocean_missing?
-      return 'You have not entered your Digital Ocean API token'.error!
-    end
     @con.droplet_reboot(@server.remote_id)
   end
 
   def power_on
-    if @user.digital_ocean_missing?
-      return 'You have not entered your Digital Ocean API token'.error!
-    end
     @con.droplet_power_on(@server.remote_id)
   end
 
   def destroy
-    if @user.digital_ocean_missing?
-      return 'You have not entered your Digital Ocean API token'.error!
-    end
     if !exists?
       return nil
     end
@@ -104,16 +85,10 @@ class ServerRemote
   end
 
   def snapshot
-    if @user.digital_ocean_missing?
-      return 'You have not entered your Digital Ocean API token'.error!
-    end
     @con.droplet_snapshot(@server.remote_id, @server.host_name)
   end
 
   def destroy_saved_snapshot
-    if @user.digital_ocean_missing?
-      return 'You have not entered your Digital Ocean API token'.error!
-    end
     if @server.do_saved_snapshot_id.nil?
       return nil
     end

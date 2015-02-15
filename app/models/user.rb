@@ -50,9 +50,6 @@ class User < ActiveRecord::Base
   end
 
   def digital_ocean
-    if digital_ocean_missing?
-      return nil
-    end
     if @digital_ocean_connection.nil?
       @digital_ocean_connection = DigitalOcean::Connection.new(digital_ocean_api_key)
     end
@@ -100,7 +97,7 @@ class User < ActiveRecord::Base
     if @digital_ocean_snapshots.nil?
       snapshots = Rails.cache.read(self.digital_ocean_snapshots_cache)
       if snapshots.nil?
-        snapshots = self.digital_ocean.image_list(private: true)
+        snapshots = self.digital_ocean.image_list(true)
         if !@snapshots.error?
           Rails.cache.write(self.digital_ocean_snapshots_cache, snapshots, expires_in: 24.hours)
         end
@@ -129,9 +126,6 @@ class User < ActiveRecord::Base
   end
 
   def digital_ocean_gamocosm_ssh_key_id
-    if digital_ocean_missing?
-      return 'Digital Ocean API token missing'.error!
-    end
     public_key = Gamocosm::DIGITAL_OCEAN_SSH_PUBLIC_KEY
     fingerprint = Gamocosm::DIGITAL_OCEAN_SSH_PUBLIC_KEY_FINGERPRINT
     self.invalidate_digital_ocean_cache_ssh_keys

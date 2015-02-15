@@ -52,10 +52,10 @@ class ActiveSupport::TestCase
 
   # WebMock basic helpers
   def mock_digital_ocean(verb, path)
-    stub = stub_request(verb, File.join(Barge::Client::DIGITAL_OCEAN_URL, path))
+    stub = stub_request(verb, File.join(DigitalOcean::Connection::API_URL, path))
     if verb == :get
       stub.with({
-        query: hash_including({ per_page: Barge::Resource::Base::PER_PAGE.to_s }),
+        query: hash_including({ per_page: DigitalOcean::Connection::PER_PAGE.to_s }),
       })
     end
     return stub

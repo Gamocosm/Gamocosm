@@ -23,112 +23,84 @@ class Minecraft::Node
   end
 
   def pid
-    if @pid.nil?
-      res = do_get(:pid)
-      if res.error?
-        @pid = res
-        @local_minecraft.log("Error getting Minecraft pid: #{res}")
-      else
-        @pid = res['pid']
+    silence do
+      if @pid.nil?
+        res = do_get(:pid)
+        if res.error?
+          @pid = res
+          @local_minecraft.log("Error getting Minecraft pid: #{res}")
+        else
+          @pid = res['pid']
+        end
       end
+      return @pid
     end
-    return @pid
-  rescue => e
-    msg = "Badness in #{self.class}: #{e}"
-    Rails.logger.error msg
-    Rails.logger.error e.backtrace.join("\n")
-    ExceptionNotifier.notify_exception(e)
-    return msg.error!
   end
 
   def resume
-    res = do_post(:start, { ram: "#{@local_minecraft.server.ram}M" }, { timeout: 8 })
-    invalidate
-    if res.error?
-      return res
+    silence do
+      res = do_post(:start, { ram: "#{@local_minecraft.server.ram}M" }, { timeout: 8 })
+      invalidate
+      if res.error?
+        return res
+      end
+      return nil
     end
-    return nil
-  rescue => e
-    msg = "Badness in #{self.class}: #{e}"
-    Rails.logger.error msg
-    Rails.logger.error e.backtrace.join("\n")
-    ExceptionNotifier.notify_exception(e)
-    return msg.error!
   end
 
   def pause
-    res = do_get(:stop)
-    invalidate
-    if res.error?
-      return res
+    silence do
+      res = do_get(:stop)
+      invalidate
+      if res.error?
+        return res
+      end
+      return nil
     end
-    return nil
-  rescue => e
-    msg = "Badness in #{self.class}: #{e}"
-    Rails.logger.error msg
-    Rails.logger.error e.backtrace.join("\n")
-    ExceptionNotifier.notify_exception(e)
-    return msg.error!
   end
 
   def exec(command)
-    res = do_post(:exec, { command: command })
-    if res.error?
-      return res
+    silence do
+      res = do_post(:exec, { command: command })
+      if res.error?
+        return res
+      end
+      return nil
     end
-    return nil
-  rescue => e
-    msg = "Badness in #{self.class}: #{e}"
-    Rails.logger.error msg
-    Rails.logger.error e.backtrace.join("\n")
-    ExceptionNotifier.notify_exception(e)
-    return msg.error!
   end
 
   def backup
-    res = do_post(:backup, {})
-    if res.error?
-      return res
+    silence do
+      res = do_post(:backup, {})
+      if res.error?
+        return res
+      end
+      return nil
     end
-    return nil
-  rescue => e
-    msg = "Badness in #{self.class}: #{e}"
-    Rails.logger.error msg
-    Rails.logger.error e.backtrace.join("\n")
-    ExceptionNotifier.notify_exception(e)
-    return msg.error!
   end
 
   def properties
-    res = do_get(:minecraft_properties)
-    if res.error?
-      return res
+    silence do
+      res = do_get(:minecraft_properties)
+      if res.error?
+        return res
+      end
+      return res['properties']
     end
-    return res['properties']
-  rescue => e
-    msg = "Badness in #{self.class}: #{e}"
-    Rails.logger.error msg
-    Rails.logger.error e.backtrace.join("\n")
-    ExceptionNotifier.notify_exception(e)
-    return msg.error!
   end
 
   def update_properties(properties)
-    payload = {}
-    properties.each_pair do |k, v|
-      payload[k.to_s.gsub('_', '-')] = v.to_s
+    silence do
+      payload = {}
+      properties.each_pair do |k, v|
+        payload[k.to_s.gsub('_', '-')] = v.to_s
+      end
+      res = do_post(:minecraft_properties, { properties: payload })
+      if res.error?
+        return res
+      end
+      return res['properties']
     end
-    res = do_post(:minecraft_properties, { properties: payload })
-    if res.error?
-      return res
-    end
-    return res['properties']
-  rescue => e
-    msg = "Badness in #{self.class}: #{e}"
-    Rails.logger.error msg
-    Rails.logger.error e.backtrace.join("\n")
-    ExceptionNotifier.notify_exception(e)
-    return msg.error!
   end
 
   private
@@ -140,7 +112,7 @@ class Minecraft::Node
       end
       return parse_response(res, endpoint)
     rescue Faraday::Error => e
-      msg = "MCSW API exception: #{e}"
+      msg = "MCSW API network exception: #{e}"
       Rails.logger.error msg
       Rails.logger.error e.backtrace.join("\n")
       return msg.error!
@@ -157,7 +129,7 @@ class Minecraft::Node
       end
       return parse_response(res, endpoint)
     rescue Faraday::Error => e
-      msg = "MCSW API exception: #{e}"
+      msg = "MCSW API network exception: #{e}"
       Rails.logger.error msg
       Rails.logger.error e.backtrace.join("\n")
       return msg.error!

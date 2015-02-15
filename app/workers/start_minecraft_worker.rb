@@ -7,18 +7,13 @@ class StartMinecraftWorker
     minecraft = server.minecraft
     user = minecraft.user
     begin
-      if user.digital_ocean_missing?
-        server.minecraft.log('Error starting server; you have not entered your Digital Ocean API token. Aborting')
-        server.reset_partial
-        return
-      end
       if !server.remote.exists?
         minecraft.log('Error starting server; remote_id is nil. Aborting')
         server.reset_partial
         return
       end
       if server.remote.error?
-        minecraft.log("Error communicating with Digital Ocean while starting server; they responded with #{server.remote.error}. Aborting")
+        minecraft.log("Error communicating with Digital Ocean while starting server: #{server.remote.error}. Aborting")
         server.reset_partial
         return
       end

@@ -146,7 +146,6 @@ class Server < ActiveRecord::Base
   end
 
   def refresh_domain
-    cf = self.cloudflare_client
     if self.server_domain.nil?
       while true do
         begin
@@ -155,21 +154,16 @@ class Server < ActiveRecord::Base
         rescue ActiveRecord::RecordNotUnique
         end
       end
-      return cf.add_dns(self.server_domain.name, self.remote.ip_address)
+      return Gamocosm.cloudflare.dns_add(self.server_domain.name, self.remote.ip_address)
     end
-    return cf.update_dns(self.server_domain.name, self.remote.ip_address)
+    return Gamocosm.cloudflare.dns_update(self.server_domain.name, self.remote.ip_address)
   end
 
   def remove_domain
     if self.server_domain.nil?
       return nil
     end
-    cf = self.cloudflare_client
-    return cf.delete_dns(self.server_domain.name)
-  end
-
-  def cloudflare_client
-    return CloudFlare::Client.new(Gamocosm::CLOUDFLARE_EMAIL, Gamocosm::CLOUDFLARE_API_TOKEN, Gamocosm::USER_SERVERS_DOMAIN)
+    return Gamocosm.cloudflare.dns_delete(self.server_domain.name)
   end
 
 end

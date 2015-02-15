@@ -43,7 +43,6 @@ gem 'devise', '~> 3.4.1'
 gem 'sidekiq'
 gem 'bootstrap-sass', '~> 3.3.3'
 gem 'annotate'
-gem 'barge'
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'sinatra', :require => nil
