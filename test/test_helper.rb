@@ -52,11 +52,13 @@ class ActiveSupport::TestCase
 
   # WebMock basic helpers
   def mock_digital_ocean(verb, path)
-    query = ''
+    stub = stub_request(verb, File.join(Barge::Client::DIGITAL_OCEAN_URL, path))
     if verb == :get
-      query = "?per_page=#{Barge::Resource::Base::PER_PAGE}"
+      stub.with({
+        query: hash_including({ per_page: Barge::Resource::Base::PER_PAGE.to_s }),
+      })
     end
-    return stub_request(verb, "#{File.join(Barge::Client::DIGITAL_OCEAN_URL, path)}#{query}")
+    return stub
   end
 
   def mock_cloudflare
@@ -69,6 +71,8 @@ class ActiveSupport::TestCase
 
   # WebMock helpers that include response
   def mock_do_base(status)
+    # DigitalOcean::Connection doesn't have its own file; make sure we load digital_ocean/connection.rb where it's located
+    DigitalOcean::Connection
     mock_digital_ocean(:get, '/sizes').to_return_json(status, { sizes: DigitalOcean::Size::DEFAULT_SIZES })
     mock_digital_ocean(:get, '/regions').to_return_json(status, { regions: DigitalOcean::Region::DEFAULT_REGIONS })
   end
@@ -314,7 +318,7 @@ end
 
 if !test_have_user_server?
   # reference SetupServerWorker so it loads before we patch it
-  SetupServerWorker.class
+  SetupServerWorker
   class SetupServerWorker
     def on(hosts, options = { }, &block)
       Rails.logger.info "SSHKit mocking on: #{hosts}..."

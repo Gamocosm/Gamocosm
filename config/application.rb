@@ -37,6 +37,22 @@ module Gamocosm
   DIGITAL_OCEAN_SSH_PUBLIC_KEY_FINGERPRINT = Digest::MD5.hexdigest(Base64.decode64(DIGITAL_OCEAN_SSH_PUBLIC_KEY.split(/\s+/m)[1])).scan(/../).join(':')
   GIT_HEAD=`git rev-parse HEAD`.strip
 
+  @digital_ocean = nil
+  def self.digital_ocean
+    if @digital_ocean.nil?
+      @digital_ocean = DigitalOcean::Connection.new(DIGITAL_OCEAN_API_KEY)
+    end
+    return @digital_ocean
+  end
+
+  @cloudflare = nil
+  def self.cloudflare
+    if @cloudflare.nil?
+      @cloudflare = CloudFlare::Client.new(CLOUDFLARE_EMAIL, CLOUDFLARE_API_TOKEN, USER_SERVERS_DOMAIN)
+    end
+    return @cloudflare
+  end
+
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers

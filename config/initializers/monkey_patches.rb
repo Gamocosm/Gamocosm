@@ -6,6 +6,17 @@ class Object
     self.define_singleton_method(:error?) { true }
     self
   end
+  def silence(&block)
+    begin
+      return block.call
+    rescue => e
+      msg = "Badness in #{self.class.name}: #{e}"
+      Rails.logger.error msg
+      Rails.logger.error e.backtrace.join("\n")
+      ExceptionNotifier.notify_exception(e)
+      return msg.error!
+    end
+  end
 end
 
 class NilClass

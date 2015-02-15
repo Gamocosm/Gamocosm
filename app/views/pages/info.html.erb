@@ -99,7 +99,7 @@
 			To increase the size:
 			<ul>
 				<li>Stop the server</li>
-				<li>Under the "Advanced" tab, update "Digital Ocean size slug" to be one of [<%= DigitalOcean::Size.new.all.map { |x| x[:slug] }.join(', ') %>]</li>
+				<li>Under the "Advanced" tab, update "Digital Ocean size slug" to be one of [<%= @do_sizes.map { |x| x.slug }.join(', ') %>]</li>
 				<li>Start the server</li>
 			</ul>
 			To decrease the size, you need to FTP or SSH to backup any files you want to keep (such as your world folder), and create a new server.

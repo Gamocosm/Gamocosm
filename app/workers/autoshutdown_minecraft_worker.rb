@@ -8,8 +8,14 @@ class AutoshutdownMinecraftWorker
   def perform(minecraft_id, last_check_successful = true, last_check_has_players = true, times = 0)
     minecraft = Minecraft.find(minecraft_id)
     server = minecraft.server
+    user = minecraft.user
     begin
       minecraft.update_columns(autoshutdown_last_check: Time.now)
+      if user.digital_ocean_missing?
+        server.minecraft.log('Error starting server; you have not entered your Digital Ocean API token. Aborting')
+        server.reset_partial
+        return
+      end
       # the next two checks and server.remote.status are !server.running?
       if !server.remote.exists?
         return

@@ -3,6 +3,10 @@ class MinecraftsController < ApplicationController
 
   def load_index
     @friend_minecrafts = current_user.friend_minecrafts
+    if !current_user.digital_ocean_missing?
+      @do_regions = Gamocosm.digital_ocean.region_list
+      @do_sizes = Gamocosm.digital_ocean.size_list
+    end
   end
 
   def index
@@ -244,7 +248,12 @@ class MinecraftsController < ApplicationController
   end
 
   def destroy_digital_ocean_droplet
-    error = current_user.digital_ocean_delete_droplet(params[:id])
+    error = nil
+    if current_user.digital_ocean_missing?
+      error = 'You have not entered your Digital Ocean API token'
+    else
+      error = current_user.digital_ocean.droplet_delete(params[:id])
+    end
     if error
       return redirect_to minecrafts_path, flash: { error: error }
     end
@@ -257,7 +266,12 @@ class MinecraftsController < ApplicationController
   end
 
   def destroy_digital_ocean_snapshot
-    error = current_user.digital_ocean_delete_snapshot(params[:id])
+    error = nil
+    if current_user.digital_ocean_missing?
+      error = 'You have not entered your Digital Ocean API token'
+    else
+      error = current_user.digital_ocean.image_delete(params[:id])
+    end
     if error
       return redirect_to minecrafts_path, flash: { error: error }
     end
@@ -272,10 +286,18 @@ class MinecraftsController < ApplicationController
   def add_digital_ocean_ssh_key
     ssh_key_name = params[:digital_ocean_ssh_key][:name]
     ssh_public_key = params[:digital_ocean_ssh_key][:data]
-    ssh_key_id = current_user.digital_ocean_add_ssh_key(ssh_key_name, ssh_public_key)
+    error = nil
+    if current_user.digital_ocean_missing?
+      error = 'You have not entered your Digital Ocean API token'
+    else
+      ssh_key = current_user.digital_ocean.ssh_key_create(ssh_key_name, ssh_public_key)
+      if ssh_key.error?
+        error = ssh_key
+      end
+    end
     f = { success: 'Added SSH public key to Digital Ocean' }
-    if ssh_key_id.error?
-      f = { error: ssh_key_id }
+    if error
+      f = { error: error }
     end
     begin
       return redirect_to :back, flash: f
@@ -285,7 +307,15 @@ class MinecraftsController < ApplicationController
   end
 
   def destroy_digital_ocean_ssh_key
-    error = current_user.digital_ocean_delete_ssh_key(params[:id])
+    error = nil
+    if current_user.digital_ocean_missing?
+      error = 'You have not entered your Digital Ocean API token'
+    else
+      res = current_user.digital_ocean.ssh_key_delete(params[:id])
+      if res.error?
+        error = res
+      end
+    end
     f = { success: 'Deleted SSH public key from Digital Ocean' }
     if error
       f = { error: error }

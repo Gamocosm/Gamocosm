@@ -5,7 +5,13 @@ class StartMinecraftWorker
   def perform(server_id)
     server = Server.find(server_id)
     minecraft = server.minecraft
+    user = minecraft.user
     begin
+      if user.digital_ocean_missing?
+        server.minecraft.log('Error starting server; you have not entered your Digital Ocean API token. Aborting')
+        server.reset_partial
+        return
+      end
       if !server.remote.exists?
         minecraft.log('Error starting server; remote_id is nil. Aborting')
         server.reset_partial

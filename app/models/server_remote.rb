@@ -1,0 +1,126 @@
+class ServerRemote
+  def initialize(server)
+    @server = server
+    @user = server.minecraft.user
+    @con = @user.digital_ocean
+  end
+
+  def exists?
+    return !@server.remote_id.nil?
+  end
+
+  def sync
+    if @data.nil?
+      if @user.digital_ocean_missing?
+        @data = 'You have not entered your Digital Ocean API token'.error!
+      else
+        @data = @con.droplet_show(@server.remote_id)
+      end
+    end
+    @data
+  end
+
+  def invalidate
+    @data = nil
+  end
+
+  def error?
+    exists? && sync.error?
+  end
+
+  def error
+    error? ? sync : nil
+  end
+
+  def ip_address
+    d = sync
+    d.error? ? error : d.ipv4
+  end
+
+  def status
+    d = sync
+    d.error? ? error : d.status
+  end
+
+  def latest_snapshot_id
+    d = sync
+    d.error? ? error : d.snapshot_ids.last
+  end
+
+  def create
+    if @user.digital_ocean_missing?
+      return 'You have not entered your Digital Ocean API token'.error!
+    end
+    ssh_key_id = @user.digital_ocean_gamocosm_ssh_key_id
+    if ssh_key_id.error?
+      return ssh_key_id
+    end
+    res = @con.droplet_create(@server.host_name, @server.do_region_slug, @server.do_size_slug, @server.do_saved_snapshot_id || Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG, [ssh_key_id])
+    if res.error?
+      return res
+    end
+    @server.update_columns(remote_id: res.id)
+    res = @con.droplet_action_list(res.id)
+    if res.error?
+      return res
+    end
+    return res.last
+  end
+
+  def shutdown
+    if @user.digital_ocean_missing?
+      return 'You have not entered your Digital Ocean API token'.error!
+    end
+    @con.droplet_shutdown(@server.remote_id)
+  end
+
+  def reboot
+    if @user.digital_ocean_missing?
+      return 'You have not entered your Digital Ocean API token'.error!
+    end
+    @con.droplet_reboot(@server.remote_id)
+  end
+
+  def power_on
+    if @user.digital_ocean_missing?
+      return 'You have not entered your Digital Ocean API token'.error!
+    end
+    @con.droplet_power_on(@server.remote_id)
+  end
+
+  def destroy
+    if @user.digital_ocean_missing?
+      return 'You have not entered your Digital Ocean API token'.error!
+    end
+    if !exists?
+      return nil
+    end
+    res = @con.droplet_delete(@server.remote_id)
+    if res.error?
+      return res
+    end
+    @server.update_columns(remote_id: nil)
+    return nil
+  end
+
+  def snapshot
+    if @user.digital_ocean_missing?
+      return 'You have not entered your Digital Ocean API token'.error!
+    end
+    @con.droplet_snapshot(@server.remote_id, @server.host_name)
+  end
+
+  def destroy_saved_snapshot
+    if @user.digital_ocean_missing?
+      return 'You have not entered your Digital Ocean API token'.error!
+    end
+    if @server.do_saved_snapshot_id.nil?
+      return nil
+    end
+    res = @con.image_delete(@server.do_saved_snapshot_id)
+    if res.error?
+      return "Error destroying snapshot on Digital Ocean: #{res}"
+    end
+    return nil
+  end
+end

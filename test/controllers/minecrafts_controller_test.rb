@@ -335,7 +335,7 @@ class MinecraftsControllerTest < ActionController::TestCase
     get :start, { id: minecraft.id }
     assert_redirected_to minecraft_path(minecraft)
     view_server(minecraft)
-    assert_equal flash[:success], 'Server starting'
+    assert_equal 'Server starting', flash[:success]
     ensure_busy
     assert_equal 1, WaitForStartingServerWorker.jobs.count, 'No wait for starting server worker after start'
     WaitForStartingServerWorker.jobs.clear
@@ -346,7 +346,7 @@ class MinecraftsControllerTest < ActionController::TestCase
     get :stop, { id: minecraft.id }
     assert_redirected_to minecraft_path(minecraft)
     view_server(minecraft)
-    assert_equal flash[:success], 'Server stopping'
+    assert_equal 'Server stopping', flash[:success]
     ensure_busy
     assert_equal 1, WaitForStoppingServerWorker.jobs.count, 'No wait for stopping server worker after stop'
     WaitForStoppingServerWorker.jobs.clear
@@ -445,6 +445,12 @@ class MinecraftsControllerTest < ActionController::TestCase
         id: 1,
         name: 'abc',
         created_at: DateTime.current.to_s,
+        snapshot_ids: [],
+        networks: {
+          v4: [
+            { type: 'public', ip_address: 'localhost' },
+          ],
+        },
       },
     ]).times_only(1)
     get :show_digital_ocean_droplets

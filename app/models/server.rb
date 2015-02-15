@@ -40,7 +40,7 @@ class Server < ActiveRecord::Base
 
   def remote
     if @remote.nil?
-      @remote = DigitalOcean::Droplet.new(self, self.minecraft.user.digital_ocean)
+      @remote = ServerRemote.new(self)
     end
     return @remote
   end
@@ -50,12 +50,12 @@ class Server < ActiveRecord::Base
   end
 
   def ram
-    droplet_size = DigitalOcean::Size.new.find(do_size_slug)
+    droplet_size = Gamocosm.digital_ocean.size_find(do_size_slug)
     if droplet_size.nil?
       minecraft.log("Unknown Digital Ocean size slug #{do_size_slug}; only starting server with 512MB of RAM")
       return 512
     end
-    return droplet_size[:memory]
+    return droplet_size.memory
   end
 
   def start?
@@ -89,32 +89,32 @@ class Server < ActiveRecord::Base
   end
 
   def start
-    error = remote.create
-    if error
-      return error
+    action = remote.create
+    if action.error?
+      return action
     end
-    WaitForStartingServerWorker.perform_in(32.seconds, minecraft.user_id, id, remote.action_id)
+    WaitForStartingServerWorker.perform_in(32.seconds, minecraft.user_id, id, action.id)
     self.update_columns(pending_operation: 'starting')
     return nil
   end
 
   def stop
-    error = remote.shutdown
-    if error
-      return error
+    action = remote.shutdown
+    if action.error?
+      return action
     end
     self.update_columns(pending_operation: 'stopping')
-    WaitForStoppingServerWorker.perform_in(16.seconds, id, remote.action_id)
+    WaitForStoppingServerWorker.perform_in(16.seconds, minecraft.user_id, id, action.id)
     return nil
   end
 
   def reboot
-    error = remote.reboot
-    if error
-      return error
+    action = remote.reboot
+    if action.error?
+      return action
     end
     self.update_columns(pending_operation: 'rebooting')
-    WaitForStartingServerWorker.perform_in(4.seconds, minecraft.user_id, id, remote.action_id)
+    WaitForStartingServerWorker.perform_in(4.seconds, minecraft.user_id, id, action.id)
     return nil
   end
 

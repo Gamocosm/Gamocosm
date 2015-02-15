@@ -13,16 +13,16 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'record not found in workers' do
-    WaitForStartingServerWorker.perform_in(0.seconds, 0, 0, 0)
+    WaitForStartingServerWorker.perform_in(0.seconds, @minecraft.user_id, 0, 0)
     WaitForStartingServerWorker.perform_one
     assert_equal 0, WaitForStartingServerWorker.jobs.size, 'Worker should have exited after record not found'
-    WaitForStoppingServerWorker.perform_in(0.seconds, 0, 0)
+    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.user_id, 0, 0)
     WaitForStoppingServerWorker.perform_one
     assert_equal 0, WaitForStoppingServerWorker.jobs.size, 'Worker should have exited after record not found'
-    WaitForSnapshottingServerWorker.perform_in(0.seconds, 0, 0)
+    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.user_id, 0, 0)
     WaitForSnapshottingServerWorker.perform_one
     assert_equal 0, WaitForSnapshottingServerWorker.jobs.size, 'Worker should have exited after record not found'
-    SetupServerWorker.perform_in(0.seconds, 0, 0)
+    SetupServerWorker.perform_in(0.seconds, @minecraft.user_id, 0)
     SetupServerWorker.perform_one
     assert_equal 0, SetupServerWorker.jobs.size, 'Worker should have exited after record not found'
     StartMinecraftWorker.perform_in(0.seconds, 0, )
@@ -103,7 +103,7 @@ class WorkersTest < ActiveSupport::TestCase
   test 'wait for stopping server worker too many tries' do
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times_only(32)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(32)
-    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.server.id, 1)
+    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
     for i in 0...16
       WaitForStoppingServerWorker.perform_one
     end
@@ -115,7 +115,7 @@ class WorkersTest < ActiveSupport::TestCase
 
   test 'wait for stopping server worker remote doesn\'t exist' do
     @minecraft.server.update_columns(remote_id: nil)
-    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.server.id, 1)
+    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
     WaitForStoppingServerWorker.perform_one
     assert_equal 0, WaitForStartingServerWorker.jobs.size, 'Worker should have failed and exited'
     @minecraft.reload
@@ -126,7 +126,7 @@ class WorkersTest < ActiveSupport::TestCase
 
   test 'wait for stopping server worker remote error' do
     mock_do_droplet_show(1).stub_do_droplet_show(400, nil).times_only(1)
-    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.server.id, 1)
+    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
     WaitForStoppingServerWorker.perform_one
     assert_equal 0, WaitForStartingServerWorker.jobs.size, 'Worker should have failed and exited'
     @minecraft.reload
@@ -138,7 +138,7 @@ class WorkersTest < ActiveSupport::TestCase
   test 'wait for stopping server worker event error' do
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1)
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(400, nil).times_only(1)
-    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.server.id, 1)
+    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
     WaitForStoppingServerWorker.perform_one
     assert_equal 0, WaitForStoppingServerWorker.jobs.size, 'Worker should have failed and exited'
     @minecraft.reload
@@ -150,7 +150,7 @@ class WorkersTest < ActiveSupport::TestCase
   test 'wait for stopping server worker remote in bad state after event' do
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1)
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'completed').times_only(1)
-    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.server.id, 1)
+    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
     WaitForStoppingServerWorker.perform_one
     assert_equal 0, WaitForStoppingServerWorker.jobs.size, 'Worker should have failed and exited'
     @minecraft.reload
@@ -163,7 +163,7 @@ class WorkersTest < ActiveSupport::TestCase
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'off').times_only(1)
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'completed').times_only(1)
     mock_do_droplet_action(1).stub_do_droplet_action(400, 'snapshot')
-    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.server.id, 1)
+    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
     WaitForStoppingServerWorker.perform_one
     assert_equal 0, WaitForSnapshottingServerWorker.jobs.size, 'Worker should have failed and exited'
     @minecraft.reload
@@ -175,7 +175,7 @@ class WorkersTest < ActiveSupport::TestCase
   test 'wait for snapshotting server worker too many tries' do
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times_only(64)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(64)
-    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.server.id, 1)
+    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
     for i in 0...32
       WaitForSnapshottingServerWorker.perform_one
     end
@@ -187,7 +187,7 @@ class WorkersTest < ActiveSupport::TestCase
 
   test 'wait for snapshotting server worker remote doesn\'t exist' do
     @minecraft.server.update_columns(remote_id: nil)
-    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.server.id, 1)
+    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
     WaitForSnapshottingServerWorker.perform_one
     assert_equal 0, WaitForSnapshottingServerWorker.jobs.size, 'Worker should have failed and exited'
     @minecraft.reload
@@ -198,7 +198,7 @@ class WorkersTest < ActiveSupport::TestCase
 
   test 'wait for snapshotting server worker remote error' do
     mock_do_droplet_show(1).stub_do_droplet_show(400, nil).times_only(1)
-    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.server.id, 1)
+    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
     WaitForSnapshottingServerWorker.perform_one
     assert_equal 0, WaitForSnapshottingServerWorker.jobs.size, 'Worker should have failed and exited'
     @minecraft.reload
@@ -210,7 +210,7 @@ class WorkersTest < ActiveSupport::TestCase
   test 'wait for snapshotting server worker event error' do
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1)
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(400, nil).times_only(1)
-    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.server.id, 1)
+    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
     WaitForSnapshottingServerWorker.perform_one
     assert_equal 0, WaitForSnapshottingServerWorker.jobs.size, 'Worker should have failed and exited'
     @minecraft.reload
@@ -222,7 +222,7 @@ class WorkersTest < ActiveSupport::TestCase
   test 'wait for snapshotting server worker retrieve snapshots error' do
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active', { snapshot_ids: [] }).times_only(1)
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'completed').times_only(1)
-    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.server.id, 1)
+    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
     WaitForSnapshottingServerWorker.perform_one
     assert_equal 0, WaitForSnapshottingServerWorker.jobs.size, 'Worker should have failed and exited'
     @minecraft.reload
@@ -235,7 +235,7 @@ class WorkersTest < ActiveSupport::TestCase
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1)
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'completed').times_only(1)
     mock_do_droplet_delete(400, 1).times_only(1)
-    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.server.id, 1)
+    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
     WaitForSnapshottingServerWorker.perform_one
     assert_equal 0, WaitForSnapshottingServerWorker.jobs.size, 'Worker should have finished'
     @minecraft.reload

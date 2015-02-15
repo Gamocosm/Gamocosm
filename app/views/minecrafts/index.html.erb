@@ -2,7 +2,10 @@
 <div class="row">
 	<div class="col-sm-12">
 		<div class="page-header">
-			<h1>Servers <small>for <%= current_user.email %></small></h1>
+			<h1>
+				Servers <small>for <%= current_user.email %></small>
+				<%= link_to 'Open a support ticket', issues_path, class: 'btn btn-lg btn-default pull-right' %>
+			</h1>
 		</div>
 	</div>
 </div>

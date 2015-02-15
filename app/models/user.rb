@@ -54,7 +54,7 @@ class User < ActiveRecord::Base
       return nil
     end
     if @digital_ocean_connection.nil?
-      @digital_ocean_connection = DigitalOcean::Connection.new(digital_ocean_api_key).request
+      @digital_ocean_connection = DigitalOcean::Connection.new(digital_ocean_api_key)
     end
     return @digital_ocean_connection
   end
@@ -81,21 +81,10 @@ class User < ActiveRecord::Base
       droplets = Rails.cache.read(self.digital_ocean_servers_cache)
       # if we haven't cached it recently
       if droplets.nil?
-        begin
-          response = self.digital_ocean.droplet.all
-          if response.success?
-            droplets = response.droplets
-            Rails.cache.write(self.digital_ocean_servers_cache, droplets.map { |x| x.to_hash }, expires_in: 24.hours)
-          else
-            droplets = "Error communicating with Digital Ocean: #{response}".error!
-          end
-        rescue Faraday::Error => e
-          Rails.logger.error e.inspect
-          Rails.logger.error e.backtrace.join("\n")
-          droplets = "Exception communicating with Digital Ocean: #{e}".error!
+        droplets = self.digital_ocean.droplet_list
+        if !droplets.error?
+          Rails.cache.write(self.digital_ocean_servers_cache, droplets, expires_in: 24.hours)
         end
-      else
-        droplets = droplets.map { |x| Hashie::Mash.new(x) }
       end
       # cache the result for this request (if there was an error, don't keep trying)
       @digital_ocean_droplets = droplets
@@ -111,21 +100,10 @@ class User < ActiveRecord::Base
     if @digital_ocean_snapshots.nil?
       snapshots = Rails.cache.read(self.digital_ocean_snapshots_cache)
       if snapshots.nil?
-        begin
-          response = self.digital_ocean.image.all
-          if response.success?
-            snapshots = response.images.select { |x| !x.public }
-            Rails.cache.write(self.digital_ocean_snapshots_cache, snapshots.map { |x| x.to_hash }, expires_in: 24.hours)
-          else
-            snapshots = "Error communicating with Digital Ocean: #{response}".error!
-          end
-        rescue Faraday::Error => e
-          Rails.logger.error e.inspect
-          Rails.logger.error e.backtrace.join("\n")
-          snapshots = "Exception communicating with Digital Ocean: #{e}".error!
+        snapshots = self.digital_ocean.image_list(private: true)
+        if !@snapshots.error?
+          Rails.cache.write(self.digital_ocean_snapshots_cache, snapshots, expires_in: 24.hours)
         end
-      else
-        snapshots = snapshots.map { |x| Hashie::Mash.new(x) }
       end
       @digital_ocean_snapshots = snapshots
     end
@@ -140,116 +118,14 @@ class User < ActiveRecord::Base
     if @digital_ocean_ssh_keys.nil?
       keys = Rails.cache.read(self.digital_ocean_ssh_keys_cache)
       if keys.nil?
-        begin
-          response = digital_ocean.key.all
-          if response.success?
-            keys = response.ssh_keys
-            Rails.cache.write(self.digital_ocean_ssh_keys_cache, keys.map { |x| x.to_hash }, expires_in: 24.hours)
-          else
-            keys = "Error getting Digital Ocean SSH keys: #{response}".error!
-          end
-        rescue Faraday::Error => e
-          Rails.logger.error e.inspect
-          Rails.logger.error e.backtrace.join("\n")
-          keys = "Exception communicating with Digital Ocean: #{e}".error!
+        keys = self.digital_ocean.ssh_key_list
+        if !keys.error?
+          Rails.cache.write(self.digital_ocean_ssh_keys_cache, keys, expires_in: 24.hours)
         end
-      else
-        keys = keys.map { |x| Hashie::Mash.new(x) }
       end
       @digital_ocean_ssh_keys = keys
     end
     return @digital_ocean_ssh_keys
-  end
-
-  def digital_ocean_add_ssh_key(name, public_key)
-    if digital_ocean_missing?
-      return 'Digital Ocean API token missing'
-    end
-    self.invalidate_digital_ocean_cache_ssh_keys
-    response = nil
-    begin
-      response = digital_ocean.key.create(name: name, public_key: public_key)
-      if !response.success?
-        return "Error adding Digital Ocean SSH key: #{response}".error!
-      end
-    rescue Faraday::Error => e
-      Rails.logger.error e.inspect
-      Rails.logger.error e.backtrace.join("\n")
-      return "Exception communicating with Digital Ocean: #{e}".error!
-    end
-    return response.ssh_key.id
-  end
-
-  def digital_ocean_delete_ssh_key(remote_id)
-    if digital_ocean_missing?
-      return 'Digital Ocean API token missing'
-    end
-    self.invalidate_digital_ocean_cache_ssh_keys
-    begin
-      response = digital_ocean.key.destroy(remote_id)
-      if !response.success?
-        return "Error deleting Digital Ocean SSH key: #{response}"
-      end
-    rescue Faraday::Error => e
-      Rails.logger.error e.inspect
-      Rails.logger.error e.backtrace.join("\n")
-      return "Exception communicating with Digital Ocean: #{e}"
-    end
-    return nil
-  end
-
-  def digital_ocean_delete_droplet(remote_id)
-    if digital_ocean_missing?
-      return 'Digital Ocean API token missing'
-    end
-    self.invalidate
-    begin
-      response = digital_ocean.droplet.destroy(remote_id)
-      if !response.success?
-        return "Error deleting Digital Ocean droplet: #{response}"
-      end
-    rescue Faraday::Error => e
-      Rails.logger.error e.inspect
-      Rails.logger.error e.backtrace.join("\n")
-      return "Exception communicating with Digital Ocean: #{e}"
-    end
-    return nil
-  end
-
-  def digital_ocean_delete_snapshot(remote_id)
-    if digital_ocean_missing?
-      return 'Digital Ocean API token missing'
-    end
-    self.invalidate
-    begin
-      response = digital_ocean.image.destroy(remote_id)
-      if !response.success?
-        return "Error deleting Digital Ocean snapshot: #{response}"
-      end
-    rescue Faraday::Error => e
-      Rails.logger.error e.inspect
-      Rails.logger.error e.backtrace.join("\n")
-      return "Exception communicating with Digital Ocean: #{e}"
-    end
-    return nil
-  end
-
-  def digital_ocean_ssh_public_key(id)
-    if digital_ocean_missing?
-      return 'Digital Ocean API token missing'.error!
-    end
-    response = nil
-    begin
-      response = digital_ocean.key.show(id)
-      if !response.success?
-        return "Error getting Digital Ocean SSH key: #{response}".error!
-      end
-    rescue Faraday::Error => e
-      Rails.logger.error e.inspect
-      Rails.logger.error e.backtrace.join("\n")
-      return "Exception communicating with Digital Ocean: #{e}".error!
-    end
-    return response.ssh_key.public_key
   end
 
   def digital_ocean_gamocosm_ssh_key_id
@@ -268,6 +144,10 @@ class User < ActiveRecord::Base
         return x.id
       end
     end
-    return self.digital_ocean_add_ssh_key('gamocosm', public_key)
+    res = self.digital_ocean.ssh_key_create('gamocosm', public_key)
+    if res.error?
+      return res
+    end
+    return res.id
   end
 end

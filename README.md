@@ -112,7 +112,7 @@ Hmmmm.
 - Methods that "do things" should return nil on success, or a message or object on error.
 - Methods that "return things" should use `.error!` to mark a return value is an error. These errors should always be strings.
 - You can use `.error?` to check if a return value is an error. `nil` cannot be made an error.
-- These methods are defined on `Object` in `config/initializers/my_extensions.rb`
+- These methods are defined on `Object` in `config/initializers/monkey_patches.rb`
 - Throw exceptions in "exceptional cases", when something is unexpected (e.g. bad user input *is* expected) or can't be handled without "blowing up"
 
 #### Important checks

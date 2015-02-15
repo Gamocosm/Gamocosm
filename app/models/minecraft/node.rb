@@ -24,57 +24,93 @@ class Minecraft::Node
 
   def pid
     if @pid.nil?
-      response = do_get(:pid)
-      if response.error?
-        @pid = response
-        @local_minecraft.log("Error getting Minecraft pid: #{response}")
+      res = do_get(:pid)
+      if res.error?
+        @pid = res
+        @local_minecraft.log("Error getting Minecraft pid: #{res}")
       else
-        @pid = response['pid']
+        @pid = res['pid']
       end
     end
     return @pid
+  rescue => e
+    msg = "Badness in #{self.class}: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    ExceptionNotifier.notify_exception(e)
+    return msg.error!
   end
 
   def resume
-    response = do_post(:start, { ram: "#{@local_minecraft.server.ram}M" }, { timeout: 8 })
+    res = do_post(:start, { ram: "#{@local_minecraft.server.ram}M" }, { timeout: 8 })
     invalidate
-    if response.error?
-      return response
+    if res.error?
+      return res
     end
     return nil
+  rescue => e
+    msg = "Badness in #{self.class}: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    ExceptionNotifier.notify_exception(e)
+    return msg.error!
   end
 
   def pause
-    response = do_get(:stop)
+    res = do_get(:stop)
     invalidate
-    if response.error?
-      return response
+    if res.error?
+      return res
     end
     return nil
+  rescue => e
+    msg = "Badness in #{self.class}: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    ExceptionNotifier.notify_exception(e)
+    return msg.error!
   end
 
   def exec(command)
-    response = do_post(:exec, { command: command })
-    if response.error?
-      return response
+    res = do_post(:exec, { command: command })
+    if res.error?
+      return res
     end
     return nil
+  rescue => e
+    msg = "Badness in #{self.class}: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    ExceptionNotifier.notify_exception(e)
+    return msg.error!
   end
 
   def backup
-    response = do_post(:backup, {})
-    if response.error?
-      return response
+    res = do_post(:backup, {})
+    if res.error?
+      return res
     end
     return nil
+  rescue => e
+    msg = "Badness in #{self.class}: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    ExceptionNotifier.notify_exception(e)
+    return msg.error!
   end
 
   def properties
-    response = do_get(:minecraft_properties)
-    if response.error?
-      return response
+    res = do_get(:minecraft_properties)
+    if res.error?
+      return res
     end
-    return response['properties']
+    return res['properties']
+  rescue => e
+    msg = "Badness in #{self.class}: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    ExceptionNotifier.notify_exception(e)
+    return msg.error!
   end
 
   def update_properties(properties)
@@ -82,13 +118,20 @@ class Minecraft::Node
     properties.each_pair do |k, v|
       payload[k.to_s.gsub('_', '-')] = v.to_s
     end
-    response = do_post(:minecraft_properties, { properties: payload })
-    if response.error?
-      return response
+    res = do_post(:minecraft_properties, { properties: payload })
+    if res.error?
+      return res
     end
-    return response['properties']
+    return res['properties']
+  rescue => e
+    msg = "Badness in #{self.class}: #{e}"
+    Rails.logger.error msg
+    Rails.logger.error e.backtrace.join("\n")
+    ExceptionNotifier.notify_exception(e)
+    return msg.error!
   end
 
+  private
   def do_get(endpoint)
     begin
       res = @conn.get do |req|

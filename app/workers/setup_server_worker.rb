@@ -23,9 +23,14 @@ class SetupServerWorker
   ]
 
   def perform(user_id, server_id, times = 0)
-    user = User.find(user_id)
     server = Server.find(server_id)
+    user = User.find(user_id)
     begin
+      if user.digital_ocean_missing?
+        server.minecraft.log('Error starting server; you have not entered your Digital Ocean API token. Aborting')
+        server.reset_partial
+        return
+      end
       if !server.remote.exists?
         server.minecraft.log('Error starting server; remote_id is nil. Aborting')
         server.reset_partial
@@ -89,7 +94,6 @@ class SetupServerWorker
       server.update_columns(remote_setup_stage: 5)
       StartMinecraftWorker.perform_in(4.seconds, server_id)
     rescue => e
-      server = Server.find(server_id)
       server.minecraft.log("Background job setting up server failed: #{e}")
       server.reset_partial
       raise
@@ -242,11 +246,11 @@ class SetupServerWorker
     end
     key_contents = []
     server.ssh_keys.split(',').each do |key_id|
-      key = user.digital_ocean_ssh_public_key(key_id)
+      key = user.digital_ocean.ssh_key_show(key_id)
       if key.error?
         server.minecraft.log(key)
       else
-        key_contents.push(key.shell_escape)
+        key_contents.push(key.public_key.shell_escape)
       end
     end
     server.update_columns(ssh_keys: nil)

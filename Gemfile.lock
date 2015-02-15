@@ -214,7 +214,6 @@ DEPENDENCIES
   faraday_middleware
   font-awesome-sass
   foreigner
-  hashie
   jbuilder (~> 2.0)
   jquery-rails
   newrelic_rpm
