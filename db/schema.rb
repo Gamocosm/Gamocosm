@@ -17,21 +17,21 @@ ActiveRecord::Schema.define(version: 20150123042138) do
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
-  create_table "minecrafts", id: :uuid, default: "uuid_generate_v4()", force: true do |t|
-    t.integer  "user_id",                                               null: false
-    t.string   "name",                                                  null: false
+  create_table "minecrafts", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
+    t.integer  "user_id",                                                           null: false
+    t.string   "name",                         limit: 255,                          null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "minecraft_wrapper_password",                            null: false
-    t.boolean  "autoshutdown_enabled",         default: false,          null: false
+    t.string   "minecraft_wrapper_password",   limit: 255,                          null: false
+    t.boolean  "autoshutdown_enabled",                     default: false,          null: false
     t.datetime "autoshutdown_last_check"
     t.datetime "autoshutdown_last_successful"
-    t.string   "flavour",                      default: "vanilla/null", null: false
+    t.string   "flavour",                      limit: 255, default: "vanilla/null", null: false
   end
 
   add_index "minecrafts", ["user_id"], name: "index_minecrafts_on_user_id", using: :btree
 
-  create_table "minecrafts_users", force: true do |t|
+  create_table "minecrafts_users", force: :cascade do |t|
     t.uuid    "minecraft_id"
     t.integer "user_id"
   end
@@ -40,68 +40,63 @@ ActiveRecord::Schema.define(version: 20150123042138) do
   add_index "minecrafts_users", ["minecraft_id"], name: "index_minecrafts_users_on_minecraft_id", using: :btree
   add_index "minecrafts_users", ["user_id"], name: "index_minecrafts_users_on_user_id", using: :btree
 
-  create_table "server_domains", force: true do |t|
-    t.integer "server_id", null: false
-    t.string  "name"
+  create_table "server_domains", force: :cascade do |t|
+    t.integer "server_id",             null: false
+    t.string  "name",      limit: 255
   end
 
   add_index "server_domains", ["name"], name: "index_server_domains_on_name", unique: true, using: :btree
   add_index "server_domains", ["server_id"], name: "index_server_domains_on_server_id", using: :btree
 
-  create_table "server_logs", force: true do |t|
-    t.uuid     "minecraft_id", null: false
-    t.text     "message",      null: false
-    t.string   "debuginfo",    null: false
+  create_table "server_logs", force: :cascade do |t|
+    t.uuid     "minecraft_id",             null: false
+    t.text     "message",                  null: false
+    t.string   "debuginfo",    limit: 255, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   add_index "server_logs", ["minecraft_id"], name: "index_server_logs_on_minecraft_id", using: :btree
 
-  create_table "servers", force: true do |t|
+  create_table "servers", force: :cascade do |t|
     t.integer  "remote_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.uuid     "minecraft_id",                        null: false
-    t.string   "do_region_slug",                      null: false
-    t.string   "do_size_slug",                        null: false
+    t.uuid     "minecraft_id",                                    null: false
+    t.string   "do_region_slug",       limit: 255,                null: false
+    t.string   "do_size_slug",         limit: 255,                null: false
     t.integer  "do_saved_snapshot_id"
-    t.integer  "remote_setup_stage",   default: 0,    null: false
-    t.string   "pending_operation"
-    t.string   "ssh_keys"
-    t.integer  "ssh_port",             default: 4022, null: false
+    t.integer  "remote_setup_stage",               default: 0,    null: false
+    t.string   "pending_operation",    limit: 255
+    t.string   "ssh_keys",             limit: 255
+    t.integer  "ssh_port",                         default: 4022, null: false
   end
 
   add_index "servers", ["minecraft_id"], name: "index_servers_on_minecraft_id", unique: true, using: :btree
 
-  create_table "users", force: true do |t|
-    t.string   "email",                  default: "", null: false
-    t.string   "encrypted_password",     default: "", null: false
-    t.string   "reset_password_token"
+  create_table "users", force: :cascade do |t|
+    t.string   "email",                  limit: 255, default: "", null: false
+    t.string   "encrypted_password",     limit: 255, default: "", null: false
+    t.string   "reset_password_token",   limit: 255
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0,  null: false
+    t.integer  "sign_in_count",                      default: 0,  null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
-    t.string   "current_sign_in_ip"
-    t.string   "last_sign_in_ip"
+    t.string   "current_sign_in_ip",     limit: 255
+    t.string   "last_sign_in_ip",        limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "digital_ocean_api_key"
+    t.string   "digital_ocean_api_key",  limit: 255
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
-  add_foreign_key "minecrafts", "users", name: "minecrafts_user_id_fk", dependent: :delete
-
-  add_foreign_key "minecrafts_users", "minecrafts", name: "minecrafts_users_minecraft_id_fk", dependent: :delete
-  add_foreign_key "minecrafts_users", "users", name: "minecrafts_users_user_id_fk", dependent: :delete
-
-  add_foreign_key "server_domains", "servers", name: "server_domains_server_id_fk", dependent: :delete
-
-  add_foreign_key "server_logs", "minecrafts", name: "server_logs_minecraft_id_fk", dependent: :delete
-
-  add_foreign_key "servers", "minecrafts", name: "servers_minecraft_id_fk", dependent: :delete
-
+  add_foreign_key "minecrafts", "users", name: "minecrafts_user_id_fk", on_delete: :cascade
+  add_foreign_key "minecrafts_users", "minecrafts", name: "minecrafts_users_minecraft_id_fk", on_delete: :cascade
+  add_foreign_key "minecrafts_users", "users", name: "minecrafts_users_user_id_fk", on_delete: :cascade
+  add_foreign_key "server_domains", "servers", name: "server_domains_server_id_fk", on_delete: :cascade
+  add_foreign_key "server_logs", "minecrafts", name: "server_logs_minecraft_id_fk", on_delete: :cascade
+  add_foreign_key "servers", "minecrafts", name: "servers_minecraft_id_fk", on_delete: :cascade
 end

@@ -1,10 +1,7 @@
 #!/bin/bash
 
 source env.sh
-
-if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
-	PATH="$PATH:$HOME/bin"
-fi
+rvm use 2.2
 
 if [[ "$RAILS_ENV" == "production" ]] && [[ "$1" != "--bundler" ]]; then
 	ruby "$@"

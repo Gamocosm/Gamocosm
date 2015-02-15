@@ -23,8 +23,10 @@ You should have a Unix/Linux system.
 The following instructions were made for Fedora 20, but the steps should be similar on other distributions.
 
 1. Install postgresql and development headers and libraries, memcached, redis, and nodejs: `(sudo) yum install postgresql-server postgresql-contrib postgresql-devel memcached redis nodejs`
-1. Install Ruby 2.0.0+: `(sudo) yum install ruby`. You can also use RVM
+1. Install [RVM][13]. Read the instructions on their page (will be up to date)
+1. Install Ruby 2.2.0+: `rvm install 2.2`, and optionally `rvm use --default 2.2`. You may need to install extra packages for compiling ruby (it will tell you)
 1. Install other things needed for gems: `(sudo) yum install gcc`
+1. Check that `ruby -v` gives you version 2.2. If not, log out and back in (on the computer) to have it reread your `~/.bash_profile`
 1. Install Bundler: `gem install bundler`
 1. Install gem dependencies: `bundle install`
 1. Run `cp env.sh.template env.sh`
@@ -186,3 +188,4 @@ Example: `TEST_DOCKER=true ./tests.sh`
 [10]: https://github.com/Gamocosm/gamocosm-minecraft-flavours
 [11]: https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft
 [12]: https://github.com/KayoticSully
+[13]: https://rvm.io

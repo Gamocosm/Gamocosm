@@ -35,7 +35,7 @@ module DigitalOcean
       "#{(price_hourly * 100).round(1)} cents/hour"
     end
     def descriptor
-      "#{name} at #{price} (up to $#{price_monthly}/month"
+      "#{name} at #{price} (up to $#{price_monthly}/month)"
     end
   end
 
@@ -366,7 +366,7 @@ module DigitalOcean
         res['memory'],
         res['status'],
         res['snapshot_ids'].sort,
-        res['networks']['v4'].select { |x| x['type'] == 'public' }.first['ip_address'],
+        res['networks']['v4'].try(:select) { |x| x['type'] == 'public' }.try(:first).try(:[], 'ip_address'),
       )
     end
 
@@ -383,7 +383,7 @@ module DigitalOcean
     end
 
     def self.size_from_response(res)
-      Size.new(res['slug'], res['name'], res['memory'], res['disk'], res['cpu'], res['price_hourly'], res['price_monthly'])
+      Size.new(res['slug'], res['slug'].upcase, res['memory'], res['disk'], res['vcpus'], res['price_hourly'], res['price_monthly'])
     end
 
     def self.region_from_response(res)

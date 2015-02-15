@@ -4,7 +4,7 @@ set -e
 
 yum -y update
 
-yum -y install ruby nodejs gcc gcc-c++ curl-devel openssl-devel zlib-devel ruby-devel memcached git postgresql-devel tmux
+yum -y install ruby nodejs gcc gcc-c++ curl-devel openssl-devel zlib-devel ruby-devel memcached git postgresql-devel tmux firewalld
 
 gem install passenger
 
@@ -32,11 +32,16 @@ systemctl start memcached
 firewall-cmd --add-port=80/tcp
 firewall-cmd --permanent --add-port=80/tcp
 
+yum install -y patch libffi-devel bison libyaml-devel autoconf readline-devel automake libtool sqlite-devel
+
 adduser -m http
 
-echo "Run: ssh-keygen -t rsa"
-echo "Run: exit"
-su - http
+su -l http -c 'curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -'
+su -l http -c 'curl -sSL https://get.rvm.io | bash -s stable'
+su -l http -c 'rvm install 2.2'
+su -l http -c 'rvm use --default 2.2'
+
+su -l http -c 'ssh-keygen -t rsa'
 
 mkdir /run/http
 chown http:http /run/http
