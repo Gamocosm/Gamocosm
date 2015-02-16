@@ -2,18 +2,15 @@
 #
 # Table name: servers
 #
-#  id                   :integer          not null, primary key
-#  remote_id            :integer
-#  created_at           :datetime
-#  updated_at           :datetime
-#  minecraft_id         :uuid             not null
-#  do_region_slug       :string(255)      not null
-#  do_size_slug         :string(255)      not null
-#  do_saved_snapshot_id :integer
-#  remote_setup_stage   :integer          default("0"), not null
-#  pending_operation    :string(255)
-#  ssh_keys             :string(255)
-#  ssh_port             :integer          default("4022"), not null
+#  id                           :integer          not null, primary key
+#  created_at                   :datetime
+#  updated_at                   :datetime
+#  minecraft_id                 :uuid             not null
+#  flavour                      :string           not null
+#  mcsw_password                :string           not null
+#  autoshutdown_enabled         :boolean          default("false"), not null
+#  autoshutdown_last_check      :datetime         not null
+#  autoshutdown_last_successful :datetime         not null
 #
 
 require 'test_helper'

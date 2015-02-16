@@ -11,23 +11,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150216195829) do
+ActiveRecord::Schema.define(version: 20150216205002) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
   create_table "minecrafts", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
-    t.integer  "user_id",                                                           null: false
-    t.string   "name",                         limit: 255,                          null: false
+    t.integer  "user_id",                                       null: false
+    t.string   "name",               limit: 255,                null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "minecraft_wrapper_password",   limit: 255,                          null: false
-    t.boolean  "autoshutdown_enabled",                     default: false,          null: false
-    t.datetime "autoshutdown_last_check"
-    t.datetime "autoshutdown_last_successful"
-    t.string   "flavour",                      limit: 255, default: "vanilla/null", null: false
-    t.string   "domain",                                                            null: false
+    t.string   "domain",                                        null: false
+    t.string   "pending_operation"
+    t.integer  "ssh_port",                       default: 4022, null: false
+    t.string   "ssh_keys"
+    t.integer  "setup_stage",                    default: 0,    null: false
+    t.integer  "remote_id"
+    t.string   "remote_region_slug",                            null: false
+    t.string   "remote_size_slug",                              null: false
+    t.integer  "remote_snapshot_id"
   end
 
   add_index "minecrafts", ["domain"], name: "index_minecrafts_on_domain", unique: true, using: :btree
@@ -53,17 +56,14 @@ ActiveRecord::Schema.define(version: 20150216195829) do
   add_index "server_logs", ["minecraft_id"], name: "index_server_logs_on_minecraft_id", using: :btree
 
   create_table "servers", force: :cascade do |t|
-    t.integer  "remote_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.uuid     "minecraft_id",                                    null: false
-    t.string   "do_region_slug",       limit: 255,                null: false
-    t.string   "do_size_slug",         limit: 255,                null: false
-    t.integer  "do_saved_snapshot_id"
-    t.integer  "remote_setup_stage",               default: 0,    null: false
-    t.string   "pending_operation",    limit: 255
-    t.string   "ssh_keys",             limit: 255
-    t.integer  "ssh_port",                         default: 4022, null: false
+    t.uuid     "minecraft_id",                                 null: false
+    t.string   "flavour",                                      null: false
+    t.string   "mcsw_password",                                null: false
+    t.boolean  "autoshutdown_enabled",         default: false, null: false
+    t.datetime "autoshutdown_last_check",                      null: false
+    t.datetime "autoshutdown_last_successful",                 null: false
   end
 
   add_index "servers", ["minecraft_id"], name: "index_servers_on_minecraft_id", unique: true, using: :btree

@@ -2,17 +2,20 @@
 #
 # Table name: minecrafts
 #
-#  id                           :uuid             not null, primary key
-#  user_id                      :integer          not null
-#  name                         :string(255)      not null
-#  created_at                   :datetime
-#  updated_at                   :datetime
-#  minecraft_wrapper_password   :string(255)      not null
-#  autoshutdown_enabled         :boolean          default("false"), not null
-#  autoshutdown_last_check      :datetime
-#  autoshutdown_last_successful :datetime
-#  flavour                      :string(255)      default("vanilla/null"), not null
-#  domain                       :string           not null
+#  id                 :uuid             not null, primary key
+#  user_id            :integer          not null
+#  name               :string(255)      not null
+#  created_at         :datetime
+#  updated_at         :datetime
+#  domain             :string           not null
+#  pending_operation  :string
+#  ssh_port           :integer          default("4022"), not null
+#  ssh_keys           :string
+#  setup_stage        :integer          default("0"), not null
+#  remote_id          :integer
+#  remote_region_slug :string           not null
+#  remote_size_slug   :string           not null
+#  remote_snapshot_id :integer
 #
 
 class Minecraft < ActiveRecord::Base
