@@ -24,12 +24,11 @@ class PagesController < ApplicationController
     server.do_size_slug = '1gb'
     server.remote_setup_stage = 5
     server.remote_id = 1
-    server.server_domain = ServerDomain.new
-    server.server_domain.name = 'abcdefgh'
     @minecraft.server = server
     user = User.new
     user.digital_ocean_api_key = 'abc'
     @minecraft.user = user
+    @minecraft.domain = 'abcdefgh'
     @minecraft.autoshutdown_enabled = true
     @minecraft.autoshutdown_last_check = Time.now - 32.seconds
     @minecraft.autoshutdown_last_successful = Time.now - 32.seconds

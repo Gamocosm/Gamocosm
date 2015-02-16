@@ -8,10 +8,11 @@
 #  created_at                   :datetime
 #  updated_at                   :datetime
 #  minecraft_wrapper_password   :string(255)      not null
-#  autoshutdown_enabled         :boolean          default(FALSE), not null
+#  autoshutdown_enabled         :boolean          default("false"), not null
 #  autoshutdown_last_check      :datetime
 #  autoshutdown_last_successful :datetime
 #  flavour                      :string(255)      default("vanilla/null"), not null
+#  domain                       :string           not null
 #
 
 require 'test_helper'

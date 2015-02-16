@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150123042138) do
+ActiveRecord::Schema.define(version: 20150216195829) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,8 +27,10 @@ ActiveRecord::Schema.define(version: 20150123042138) do
     t.datetime "autoshutdown_last_check"
     t.datetime "autoshutdown_last_successful"
     t.string   "flavour",                      limit: 255, default: "vanilla/null", null: false
+    t.string   "domain",                                                            null: false
   end
 
+  add_index "minecrafts", ["domain"], name: "index_minecrafts_on_domain", unique: true, using: :btree
   add_index "minecrafts", ["user_id"], name: "index_minecrafts_on_user_id", using: :btree
 
   create_table "minecrafts_users", force: :cascade do |t|
@@ -39,14 +41,6 @@ ActiveRecord::Schema.define(version: 20150123042138) do
   add_index "minecrafts_users", ["minecraft_id", "user_id"], name: "index_minecrafts_users_on_minecraft_id_and_user_id", unique: true, using: :btree
   add_index "minecrafts_users", ["minecraft_id"], name: "index_minecrafts_users_on_minecraft_id", using: :btree
   add_index "minecrafts_users", ["user_id"], name: "index_minecrafts_users_on_user_id", using: :btree
-
-  create_table "server_domains", force: :cascade do |t|
-    t.integer "server_id",             null: false
-    t.string  "name",      limit: 255
-  end
-
-  add_index "server_domains", ["name"], name: "index_server_domains_on_name", unique: true, using: :btree
-  add_index "server_domains", ["server_id"], name: "index_server_domains_on_server_id", using: :btree
 
   create_table "server_logs", force: :cascade do |t|
     t.uuid     "minecraft_id",             null: false
@@ -96,7 +90,6 @@ ActiveRecord::Schema.define(version: 20150123042138) do
   add_foreign_key "minecrafts", "users", name: "minecrafts_user_id_fk", on_delete: :cascade
   add_foreign_key "minecrafts_users", "minecrafts", name: "minecrafts_users_minecraft_id_fk", on_delete: :cascade
   add_foreign_key "minecrafts_users", "users", name: "minecrafts_users_user_id_fk", on_delete: :cascade
-  add_foreign_key "server_domains", "servers", name: "server_domains_server_id_fk", on_delete: :cascade
   add_foreign_key "server_logs", "minecrafts", name: "server_logs_minecraft_id_fk", on_delete: :cascade
   add_foreign_key "servers", "minecrafts", name: "servers_minecraft_id_fk", on_delete: :cascade
 end

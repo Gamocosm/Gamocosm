@@ -34,8 +34,7 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'wait for starting server worker too many tries' do
-    @minecraft.server.create_server_domain
-    mock_cf_domain(@minecraft.server.server_domain.name, 64)
+    mock_cf_domain(@minecraft.domain, 64)
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times_only(64)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(64)
     WaitForStartingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
@@ -83,8 +82,7 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'wait for starting server worker remote in bad state after event' do
-    @minecraft.server.create_server_domain
-    mock_cf_domain(@minecraft.server.server_domain.name, 64)
+    mock_cf_domain(@minecraft.domain, 64)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'off').times_only(1)
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'completed').times_only(1)
     WaitForStartingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
@@ -454,8 +452,6 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'setup server worker remote error' do
-    @minecraft.server.create_server_domain
-    mock_cf_domain(@minecraft.server.server_domain.name, 64)
     mock_do_droplet_show(1).stub_do_droplet_show(400, nil).times_only(1)
     SetupServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id)
     SetupServerWorker.perform_one

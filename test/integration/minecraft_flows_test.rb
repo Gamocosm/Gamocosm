@@ -20,8 +20,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     login_user('test@test.com', '1234test')
     minecraft = create_server('test2', 'vanilla/1.8.1', 'nyc3', '512mb')
 
-    minecraft.server.create_server_domain
-    mock_cf_domain(minecraft.server.server_domain.name, 3)
+    mock_cf_domain(minecraft.domain, 2)
 
     start_server(minecraft, { motd: 'A Minecraft Server' })
     update_minecraft_properties(minecraft, { motd: 'A Gamocosm Minecraft Server' })

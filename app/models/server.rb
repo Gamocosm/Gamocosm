@@ -10,15 +10,14 @@
 #  do_region_slug       :string(255)      not null
 #  do_size_slug         :string(255)      not null
 #  do_saved_snapshot_id :integer
-#  remote_setup_stage   :integer          default(0), not null
+#  remote_setup_stage   :integer          default("0"), not null
 #  pending_operation    :string(255)
 #  ssh_keys             :string(255)
-#  ssh_port             :integer          default(4022), not null
+#  ssh_port             :integer          default("4022"), not null
 #
 
 class Server < ActiveRecord::Base
   belongs_to :minecraft
-  has_one :server_domain, dependent: :destroy
 
   validates :remote_id, numericality: { only_integer: true }, allow_nil: true
   validates :remote_setup_stage, numericality: { only_integer: true }
@@ -150,24 +149,11 @@ class Server < ActiveRecord::Base
     if ip_address.error?
       return ip_address
     end
-    if self.server_domain.nil?
-      while true do
-        begin
-          self.create_server_domain
-          break
-        rescue ActiveRecord::RecordNotUnique
-        end
-      end
-      return Gamocosm.cloudflare.dns_add(self.server_domain.name, ip_address)
-    end
-    return Gamocosm.cloudflare.dns_update(self.server_domain.name, ip_address)
+    return Gamocosm.cloudflare.dns_update(minecraft.domain, ip_address)
   end
 
   def remove_domain
-    if self.server_domain.nil?
-      return nil
-    end
-    return Gamocosm.cloudflare.dns_delete(self.server_domain.name)
+    return Gamocosm.cloudflare.dns_delete(minecraft.domain)
   end
 
 end

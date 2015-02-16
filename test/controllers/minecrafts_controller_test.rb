@@ -40,6 +40,7 @@ class MinecraftsControllerTest < ActionController::TestCase
 
   test 'create and destroy server' do
     mock_do_droplet_delete(200, 1)
+    mock_cloudflare.stub_cf_dns_list(200, 'success', [])
     sign_in @owner
     begin
       post :create, {
