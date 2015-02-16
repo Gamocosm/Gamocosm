@@ -23,11 +23,11 @@ class MinecraftsControllerTest < ActionController::TestCase
     get :index
     assert_response :success
     assert_select '.panel-title', 'Digital Ocean', 'No Digital Ocean panel'
-    assert_select 'option[value=512mb]'
-    assert_select 'option[value=1gb]'
-    assert_select 'option[value=2gb]'
-    assert_select 'option[value=nyc3]'
-    assert_select 'option[value=ams3]'
+    assert_select 'option[value="512mb"]'
+    assert_select 'option[value="1gb"]'
+    assert_select 'option[value="2gb"]'
+    assert_select 'option[value="nyc3"]'
+    assert_select 'option[value="ams3"]'
   end
 
   test 'servers page without digital ocean api token' do
@@ -61,6 +61,29 @@ class MinecraftsControllerTest < ActionController::TestCase
       assert_redirected_to minecrafts_path
       assert_equal 'Server is deleting', flash[:success], 'Minecraft delete not success'
       assert_equal 1, Minecraft.count, 'Minecraft not actually deleted'
+    ensure
+      Minecraft.destroy_all(name: 'test2')
+    end
+  end
+
+  test 'create server bad input' do
+    mock_do_base(200)
+    sign_in @owner
+    begin
+      post :create, {
+        minecraft: {
+          name: 'test2',
+          flavour: 'badness',
+          server_attributes: {
+            do_region_slug: 'ams3',
+            do_size_slug: '2gb',
+          },
+        },
+      }
+      assert_response :success
+      assert_equal 'Something went wrong. Please try again', flash[:error], 'Should have failed creating Minecraft with bad input'
+      assert_select 'span.help-block', 'Invalid flavour'
+
     ensure
       Minecraft.destroy_all(name: 'test2')
     end
@@ -196,6 +219,20 @@ class MinecraftsControllerTest < ActionController::TestCase
     assert_not_nil flash[:error], 'Advanced tab bad form, no error message'
   end
 
+  test 'autoshutdown disable' do
+    sign_in @owner
+    begin
+      @minecraft.update_columns(autoshutdown_enabled: true)
+      get :autoshutdown_disable, { id: @minecraft.id }
+      assert_redirected_to minecraft_path(@minecraft)
+      assert_equal 'Autoshutdown disabled', flash[:success], 'No success message about autoshutdown disabled'
+      @minecraft.reload
+      assert_not @minecraft.autoshutdown_enabled
+    ensure
+      @minecraft.update_columns(autoshutdown_enabled: false)
+    end
+  end
+
   test 'edit ssh keys' do
     sign_in @owner
     view_server @minecraft
@@ -327,7 +364,7 @@ class MinecraftsControllerTest < ActionController::TestCase
     get :show, { id: minecraft.id }
     assert_response :success
     advanced_tab.each do |k, v|
-      assert_select "#minecraft_server_attributes_#{k}[value=?]", v
+      assert_select "#minecraft_server_attributes_#{k}[value=\"#{v}\"]"
     end
   end
 
@@ -399,7 +436,7 @@ class MinecraftsControllerTest < ActionController::TestCase
     mock_do_ssh_key_add().stub_do_ssh_key_add(200, 'me', 'a b c')
     sign_in @owner
     request.host = 'example.com'
-    request.env['HTTP_REFERER'] = Rails.application.routes.url_helpers.minecraft_path(@minecraft, only_path: false, host: 'example.com')
+    request.env['HTTP_REFERER'] = minecraft_path(@minecraft)
     post :add_digital_ocean_ssh_key, {
       id: @minecraft.id,
       digital_ocean_ssh_key: {
@@ -408,7 +445,6 @@ class MinecraftsControllerTest < ActionController::TestCase
       },
     }
     assert_redirected_to minecraft_path(@minecraft)
-    view_server @minecraft
     assert_match /added ssh public key/i, flash[:success], 'Adding Digital Ocean SSH key not success'
   end
 
@@ -416,12 +452,32 @@ class MinecraftsControllerTest < ActionController::TestCase
     mock_do_ssh_key_delete(204, 1)
     sign_in @owner
     request.host = 'example.com'
-    request.env['HTTP_REFERER'] = Rails.application.routes.url_helpers.minecraft_path(@minecraft, only_path: false, host: 'example.com')
+    request.env['HTTP_REFERER'] = minecraft_path(@minecraft)
     post :destroy_digital_ocean_ssh_key, {
       id: 1,
     }
     assert_redirected_to minecraft_path(@minecraft)
-    view_server @minecraft
+    assert_match /deleted ssh public key/i, flash[:success], 'Deleting Digital Ocean SSH key not success'
+  end
+
+  test 'add/destroy digital ocean ssh key no referer' do
+    mock_do_base(200)
+    mock_do_ssh_key_add().stub_do_ssh_key_add(200, 'me', 'a b c')
+    mock_do_ssh_key_delete(204, 1)
+    sign_in @owner
+    post :add_digital_ocean_ssh_key, {
+      id: @minecraft.id,
+      digital_ocean_ssh_key: {
+        name: 'me',
+        data: 'a b c',
+      },
+    }
+    assert_redirected_to minecrafts_path
+    assert_match /added ssh public key/i, flash[:success], 'Adding Digital Ocean SSH key not success'
+    post :destroy_digital_ocean_ssh_key, {
+      id: 1,
+    }
+    assert_redirected_to minecrafts_path
     assert_match /deleted ssh public key/i, flash[:success], 'Deleting Digital Ocean SSH key not success'
   end
 

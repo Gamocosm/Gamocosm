@@ -88,7 +88,7 @@ class CloudFlare::Client
       end
       return parse_response(res)
     rescue Faraday::Error => e
-      msg = "CloudFlare API exception: #{e}"
+      msg = "CloudFlare API network exception: #{e}"
       Rails.logger.error msg
       Rails.logger.error e.backtrace.join("\n")
       return msg.error!

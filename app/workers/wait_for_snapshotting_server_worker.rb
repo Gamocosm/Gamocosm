@@ -52,7 +52,6 @@ class WaitForSnapshottingServerWorker
       end
       server.update_columns(pending_operation: nil)
     rescue => e
-      server = Server.find(server_id)
       server.minecraft.log("Background job waiting for snapshotting server failed: #{e}")
       server.reset_partial
       raise

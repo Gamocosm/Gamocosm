@@ -51,7 +51,6 @@ class WaitForStoppingServerWorker
       server.update_columns(pending_operation: 'saving')
       WaitForSnapshottingServerWorker.perform_in(4.seconds, user_id, server_id, action.id)
     rescue => e
-      server = Server.find(server_id)
       server.minecraft.log("Background job waiting for stopping server failed: #{e}")
       server.reset_partial
       raise

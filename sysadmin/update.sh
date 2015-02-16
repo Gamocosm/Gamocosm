@@ -20,8 +20,9 @@ RAILS_ENV=test ./run.sh rake db:migrate
 ./run.sh rake db:migrate
 
 TIMESTAMP="$(date +'%Y_%m_%d-%H:%M')"
-mv log/production.log "log/production.$TIMESTAMP.log"
-mv log/sidekiq.log "log/sidekiq.$TIMESTAMP.log"
+mkdir -p log/archive
+mv log/production.log "log/archive/production.$TIMESTAMP.log"
+mv log/sidekiq.log "log/archive/sidekiq.$TIMESTAMP.log"
 
 touch tmp/restart.txt
 

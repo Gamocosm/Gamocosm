@@ -60,8 +60,6 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'wait for starting server worker remote error' do
-    @minecraft.server.create_server_domain
-    mock_cf_domain(@minecraft.server.server_domain.name, 64)
     mock_do_droplet_show(1).stub_do_droplet_show(400, nil).times_only(1)
     WaitForStartingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
     WaitForStartingServerWorker.perform_one
@@ -73,8 +71,6 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'wait for starting server worker event error' do
-    @minecraft.server.create_server_domain
-    mock_cf_domain(@minecraft.server.server_domain.name, 64)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1)
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(400, nil).times_only(1)
     WaitForStartingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
@@ -443,5 +439,66 @@ class WorkersTest < ActiveSupport::TestCase
     assert_nil @minecraft.server.ssh_keys, 'Setup server worker should have added and reset ssh keys'
     assert_equal 1, StartMinecraftWorker.jobs.size, 'Setup server worker should have queued Start Minecraft worker'
     StartMinecraftWorker.jobs.clear
+  end
+
+  # for some reason something doesn't like an apostrophe in "doesn't", even though it's ok elsewhere
+  test 'setup server worker remote doesnt exist' do
+    @minecraft.server.update_columns(remote_id: nil)
+    SetupServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id)
+    SetupServerWorker.perform_one
+    assert_equal 0, SetupServerWorker.jobs.size, 'Worker should have failed and exited'
+    @minecraft.reload
+    assert_equal 1, @minecraft.logs.count, 'Should have one server log'
+    assert_match /error starting server; remote_id is nil/i, @minecraft.logs.first.message
+    assert_not @minecraft.server.busy?, 'Worker should have reset server'
+  end
+
+  test 'setup server worker remote error' do
+    @minecraft.server.create_server_domain
+    mock_cf_domain(@minecraft.server.server_domain.name, 64)
+    mock_do_droplet_show(1).stub_do_droplet_show(400, nil).times_only(1)
+    SetupServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id)
+    SetupServerWorker.perform_one
+    assert_equal 0, SetupServerWorker.jobs.size, 'Worker should have failed and exited'
+    @minecraft.reload
+    assert_equal 1, @minecraft.logs.count, 'Should have one server log'
+    assert_match /error communicating with digital ocean while starting server/i, @minecraft.logs.first.message
+    assert_not @minecraft.server.busy?, 'Worker should have reset server'
+  end
+
+  test 'wait for starting server worker event failed' do
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1)
+    mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'errored').times_only(1)
+    WaitForStartingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
+    WaitForStartingServerWorker.perform_one
+    assert_equal 0, WaitForStartingServerWorker.jobs.size, 'Worker should have failed and exited'
+    @minecraft.reload
+    assert_equal 1, @minecraft.logs.count, 'Should have one server log'
+    assert_match /starting server on digital ocean failed/i, @minecraft.logs.first.message
+    assert_not @minecraft.server.busy?, 'Worker should have reset server'
+  end
+
+  test 'wait for stopping server worker event failed' do
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1)
+    mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'errored').times_only(1)
+    WaitForStoppingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
+    WaitForStoppingServerWorker.perform_one
+    assert_equal 0, WaitForStoppingServerWorker.jobs.size, 'Worker should have failed and exited'
+    @minecraft.reload
+    assert_equal 1, @minecraft.logs.count, 'Should have one server log'
+    assert_match /stopping server on digital ocean failed/i, @minecraft.logs.first.message
+    assert_not @minecraft.server.busy?, 'Worker should have reset server'
+  end
+
+  test 'wait for snapshotting server worker event failed' do
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1)
+    mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'errored').times_only(1)
+    WaitForSnapshottingServerWorker.perform_in(0.seconds, @minecraft.user_id, @minecraft.server.id, 1)
+    WaitForSnapshottingServerWorker.perform_one
+    assert_equal 0, WaitForSnapshottingServerWorker.jobs.size, 'Worker should have failed and exited'
+    @minecraft.reload
+    assert_equal 1, @minecraft.logs.count, 'Should have one server log'
+    assert_match /snapshotting server on digital ocean failed/i, @minecraft.logs.first.message
+    assert_not @minecraft.server.busy?, 'Worker should have reset server'
   end
 end

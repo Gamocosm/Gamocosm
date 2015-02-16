@@ -58,7 +58,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     wait_for_starting_server minecraft
     view_server(minecraft, properties)
   end
-
+=begin
   def stop_server(minecraft)
     get stop_minecraft_path(minecraft)
     assert_redirected_to minecraft_path(minecraft)
@@ -73,7 +73,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select 'p', /start server to edit minecraft settings/i
   end
-
+=end
   def create_server(name, flavour, do_region_slug, do_size_slug)
     old_minecrafts_count = Minecraft.count
     post minecrafts_path, { minecraft: { name: name, flavour: flavour, server_attributes: { do_region_slug: do_region_slug, do_size_slug: do_size_slug } } }
@@ -118,7 +118,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     assert_response :success
     view_server(minecraft, properties, false)
   end
-
+=begin
   def add_friend_to_server(minecraft, friend_email)
     post add_friend_minecraft_path(minecraft), { minecraft_friend: { email: friend_email } }
     assert_redirected_to minecraft_path(minecraft)
@@ -136,7 +136,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     assert_not_nil flash[:success]
     assert_select 'td', { text: friend_email, count: 0 }
   end
-
+=end
   def login_user(email, password)
     mock_do_droplets_list(200, []).times_only(1)
     mock_do_images_list(200, []).times_only(1)
@@ -153,7 +153,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
   end
-
+=begin
   def signup_user(email, password)
     post user_registration_path, { user: { email: email, password: password, password_confirmation: password } }
     assert_redirected_to minecrafts_path
@@ -161,7 +161,7 @@ class MinecraftFlowsTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal 'Welcome! You have signed up successfully.', flash[:notice]
   end
-
+=end
   def enable_autoshutdown_server(minecraft)
     mock_mcsw_properties_fetch(minecraft).stub_mcsw_properties_fetch(200, {}).times_only(1)
     get autoshutdown_enable_minecraft_path(minecraft)

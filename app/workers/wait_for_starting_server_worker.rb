@@ -16,7 +16,6 @@ class WaitForStartingServerWorker
         server.reset_partial
         return
       end
-      server.refresh_domain
       event = user.digital_ocean.droplet_action_show(server.remote_id, digital_ocean_action_id)
       if event.error?
         server.minecraft.log("Error with Digital Ocean start server action #{digital_ocean_action_id}; #{event}. Aborting")
@@ -26,7 +25,9 @@ class WaitForStartingServerWorker
         server.minecraft.log("Starting server on Digital Ocean failed: #{event}. Aborting")
         server.reset_partial
         return
-      elsif !event.done?
+      end
+      server.refresh_domain
+      if !event.done?
         times += 1
         if times >= 64
           server.minecraft.log('Digital Ocean took too long to start server. Aborting')

@@ -146,6 +146,10 @@ class Server < ActiveRecord::Base
   end
 
   def refresh_domain
+    ip_address = remote.ip_address
+    if ip_address.error?
+      return ip_address
+    end
     if self.server_domain.nil?
       while true do
         begin
@@ -154,9 +158,9 @@ class Server < ActiveRecord::Base
         rescue ActiveRecord::RecordNotUnique
         end
       end
-      return Gamocosm.cloudflare.dns_add(self.server_domain.name, self.remote.ip_address)
+      return Gamocosm.cloudflare.dns_add(self.server_domain.name, ip_address)
     end
-    return Gamocosm.cloudflare.dns_update(self.server_domain.name, self.remote.ip_address)
+    return Gamocosm.cloudflare.dns_update(self.server_domain.name, ip_address)
   end
 
   def remove_domain

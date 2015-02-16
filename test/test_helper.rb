@@ -71,7 +71,7 @@ class ActiveSupport::TestCase
 
   # WebMock helpers that include response
   def mock_do_base(status)
-    # DigitalOcean::Connection doesn't have its own file; make sure we load digital_ocean/connection.rb where it's located
+    # ensure file loaded
     DigitalOcean::Connection
     mock_digital_ocean(:get, '/sizes').to_return_json(status, { sizes: DigitalOcean::Size::DEFAULT_SIZES })
     mock_digital_ocean(:get, '/regions').to_return_json(status, { regions: DigitalOcean::Region::DEFAULT_REGIONS })

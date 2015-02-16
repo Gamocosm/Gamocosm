@@ -153,7 +153,7 @@ module DigitalOcean
         self.class.action_from_response(res['action'])
       end
     end
-
+=begin
     def droplet_power_on(id)
       silence do
         res = do_droplet_action(id, 'power_on', {})
@@ -163,7 +163,7 @@ module DigitalOcean
         self.class.action_from_response(res['action'])
       end
     end
-
+=end
     def droplet_action_show(droplet_id, action_id)
       silence do
         res = do_get("droplets/#{droplet_id}/actions/#{action_id}")

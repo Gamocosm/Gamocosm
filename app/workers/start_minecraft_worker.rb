@@ -30,7 +30,6 @@ class StartMinecraftWorker
       end
       server.update_columns(pending_operation: nil)
     rescue => e
-      server = Server.find(server_id)
       server.minecraft.log("Background job starting Minecraft failed: #{e}")
       server.reset_partial
       raise

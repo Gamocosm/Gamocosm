@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ "$1" == "--source" ]]; then
+	source "$HOME/.bash_profile"
+	shift
+fi
+
 source env.sh
 rvm use 2.2
 
