@@ -1,18 +1,18 @@
 module Mock
   class Mocker
-    def mock_minecraft(minecraft)
-      class << minecraft
-        def node
-          @node ||= Minecraft::Node.new
+    def mock_server(server)
+      class << server
+        def remote
+          @remote ||= ServerRemote.new(self)
         end
       end
-      minecraft
+      server
     end
   end
 
-  class Server < ::Server
-    def remote
-      @remote ||= ServerRemote.new(self)
+  class Minecraft < ::Minecraft
+    def node
+      @node ||= Minecraft::Node.new
     end
   end
 
@@ -25,14 +25,12 @@ module Mock
     end
   end
 
-  module Minecraft
-    class Node
-      def pid
-        1
-      end
-      def properties
-        ::Minecraft::Properties::DEFAULT_PROPERTIES
-      end
+  class Minecraft::Node
+    def pid
+      1
+    end
+    def properties
+      ::Minecraft::Properties::DEFAULT_PROPERTIES
     end
   end
 end

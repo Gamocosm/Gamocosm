@@ -3,7 +3,7 @@ require 'test_helper'
 class MCSWTest < ActiveSupport::TestCase
 
   def setup
-    @minecraft = Minecraft.first
+    @minecraft = Server.first.minecraft
   end
 
   test 'http timeout' do

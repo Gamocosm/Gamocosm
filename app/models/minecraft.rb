@@ -2,43 +2,30 @@
 #
 # Table name: minecrafts
 #
-#  id                 :uuid             not null, primary key
-#  user_id            :integer          not null
-#  name               :string(255)      not null
-#  created_at         :datetime
-#  updated_at         :datetime
-#  domain             :string           not null
-#  pending_operation  :string
-#  ssh_port           :integer          default("4022"), not null
-#  ssh_keys           :string
-#  setup_stage        :integer          default("0"), not null
-#  remote_id          :integer
-#  remote_region_slug :string           not null
-#  remote_size_slug   :string           not null
-#  remote_snapshot_id :integer
+#  id                           :integer          not null, primary key
+#  created_at                   :datetime
+#  updated_at                   :datetime
+#  server_id                    :uuid             not null
+#  flavour                      :string           not null
+#  mcsw_password                :string           not null
+#  autoshutdown_enabled         :boolean          default("false"), not null
+#  autoshutdown_last_check      :datetime         not null
+#  autoshutdown_last_successful :datetime         not null
 #
 
 class Minecraft < ActiveRecord::Base
-  belongs_to :user
-  has_one :server, dependent: :destroy
-  has_and_belongs_to_many :friends, foreign_key: 'minecraft_id', class_name: 'User', dependent: :destroy
-  has_many :logs, foreign_key: 'minecraft_id', class_name: 'ServerLog', dependent: :destroy
-
-  validates :name, length: { in: 3...64 }
-  validates :name, format: { with: /\A[a-z][a-z0-9-]*[a-z0-9]\z/, message: 'Name must start with a letter, and end with a letter or number. May include letters, numbers, and dashes in between' }
+  belongs_to :server
 
   after_initialize :after_initialize_callback
   before_validation :before_validate_callback
 
-  accepts_nested_attributes_for :server
-
   def after_initialize_callback
-    self.minecraft_wrapper_password ||= SecureRandom.hex
-    self.domain ||= SecureRandom.uuid[0...8]
+    self.autoshutdown_last_check = Time.now
+    self.autoshutdown_last_successful = Time.now
+    self.mcsw_password ||= SecureRandom.hex
   end
 
   def before_validate_callback
-    self.name = self.name.strip.downcase.gsub(' ', '-')
     if self.new_record?
       if !Gamocosm::MINECRAFT_FLAVOURS.has_key?(self.flavour)
         self.errors.add(:flavour, 'Invalid flavour')
@@ -46,82 +33,8 @@ class Minecraft < ActiveRecord::Base
     end
   end
 
-  def running?
-    return server.running? && !node.error? && node.pid > 0
-  end
-
-  def resume?
-    if !server.running?
-      return 'Server not running'
-    end
-    if node.error?
-      return node.pid
-    end
-    if node.pid > 0
-      return 'Minecraft already running'
-    end
-    return nil
-  end
-
-  def pause?
-    if !server.running?
-      return 'Server not running'
-    end
-    if node.error?
-      return node.pid
-    end
-    if !(node.pid > 0)
-      return 'Minecraft already stopped'
-    end
-    return nil
-  end
-
-  def backup?
-    if !server.running?
-      return 'Server not running'
-    end
-    if node.error?
-      return node.pid
-    end
-    if node.pid > 0
-      return 'Minecraft is running'
-    end
-    return nil
-  end
-
-  def download?
-    return backup?
-  end
-
-  def start
-    error = server.start?
-    if error
-      return error
-    end
-    return server.start
-  end
-
-  def stop
-    error = server.stop?
-    if error
-      return error
-    end
-    return server.stop
-  end
-
-  def reboot
-    error = server.reboot?
-    if error
-      return error
-    end
-    return server.reboot
-  end
-
-  def world_download_url
-    if server.running?
-      return "http://#{Gamocosm::MCSW_USERNAME}:#{minecraft_wrapper_password}@#{server.remote.ip_address}:#{Minecraft::Node::MCSW_PORT}/download_world"
-    end
-    return nil
+  def flavour_info
+    return Gamocosm::MINECRAFT_FLAVOURS[self.flavour]
   end
 
   def node
@@ -142,28 +55,106 @@ class Minecraft < ActiveRecord::Base
     return @properties
   end
 
-  def flavour_info
-    return Gamocosm::MINECRAFT_FLAVOURS[self.flavour]
-  end
-
-  def owner?(someone)
-    if new_record?
-      return true
+  def world_download_url
+    if server.running?
+      return "http://#{Gamocosm::MCSW_USERNAME}:#{mcsw_password}@#{server.remote.ip_address}:#{Minecraft::Node::MCSW_PORT}/download_world"
     end
-    return someone.id == user_id
+    return nil
   end
 
-  def friend?(someone)
-    return friends.exists?(someone.id)
+  def running?
+    return server.running? && !node.error? && node.pid > 0
   end
 
-  def log(message)
-    where = caller[0].split(':')
-    logs.create(message: message, debuginfo: Pathname.new(where[0]).relative_path_from(Rails.root).to_s + ':' + where.drop(1).join(':'))
+  def resume
+    error = resume?
+    if error
+      return error
+    end
+    return node.resume
   end
 
-  def log_test(message)
-    log(message)
+  def pause
+    error = pause?
+    if error
+      return error
+    end
+    return node.pause
   end
 
+  def exec(current_user, command)
+    error = exec?(current_user)
+    if error
+      return error
+    end
+    return node.exec(command)
+  end
+
+  def backup
+    error = backup?
+    if error
+      return error
+    end
+    return node.backup
+  end
+
+  def resume?
+    if !server.running?
+      return 'Server not running'
+    end
+    if node.error?
+      return node.pid
+    end
+    if node.pid > 0
+      return nil
+    end
+    return nil
+  end
+
+  def pause?
+    if !server.running?
+      return 'Server not running'
+    end
+    if node.error?
+      return node.pid
+    end
+    if !(node.pid > 0)
+      return nil
+    end
+    return nil
+  end
+
+  def exec?(current_user)
+    if !server.owner?(current_user)
+      return 'Only the server owner can execute commands'
+    end
+    # the next three are the same as !running?
+    if !server.running?
+      return 'Server not running'
+    end
+    if node.error?
+      return node.pid
+    end
+    if !(node.pid > 0)
+      return 'Minecraft not running'
+    end
+    return nil
+  end
+
+  def backup?
+    if !server.running?
+      return 'Server not running'
+    end
+    if node.error?
+      return node.pid
+    end
+    if node.pid > 0
+      return 'Minecraft is running'
+    end
+    return nil
+  end
+
+  def download?
+    backup?
+  end
 end

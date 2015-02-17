@@ -1,0 +1,14 @@
+<br />
+<%= simple_form_for @server, (@demo.nil? ? { url: server_path(@server), method: :put } : { html: { onsubmit: 'return false;' } }) do |f| %>
+	<%= panel_with_heading 'Advanced Configuration' do %>
+		View the documentation for these fields on the <%= link_to 'wiki', wiki_server_advanced_tab_path %>.
+		<br /><br />
+		<%= f.input :ssh_port, label: 'SSH port' %>
+		<%= f.input :pending_operation %>
+		<%= f.input :setup_stage %>
+		<%= f.input :remote_snapshot_id, label: 'Digital Ocean saved snapshot id' %>
+		<%= f.input :remote_region_slug, label: 'Digital Ocean region slug' %>
+		<%= f.input :remote_size_slug, label: 'Digital Ocean size slug' %>
+		<%= f.button :submit, 'Update', class: 'btn btn-success' %>
+	<% end %>
+<% end %>

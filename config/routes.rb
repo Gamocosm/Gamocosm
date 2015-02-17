@@ -40,14 +40,14 @@ Rails.application.routes.draw do
     match '/control_panel' => redirect('https://cloud.digitalocean.com'), as: :digital_ocean_control_panel, via: :get
     match '/status' => redirect('https://status.digitalocean.com'), as: :digital_ocean_status, via: :get
 
-    get 'droplets', to: 'minecrafts#show_digital_ocean_droplets', as: :show_digital_ocean_droplets
-    delete 'droplets/:id', to: 'minecrafts#destroy_digital_ocean_droplet', as: :destroy_digital_ocean_droplet
-    get 'snapshots', to: 'minecrafts#show_digital_ocean_snapshots', as: :show_digital_ocean_snapshots
-    delete 'snapshots/:id', to: 'minecrafts#destroy_digital_ocean_snapshot', as: :destroy_digital_ocean_snapshot
-    get 'ssh_keys', to: 'minecrafts#show_digital_ocean_ssh_keys', as: :show_digital_ocean_ssh_keys
-    post 'ssh_keys', to: 'minecrafts#add_digital_ocean_ssh_key', as: :add_digital_ocean_ssh_key
-    delete 'ssh_keys/:id', to: 'minecrafts#destroy_digital_ocean_ssh_key', as: :destroy_digital_ocean_ssh_key
-    delete 'cache', to: 'minecrafts#refresh_digital_ocean_cache', as: :refresh_digital_ocean_cache
+    get 'droplets', to: 'servers#show_digital_ocean_droplets', as: :show_digital_ocean_droplets
+    delete 'droplets/:id', to: 'servers#destroy_digital_ocean_droplet', as: :destroy_digital_ocean_droplet
+    get 'snapshots', to: 'servers#show_digital_ocean_snapshots', as: :show_digital_ocean_snapshots
+    delete 'snapshots/:id', to: 'servers#destroy_digital_ocean_snapshot', as: :destroy_digital_ocean_snapshot
+    get 'ssh_keys', to: 'servers#show_digital_ocean_ssh_keys', as: :show_digital_ocean_ssh_keys
+    post 'ssh_keys', to: 'servers#add_digital_ocean_ssh_key', as: :add_digital_ocean_ssh_key
+    delete 'ssh_keys/:id', to: 'servers#destroy_digital_ocean_ssh_key', as: :destroy_digital_ocean_ssh_key
+    delete 'cache', to: 'servers#refresh_digital_ocean_cache', as: :refresh_digital_ocean_cache
   end
 
   scope '/mcserver' do
@@ -62,7 +62,7 @@ Rails.application.routes.draw do
 
   devise_for :users, controllers: { registrations: 'registrations' }
 
-  resources :minecrafts, path: '/servers' do
+  resources :servers, path: '/servers' do
     member do
       get 'start'
       get 'stop'

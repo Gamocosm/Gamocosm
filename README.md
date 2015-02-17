@@ -136,7 +136,7 @@ Hmmmm.
 - Reset the state of the server if anything goes wrong (any exit points)
 - Check that the remote exists and is not errored
 - Log errors to user minecraft server, include 'Aborting' when not finishing
-- 'Aborting' should always be followed by `server.reset_partial` and `return`
+- 'Aborting' should always be followed by `server.reset_state` and `return`
 
 #### Other useful stuff
 - Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `env.sh`

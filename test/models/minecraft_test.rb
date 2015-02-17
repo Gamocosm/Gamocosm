@@ -2,20 +2,15 @@
 #
 # Table name: minecrafts
 #
-#  id                 :uuid             not null, primary key
-#  user_id            :integer          not null
-#  name               :string(255)      not null
-#  created_at         :datetime
-#  updated_at         :datetime
-#  domain             :string           not null
-#  pending_operation  :string
-#  ssh_port           :integer          default("4022"), not null
-#  ssh_keys           :string
-#  setup_stage        :integer          default("0"), not null
-#  remote_id          :integer
-#  remote_region_slug :string           not null
-#  remote_size_slug   :string           not null
-#  remote_snapshot_id :integer
+#  id                           :integer          not null, primary key
+#  created_at                   :datetime
+#  updated_at                   :datetime
+#  server_id                    :uuid             not null
+#  flavour                      :string           not null
+#  mcsw_password                :string           not null
+#  autoshutdown_enabled         :boolean          default("false"), not null
+#  autoshutdown_last_check      :datetime         not null
+#  autoshutdown_last_successful :datetime         not null
 #
 
 require 'test_helper'
@@ -30,8 +25,5 @@ class MinecraftTest < ActiveSupport::TestCase
   end
 
   def teardown
-  end
-
-  test 'log messages' do
   end
 end

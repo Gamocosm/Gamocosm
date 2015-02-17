@@ -4,13 +4,13 @@
 	<strong>If you are not a server admin, you can ignore this.</strong>
 	Read more about it <%= link_to 'here', digital_ocean_setup_path %>.
 <% else %>
-	<%= simple_form_for @minecraft, url: minecrafts_path do |f| %>
+	<%= simple_form_for @server, url: servers_path do |f| %>
 		<%= f.input :name, input_html: { size: 32 }, required: true %>
-		<%= f.simple_fields_for :server do |s_f| %>
-			<%= s_f.input :do_size_slug, collection: @do_sizes.collect { |x| [x.descriptor, x.slug] }, as: :select, include_blank: false, label: 'Size' %>
-			<%= s_f.input :do_region_slug, collection: @do_regions.collect { |x| [x.name, x.slug] }, as: :select, include_blank: false, label: 'Region (higher tier better)' %>
+		<%= f.input :remote_size_slug, collection: @do_sizes.collect { |x| [x.descriptor, x.slug] }, as: :select, include_blank: false, label: 'Size' %>
+		<%= f.input :remote_region_slug, collection: @do_regions.collect { |x| [x.name, x.slug] }, as: :select, include_blank: false, label: 'Region (higher tier better)' %>
+		<%= f.simple_fields_for :minecraft do |s_f| %>
+			<%= s_f.input :flavour, collection: Gamocosm::MINECRAFT_FLAVOURS.collect { |k, v| [v[:name], k] }, as: :select, include_blank: false, label: 'Minecraft flavour', required: true %>
 		<% end %>
-		<%= f.input :flavour, collection: Gamocosm::MINECRAFT_FLAVOURS.collect { |k, v| [v[:name], k] }, as: :select, include_blank: false, label: 'Minecraft flavour', required: true %>
 		<div>
 			<%= render partial: 'flavour', collection: Gamocosm::MINECRAFT_FLAVOURS.map { |k, v| [k, v] } %>
 		</div>

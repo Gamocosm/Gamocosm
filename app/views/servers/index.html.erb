@@ -21,11 +21,15 @@
 				</tr>
 			</thead>
 			<tbody>
-			<% if @minecrafts.blank? && @friend_minecrafts.blank? %>
-				<%= render 'empty' %>
+			<% if @servers.blank? && @servers.blank? %>
+				<tr>
+					<td colspan="3" class="text-center">
+						<em>You have no servers</em>
+					</td>
+				</tr>
 			<% else %>
-				<%= render partial: 'minecraft', collection: @minecrafts %>
-				<%= render partial: 'minecraft', collection: @friend_minecrafts %>
+				<%= render partial: 'server', collection: @servers %>
+				<%= render partial: 'server', collection: @friend_servers %>
 			<% end %>
 			</tbody>
 		</table>

@@ -11,7 +11,7 @@ class PagesControllerTest < ActionController::TestCase
   test "demo page" do
     get :demo
     assert_response :success
-    assert_select '.panel-body', /active/
+    assert_select '.panel-body', /Active/
     assert_select '.panel-body', /abcdefgh/
     assert_select '.panel-body', /12\.34\.56\.78/
     assert_select '.panel-title', 'Send Command to Server'

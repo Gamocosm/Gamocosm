@@ -16,16 +16,17 @@ end
 user = User.first
 user.update_columns(digital_ocean_api_key: Gamocosm::DIGITAL_OCEAN_API_KEY)
 
+s = Server.new
+s.name = 'test'
+s.user = user
+s.remote_region_slug = 'nyc3'
+s.remote_size_slug = '512mb'
+
 mc = Minecraft.new
-mc.name = 'test'
-mc.user = User.find(1)
 mc.flavour = Gamocosm::MINECRAFT_FLAVOURS.first[0]
 
-server = Server.new
-server.do_region_slug = 'nyc3'
-server.do_size_slug = '512mb'
-mc.server = server
+s.minecraft = mc
 
-mc.friends << User.find(2)
+s.friends << User.find(2)
 
-mc.save!
+s.save!

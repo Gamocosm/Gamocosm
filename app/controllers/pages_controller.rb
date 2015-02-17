@@ -17,21 +17,24 @@ class PagesController < ApplicationController
   end
 
   def demo
-    @minecraft = Mock::Mocker.new.mock_minecraft(Minecraft.new)
-    server = Mock::Server.new
-    server.minecraft = @minecraft
-    server.do_region_slug = 'nyc3'
-    server.do_size_slug = '1gb'
-    server.remote_setup_stage = 5
-    server.remote_id = 1
-    @minecraft.server = server
+    @server = Mock::Mocker.new.mock_server(Server.new)
+    @server.domain = 'abcdefgh'
+    @server.remote_region_slug = 'nyc3'
+    @server.remote_size_slug = '1gb'
+    @server.setup_stage = 5
+    @server.remote_id = 1
+
+    minecraft = Mock::Minecraft.new
+    minecraft.server = @server
+    minecraft.autoshutdown_enabled = true
+    minecraft.autoshutdown_last_check = Time.now - 32.seconds
+    minecraft.autoshutdown_last_successful = Time.now - 32.seconds
+    @server.minecraft = minecraft
+
     user = User.new
     user.digital_ocean_api_key = 'abc'
-    @minecraft.user = user
-    @minecraft.domain = 'abcdefgh'
-    @minecraft.autoshutdown_enabled = true
-    @minecraft.autoshutdown_last_check = Time.now - 32.seconds
-    @minecraft.autoshutdown_last_successful = Time.now - 32.seconds
+    @server.user = user
+
     @demo = true
   end
 

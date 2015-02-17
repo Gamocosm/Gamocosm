@@ -24,8 +24,8 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
-  has_many :minecrafts, dependent: :destroy
-  has_and_belongs_to_many :friend_minecrafts, foreign_key: 'user_id', class_name: 'Minecraft'
+  has_many :servers, dependent: :destroy
+  has_and_belongs_to_many :friend_servers, foreign_key: 'user_id', class_name: 'Server', dependent: :destroy
 
   before_validation :before_validate_callback
 

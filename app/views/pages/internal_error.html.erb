@@ -10,7 +10,7 @@
 		<ul>
 			<li><%= link_to 'Home page', root_path %></li>
 			<% if begin user_signed_in? rescue false end %>
-				<li><%= link_to 'My servers', minecrafts_path %></li>
+				<li><%= link_to 'My servers', servers_path %></li>
 			<% end %>
 		</ul>
 	</div>

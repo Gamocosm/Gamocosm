@@ -65,7 +65,7 @@ class Minecraft::Properties
     response = @minecraft.node.properties
     if response.error?
       @error = response
-      @minecraft.log("Error getting Minecraft properties: #{response}")
+      @minecraft.server.log("Error getting Minecraft properties: #{response}")
       error!
     else
       refresh_properties(response)

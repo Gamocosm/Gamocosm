@@ -1,7 +1,7 @@
 class ServerRemote
   def initialize(server)
     @server = server
-    @user = server.minecraft.user
+    @user = @server.user
     @con = @user.digital_ocean
   end
 
@@ -48,7 +48,7 @@ class ServerRemote
     if ssh_key_id.error?
       return ssh_key_id
     end
-    res = @con.droplet_create(@server.host_name, @server.do_region_slug, @server.do_size_slug, @server.do_saved_snapshot_id || Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG, [ssh_key_id])
+    res = @con.droplet_create(@server.host_name, @server.remote_region_slug, @server.remote_size_slug, @server.remote_snapshot_id || Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG, [ssh_key_id])
     if res.error?
       return res
     end
@@ -89,10 +89,10 @@ class ServerRemote
   end
 
   def destroy_saved_snapshot
-    if @server.do_saved_snapshot_id.nil?
+    if @server.remote_snapshot_id.nil?
       return nil
     end
-    res = @con.image_delete(@server.do_saved_snapshot_id)
+    res = @con.image_delete(@server.remote_snapshot_id)
     if res.error?
       return "Error destroying snapshot on Digital Ocean: #{res}"
     end

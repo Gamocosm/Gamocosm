@@ -11,13 +11,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150216205002) do
+ActiveRecord::Schema.define(version: 20150216221129) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
-  create_table "minecrafts", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
+  create_table "minecrafts", force: :cascade do |t|
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.uuid     "server_id",                                    null: false
+    t.string   "flavour",                                      null: false
+    t.string   "mcsw_password",                                null: false
+    t.boolean  "autoshutdown_enabled",         default: false, null: false
+    t.datetime "autoshutdown_last_check",                      null: false
+    t.datetime "autoshutdown_last_successful",                 null: false
+  end
+
+  add_index "minecrafts", ["server_id"], name: "index_minecrafts_on_server_id", unique: true, using: :btree
+
+  create_table "server_logs", force: :cascade do |t|
+    t.uuid     "server_id",              null: false
+    t.text     "message",                null: false
+    t.string   "debuginfo",  limit: 255, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "server_logs", ["server_id"], name: "index_server_logs_on_server_id", using: :btree
+
+  create_table "servers", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
     t.integer  "user_id",                                       null: false
     t.string   "name",               limit: 255,                null: false
     t.datetime "created_at"
@@ -33,40 +56,17 @@ ActiveRecord::Schema.define(version: 20150216205002) do
     t.integer  "remote_snapshot_id"
   end
 
-  add_index "minecrafts", ["domain"], name: "index_minecrafts_on_domain", unique: true, using: :btree
-  add_index "minecrafts", ["user_id"], name: "index_minecrafts_on_user_id", using: :btree
+  add_index "servers", ["domain"], name: "index_servers_on_domain", unique: true, using: :btree
+  add_index "servers", ["user_id"], name: "index_servers_on_user_id", using: :btree
 
-  create_table "minecrafts_users", force: :cascade do |t|
-    t.uuid    "minecraft_id"
+  create_table "servers_users", force: :cascade do |t|
+    t.uuid    "server_id"
     t.integer "user_id"
   end
 
-  add_index "minecrafts_users", ["minecraft_id", "user_id"], name: "index_minecrafts_users_on_minecraft_id_and_user_id", unique: true, using: :btree
-  add_index "minecrafts_users", ["minecraft_id"], name: "index_minecrafts_users_on_minecraft_id", using: :btree
-  add_index "minecrafts_users", ["user_id"], name: "index_minecrafts_users_on_user_id", using: :btree
-
-  create_table "server_logs", force: :cascade do |t|
-    t.uuid     "minecraft_id",             null: false
-    t.text     "message",                  null: false
-    t.string   "debuginfo",    limit: 255, null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "server_logs", ["minecraft_id"], name: "index_server_logs_on_minecraft_id", using: :btree
-
-  create_table "servers", force: :cascade do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.uuid     "minecraft_id",                                 null: false
-    t.string   "flavour",                                      null: false
-    t.string   "mcsw_password",                                null: false
-    t.boolean  "autoshutdown_enabled",         default: false, null: false
-    t.datetime "autoshutdown_last_check",                      null: false
-    t.datetime "autoshutdown_last_successful",                 null: false
-  end
-
-  add_index "servers", ["minecraft_id"], name: "index_servers_on_minecraft_id", unique: true, using: :btree
+  add_index "servers_users", ["server_id", "user_id"], name: "index_servers_users_on_server_id_and_user_id", unique: true, using: :btree
+  add_index "servers_users", ["server_id"], name: "index_servers_users_on_server_id", using: :btree
+  add_index "servers_users", ["user_id"], name: "index_servers_users_on_user_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  limit: 255, default: "", null: false
@@ -87,9 +87,9 @@ ActiveRecord::Schema.define(version: 20150216205002) do
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
-  add_foreign_key "minecrafts", "users", name: "minecrafts_user_id_fk", on_delete: :cascade
-  add_foreign_key "minecrafts_users", "minecrafts", name: "minecrafts_users_minecraft_id_fk", on_delete: :cascade
-  add_foreign_key "minecrafts_users", "users", name: "minecrafts_users_user_id_fk", on_delete: :cascade
-  add_foreign_key "server_logs", "minecrafts", name: "server_logs_minecraft_id_fk", on_delete: :cascade
-  add_foreign_key "servers", "minecrafts", name: "servers_minecraft_id_fk", on_delete: :cascade
+  add_foreign_key "minecrafts", "servers", on_delete: :cascade
+  add_foreign_key "server_logs", "servers", on_delete: :cascade
+  add_foreign_key "servers", "users", on_delete: :cascade
+  add_foreign_key "servers_users", "servers", on_delete: :cascade
+  add_foreign_key "servers_users", "users", on_delete: :cascade
 end

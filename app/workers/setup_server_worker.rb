@@ -22,18 +22,18 @@ class SetupServerWorker
     'tmux',
   ]
 
-  def perform(user_id, server_id, times = 0)
+  def perform(server_id, times = 0)
     server = Server.find(server_id)
-    user = User.find(user_id)
+    user = server.user
     begin
       if !server.remote.exists?
-        server.minecraft.log('Error starting server; remote_id is nil. Aborting')
-        server.reset_partial
+        server.log('Error starting server; remote_id is nil. Aborting')
+        server.reset_state
         return
       end
       if server.remote.error?
-        server.minecraft.log("Error communicating with Digital Ocean while starting server: #{server.remote.error}. Aborting")
-        server.reset_partial
+        server.log("Error communicating with Digital Ocean while starting server: #{server.remote.error}. Aborting")
+        server.reset_state
         return
       end
       host = SSHKit::Host.new(server.remote.ip_address.to_s)
@@ -56,18 +56,18 @@ class SetupServerWorker
         Rails.logger.error "Debugging #{self.class}: SSHKit error cause to_s: #{e.cause}"
         Rails.logger.error "Debugging #{self.class}: SSHKit error cause inspect: #{e.cause.inspect}"
         if times == 11
-          server.minecraft.log('Error connecting to server; failed to SSH. Aborting')
-          server.reset_partial
+          server.log('Error connecting to server; failed to SSH. Aborting')
+          server.reset_state
           return
         end
         if e.cause.is_a?(Timeout::Error)
-          server.minecraft.log("Server started, but timed out while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
-          SetupServerWorker.perform_in(16.seconds, user_id, server_id, times + 1)
+          server.log("Server started, but timed out while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
+          SetupServerWorker.perform_in(16.seconds, server_id, times + 1)
           return
         end
         if e.cause.is_a?(Errno::EHOSTUNREACH)
-          server.minecraft.log("Server started, but unreachable while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
-          SetupServerWorker.perform_in(16.seconds, user_id, server_id, times + 1)
+          server.log("Server started, but unreachable while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
+          SetupServerWorker.perform_in(16.seconds, server_id, times + 1)
           return
         end
         raise
@@ -76,21 +76,21 @@ class SetupServerWorker
         self.base_update(user, server, host)
         self.add_ssh_keys(user, server, host)
       else
-        server.update_columns(remote_setup_stage: 1)
+        server.update_columns(setup_stage: 1)
         self.base_install(user, server, host)
-        server.update_columns(remote_setup_stage: 2)
+        server.update_columns(setup_stage: 2)
         self.add_ssh_keys(user, server, host)
-        server.update_columns(remote_setup_stage: 3)
+        server.update_columns(setup_stage: 3)
         self.install_minecraft(user, server, host)
         self.install_mcsw(user, server, host)
-        server.update_columns(remote_setup_stage: 4)
+        server.update_columns(setup_stage: 4)
         self.modify_ssh_port(user, server, host)
       end
-      server.update_columns(remote_setup_stage: 5)
+      server.update_columns(setup_stage: 5)
       StartMinecraftWorker.perform_in(4.seconds, server_id)
     rescue => e
-      server.minecraft.log("Background job setting up server failed: #{e}")
-      server.reset_partial
+      server.log("Background job setting up server failed: #{e}")
+      server.reset_state
       raise
     end
   rescue ActiveRecord::RecordNotFound => e
@@ -98,7 +98,7 @@ class SetupServerWorker
   end
 
   def base_install(user, server, host)
-    mcuser_password_escaped = "#{user.email}+#{server.minecraft.name}".shell_escape
+    mcuser_password_escaped = "#{user.email}+#{server.name}".shell_escape
     begin
       Timeout::timeout(512) do
         on host do
@@ -155,7 +155,7 @@ class SetupServerWorker
     begin
       fi = server.minecraft.flavour_info
       if fi.nil?
-        server.minecraft.log("Flavour #{server.minecraft.flavour} not found! Installing default vanilla")
+        server.log("Flavour #{server.minecraft.flavour} not found! Installing default vanilla")
         server.minecraft.update_columns(flavour: Gamocosm::MINECRAFT_FLAVOURS.first[0])
         fi = Gamocosm::MINECRAFT_FLAVOURS.first[1]
       end
@@ -189,7 +189,7 @@ class SetupServerWorker
   def install_mcsw(user, server, host)
     mcsw_git_url = Gamocosm::MCSW_GIT_URL
     mcsw_username = Gamocosm::MCSW_USERNAME
-    mcsw_password = server.minecraft.minecraft_wrapper_password
+    mcsw_password = server.minecraft.mcsw_password
     begin
       Timeout::timeout(16) do
         on host do
@@ -243,7 +243,7 @@ class SetupServerWorker
     server.ssh_keys.split(',').each do |key_id|
       key = user.digital_ocean.ssh_key_show(key_id)
       if key.error?
-        server.minecraft.log(key)
+        server.log(key)
       else
         key_contents.push(key.public_key.shell_escape)
       end

@@ -3,8 +3,8 @@
 	FTP and SSH instructions are on the <%= link_to 'wiki', wiki_ftp_ssh_path %>.
 	<br /><br />
 	<dl>
-		<dt>Host</dt><dd><%= render_minecraft_ip_address(@minecraft, 'Your server\'s IP address when running') %></dd>
-		<dt>Port</dt><dd>default 4022 (can be changed under the "Advanced" tab)</dd>
+		<dt>Host</dt><dd><%= render_server_ip_address(@server, 'Your server\'s IP address when running') %></dd>
+		<dt>Port</dt><dd><%= @server.ssh_port %></dd>
 		<dt>User</dt><dd>mcuser</dd>
 		<dt>Password</dt>
 		<dd><ul>
@@ -29,10 +29,8 @@
 	<p>
 		The next time you start your server, Gamocosm will add these keys to your list of authorized keys (and reset this field)
 	</p>
-	<%= simple_form_for @minecraft, (@demo.nil? ? { url: minecraft_path(@minecraft), method: :put } : { html: { onsubmit: 'return false;' } }) do |f| %>
-		<%= f.simple_fields_for :server do |s_f| %>
-			<%= s_f.input :ssh_keys, label: false, hint: 'Comma separated list of Digital Ocean SSH key IDs (spaces will be stripped)' %>
-		<% end %>
+	<%= simple_form_for @server, (@demo.nil? ? { url: server_path(@server), method: :put } : { html: { onsubmit: 'return false;' } }) do |f| %>
+		<%= f.input :ssh_keys, label: false, hint: 'Comma separated list of Digital Ocean SSH key IDs (spaces will be stripped)' %>
 		<%= f.button :submit, 'Save', class: 'btn btn-default' %>
 	<% end %>
 	<hr />

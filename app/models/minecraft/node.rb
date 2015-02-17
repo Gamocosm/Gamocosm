@@ -9,7 +9,7 @@ class Minecraft::Node
     @port = MCSW_PORT
     @conn = Faraday.new(url: "http://#{@ip_address}:#{@port}") do |conn|
       conn.response :json
-      conn.basic_auth(Gamocosm::MCSW_USERNAME, @local_minecraft.minecraft_wrapper_password)
+      conn.basic_auth(Gamocosm::MCSW_USERNAME, @local_minecraft.mcsw_password)
       conn.adapter Faraday.default_adapter
     end
   end
@@ -28,7 +28,7 @@ class Minecraft::Node
         res = do_get(:pid)
         if res.error?
           @pid = res
-          @local_minecraft.log("Error getting Minecraft pid: #{res}")
+          @local_minecraft.server.log("Error getting Minecraft pid: #{res}")
         else
           @pid = res['pid']
         end

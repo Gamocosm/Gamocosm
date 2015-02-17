@@ -66,7 +66,7 @@ class ActiveSupport::TestCase
   end
 
   def mock_mcsw(verb, minecraft, endpoint)
-    return stub_request(verb, "http://#{Gamocosm::MCSW_USERNAME}:#{minecraft.minecraft_wrapper_password}@localhost:#{Minecraft::Node::MCSW_PORT}/#{endpoint}")
+    return stub_request(verb, "http://#{Gamocosm::MCSW_USERNAME}:#{minecraft.mcsw_password}@localhost:#{Minecraft::Node::MCSW_PORT}/#{endpoint}")
   end
 
   # WebMock helpers that include response
@@ -212,12 +212,12 @@ class WebMock::RequestStub
     })
   end
 
-  def stub_do_droplet_create(status, name, size, region)
+  def stub_do_droplet_create(status, name, size, region, image)
     return self.with_body_hash_including({
       name: "#{name}.minecraft.gamocosm",
       size: size,
       region: region,
-      image: Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG,
+      image: image,
       ssh_keys: ['1'],
     }).stub_do_droplet_show(status, 'new')
   end

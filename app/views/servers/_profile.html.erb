@@ -1,22 +1,22 @@
 <div class="row">
 	<div class="col-sm-6">
 		<%= panel_with_heading 'Domain / IP Address' do %>
-			<%= render_minecraft_ip_address(@minecraft) %>
+			<%= render_server_ip_address(@server) %>
 			<br />
 			<%= link_to 'Learn more', info_path %>
 		<% end %>
 	</div>
 	<div class="col-sm-6">
 		<%=panel_with_heading 'Status' do %>
-			<%= render_server_status(@minecraft) %>
+			<%= render_server_status(@server) %>
 		<% end %>
 	</div>
 </div>
-<% if @minecraft.owner?(current_user) && @minecraft.running? %>
+<% if @server.minecraft.exec?(current_user).nil? %>
 	<div class="row">
 		<div class="col-sm-12">
 			<%= panel_with_heading 'Send Command to Server' do %>
-				<%= simple_form_for :command, (@demo.nil? ? { url: command_minecraft_path(@minecraft) } : { html: { onsubmit: 'return false;' } }) do |f| %>
+				<%= simple_form_for :command, (@demo.nil? ? { url: command_server_path(@server) } : { html: { onsubmit: 'return false;' } }) do |f| %>
 					<%= f.input :data, as: :string %>
 					<%= f.button :submit, 'Send', class: 'btn btn-success' %>
 				<% end %>
@@ -24,20 +24,20 @@
 		</div>
 	</div>
 <% end %>
-<% if @minecraft.owner?(current_user) %>
+<% if @server.owner?(current_user) %>
 	<div class="row">
 		<div class="col-sm-6">
 			<%= panel_with_heading 'Friends' do %>
 				<table class="table table-striped">
 					<tbody>
-						<% if @minecraft.friends.blank? %>
+						<% if @server.friends.blank? %>
 							<tr><td colspan="2"><em>Tell your friends to sign up and add them to your server to let them start and stop it when you're offline.</em></td></tr>
 						<% else %>
-							<%= render partial: 'friend', collection: @minecraft.friends %>
+							<%= render partial: 'friend', collection: @server.friends %>
 						<% end %>
 					</tbody>
 				</table>
-				<%= simple_form_for :minecraft_friend, (@demo.nil? ? { url: add_friend_minecraft_path(@minecraft), method: :post } : { html: { onsubmit: 'return false;' } }) do |f| %>
+				<%= simple_form_for :minecraft_friend, (@demo.nil? ? { url: add_friend_server_path(@server), method: :post } : { html: { onsubmit: 'return false;' } }) do |f| %>
 					<%= f.input :email %>
 					<%= f.button :submit, 'Add', class: 'btn btn-default' %>
 				<% end %>
@@ -45,20 +45,20 @@
 		</div>
 		<div class="col-sm-6">
 			<%= panel_with_heading 'Autoshutdown' do %>
-				Autoshutdown is <strong><%= @minecraft.autoshutdown_enabled ? 'enabled' : 'disabled' %></strong>
+				Autoshutdown is <strong><%= @server.minecraft.autoshutdown_enabled ? 'enabled' : 'disabled' %></strong>
 				<br />
-				Last check: <strong><%= @minecraft.autoshutdown_last_check.nil? ? 'n/a' : (time_ago_in_words(@minecraft.autoshutdown_last_check) + ' ago') %></strong>
+				Last check: <strong><%= time_ago_in_words(@server.minecraft.autoshutdown_last_check) + ' ago' %></strong>
 				<br />
-				Last successful check: <strong><%= @minecraft.autoshutdown_last_successful.nil? ? 'n/a' : (time_ago_in_words(@minecraft.autoshutdown_last_successful) + ' ago') %></strong>
+				Last successful check: <strong><%= time_ago_in_words(@server.minecraft.autoshutdown_last_successful) + ' ago' %></strong>
 				<br />
 				<% if @demo.nil? %>
-					<% if @minecraft.autoshutdown_enabled %>
-						<%= link_to 'Disable', autoshutdown_disable_minecraft_path(@minecraft), class: 'btn btn-success' %>
+					<% if @server.minecraft.autoshutdown_enabled %>
+						<%= link_to 'Disable', autoshutdown_disable_server_path(@server), class: 'btn btn-success' %>
 					<% else %>
-						<%= link_to 'Enable', autoshutdown_enable_minecraft_path(@minecraft), class: 'btn btn-success' %>
+						<%= link_to 'Enable', autoshutdown_enable_server_path(@server), class: 'btn btn-success' %>
 					<% end %>
 				<% else %>
-					<a class="btn btn-success">Enable</a>
+					<a class="btn btn-success">Disable</a>
 				<% end %>
 				<br />
 				<br />

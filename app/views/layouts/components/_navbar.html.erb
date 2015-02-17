@@ -17,7 +17,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <% if begin user_signed_in? rescue false end %>
-          <li><%= link_to 'Servers', minecrafts_path %></li>
+          <li><%= link_to 'Servers', servers_path %></li>
           <li><%= link_to 'Settings', edit_user_registration_path %></li>
           <li><%= link_to 'Logout', destroy_user_session_path, method: :delete %></li>
         <% else %>

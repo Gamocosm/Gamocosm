@@ -1,10 +1,10 @@
 <div class="row">
 	<div class="col-sm-12">
 		<%= panel_with_heading 'Server Log' do %>
-			<% if @minecraft.logs.count == 0 %>
+			<% if @server.logs.count == 0 %>
 				<em>No messages</em>
 			<% else %>
-				<% @minecraft.logs.order('created_at DESC').each do |x| %>
+				<% @server.logs.order('created_at DESC').each do |x| %>
 					<p><div>
 						<%= x.when %>
 						<div class="pull-right"><%= x.debuginfo %></div>
@@ -12,8 +12,8 @@
 						<%= x.message %>
 					</div></p>
 				<% end %>
-				<% if @minecraft.owner?(current_user) %>
-					<%= link_to 'Clear', clear_logs_minecraft_path(@minecraft), class: 'btn btn-default pull-right' %>
+				<% if @server.owner?(current_user) %>
+					<%= link_to 'Clear', clear_logs_server_path(@server), class: 'btn btn-default pull-right' %>
 				<% end %>
 			<% end %>
 		<% end %>
