@@ -1,5 +1,5 @@
 <tr>
-	<td><%= link_to server, server_path(server) %></td>
+	<td><%= link_to server.name, server_path(server) %></td>
 	<td colspan="2"><%= render_server_ip_address(server) %></td>
 	<td><%= render_server_status(server) %></td>
 </tr>
