@@ -20,6 +20,6 @@ class RegistrationsController < Devise::RegistrationsController
   end
 
   def after_sign_up_path_for(resource)
-    return server_path
+    return servers_path
   end
 end

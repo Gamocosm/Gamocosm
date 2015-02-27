@@ -20,8 +20,8 @@ class Minecraft < ActiveRecord::Base
   before_validation :before_validate_callback
 
   def after_initialize_callback
-    self.autoshutdown_last_check = Time.now
-    self.autoshutdown_last_successful = Time.now
+    self.autoshutdown_last_check ||= Time.now
+    self.autoshutdown_last_successful ||= Time.now
     self.mcsw_password ||= SecureRandom.hex
   end
 

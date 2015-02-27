@@ -240,7 +240,11 @@ module DigitalOcean
         if res.error?
           return res
         end
-        res['regions'].map { |x| self.class.region_from_response(x) }
+        res['regions'].map { |x| self.class.region_from_response(x) }.sort do |a, b|
+          a_tier = a.slug[-1].to_i
+          b_tier = b.slug[-1].to_i
+          a_tier == b_tier ? b.slug <=> a.slug : b_tier <=> a_tier
+        end
       end
     end
 

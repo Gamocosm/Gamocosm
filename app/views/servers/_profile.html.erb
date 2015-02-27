@@ -37,7 +37,7 @@
 						<% end %>
 					</tbody>
 				</table>
-				<%= simple_form_for :minecraft_friend, (@demo.nil? ? { url: add_friend_server_path(@server), method: :post } : { html: { onsubmit: 'return false;' } }) do |f| %>
+				<%= simple_form_for :server_friend, (@demo.nil? ? { url: add_friend_server_path(@server), method: :post } : { html: { onsubmit: 'return false;' } }) do |f| %>
 					<%= f.input :email %>
 					<%= f.button :submit, 'Add', class: 'btn btn-default' %>
 				<% end %>

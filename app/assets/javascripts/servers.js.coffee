@@ -4,7 +4,7 @@
 
 (($) ->
 	$ ->
-		minecraft_flavour = $('#minecraft_flavour')
+		minecraft_flavour = $('#server_minecraft_attributes_flavour')
 		minecraft_flavour_update = () ->
 			flavours = $('.minecraft_flavour-info')
 			flavours.hide()
