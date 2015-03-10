@@ -70,6 +70,11 @@ class SetupServerWorker
           SetupServerWorker.perform_in(16.seconds, server_id, times + 1)
           return
         end
+        if e.cause.is_a?(Errno::ECONNREFUSED)
+          server.log("Server started, but connection refused while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
+          SetupServerWorker.perform_in(16.seconds, server_id, times + 1)
+          return
+        end
         raise
       end
       if server.done_setup?

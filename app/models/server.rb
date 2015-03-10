@@ -40,7 +40,8 @@ class Server < ActiveRecord::Base
   accepts_nested_attributes_for :minecraft
 
   def after_initialize_callback
-    self.domain ||= SecureRandom.uuid[0...8]
+    chars = ('a'..'z').to_a
+    self.domain ||= (0...8).map { chars[rand(chars.length)] }.join
   end
 
   def before_validate_callback
