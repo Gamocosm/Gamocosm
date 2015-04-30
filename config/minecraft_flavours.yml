@@ -1,6 +1,6 @@
 vanilla:
     versions:
-        - { name: Vanilla (latest), tag: 1.8.1 }
+        - { name: Vanilla (1.8.4), tag: 1.8.4 }
         - { name: Vanilla (1.7.10), tag: 1.7.10 }
     time: 1
     developers:

@@ -14,7 +14,7 @@ class SetupServerWorker
   SYSTEM_PACKAGES = [
     'yum-plugin-security',
     'firewalld',
-    'java-1.7.0-openjdk-headless',
+    'java-1.8.0-openjdk-headless',
     'python3',
     'python3-devel',
     'python3-pip',
