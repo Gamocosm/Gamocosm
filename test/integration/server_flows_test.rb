@@ -18,7 +18,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
     mock_do_ssh_keys_list(200, []).times_only(1)
 
     login_user('test@test.com', '1234test')
-    server = create_server('test2', 'vanilla/1.8.1', 'nyc3', '512mb')
+    server = create_server('test2', 'vanilla/1.7.10', 'nyc3', '512mb')
 
     mock_cf_domain(server.domain, 2)
 

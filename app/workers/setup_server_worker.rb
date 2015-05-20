@@ -43,6 +43,8 @@ class SetupServerWorker
       host.ssh_options = {
         passphrase: Gamocosm::DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE,
         paranoid: false,
+        # how long to wait for initial connection
+        # `e.cause` will be `Timeout::Error`
         timeout: 4
       }
       begin
@@ -105,10 +107,10 @@ class SetupServerWorker
   def base_install(user, server, host)
     mcuser_password_escaped = "#{user.email}+#{server.name}".shell_escape
     begin
-      Timeout::timeout(512) do
-        on host do
+      on host do
+        Timeout::timeout(512) do
           within '/tmp/' do
-            if test '! id -u mcuser'
+            if ! test 'id -u mcuser'
               execute :adduser, '-m', 'mcuser'
             end
             execute :echo, mcuser_password_escaped, '|', :passwd, '--stdin', 'mcuser'
@@ -122,26 +124,30 @@ class SetupServerWorker
             end
             execute :yum, '-y', 'install', *SYSTEM_PACKAGES
             execute :yum, '-y', 'update', '--security'
-            execute 'firewall-cmd', '--add-port=5000/tcp'
-            execute 'firewall-cmd', '--permanent', '--add-port=5000/tcp'
-            execute 'firewall-cmd', '--add-port=25565/tcp'
-            execute 'firewall-cmd', '--permanent', '--add-port=25565/tcp'
-            execute 'firewall-cmd', '--add-port=25565/udp'
-            execute 'firewall-cmd', '--permanent', '--add-port=25565/udp'
+            execute :systemctl, 'start', 'firewalld'
+            execute :'firewall-cmd', '--add-port=5000/tcp'
+            execute :'firewall-cmd', '--permanent', '--add-port=5000/tcp'
+            execute :'firewall-cmd', '--add-port=25565/tcp'
+            execute :'firewall-cmd', '--permanent', '--add-port=25565/tcp'
+            execute :'firewall-cmd', '--add-port=25565/udp'
+            execute :'firewall-cmd', '--permanent', '--add-port=25565/udp'
             execute :rm, '-rf', '/tmp/pip_build_root'
-            execute 'python3-pip', 'install', 'flask'
+            execute :pip3, 'install', 'flask'
           end
         end
       end
-    rescue Timeout::Error => e
-      raise 'Server setup (SSH): took too long doing base setup'
+    rescue SSHKit::Runner::ExecuteError => e
+      if e.cause.is_a?(Timeout::Error)
+        raise 'Server setup (SSH): took too long doing base setup'
+      end
+      raise e
     end
   end
 
   def base_update(user, server, host)
     begin
-      Timeout::timeout(16) do
-        on host do
+      on host do
+        Timeout::timeout(16) do
           within '/opt/gamocosm/' do
             execute :su, 'mcuser', '-c', '"git checkout master"'
             execute :su, 'mcuser', '-c', '"git pull origin master"'
@@ -151,8 +157,11 @@ class SetupServerWorker
           end
         end
       end
-    rescue Timeout::Error
-      raise 'Server setup (SSH): took too long updating'
+    rescue SSHKit::Runner::ExecuteError => e
+      if e.cause.is_a?(Timeout::Error)
+        raise 'Server setup (SSH): took too long doing base setup'
+      end
+      raise e
     end
   end
 
@@ -167,9 +176,9 @@ class SetupServerWorker
       fv = server.minecraft.flavour.split('/')
       minecraft_script = "/tmp/gamocosm-minecraft-flavours/#{fv[0]}.sh"
       mc_flavours_git_url = Gamocosm::MINECRAFT_FLAVOURS_GIT_URL
-      # estimated minutes * 60 secs/minute * 2 (buffer)
-      Timeout::timeout(fi[:time] * 60 * 2) do
-        on host do
+      on host do
+        # estimated minutes * 60 secs/minute * 2 (buffer)
+        Timeout::timeout(fi[:time] * 60 * 2) do
           within '/tmp/' do
             execute :rm, '-rf', 'gamocosm-minecraft-flavours'
             execute :git, 'clone', mc_flavours_git_url, 'gamocosm-minecraft-flavours'
@@ -186,8 +195,11 @@ class SetupServerWorker
           end
         end
       end
-    rescue Timeout::Error
-      raise 'Server setup (SSH): took too long installing Minecraft'
+    rescue SSHKit::Runner::ExecuteError => e
+      if e.cause.is_a?(Timeout::Error)
+        raise 'Server setup (SSH): took too long doing base setup'
+      end
+      raise e
     end
   end
 
@@ -196,8 +208,8 @@ class SetupServerWorker
     mcsw_username = Gamocosm::MCSW_USERNAME
     mcsw_password = server.minecraft.mcsw_password
     begin
-      Timeout::timeout(16) do
-        on host do
+      on host do
+        Timeout::timeout(16) do
           within '/opt/' do
             execute :rm, '-rf', 'gamocosm'
             execute :git, 'clone', mcsw_git_url, 'gamocosm'
@@ -214,8 +226,11 @@ class SetupServerWorker
           end
         end
       end
-    rescue Timeout::Error
-      raise 'Server setup (SSH): took too long installing the Minecraft server wrapper'
+    rescue SSHKit::Runner::ExecuteError => e
+      if e.cause.is_a?(Timeout::Error)
+        raise 'Server setup (SSH): took too long doing base setup'
+      end
+      raise e
     end
   end
 
@@ -225,18 +240,24 @@ class SetupServerWorker
       return
     end
     begin
-      Timeout::timeout(8) do
-        on host do
+      on host do
+        Timeout::timeout(32) do
           within '/tmp/' do
-            execute 'firewall-cmd', "--add-port=#{ssh_port}/tcp"
-            execute 'firewall-cmd', '--permanent', "--add-port=#{ssh_port}/tcp"
+            execute :'firewall-cmd', "--add-port=#{ssh_port}/tcp"
+            execute :'firewall-cmd', '--permanent', "--add-port=#{ssh_port}/tcp"
+            if ! test "semanage port -l | grep ssh | grep -q #{ssh_port}"
+              execute :semanage, 'port', '-a', '-t', 'ssh_port_t', '-p', 'tcp', ssh_port
+            end
             execute :sed, '-i', "'s/^#Port 22$/Port #{ssh_port}/'", '/etc/ssh/sshd_config'
             execute :systemctl, 'restart', 'sshd'
           end
         end
       end
-    rescue Timeout::Error
-      raise 'Server setup (SSH): took too long changing SSH port'
+    rescue SSHKit::Runner::ExecuteError => e
+      if e.cause.is_a?(Timeout::Error)
+        raise 'Server setup (SSH): took too long doing base setup'
+      end
+      raise e
     end
   end
 
@@ -255,8 +276,8 @@ class SetupServerWorker
     end
     server.update_columns(ssh_keys: nil)
     begin
-      Timeout::timeout(32) do
-        on host do
+      on host do
+        Timeout::timeout(32) do
           within '/tmp/' do
             execute :mkdir, '-p', '/home/mcuser/.ssh/'
             key_contents.each do |key_escaped|
@@ -268,8 +289,11 @@ class SetupServerWorker
           end
         end
       end
-    rescue Timeout::Error
-      raise 'Server setup (SSH): took too long adding SSH keys from Digital Ocean'
+    rescue SSHKit::Runner::ExecuteError => e
+      if e.cause.is_a?(Timeout::Error)
+        raise 'Server setup (SSH): took too long doing base setup'
+      end
+      raise e
     end
   end
 end
