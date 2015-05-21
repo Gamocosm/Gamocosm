@@ -12,7 +12,7 @@
 			<br />
 			<div class="row">
 				<div class="col-sm-5 col-sm-offset-1">
-					<p>Full-fledged servers for family and friends at a fraction of the cost, and all the features.</p>
+					<p>Full-access servers for family and friends at a fraction of the cost, and all the features.</p>
 				</div>
 				<div class="col-sm-5">
 					<p>Minecraft in the cloud is per-hour and more flexible. Why pay 24/7 if you don't play 24/7?</p>
@@ -35,13 +35,13 @@
 			<br />
 			<div class="row">
 				<div class="col-sm-3 col-sm-offset-1">
-					<%= link_to 'What it looks like', demo_path, class: 'btn-lg btn-success' %>
+					<%= link_to 'Demo', demo_path, class: 'btn-lg btn-success' %>
 				</div>
 				<div class="col-sm-4">
 					<%= link_to 'Frequently Asked Questions <i class="fa fa-chevron-right"></i>'.html_safe, info_path, class: 'btn-lg btn-success' %>
 				</div>
 				<div class="col-sm-3">
-					<%= link_to 'Get started!', new_user_registration_path, class: 'btn-lg btn-success' %>
+					<%= link_to 'Sign up!', new_user_registration_path, class: 'btn-lg btn-success' %>
 				</div>
 			</div>
 			</div>
@@ -67,12 +67,12 @@
 </div>
 <div class="row text-right">
 	<div class="col-sm-8">
-		<h1>Digital Ocean is a general-purpose cloud hosting provider</h1>
+		<h1>Digital Ocean is a cloud hosting provider</h1>
 		<p>
-			Gamocosm sets up your servers on <%= render_digital_ocean_referral_link('%s (%s)', 'Digital Ocean', digital_ocean_index_path, digital_ocean_index_no_ref_path) %>.
-			It takes care of starting, stopping, backing up, and destroying servers so you only pay per-hour for what you use.
-			You pay Digital Ocean for running the servers (<%= render_digital_ocean_referral_link('%s, %s', 'pricing', digital_ocean_pricing_path, digital_ocean_pricing_no_ref_path) %>).
-			For a private server, you're looking at usually <strong><%= link_to '$0.50-$2', info_path %> a month</strong>.
+			They work with hundreds of thousands of developers and companies.
+			Gamocosm automates setting up and <%= link_to 'managing', info_path %> Minecraft servers on <%= render_digital_ocean_referral_link('%s (%s)', 'Digital Ocean', digital_ocean_index_path, digital_ocean_index_no_ref_path) %>,
+			so you only pay Digital Ocean for your hourly usage (<%= render_digital_ocean_referral_link('%s, %s', 'pricing', digital_ocean_pricing_path, digital_ocean_pricing_no_ref_path) %>).
+			Gamocosm users average <strong><%= link_to '$0.50-$2', info_path %> a month</strong>.
 		</p>
 	</div>
 	<div class="col-sm-4">
