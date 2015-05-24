@@ -11,8 +11,8 @@ Environment=RAILS_ENV=production
 PermissionsStartOnly=true
 ExecStartPre=/usr/bin/mkdir -p /var/run/http
 ExecStartPre=/usr/bin/chown http:http /var/run/http
-ExecStart=/var/www/gamocosm/run.sh --source --bundler sidekiq -d -L /var/www/gamocosm/log/sidekiq.log -P /run/http/gamocosm-sidekiq.pid
-ExecStop=/var/www/gamocosm/run.sh --source --bundler sidekiqctl stop /run/http/gamocosm-sidekiq.pid >> /var/www/gamocosm/log/sidekiq.log 2>&1
+ExecStart=/var/www/gamocosm/run.sh --bundler sidekiq -d -L /var/www/gamocosm/log/sidekiq.log -P /run/http/gamocosm-sidekiq.pid
+ExecStop=/var/www/gamocosm/run.sh --bundler sidekiqctl stop /run/http/gamocosm-sidekiq.pid >> /var/www/gamocosm/log/sidekiq.log 2>&1
 
 [Install]
 WantedBy=multi-user.target

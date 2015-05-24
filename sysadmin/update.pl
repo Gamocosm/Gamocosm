@@ -8,7 +8,7 @@ my $executable = "/var/www/gamocosm/sysadmin/update.sh";
 my @command = ("bash", $executable);
 
 if ($< != $http_pwnam[2]) {
-	@command = (("sudo", "--login", "-u", "http"), @command);
+	@command = (("sudo", "-u", "http"), @command);
 }
 
 exec(@command);

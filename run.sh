@@ -1,11 +1,8 @@
 #!/bin/bash
 
-if [[ "$1" == "--source" ]]; then
-	source "$HOME/.bash_profile"
-	shift
-fi
-
 source env.sh
+source "$HOME/.rvm/scripts/rvm"
+
 rvm use 2.2
 
 if [[ "$RAILS_ENV" == "production" ]] && [[ "$1" != "--bundler" ]]; then
@@ -15,4 +12,8 @@ else
 		shift
 	fi
 	bundle exec "$@"
+	# wait for pid file
+	if [[ "$RAILS_ENV" == "production" ]] && [[ "$1" == "sidekiq" ]]; then
+		sleep 1
+	fi
 fi
