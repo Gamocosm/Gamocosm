@@ -233,6 +233,7 @@ class ServersController < ApplicationController
 
   def destroy_digital_ocean_droplet
     error = current_user.digital_ocean.droplet_delete(params[:id])
+    current_user.invalidate_digital_ocean_cache_droplets
     if error
       return redirect_to servers_path, flash: { error: error }
     end
@@ -246,6 +247,7 @@ class ServersController < ApplicationController
 
   def destroy_digital_ocean_snapshot
     error = current_user.digital_ocean.image_delete(params[:id])
+    current_user.invalidate_digital_ocean_cache_snapshots
     if error
       return redirect_to servers_path, flash: { error: error }
     end
@@ -274,6 +276,7 @@ class ServersController < ApplicationController
 
   def destroy_digital_ocean_ssh_key
     error = current_user.digital_ocean.ssh_key_delete(params[:id])
+    current_user.invalidate_digital_ocean_cache_ssh_keys
     f = { success: 'Deleted SSH public key from Digital Ocean' }
     if error
       f = { error: error }

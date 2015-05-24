@@ -20,6 +20,7 @@ class SetupServerWorker
     'python3-pip',
     'git',
     'tmux',
+    'unzip',
   ]
 
   def perform(server_id, times = 0)
@@ -159,7 +160,7 @@ class SetupServerWorker
       end
     rescue SSHKit::Runner::ExecuteError => e
       if e.cause.is_a?(Timeout::Error)
-        raise 'Server setup (SSH): took too long doing base setup'
+        raise 'Server setup (SSH): took too long doing update'
       end
       raise e
     end
@@ -197,7 +198,7 @@ class SetupServerWorker
       end
     rescue SSHKit::Runner::ExecuteError => e
       if e.cause.is_a?(Timeout::Error)
-        raise 'Server setup (SSH): took too long doing base setup'
+        raise 'Server setup (SSH): took too long installing Minecraft'
       end
       raise e
     end
@@ -228,7 +229,7 @@ class SetupServerWorker
       end
     rescue SSHKit::Runner::ExecuteError => e
       if e.cause.is_a?(Timeout::Error)
-        raise 'Server setup (SSH): took too long doing base setup'
+        raise 'Server setup (SSH): took too long installing Minecraft Server Wrapper'
       end
       raise e
     end
@@ -241,7 +242,7 @@ class SetupServerWorker
     end
     begin
       on host do
-        Timeout::timeout(32) do
+        Timeout::timeout(64) do
           within '/tmp/' do
             execute :'firewall-cmd', "--add-port=#{ssh_port}/tcp"
             execute :'firewall-cmd', '--permanent', "--add-port=#{ssh_port}/tcp"
@@ -255,7 +256,7 @@ class SetupServerWorker
       end
     rescue SSHKit::Runner::ExecuteError => e
       if e.cause.is_a?(Timeout::Error)
-        raise 'Server setup (SSH): took too long doing base setup'
+        raise 'Server setup (SSH): took too long modifying SSH port'
       end
       raise e
     end
@@ -275,6 +276,9 @@ class SetupServerWorker
       end
     end
     server.update_columns(ssh_keys: nil)
+    if key_contents.empty?
+      return
+    end
     begin
       on host do
         Timeout::timeout(32) do
@@ -291,7 +295,7 @@ class SetupServerWorker
       end
     rescue SSHKit::Runner::ExecuteError => e
       if e.cause.is_a?(Timeout::Error)
-        raise 'Server setup (SSH): took too long doing base setup'
+        raise 'Server setup (SSH): took too long adding SSH keys'
       end
       raise e
     end

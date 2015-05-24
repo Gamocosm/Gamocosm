@@ -57,16 +57,24 @@ class User < ActiveRecord::Base
   end
 
   def invalidate
-    @digital_ocean_droplets = nil
-    @digital_ocean_snapshots = nil
-    Rails.cache.delete(self.digital_ocean_servers_cache)
-    Rails.cache.delete(self.digital_ocean_snapshots_cache)
+    self.invalidate_digital_ocean_cache_droplets
+    self.invalidate_digital_ocean_cache_snapshots
     self.invalidate_digital_ocean_cache_ssh_keys
   end
 
   def invalidate_digital_ocean_cache_ssh_keys
     @digital_ocean_ssh_keys = nil
     Rails.cache.delete(self.digital_ocean_ssh_keys_cache)
+  end
+
+  def invalidate_digital_ocean_cache_droplets
+    @digital_ocean_droplets = nil
+    Rails.cache.delete(self.digital_ocean_servers_cache)
+  end
+
+  def invalidate_digital_ocean_cache_snapshots
+    @digital_ocean_snapshots = nil
+    Rails.cache.delete(self.digital_ocean_snapshots_cache)
   end
 
   def digital_ocean_droplets
