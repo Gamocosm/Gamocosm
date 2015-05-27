@@ -15,10 +15,10 @@ class MCSWTest < ActiveSupport::TestCase
       @minecraft.server.update_columns(remote_id: 1)
       res = @minecraft.node.pid
       assert res.error?, 'Response should be an error'
-      assert_equal 'MCSW API network exception: execution expired', res, 'Response should be about a network exception'
+      assert_equal 'MCSW API network exception: execution expired', res.msg, 'Response should be about a network exception'
       res = @minecraft.node.resume
       assert res.error?, 'Response should be an error'
-      assert_equal 'MCSW API network exception: execution expired', res, 'Response should be about a network exception'
+      assert_equal 'MCSW API network exception: execution expired', res.msg, 'Response should be about a network exception'
     ensure
       @minecraft.server.update_columns(remote_id: nil)
     end
@@ -29,10 +29,9 @@ class MCSWTest < ActiveSupport::TestCase
     mock_mcsw_properties_fetch(@minecraft).stub_mcsw_properties_fetch(400, {}).times_only(1)
     begin
       @minecraft.server.update_columns(remote_id: 1)
-      p = @minecraft.properties
-      p.refresh
+      p = @minecraft.properties.refresh
       assert p.error?
-      assert_match /MCSW API error: HTTP response code 400/, p.error
+      assert_match /MCSW API error: HTTP response code 400/, p.msg
     ensure
       @minecraft.server.update_columns(remote_id: nil)
     end

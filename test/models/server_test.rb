@@ -61,7 +61,22 @@ class ServerTest < ActiveSupport::TestCase
       @server.update_columns(remote_id: 1)
       res = @server.refresh_domain
       assert res.error?, 'Should have error refreshing domain'
-      assert_match /Digital Ocean API error: HTTP response status not ok, was 400/, res, 'Should have error about Digital Ocean request'
+      assert_match /Digital Ocean API error: HTTP response status not ok, was 400/, res.msg, 'Should have error about Digital Ocean request'
+    ensure
+      @server.update_columns(remote_id: nil)
+    end
+  end
+
+  test 'stop already off server' do
+    mock_do_droplet_action(1).stub_do_droplet_action(422, 'shutdown').times_only(1)
+    mock_do_droplet_action(1).stub_do_droplet_action(200, 'snapshot').times_only(1)
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'off').times_only(1)
+    begin
+      @server.update_columns(remote_id: 1)
+      x = @server.stop
+      assert_nil x
+      assert_equal 1, WaitForSnapshottingServerWorker.jobs.count
+      WaitForSnapshottingServerWorker.jobs.clear
     ensure
       @server.update_columns(remote_id: nil)
     end

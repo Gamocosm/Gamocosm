@@ -22,6 +22,20 @@ class Minecraft::Node
     return pid.error?
   end
 
+  def query
+    if @querier.nil?
+      @querier = Minecraft::Querier.new(@ip_address)
+    end
+    return @querier.read_all
+  end
+
+  def num_players
+    if @querier.nil?
+      @querier = Minecraft::Querier.new(@ip_address)
+    end
+    return @querier.read_num_players
+  end
+
   def pid
     silence do
       if @pid.nil?
@@ -115,7 +129,7 @@ class Minecraft::Node
       msg = "MCSW API network exception: #{e}"
       Rails.logger.error msg
       Rails.logger.error e.backtrace.join("\n")
-      return msg.error!
+      return msg.error! e
     end
   end
 
@@ -132,18 +146,18 @@ class Minecraft::Node
       msg = "MCSW API network exception: #{e}"
       Rails.logger.error msg
       Rails.logger.error e.backtrace.join("\n")
-      return msg.error!
+      return msg.error! e
     end
   end
 
   def parse_response(res, endpoint)
     if res.status != 200
       msg = "MCSW API error: HTTP response code #{res.status}, #{res.body}"
-      return msg.error!
+      return msg.error! res
     end
     if !res.body['status'].nil?
       msg = "MCSW API error: action #{endpoint} response status not OK, was #{res.body['status']}, #{res.body}"
-      return msg.error!
+      return msg.error! res
     end
     return res.body
   end

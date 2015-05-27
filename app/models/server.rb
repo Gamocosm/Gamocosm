@@ -173,7 +173,18 @@ class Server < ActiveRecord::Base
     end
     action = remote.shutdown
     if action.error?
-      return action
+      # action `unprocesable_entity`, already off
+      if action.data.status == 422 && remote.status == 'off'
+        action = remote.snapshot
+        if action.error?
+          return action
+        end
+        self.update_columns(pending_operation: 'saving')
+        WaitForSnapshottingServerWorker.perform_in(16.seconds, id, action.id)
+        return nil
+      else
+        return action
+      end
     end
     self.update_columns(pending_operation: 'stopping')
     WaitForStoppingServerWorker.perform_in(16.seconds, id, action.id)

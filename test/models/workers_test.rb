@@ -108,6 +108,19 @@ class WorkersTest < ActiveSupport::TestCase
     assert_not @server.busy?, 'Worker should have reset server'
   end
 
+  test 'wait for stopping server worker action done but not off yet too many tries' do
+    mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'completed').times_only(32)
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(32)
+    WaitForStoppingServerWorker.perform_in(0.seconds, @server.id, 1)
+    for i in 0...16
+      WaitForStoppingServerWorker.perform_one
+    end
+    assert_equal 1, @server.logs.count, 'Should have one server log'
+    WaitForStoppingServerWorker.drain
+    assert_equal 17, @server.logs.count, 'Should have 16 server logs'
+    assert_not @server.busy?, 'Worker should have reset server'
+  end
+
   test 'wait for stopping server worker remote doesnt exist' do
     @server.update_columns(remote_id: nil)
     WaitForStoppingServerWorker.perform_in(0.seconds, @server.id, 1)
@@ -139,18 +152,6 @@ class WorkersTest < ActiveSupport::TestCase
     @server.reload
     assert_equal 1, @server.logs.count, 'Should have one server log'
     assert_match /error with digital ocean stop server action/i, @server.logs.first.message
-    assert_not @server.busy?, 'Worker should have reset server'
-  end
-
-  test 'wait for stopping server worker remote in bad state after event' do
-    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1)
-    mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'completed').times_only(1)
-    WaitForStoppingServerWorker.perform_in(0.seconds, @server.id, 1)
-    WaitForStoppingServerWorker.perform_one
-    assert_equal 0, WaitForStoppingServerWorker.jobs.size, 'Worker should have failed and exited'
-    @server.reload
-    assert_equal 1, @server.logs.count, 'Should have one server log'
-    assert_match /finished stopping server on digital ocean, but remote status was active/i, @server.logs.first.message
     assert_not @server.busy?, 'Worker should have reset server'
   end
 

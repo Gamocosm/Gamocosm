@@ -46,7 +46,7 @@ class AutoshutdownMinecraftWorker
         self.handle_success(server, 0, last_check_successful, last_check_has_players, times)
         return
       end
-      num_players = Minecraft::Querier.new(server.remote.ip_address).read_num_players
+      num_players = minecraft.node.num_players
       if num_players.nil?
         server.log('Error querying Minecraft server')
         self.handle_failure(server, last_check_successful, times)

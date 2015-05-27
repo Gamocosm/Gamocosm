@@ -25,7 +25,7 @@ class WaitForStoppingServerWorker
         server.log("Stopping server on Digital Ocean failed: #{event}. Aborting")
         server.reset_state
         return
-      elsif !event.done?
+      elsif !event.done? || server.remote.status != 'off'
         times += 1
         if times >= 32
           server.log('Digital Ocean took too long to stop server. Aborting')
@@ -37,11 +37,6 @@ class WaitForStoppingServerWorker
         WaitForStoppingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times)
         return
       end
-      if server.remote.status != 'off'
-        server.log("Finished stopping server on Digital Ocean, but remote status was #{server.remote.status} (not 'off'). Aborting")
-        server.reset_state
-        return
-      end
       action = server.remote.snapshot
       if action.error?
         server.log("Error snapshotting server on Digital Ocean; #{action}. Aborting")
@@ -49,7 +44,7 @@ class WaitForStoppingServerWorker
         return
       end
       server.update_columns(pending_operation: 'saving')
-      WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, action.id)
+      WaitForSnapshottingServerWorker.perform_in(16.seconds, server_id, action.id)
     rescue => e
       server.log("Background job waiting for stopping server failed: #{e}")
       server.reset_state

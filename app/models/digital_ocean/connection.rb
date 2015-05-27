@@ -321,7 +321,7 @@ module DigitalOcean
 
     def make_request(verb, endpoint, query, body)
       if @con.nil?
-        return 'You have not entered your Digital Ocean API token'.error!
+        return 'You have not entered your Digital Ocean API token'.error! nil
       end
       begin
         res = case verb
@@ -347,19 +347,19 @@ module DigitalOcean
         end
         if res.status == 401
           msg = "Unable to authenticate your Digital Ocean API token"
-          return msg.error!
+          return msg.error! nil
         elsif res.status / 100 == 2
           return res.body
         else
           msg = "Digital Ocean API error: HTTP response status not ok, was #{res.status}, #{res.inspect}"
           Rails.logger.error msg
-          return msg.error!
+          return msg.error! res
         end
       rescue Faraday::Error => e
         msg = "Digital Ocean API network exception: #{e}"
         Rails.logger.error msg
         Rails.logger.error e.backtrace.join("\n")
-        return msg.error!
+        return msg.error! e
       end
     end
 

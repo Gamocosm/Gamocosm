@@ -57,16 +57,11 @@ class Minecraft::Properties
     @minecraft = minecraft
   end
 
-  def error
-    return @error
-  end
-
   def refresh
     response = @minecraft.node.properties
     if response.error?
-      @error = response
       @minecraft.server.log("Error getting Minecraft properties: #{response}")
-      error!
+      return response
     else
       refresh_properties(response)
     end

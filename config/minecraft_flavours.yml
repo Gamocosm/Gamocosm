@@ -1,6 +1,6 @@
 vanilla:
     versions:
-        - { name: Vanilla (1.8.5), tag: 1.8.5 }
+        - { name: Vanilla (1.8.6), tag: 1.8.6 }
         - { name: Vanilla (1.7.10), tag: 1.7.10 }
         - { name: Vanilla (1.7.2), tag: 1.7.2 }
         - { name: Vanilla (1.6.4), tag: 1.6.4 }
@@ -23,6 +23,7 @@ mc-server:
     notes: []
 forge:
     versions:
+        - { name: Forge (1.8), tag: 1.8-11.14.1.1412 }
         - { name: Forge (1.7.10), tag: 1.7.10-10.13.2.1230 }
     time: 1
     developers:

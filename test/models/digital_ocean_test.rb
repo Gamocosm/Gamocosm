@@ -10,14 +10,14 @@ class DigitalOceanTest < ActiveSupport::TestCase
     c = DigitalOcean::Connection.new(nil)
     res = c.droplet_list
     assert res.error?
-    assert_equal 'You have not entered your Digital Ocean API token', res
+    assert_equal 'You have not entered your Digital Ocean API token', res.msg
   end
 
   test 'size list' do
     mock_digital_ocean(:get, '/sizes').to_timeout.times_only(2)
     res = @con.size_list_uncached
     assert res.error?
-    assert_match 'Digital Ocean API network exception: execution expired', res
+    assert_match 'Digital Ocean API network exception: execution expired', res.msg
     res = @con.size_list
     assert_equal DigitalOcean::Size::DEFAULT_SIZES, res
   end
@@ -26,7 +26,7 @@ class DigitalOceanTest < ActiveSupport::TestCase
     mock_do_base(400)
     res = @con.region_list_uncached
     assert res.error?
-    assert_match /Digital Ocean API error: HTTP response status not ok, was 400/, res
+    assert_match /Digital Ocean API error: HTTP response status not ok, was 400/, res.msg
     res = @con.region_list
     assert_equal DigitalOcean::Region::DEFAULT_REGIONS, res
   end

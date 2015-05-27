@@ -2,10 +2,6 @@ class Object
   def error?
     false
   end
-  def error!
-    self.define_singleton_method(:error?) { true }
-    self
-  end
   def silence(&block)
     begin
       return block.call
@@ -14,8 +10,24 @@ class Object
       Rails.logger.error msg
       Rails.logger.error e.backtrace.join("\n")
       ExceptionNotifier.notify_exception(e)
-      return msg.error!
+      return msg.error! e
     end
+  end
+end
+
+class Error
+  attr_reader :data
+  attr_reader :msg
+
+  def initialize(data, msg)
+    @data = data
+    @msg = msg
+  end
+  def error?
+    true
+  end
+  def to_s
+    msg
   end
 end
 
@@ -23,12 +35,12 @@ class NilClass
   def clean
     nil
   end
-  def error!
-    raise 'Cannot make nil an error!'
-  end
 end
 
 class String
+  def error!(data)
+    Error.new(data, self)
+  end
   def clean
     s = self.strip
     return s.blank? ? nil : s.downcase

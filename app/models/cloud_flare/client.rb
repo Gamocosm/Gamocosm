@@ -91,7 +91,7 @@ class CloudFlare::Client
       msg = "CloudFlare API network exception: #{e}"
       Rails.logger.error msg
       Rails.logger.error e.backtrace.join("\n")
-      return msg.error!
+      return msg.error! e
     end
   end
 
@@ -99,12 +99,12 @@ class CloudFlare::Client
     if res.status != 200
       msg = "CloudFlare API error: HTTP response code #{res.status}, #{res.body}"
       Rails.logger.error msg
-      return msg.error!
+      return msg.error! res
     end
     if res.body['result'] != 'success'
       msg = "CloudFlare API error: response result #{res.body['result']}, #{res.body}"
       Rails.logger.error msg
-      return msg.error!
+      return msg.error! res
     end
     return res.body['response']
   end

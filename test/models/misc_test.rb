@@ -7,8 +7,5 @@ class MiscTest < ActiveSupport::TestCase
       1 / 0
     end
     assert x.error?, 'Silence should have caught exception and set return value to error'
-    assert_raises(RuntimeError) do
-      nil.error!
-    end
   end
 end
