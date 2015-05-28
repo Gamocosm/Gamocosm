@@ -53,22 +53,7 @@ class Minecraft::Properties
     :spawn_protection,
     :white_list
 
-  def initialize(minecraft)
-    @minecraft = minecraft
-  end
-
-  def refresh
-    response = @minecraft.node.properties
-    if response.error?
-      @minecraft.server.log("Error getting Minecraft properties: #{response}")
-      return response
-    else
-      refresh_properties(response)
-    end
-    self
-  end
-
-  def refresh_properties(response)
+  def initialize(response)
     self.allow_flight = response['allow-flight']
     self.allow_nether = response['allow-nether']
     self.announce_player_achievements = response['announce-player-achievements']
@@ -93,14 +78,5 @@ class Minecraft::Properties
     self.spawn_npcs = response['spawn-npcs']
     self.spawn_protection = response['spawn-protection']
     self.white_list = response['white-list']
-  end
-
-  def update(properties)
-    response = @minecraft.node.update_properties(properties)
-    if response.error?
-      return response
-    end
-    refresh_properties(response)
-    return nil
   end
 end

@@ -49,7 +49,13 @@ class Minecraft < ActiveRecord::Base
   def properties
     if @properties.nil?
       if server.running?
-        @properties = Minecraft::Properties.new(self)
+        response = node.properties
+        if response.error?
+          server.log("Error getting Minecraft properties: #{response}")
+          @properties = response
+        else
+          @properties = Minecraft::Properties.new(response)
+        end
       end
     end
     return @properties

@@ -165,6 +165,21 @@ class ServersControllerTest < ActionController::TestCase
     assert_not_nil flash[:success], 'Updating minecraft properties not success'
   end
 
+  test 'minecraft properties error' do
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')
+    mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 0)
+    p = {
+      difficulty: '0',
+      motd: 'A Gamocosm Minecraft Server',
+    }
+    mock_mcsw_properties_fetch(@server.minecraft).stub_mcsw_properties_fetch(400, p)
+    sign_in @owner
+    @server.update_columns(remote_id: 1)
+    get :show, { id: @server.id }
+    assert_response :success
+    assert_select 'p', /error getting minecraft properties/i
+  end
+
   test 'pause and resume minecraft' do
     mock_do_base(200)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')

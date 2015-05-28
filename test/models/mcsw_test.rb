@@ -29,7 +29,7 @@ class MCSWTest < ActiveSupport::TestCase
     mock_mcsw_properties_fetch(@minecraft).stub_mcsw_properties_fetch(400, {}).times_only(1)
     begin
       @minecraft.server.update_columns(remote_id: 1)
-      p = @minecraft.properties.refresh
+      p = @minecraft.properties
       assert p.error?
       assert_match /MCSW API error: HTTP response code 400/, p.msg
     ensure

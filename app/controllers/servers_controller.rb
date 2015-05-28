@@ -85,6 +85,7 @@ class ServersController < ApplicationController
     if error
       flash[:error] = "Unable to start server: #{error}. Please contact the server admin about this"
     else
+      @server.user.invalidate_digital_ocean_cache_droplets
       flash[:success] = 'Server starting'
     end
     return redirect_to server_path(@server)
@@ -169,10 +170,9 @@ class ServersController < ApplicationController
     if !@server.running?
       return redirect_to server_path(@server), flash: { error: 'Server isn\'t running. Start it to edit Minecraft properties' }
     end
-    properties = @server.minecraft.properties
-    error = properties.update(minecraft_properties_params)
-    if error
-      return redirect_to server_path(@server), flash: { error: "Unable to update Minecraft properties: #{error}. Please contact the server admin about this" }
+    res = @server.minecraft.node.update_properties(minecraft_properties_params)
+    if res.error?
+      return redirect_to server_path(@server), flash: { error: "Unable to update Minecraft properties: #{res}. Please contact the server admin about this" }
     end
     return redirect_to server_path(@server), flash: { success: 'Minecraft properties updated' }
   end
