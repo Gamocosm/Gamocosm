@@ -112,7 +112,7 @@ class Minecraft < ActiveRecord::Base
       return node.pid
     end
     if node.pid > 0
-      return nil
+      return 'Minecraft already running'
     end
     return nil
   end

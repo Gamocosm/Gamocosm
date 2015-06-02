@@ -139,7 +139,7 @@ class SetupServerWorker
       end
     rescue SSHKit::Runner::ExecuteError => e
       if e.cause.is_a?(Timeout::Error)
-        raise 'Server setup (SSH): took too long doing base setup'
+        raise 'Server setup (SSH): Server stalled/took too long doing base setup. Please try again'
       end
       raise e
     end
@@ -160,7 +160,7 @@ class SetupServerWorker
       end
     rescue SSHKit::Runner::ExecuteError => e
       if e.cause.is_a?(Timeout::Error)
-        raise 'Server setup (SSH): took too long doing update'
+        raise 'Server setup (SSH): Server stalled/took too long doing update. Please try again'
       end
       raise e
     end
@@ -198,7 +198,7 @@ class SetupServerWorker
       end
     rescue SSHKit::Runner::ExecuteError => e
       if e.cause.is_a?(Timeout::Error)
-        raise 'Server setup (SSH): took too long installing Minecraft'
+        raise 'Server setup (SSH): Server stalled/took too long installing Minecraft. Please try again'
       end
       raise e
     end
@@ -229,7 +229,7 @@ class SetupServerWorker
       end
     rescue SSHKit::Runner::ExecuteError => e
       if e.cause.is_a?(Timeout::Error)
-        raise 'Server setup (SSH): took too long installing Minecraft Server Wrapper'
+        raise 'Server setup (SSH): Server stalled/took too long setting up Minecraft. Please try again'
       end
       raise e
     end
@@ -256,7 +256,7 @@ class SetupServerWorker
       end
     rescue SSHKit::Runner::ExecuteError => e
       if e.cause.is_a?(Timeout::Error)
-        raise 'Server setup (SSH): took too long modifying SSH port'
+        raise 'Server setup (SSH): Server stalled/took too long modifying SSH port. Please try again'
       end
       raise e
     end
@@ -295,7 +295,7 @@ class SetupServerWorker
       end
     rescue SSHKit::Runner::ExecuteError => e
       if e.cause.is_a?(Timeout::Error)
-        raise 'Server setup (SSH): took too long adding SSH keys'
+        raise 'Server setup (SSH): Server stalled/took too long adding SSH keys. Please try again'
       end
       raise e
     end
