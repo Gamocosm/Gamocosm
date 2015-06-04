@@ -178,6 +178,7 @@ Example: `TEST_DOCKER=true ./tests.sh`
 - [bearbin][8] for helping iron out some initial bugs
 - [chiisana][9] for feedback and other ideas, resources
 - [KayoticSully][12] for planning and development on the server wrapper API
+- [Jadorel][14] for feedback and helping iron out some bugs
 
 [1]: http://www.postgresql.org/docs/9.3/static/auth-pg-hba-conf.html
 [2]: https://github.com/geetfun
@@ -192,3 +193,4 @@ Example: `TEST_DOCKER=true ./tests.sh`
 [11]: https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft
 [12]: https://github.com/KayoticSully
 [13]: https://rvm.io
+[14]: https://www.reddit.com/user/Jadorel
