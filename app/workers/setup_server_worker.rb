@@ -12,7 +12,6 @@ class SetupServerWorker
   sidekiq_options retry: 0
 
   SYSTEM_PACKAGES = [
-    'yum-plugin-security',
     'firewalld',
     'java-1.8.0-openjdk-headless',
     'python3',
@@ -21,6 +20,7 @@ class SetupServerWorker
     'git',
     'tmux',
     'unzip',
+    'wget'
   ]
 
   def perform(server_id, times = 0)
@@ -123,8 +123,7 @@ class SetupServerWorker
               execute :swapon, '/swapfile'
               execute :echo, '/swapfile none swap defaults 0 0', '>>', '/etc/fstab'
             end
-            execute :yum, '-y', 'install', *SYSTEM_PACKAGES
-            execute :yum, '-y', 'update', '--security'
+            execute :dnf, '-y', 'install', *SYSTEM_PACKAGES
             execute :systemctl, 'start', 'firewalld'
             execute :'firewall-cmd', '--add-port=5000/tcp'
             execute :'firewall-cmd', '--permanent', '--add-port=5000/tcp'
