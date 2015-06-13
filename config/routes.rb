@@ -54,9 +54,9 @@ Rails.application.routes.draw do
     match '/github_student_developer_pack' => redirect('https://education.github.com/pack'), as: :external_github_student_developer_pack, via: :get
   end
 
-  scope '/mcserver' do
-    match '/' => redirect('http://mc-server.org'), as: :mcserver_website, via: :get
-    match '/repo' => redirect('https://github.com/mc-server/MCServer'), as: :mcserver_repo, via: :get
+  scope '/cuberite' do
+    match '/' => redirect('http://cuberite.org'), as: :cuberite_website, via: :get
+    match '/repo' => redirect('https://github.com/cuberite/cuberite'), as: :cuberite_repo, via: :get
   end
 
   Sidekiq::Web.use Rack::Auth::Basic, 'Protected Area' do |u, p|

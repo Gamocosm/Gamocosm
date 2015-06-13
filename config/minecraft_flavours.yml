@@ -13,13 +13,13 @@ vanilla:
         - Mojang
     website: https://minecraft.net
     notes: []
-mc-server:
+cuberite:
     versions:
-        - { name: MCServer, tag: "null" }
+        - { name: Cuberite, tag: "null" }
     time: 1
     developers:
-        - MCServer team
-    website: http://mc-server.org
+        - Cuberite team
+    website: http://cuberite.org
     notes: []
 forge:
     versions:
