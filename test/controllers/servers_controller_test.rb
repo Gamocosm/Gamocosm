@@ -50,7 +50,7 @@ class ServersControllerTest < ActionController::TestCase
           remote_region_slug: 'ams3',
           remote_size_slug: '2gb',
           minecraft_attributes: {
-            flavour: 'mc-server/null',
+            flavour: 'cuberite/null',
           },
         },
       }
