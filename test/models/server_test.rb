@@ -81,4 +81,15 @@ class ServerTest < ActiveSupport::TestCase
       @server.update_columns(remote_id: nil)
     end
   end
+
+  test 'remote destroy snapshot already deleted' do
+    mock_do_image_delete(404, 1, { id: 'not_found' })
+    begin
+      @server.update_columns(remote_snapshot_id: 1)
+      x = @server.remote.destroy_saved_snapshot
+      assert_nil x, "Remote destroy saved snapshot should have been ok with already deleted image, was #{x}"
+    ensure
+      @server.update_columns(remote_snapshot_id: nil)
+    end
+  end
 end

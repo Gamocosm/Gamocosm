@@ -21,6 +21,14 @@ cuberite:
         - Cuberite team
     website: http://cuberite.org
     notes: []
+truecraft:
+    versions:
+        - { name: TrueCraft (beta 1.7.3), tag: beta-1.7.3 }
+    time: 1
+    developers:
+        - SirCmpwn et al
+    website: http://truecraft.io
+    notes: []
 forge:
     versions:
         - { name: Forge (1.8), tag: 1.8-11.14.1.1412 }
@@ -97,11 +105,3 @@ tppi:
     website: http://www.reddit.com/r/TestPackPleaseIgnore/
     notes:
         - 2GB+ recommended
-truecraft:
-    versions:
-        - { name: TrueCraft beta 1.7.3, tag: beta-1.7.3 }
-    time: 1
-    developers:
-        - SirCmpwn et al
-    website: http://truecraft.io
-    notes: []

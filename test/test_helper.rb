@@ -85,8 +85,8 @@ class ActiveSupport::TestCase
     return mock_digital_ocean(:delete, "/droplets/#{droplet_id}").to_return_json(status, { })
   end
 
-  def mock_do_image_delete(status, image_id)
-    return mock_digital_ocean(:delete, "/images/#{image_id}").to_return_json(status, { })
+  def mock_do_image_delete(status, image_id, data = { })
+    return mock_digital_ocean(:delete, "/images/#{image_id}").to_return_json(status, data)
   end
 
   def mock_do_ssh_key_delete(status, key_id)
