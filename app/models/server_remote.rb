@@ -94,9 +94,6 @@ class ServerRemote
     end
     res = @con.image_delete(@server.remote_snapshot_id)
     if res.error?
-      if res.data.status == 404 && res.data.body['id'] == 'not_found'
-        return nil
-      end
       return "Error destroying snapshot on Digital Ocean: #{res}"
     end
     return nil

@@ -348,6 +348,8 @@ module DigitalOcean
         if res.status == 401
           msg = "Unable to authenticate your Digital Ocean API token"
           return msg.error! nil
+        elsif verb == :delete && res.status == 404 && res.body['id'] == 'not_found'
+          return res.body
         elsif res.status / 100 == 2
           return res.body
         else
