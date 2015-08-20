@@ -51,6 +51,7 @@ spigot:
 craftbukkit:
     versions:
         - { name: CraftBukkit (1.8), tag: 1.8 }
+        - { name: CraftBukkit (beta 1.7.3), tag: b1.7.3 }
     time: 10
     developers:
         - Spigot team
@@ -59,6 +60,7 @@ craftbukkit:
     notes:
         - 1GB+ recommended
         - This involves a long build process. It occasionally fails and you can try again or install it manually
+        - For beta 1.7.3, autoshutdown doesn't work as it doesn't support the query protocol
 agrarian_skies:
     versions:
         - { name: Agrarian Skies (1.6.4), tag: 1.6.4 }
