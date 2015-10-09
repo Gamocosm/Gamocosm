@@ -21,6 +21,7 @@ Rails.application.routes.draw do
   match '/license' => redirect('https://github.com/Gamocosm/Gamocosm/blob/master/LICENSE'), as: :license, via: :get
   match '/blog' => redirect('http://gamocosm.com/blog/'), as: :blog, via: :get
   match '/irc' => redirect('https://webchat.esper.net/?channels=gamocosm'), as: :irc, via: :get
+  match '/irc_history' => redirect('http://irc.gamocosm.com'), as: :irc_history, via: :get
 
   scope '/wiki' do
     match '/ftp_ssh' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/FTP-and-SSH'), as: :wiki_ftp_ssh, via: :get
