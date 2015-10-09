@@ -15,15 +15,15 @@
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<td>Name</td>
-					<td colspan="2">Domain / IP Address</td>
+					<td colspan="2">Name</td>
+					<td colspan="3">Domain / IP Address</td>
 					<td>Status</td>
 				</tr>
 			</thead>
 			<tbody>
 			<% if @servers.blank? && @friend_servers.blank? %>
 				<tr>
-					<td colspan="4" class="text-center">
+					<td colspan="6" class="text-center">
 						<em>You have no servers</em>
 					</td>
 				</tr>
