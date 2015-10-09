@@ -38,7 +38,7 @@
 					<%= link_to 'Demo', demo_path, class: 'btn-lg btn-success' %>
 				</div>
 				<div class="col-sm-4">
-					<%= link_to 'Frequently Asked Questions <i class="fa fa-chevron-right"></i>'.html_safe, info_path, class: 'btn-lg btn-success' %>
+					<%= link_to 'Frequently Asked Questions <i class="fa fa-chevron-right"></i>'.html_safe, about_path, class: 'btn-lg btn-success' %>
 				</div>
 				<div class="col-sm-3">
 					<%= link_to 'Sign up!', new_user_registration_path, class: 'btn-lg btn-success' %>
@@ -70,9 +70,9 @@
 		<h1>Digital Ocean is a cloud hosting provider</h1>
 		<p>
 			They work with hundreds of thousands of developers and companies.
-			Gamocosm automates <%= link_to 'setting up', wiki_server_additional_info_path %> and <%= link_to 'managing', info_path %> Minecraft servers on <%= render_digital_ocean_referral_link('%s (%s)', 'Digital Ocean', digital_ocean_index_path, digital_ocean_index_no_ref_path) %>,
+			Gamocosm automates <%= link_to 'setting up', wiki_server_additional_info_path %> and <%= link_to 'managing', about_path %> Minecraft servers on <%= render_digital_ocean_referral_link('%s (%s)', 'Digital Ocean', digital_ocean_index_path, digital_ocean_index_no_ref_path) %>,
 			so you only pay Digital Ocean for your hourly usage (<%= render_digital_ocean_referral_link('%s, %s', 'pricing', digital_ocean_pricing_path, digital_ocean_pricing_no_ref_path) %>).
-			Gamocosm users average <strong><%= link_to '$0.50-$2', info_path %> a month</strong>.
+			Gamocosm users average <strong><%= link_to '$0.50-$2', about_path %> a month</strong>.
 		</p>
 		<p>
 			Be sure to check out GitHub's <%= link_to 'Student Developer Pack', external_github_student_developer_pack_path %>, which among many other goodies, includes <strong>$100 credit for Digital Ocean</strong> (just for being a student enrolled in a degree/diploma granting program!).

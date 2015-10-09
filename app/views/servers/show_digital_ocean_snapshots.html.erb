@@ -13,7 +13,7 @@
 		</tr>
 		<% @do_snapshots.each do |x| %>
 			<tr>
-				<td><%= x.name %> (<%= x.created_at.to_datetime.in_time_zone(ActiveSupport::TimeZone[-8]).strftime('%Y %b %e %H:%M %Z') %>)</td>
+				<td><%= x.name %> (<%= x.created_at.to_datetime.in_time_zone(ActiveSupport::TimeZone[-8]).strftime('%Y %b %-d %H:%M %Z') %>)</td>
 				<td class="text-right"><%= x.id %></td>
 				<td>
 					<%= link_to 'Delete', destroy_digital_ocean_snapshot_path(id: x.id), method: :delete, class: 'btn btn-default pull-right', data: { confirm: 'Are you sure you want to delete this snapshot forever? (A really long time!)' } %>

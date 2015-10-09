@@ -21,8 +21,6 @@ class PagesControllerTest < ActionController::TestCase
     mock_do_base(200)
     get :about
     assert_response :success
-    get :info
-    assert_response :success
     get :tos
     assert_response :success
     get :digital_ocean_setup

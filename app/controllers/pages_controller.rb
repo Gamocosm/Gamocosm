@@ -4,9 +4,6 @@ class PagesController < ApplicationController
   end
 
   def about
-  end
-
-  def info
     @do_sizes = Gamocosm.digital_ocean.size_list
   end
 

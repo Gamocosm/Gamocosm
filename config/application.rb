@@ -35,7 +35,8 @@ module Gamocosm
   DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-22-x64'
   DIGITAL_OCEAN_SSH_PUBLIC_KEY = File.read(DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH)
   DIGITAL_OCEAN_SSH_PUBLIC_KEY_FINGERPRINT = Digest::MD5.hexdigest(Base64.decode64(DIGITAL_OCEAN_SSH_PUBLIC_KEY.split(/\s+/m)[1])).scan(/../).join(':')
-  GIT_HEAD=`git rev-parse HEAD`.strip
+  GIT_HEAD = `git rev-parse HEAD`.strip
+  GIT_HEAD_DATE = Time.at(`git show -s --format=%ct HEAD`.to_i).strftime('%Y %b %-d %H:%M %Z')
 
   @digital_ocean = nil
   def self.digital_ocean

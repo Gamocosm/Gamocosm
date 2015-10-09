@@ -1,6 +1,6 @@
 <% title 'Gamocosm About' %>
-<% content_for :meta_description, 'Gamocosm is FOSS. It makes it easy to host Minecraft servers for friends.' %>
-<% meta_keywords ['Minecraft', 'hosting', 'open source', 'cloud', 'Digital Ocean', 'per-hour'] %>
+<% content_for :meta_description, 'Gamocosm info, frequently asked questions, help, and troubleshooting' %>
+<% meta_keywords ['Minecraft', 'hosting', 'open source', 'cloud', 'Digital Ocean', 'per-hour', 'info', 'faqs', 'help', 'troubleshooting'] %>
 <div class="row">
 	<div class="col-sm-12">
 		<h1>About</h1>
@@ -11,12 +11,11 @@
 			I do this because I want to make something useful.
 			I'll accept donations later if costs start being an issue.
 			I intend to keep everything as transparent as possible.
-			<%= link_to 'More information on how Gamocosm works', info_path %>.
 		</p>
 	</div>
 </div>
 <div class="row">
-	<div class="col-sm-12">
+	<div class="col-sm-6">
 		<h2>Contact</h2>
 		<ul>
 			<li>Submit an issue on <%= link_to 'GitHub', issues_path %> (the most reliable way!)</li>
@@ -25,10 +24,143 @@
 			<li>Yes IRC is easy, but the best way to contact me is through GitHub or Reddit!</li>
 		</ul>
 	</div>
-</div>
-<div class="row">
-	<div class="col-sm-12">
+	<div class="col-sm-6">
 		<h2>Source</h2>
 		<p>The source code is on <%= link_to 'GitHub', source_path %>. Feel free to fork and send a pull request!</p>
+	</div>
+</div>
+<br />
+<br />
+<div class="row">
+	<div class="col-sm-12">
+		<h2>Basic Information</h2>
+		<dl class="faq">
+			<dt>How much does per hour hosting cost?</dt>
+			<dd>
+				Let's say you and your friends play 2 hours a day, every day.
+				That's ~60 hours a month.
+				Typically, private servers only need 512MB-1GB of RAM.
+				On <%= render_digital_ocean_referral_link('%s (%s)', 'Digital Ocean', digital_ocean_index_path, digital_ocean_index_no_ref_path) %>, this is 0.7-1.5 <em>cents</em> an hour (<%= render_digital_ocean_referral_link('%s, %s', 'pricing', digital_ocean_pricing_path, digital_ocean_pricing_no_ref_path) %>), or <strong>~$0.40-$0.80 a month</strong>.
+			</dd>
+			<dt>What is Digital Ocean?</dt>
+			<dd>
+				Digital Ocean is a general purpose cloud hosting provider.
+				They host a lot of servers, not just for Minecraft, so their prices are about as low as servers get.
+				A lot of developers/companies use Digital Ocean for their websites and apps; they're not just another Minecraft hosting startup.
+				Running Minecraft on Digital Ocean is not only cheap, but you have unrestricted access to the server!
+				It's more work to set up and manage a server on Digital Ocean yourself, but Gamocosm tries to bridge that gap.
+			</dd>
+			<dt>If Digital Ocean is hosting the server, what is Gamocosm doing?</dt>
+			<dd>
+				<p>Gamocosm sets up your server.
+				Digital Ocean provides a bare, vanilla server, so you/Gamocosm needs to install and configure it to be a ready, secure Minecraft server.
+				If you're interested, check this <%= link_to 'wiki page', wiki_server_additional_info_path %> for more info on the setup.</p>
+
+				<p><strong>Secondly, Digital Ocean continues charging you when you <em>just</em> stop a server</strong>, because its resources are still allocated.
+				When you stop a server on Gamocosm, it snapshots (backs up), and destroys your server.
+				When you restart a server, Gamocosm recreates it from the snapshot.
+				This way, you only pay when the server is in use.</p>
+			</dd>
+			<dt>That's a little confusing</dt>
+			<dd>
+				Just make sure you click "stop" on Gamocosm when you're done playing!
+			</dd>
+			<dt>Anything else I should know?</dt>
+			<dd>
+				Gamocosm just automates the general process of running Minecraft on a cloud server - you have <em>full access</em> to a Linux machine; you can do whatever you want with it!
+				You can <%= link_to 'SSH, FTP', wiki_ftp_ssh_path %>, install mods, and even use entirely <%= link_to 'custom servers', wiki_minecraft_versions_path %>!
+			</dd>
+		</dl>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12">
+		<h2>FAQs</h2>
+		<dl class="faq">
+			<dt>There's a bug!</dt>
+			<dd>Do one of the following:<ul>
+				<li>File an <%= link_to 'issue on GitHub', issues_path %></li>
+				<li>Developers may be online on IRC at <code>#gamocosm</code> on <code>irc.esper.net</code>
+			</ul></dd>
+
+			<dt>Why does it take so long to start/stop a server?</dt>
+			<dd>Cloud hosting providers continue to charge you when your server is off, because resources are still allocated for you.
+			What you can do is backup the server, destroy it, and restore the server from the backup the next time you need it.
+			This is one of the things Gamocosm does for you automatically. It is a tradeoff so you can have the insanely low prices.
+			Read more about how this works in the <%= link_to 'About page', about_path %>.
+			</dd>
+
+			<dt>What's the difference between the domain and IP address?</dt>
+			<dd>
+				An IP address locates an actual server.
+				Domains map to IP addresses, and are used because they're easier to remember.
+				Occasionally, the IP of your server may change, but the domain we create for your servers will always be the same.
+				However, sometimes the old IP is cached somewhere along the pipeline, so you have to enter the IP directly.
+			</dd>
+
+			<dt>Where is Minecraft on my server?</dt>
+			<dd>Your home directory is <code>/home/mcuser/</code>.
+			Sometimes this is shortened as a tilda (<code>~</code>).
+			Minecraft is installed in <code>~/minecraft/</code></dd>
+
+			<dt>How do I edit the ops or whitelist?</dt>
+			<dd><ul>
+				<li>If there is already an operator on the server, he can op/deop/whitelist other players in chat; otherwise</li>
+				<li>Start the Minecraft server</li>
+				<li>Under "Send Command to Server", <code>op</code>, <code>deop</code>, or <code>whitelist add/remove</code> players</li>
+			</ul></dd>
+
+			<dt>Where are my server backups?</dt>
+			<dd>Backups are saved on your server in <code>~/minecraft/backups/</code>.
+			However, it is recommended that you download backups (e.g. via FTP) from time to time,
+			and keep your own local backups</dd>
+
+			<dt>How do I FTP or SSH?</dt>
+			<dd>See this <%= link_to 'wiki page', wiki_ftp_ssh_path %>.</dd>
+
+			<dt>How do I run different Minecraft versions, modded, or custom servers (e.g. Bukkit, Forge, Cuberite)?</dt>
+			<dd>See this <%= link_to 'wiki page', wiki_minecraft_versions_path %></dd>
+
+			<dt>Why/how do I set up Gamocosm with Digital Ocean?</dt>
+			<dd>See <%= link_to 'this page', digital_ocean_setup_path %></dd>
+
+			<dt>How do I resize a server?</dt>
+			<dd>
+				To increase the size:
+				<ul>
+					<li>Stop the server</li>
+					<li>Under the "Advanced" tab, update "Digital Ocean size slug" to be one of [<%= @do_sizes.map { |x| x.slug }.join(', ') %>]</li>
+					<li>Start the server</li>
+				</ul>
+				To decrease the size, you need to FTP or SSH to backup any files you want to keep (such as your world folder), and create a new server.
+				Upload your files back on the server.
+			</dd>
+
+			<dt>What do you mean "Autoshutdown is experimental"?</dt>
+			<dd>
+				<p>
+				Gamocosm works with a lot of infrastructure behind the scenes; a lot can go wrong that is and isn't Gamocosm's fault (we're working hard to iron out our bugs!).
+				Autoshutdown is an especially tricky feature, and we can't guarantee that all cases are covered - especially when thing's outside Gamocosm's control go wrong.
+				As much as feasible has been tested, but you shouldn't rely on it to shutdown your server before a month long hiatus, for example.
+				On the other hand, if you play daily and check your email (for when Gamocosm tries to notify you that something went wrong), it's not really a problem if your server doesn't shut down one day.
+				</p>
+				<p>
+				Why did we introduce this experimental feature?
+				Because it has been requested the most! :P
+				We - or more accurately I xD - don't have the manpower to test and push an enterprise-grade feature like this.
+				The only way I can polish it is with user feedback and support.
+				</p>
+			</dd>
+
+			<dt>Gamocosm got an error pinging/querying my server</dt>
+			<dd>
+				<ul>
+					<li>Ensure <code>enable-query</code> is set in your <code>server.properties</code></li>
+					<li>Ensure port 25565 is open to UDP (<code>(sudo) firewall-cmd --add-port=25565/udp</code> and <code>(sudo) firewall-cmd --permanent --add-port=25565/udp</code>)
+				</ul>
+				Both of these are done automatically on new servers, but you will have to do this manually for servers created before the autoshutdown update
+			</dd>
+		</dl>
 	</div>
 </div>

@@ -5,7 +5,6 @@ Rails.application.routes.draw do
   root to: 'pages#landing'
 
   get '/about', to: 'pages#about', as: :about
-  get '/info', to: 'pages#info', as: :info
   get '/tos', to: 'pages#tos', as: :tos
   get '/demo', to: 'pages#demo', as: :demo
 
@@ -18,6 +17,7 @@ Rails.application.routes.draw do
   match '/wiki' => redirect('https://github.com/Gamocosm/Gamocosm/wiki'), as: :wiki, via: :get
   match '/issues' => redirect('https://github.com/Gamocosm/Gamocosm/issues'), as: :issues, via: :get
   match '/source' => redirect('https://github.com/Gamocosm/Gamocosm'), as: :source, via: :get
+  match '/git_head' => redirect("https://github.com/Gamocosm/Gamocosm/tree/#{Gamocosm::GIT_HEAD}"), as: :git_head, via: :get
   match '/license' => redirect('https://github.com/Gamocosm/Gamocosm/blob/master/LICENSE'), as: :license, via: :get
   match '/blog' => redirect('http://gamocosm.com/blog/'), as: :blog, via: :get
   match '/irc' => redirect('https://webchat.esper.net/?channels=gamocosm'), as: :irc, via: :get
