@@ -23,6 +23,21 @@ class SetupServerWorker
     'wget'
   ]
 
+  ZRAM_SYSTEMD_SERVICE_ESCAPED = [
+    '[Unit]',
+    'Description=Zram',
+    '',
+    '[Service]',
+    'Type=oneshot',
+    'ExecStart=/usr/sbin/modprobe zram',
+    'ExecStart=/usr/bin/env bash -c \'echo 128M > /sys/block/zram0/disksize\'',
+    'ExecStart=/usr/sbin/mkswap /dev/zram0',
+    'ExecStart=/usr/sbin/swapon --priority 100 /dev/zram0',
+    '',
+    '[Install]',
+    'WantedBy=multi-user.target',
+  ].join('\n').shell_escape
+
   def perform(server_id, times = 0)
     server = Server.find(server_id)
     user = server.user
@@ -111,11 +126,19 @@ class SetupServerWorker
       on host do
         Timeout::timeout(512) do
           within '/tmp/' do
+            # setup user
             if ! test 'id -u mcuser'
               execute :adduser, '-m', 'mcuser'
             end
             execute :echo, mcuser_password_escaped, '|', :passwd, '--stdin', 'mcuser'
             execute :usermod, '-aG', 'wheel', 'mcuser'
+
+            # setup zram
+            execute :echo, '-e', ZRAM_SYSTEMD_SERVICE_ESCAPED, '>', '/etc/systemd/system/zram.service'
+            execute :systemctl, 'enable', 'zram'
+            execute :systemctl, 'start', 'zram'
+
+            # setup swap
             if test '[ ! -f "/swapfile" ]'
               execute :fallocate, '-l', '1G', '/swapfile'
               execute :chmod, '600', '/swapfile'
@@ -123,6 +146,8 @@ class SetupServerWorker
               execute :swapon, '/swapfile'
               execute :echo, '/swapfile none swap defaults 0 0', '>>', '/etc/fstab'
             end
+
+            # install system packages
             execute :dnf, '-y', 'install', *SYSTEM_PACKAGES
             execute :systemctl, 'start', 'firewalld'
             execute :'firewall-cmd', '--add-port=5000/tcp'
