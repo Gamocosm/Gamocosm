@@ -37,6 +37,21 @@ The following instructions were made for Fedora 20, but the steps should be simi
 1. Start the server: `./run.sh rails s`
 1. Start the Sidekiq worker: `./run.sh sidekiq`
 
+### Directory hierarchy
+- app: main source code
+- bin: rails stuff, don't touch
+- config: rails app configuration
+- db: rails app database stuff (schema, migrations, seeds)
+- lib: rails stuff, don't touch
+- log: 'nuff said
+- public: static files
+- server\_setup: stuff for the servers Gamocosm creates (e.g. zram scripts), used by `app/workers/setup_server_worker.rb`
+	- see [Additional Info for Server Admins][15] on the wiki for more information
+- sysadmin: stuff for the Gamocosm server (you can run your own server! this is an open source project)
+- test-docker: use docker container to test most of `app/workers/setup_server_worker.rb` (more below)
+- test: pooteeweet
+- vendor: rails stuff, don't touch
+
 ### run.sh and env.sh options
 `run.sh` and `tests.sh` both source `env.sh` for environment variables/configuration.
 `run.sh` also does `bundle exec` for you, so you just do `./run.sh GEM ARGS ...`.
@@ -194,3 +209,4 @@ Example: `TEST_DOCKER=true ./tests.sh`
 [12]: https://github.com/KayoticSully
 [13]: https://rvm.io
 [14]: https://www.reddit.com/user/Jadorel
+[15]: https://github.com/Gamocosm/Gamocosm/wiki/Additional-Info-for-Server-Admins

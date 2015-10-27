@@ -23,20 +23,8 @@ class SetupServerWorker
     'wget'
   ]
 
-  ZRAM_SYSTEMD_SERVICE_ESCAPED = [
-    '[Unit]',
-    'Description=Zram',
-    '',
-    '[Service]',
-    'Type=oneshot',
-    'ExecStart=/usr/sbin/modprobe zram',
-    'ExecStart=/usr/bin/env bash -c \'echo 128M > /sys/block/zram0/disksize\'',
-    'ExecStart=/usr/sbin/mkswap /dev/zram0',
-    'ExecStart=/usr/sbin/swapon --priority 100 /dev/zram0',
-    '',
-    '[Install]',
-    'WantedBy=multi-user.target',
-  ].join('\n').shell_escape
+  ZRAM_SYSTEMD_SERVICE_FILE_URL = 'https://raw.githubusercontent.com/Gamocosm/Gamocosm/release/server_setup/zram.service'
+  ZRAM_HELPER_SCRIPT_URL = 'https://raw.githubusercontent.com/Gamocosm/Gamocosm/release/server_setup/zram-helper.sh'
 
   def perform(server_id, times = 0)
     server = Server.find(server_id)
@@ -134,7 +122,9 @@ class SetupServerWorker
             execute :usermod, '-aG', 'wheel', 'mcuser'
 
             # setup zram
-            execute :echo, '-e', ZRAM_SYSTEMD_SERVICE_ESCAPED, '>', '/etc/systemd/system/zram.service'
+            execute :curl, '-o', '/etc/systemd/system/zram.service', "'#{ZRAM_SYSTEMD_SERVICE_FILE_URL}'"
+            execute :curl, '-o', '/usr/bin/zram-helper', "'#{ZRAM_HELPER_SCRIPT_URL}'"
+            execute :chmod, '+x', '/usr/bin/zram-helper'
             execute :systemctl, 'enable', 'zram'
             execute :systemctl, 'start', 'zram'
 

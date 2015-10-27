@@ -1,0 +1,8 @@
+[Unit]
+Description=Zram (source: Gamocosm)
+
+[Service]
+ExecStart=/usr/bin/zram-helper start
+
+[Install]
+WantedBy=multi-user.target
