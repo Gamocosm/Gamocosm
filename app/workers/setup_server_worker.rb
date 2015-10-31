@@ -110,6 +110,7 @@ class SetupServerWorker
 
   def base_install(user, server, host)
     mcuser_password_escaped = "#{user.email}+#{server.name}".shell_escape
+    server_ram_below_4gb = ['512mb', '1gb', '2gb'].include?(server.remote_size_slug)
     begin
       on host do
         Timeout::timeout(512) do
@@ -122,11 +123,13 @@ class SetupServerWorker
             execute :usermod, '-aG', 'wheel', 'mcuser'
 
             # setup zram
-            execute :curl, '-o', '/etc/systemd/system/zram.service', "'#{ZRAM_SYSTEMD_SERVICE_FILE_URL}'"
-            execute :curl, '-o', '/usr/bin/zram-helper', "'#{ZRAM_HELPER_SCRIPT_URL}'"
+            execute :curl, '-s', '-o', '/etc/systemd/system/zram.service', "'#{ZRAM_SYSTEMD_SERVICE_FILE_URL}'"
+            execute :curl, '-s', '-o', '/usr/bin/zram-helper', "'#{ZRAM_HELPER_SCRIPT_URL}'"
             execute :chmod, '+x', '/usr/bin/zram-helper'
-            execute :systemctl, 'enable', 'zram'
-            execute :systemctl, 'start', 'zram'
+            if server_ram_below_4gb
+              execute :systemctl, 'enable', 'zram'
+              execute :systemctl, 'start', 'zram'
+            end
 
             # setup swap
             if test '[ ! -f "/swapfile" ]'
