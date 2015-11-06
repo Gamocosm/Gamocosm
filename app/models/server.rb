@@ -16,6 +16,7 @@
 #  remote_region_slug :string           not null
 #  remote_size_slug   :string           not null
 #  remote_snapshot_id :integer
+#  timezone_delta     :integer          default(0), not null
 #
 
 class Server < ActiveRecord::Base
@@ -53,6 +54,10 @@ class Server < ActiveRecord::Base
     self.remote_region_slug = self.remote_region_slug.clean
     self.remote_size_slug = self.remote_size_slug.clean
     self.ssh_keys = self.ssh_keys.try(:gsub, /\s/, '').clean
+  end
+
+  def schedule_text
+    return self.scheduled_tasks.map { |x| x.to_user_string }.join("\n")
   end
 
   def host_name

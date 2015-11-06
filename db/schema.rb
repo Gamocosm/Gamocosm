@@ -62,6 +62,7 @@ ActiveRecord::Schema.define(version: 20151106024157) do
     t.string   "remote_region_slug",                            null: false
     t.string   "remote_size_slug",                              null: false
     t.integer  "remote_snapshot_id"
+    t.integer  "timezone_delta",                 default: 0,    null: false
   end
 
   add_index "servers", ["domain"], name: "index_servers_on_domain", unique: true, using: :btree

@@ -19,20 +19,22 @@
 			<div class="col-sm-9">
 				<ul class="nav nav-tabs">
 					<% if @demo.nil? %>
-						<li class="<%= @server_advanced_tab.nil? && @server_ftp_ssh_tab.nil? ? 'active' : '' %>"><%= link_to 'Profile', server_path(@server, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
+						<li class="<%= @server_advanced_tab.nil? && @server_ftp_ssh_tab.nil? && @server_schedule_tab.nil? ? 'active' : '' %>"><%= link_to 'Profile', server_path(@server, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
 						<li><%= link_to 'Minecraft Settings', server_path(@server, anchor: 'settings'), 'data-toggle' => 'tab' %></li>
 						<li class="<%= @server_ftp_ssh_tab ? 'active' : '' %>"><%= link_to 'FTP and SSH', server_path(@server, anchor: 'ftp_ssh'), 'data-toggle' => 'tab' %></li>
+						<li class="<%= @server_schedule_tab ? 'active' : '' %>"><%= link_to 'Schedule', server_path(@server, anchor: 'schedule'), 'data-toggle' => 'tab' %></li>
 						<li class="<%= @server_advanced_tab ? 'active' : '' %>"><%= link_to 'Advanced', server_path(@server, anchor: 'advanced'), 'data-toggle' => 'tab' %></li>
 					<% else %>
 						<li class="active"><a href="#profile" data-toggle="tab">Profile</a></li>
 						<li><a href="#settings" data-toggle="tab">Minecraft Settings</a></li>
 						<li><a href="#ftp_ssh" data-toggle="tab">FTP and SSH</a></li>
+						<li><a href="#schedule" data-toggle="tab">Schedule</a></li>
 						<li><a href="#advanced" data-toggle="tab">Advanced</a></li>
 					<% end %>
 				</ul>
 
 				<div class="tab-content">
-					<div class="tab-pane <%= @server_advanced_tab.nil? && @server_ftp_ssh_tab.nil? ? 'active' : '' %>" id="profile">
+					<div class="tab-pane <%= @server_advanced_tab.nil? && @server_ftp_ssh_tab.nil? && @server_schedule_tab.nil? ? 'active' : '' %>" id="profile">
 						<br />
 						<%= render partial: 'servers/profile' %>
 					</div>
@@ -41,6 +43,9 @@
 					</div>
 					<div class="tab-pane <%= @server_ftp_ssh_tab ? 'active' : '' %>" id="ftp_ssh">
 						<%= render partial: 'servers/ftp_ssh' %>
+					</div>
+					<div class="tab-pane <%= @server_schedule_tab ? 'active' : '' %>" id="schedule">
+						<%= render partial: 'servers/schedule' %>
 					</div>
 					<div class="tab-pane <%= @server_advanced_tab ? 'active' : '' %>" id="advanced">
 						<%= render partial: 'servers/advanced' %>

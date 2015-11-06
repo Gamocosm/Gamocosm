@@ -41,7 +41,7 @@ class ScheduledTask < ActiveRecord::Base
 
   def to_user_string
     m = self.partition % 100
-    hours = self.partition / 100
+    hours = (self.partition / 100) + self.server.timezone_delta
     h_24 = hours % 24
     h_12 = h_24 % 12
     ampm = h_24 < 12 ? 'am' : 'pm'
@@ -49,17 +49,17 @@ class ScheduledTask < ActiveRecord::Base
     return "#{DAYS_OF_WEEK_INVERSE[d]} #{h_12}:#{m} #{ampm} #{action}"
   end
 
-  def self.parse(str)
+  def self.parse(str, server)
     xs = []
     str.each_line do |l|
-      x = self.parse_line(l.clean)
+      x = self.parse_line(l.clean, server)
       if !x.nil?
         xs.push(x)
       end
     end
   end
 
-  def self.parse_line(line)
+  def self.parse_line(line, server)
     if line =~ /([a-z]+)\s+(\d+):(\d+)\s*([a-z]+)\s+([a-z]+)/
       day = DAYS_OF_WEEK[$1]
       hour = $2.to_i % 12
@@ -87,13 +87,19 @@ class ScheduledTask < ActiveRecord::Base
         return nil
       end
       return ScheduledTask.new({
-        partition: self.calculate_partition(day, hour, minute, ampm),
+        server: server,
+        partition: self.calculate_partition(day, hour, minute, ampm, server.timezone_delta),
         action: action,
       })
     end
   end
 
-  def self.calculate_partition(day, hour, minute, ampm)
-    return (day * 24 + hour + ampm * 12) * 100 + minute
+  def self.calculate_partition(day, hour, minute, ampm, delta)
+    x = ((day * 24) + (hour) + (ampm * 12) - (delta)) % (7 * 24)
+    return x * 100 + minute
+  end
+
+  def self.server_time
+    return DateTime.now.in_time_zone(Gamocosm::TIMEZONE).strftime('%-I:%M %P (%H:%M) %Z')
   end
 end

@@ -1,0 +1,30 @@
+<br />
+<%= panel_with_heading 'Schedule' do %>
+	<%= simple_form_for @server, (@demo.nil? ? { url: server_path(@server), method: :put } : { html: { onsubmit: 'return false;' } }) do |f| %>
+		<p>
+			You can setup a schedule to start/stop a server at different days of the week.
+			Autoshutdown also works with the schedule, but note that autoshutdown goes off after ~8 minutes of inactivity.
+		</p>
+		<br />
+		<%= f.input :timezone_delta %>
+		<p>
+			The current server time is <b><%= ScheduledTask.server_time %></b> (Pacific Time).
+			Suppose your time is 3 hours ahead of the server: your "timezone delta" is 3.
+			If your time is behind the server, you can enter a negative number.
+			This way, your schedule will be based on your times.
+		</p>
+		<br />
+		<%= f.input :schedule_text, as: :text, label: 'Schedule', input_html: { rows: 4 } %>
+		<p>
+			Enter a rule on each line, in the format <code>[day of week] [hour]:[minute] [am or pm] [start or stop]</code>:
+			<ul>
+				<li>A day of the week is [<%= ScheduledTask::DAYS_OF_WEEK_INVERSE.map { |k, v| k }.join(', ') %>], or just the first 3 letters</li>
+				<li>The hour is in 12-hour format (1-12)</li>
+				<li>The minute is either "00" or "30" (only half-hour intervals supported)</li>
+				<li>Everything is case-insensitive ("am" is the same as "AM")</li>
+			</ul>
+		</p>
+		<br />
+		<%= f.button :submit, 'Save', class: 'btn btn-success' %>
+	<%end %>
+<% end %>

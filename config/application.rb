@@ -37,6 +37,8 @@ module Gamocosm
   DIGITAL_OCEAN_SSH_PUBLIC_KEY_FINGERPRINT = Digest::MD5.hexdigest(Base64.decode64(DIGITAL_OCEAN_SSH_PUBLIC_KEY.split(/\s+/m)[1])).scan(/../).join(':')
   GIT_HEAD = `git rev-parse HEAD`.strip
   GIT_HEAD_DATE = Time.at(`git show -s --format=%ct HEAD`.to_i).strftime('%Y %b %-d %H:%M %Z')
+  # see ActiveSupport::TimeZone
+  TIMEZONE = 'Pacific Time (US & Canada)'
 
   @digital_ocean = nil
   def self.digital_ocean
