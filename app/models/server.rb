@@ -9,9 +9,9 @@
 #  updated_at         :datetime
 #  domain             :string           not null
 #  pending_operation  :string
-#  ssh_port           :integer          default("4022"), not null
+#  ssh_port           :integer          default(4022), not null
 #  ssh_keys           :string
-#  setup_stage        :integer          default("0"), not null
+#  setup_stage        :integer          default(0), not null
 #  remote_id          :integer
 #  remote_region_slug :string           not null
 #  remote_size_slug   :string           not null
@@ -23,6 +23,7 @@ class Server < ActiveRecord::Base
   has_one :minecraft, dependent: :destroy
   has_and_belongs_to_many :friends, foreign_key: 'server_id', class_name: 'User', dependent: :destroy
   has_many :logs, foreign_key: 'server_id', class_name: 'ServerLog', dependent: :destroy
+  has_many :scheduled_tasks, dependent: :destroy
 
   validates :name, length: { in: 3...64 }
   validates :name, format: { with: /\A[a-z][a-z0-9-]*[a-z0-9]\z/, message: 'Name must start with a letter, and end with a letter or number. May include letters, numbers, and dashes in between' }

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150216221129) do
+ActiveRecord::Schema.define(version: 20151106024157) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,6 +29,14 @@ ActiveRecord::Schema.define(version: 20150216221129) do
   end
 
   add_index "minecrafts", ["server_id"], name: "index_minecrafts_on_server_id", unique: true, using: :btree
+
+  create_table "scheduled_tasks", force: :cascade do |t|
+    t.uuid    "server_id", null: false
+    t.integer "partition", null: false
+    t.string  "action",    null: false
+  end
+
+  add_index "scheduled_tasks", ["partition"], name: "index_scheduled_tasks_on_partition", using: :btree
 
   create_table "server_logs", force: :cascade do |t|
     t.uuid     "server_id",              null: false
@@ -88,6 +96,7 @@ ActiveRecord::Schema.define(version: 20150216221129) do
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
   add_foreign_key "minecrafts", "servers", on_delete: :cascade
+  add_foreign_key "scheduled_tasks", "servers", on_delete: :cascade
   add_foreign_key "server_logs", "servers", on_delete: :cascade
   add_foreign_key "servers", "users", on_delete: :cascade
   add_foreign_key "servers_users", "servers", on_delete: :cascade

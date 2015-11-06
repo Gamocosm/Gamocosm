@@ -9,9 +9,9 @@
 #  updated_at         :datetime
 #  domain             :string           not null
 #  pending_operation  :string
-#  ssh_port           :integer          default("4022"), not null
+#  ssh_port           :integer          default(4022), not null
 #  ssh_keys           :string
-#  setup_stage        :integer          default("0"), not null
+#  setup_stage        :integer          default(0), not null
 #  remote_id          :integer
 #  remote_region_slug :string           not null
 #  remote_size_slug   :string           not null
