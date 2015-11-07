@@ -70,6 +70,7 @@ agrarian_skies:
     website: http://forum.feed-the-beast.com/threads/41906/
     notes:
         - 2GB+ recommended
+        - This script is not updated frequently!
 ftb_resurrection:
     versions:
         - { name: FTB Resurrection (1.7.10), tag: 1.7.10 }
@@ -79,6 +80,7 @@ ftb_resurrection:
     website: http://feed-the-beast.com
     notes:
         - 2GB+ recommended
+        - This script is not updated frequently!
 crash_landing:
     versions:
         - { name: Crash Landing (1.6.4), tag: 1.6.4 }
@@ -89,6 +91,7 @@ crash_landing:
     website: http://forum.feed-the-beast.com/threads/46277/
     notes:
         - 2GB+ recommended
+        - This script is not updated frequently!
 direwolf20:
     versions:
         - { name: Direwolf20 (1.7.10), tag: 1.7.10 }
@@ -98,6 +101,7 @@ direwolf20:
     website: http://feed-the-beast.com
     notes:
         - 2GB+ recommended
+        - This script is not updated frequently!
 tppi:
     versions:
         - { name: Test Pack Please Ignore (1.6.4), tag: 1.6.4 }
@@ -107,3 +111,4 @@ tppi:
     website: http://www.reddit.com/r/TestPackPleaseIgnore/
     notes:
         - 2GB+ recommended
+        - This script is not updated frequently!
