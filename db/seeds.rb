@@ -11,7 +11,7 @@ if Rails.env.development?
   user.email = 'test@test.com'
   user.password = '1234test'
   user.password_confirmation = user.password
-  user.digital_ocean_api_key = Gamocosm.digital_ocean_api_key
+  user.digital_ocean_api_key = Gamocosm::DIGITAL_OCEAN_API_KEY
   user.save!
 
   user = User.new
