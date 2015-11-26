@@ -11,10 +11,13 @@
 #  autoshutdown_enabled         :boolean          default(FALSE), not null
 #  autoshutdown_last_check      :datetime         not null
 #  autoshutdown_last_successful :datetime         not null
+#  autoshutdown_minutes         :integer          default(8), not null
 #
 
 class Minecraft < ActiveRecord::Base
   belongs_to :server
+
+  validates :autoshutdown_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 5, less_than: 24 * 60 }
 
   after_initialize :after_initialize_callback
   before_validation :before_validate_callback

@@ -50,46 +50,48 @@ class ScheduledTask < ActiveRecord::Base
     h_24 = hours % 24
     h_12 = h_24 % 12
     ampm = h_24 < 12 ? 'am' : 'pm'
-    d = hours / 24
-    return "#{DAYS_OF_WEEK_INVERSE[d]} #{h_12}:#{m} #{ampm} #{action}"
+    d = hours / 24 % 7
+    return "#{DAYS_OF_WEEK_INVERSE[d]} #{h_12}:#{m.to_s.rjust(2, '0')} #{ampm} #{action}"
   end
 
   def self.parse(str, server)
     xs = []
     str.each_line do |l|
       x = self.parse_line(l.clean, server)
+      if x.error?
+        return x
+      end
       if !x.nil?
         xs.push(x)
       end
     end
+    return xs
   end
 
   def self.parse_line(line, server)
-    if line =~ /([a-z]+)\s+(\d+):(\d+)\s*([a-z]+)\s+([a-z]+)/
+    if line.nil?
+      return nil
+    end
+    if line =~ /([a-z]+)\s+(\d+):(\d\d)\s*([a-z]+)\s+([a-z]+)/
       day = DAYS_OF_WEEK[$1]
-      hour = $2.to_i % 12
+      hour = $2.to_i
       minute = $3.to_i
       ampm = AMPM[$4]
       action = $5
       if day.nil?
-        puts("Bad day of week #{$1}\n")
-        return nil
+        return "Bad day of week \"#{$1}\"".error!(nil)
       end
       if hour < 0 || hour >= 12
-        puts("Bad hour #{$2}")
-        return nil
+        return "Bad hour \"#{$2}\"".error!(nil)
       end
       if minute < 0 || minute >= 60 || minute % PARTITION_SIZE != 0
-        puts("Bad minute #{$3}")
-        return nil
+        return "Bad minute \"#{$3}\"".error!(nil)
       end
       if ampm.nil?
-        puts("Bad am/pm #{$4}")
-        return nil
+        return "Bad am/pm \"#{$4}\"".error!(nil)
       end
       if !ACTIONS.include?(action)
-        puts("Bad action #{$5}")
-        return nil
+        return "Bad action \"#{$5}\"".error!(nil)
       end
       return ScheduledTask.new({
         server: server,
@@ -97,6 +99,7 @@ class ScheduledTask < ActiveRecord::Base
         action: action,
       })
     end
+    return "Bad schedule item format \"#{line}\"".error!(nil)
   end
 
   def self.server_time_string

@@ -2,9 +2,13 @@ class AutoshutdownMinecraftWorker
   include Sidekiq::Worker
   sidekiq_options retry: 0
 
-  TIMES_TO_CHECK_MINUS_ONE = Rails.env.test? ? 2 : 7
-  CHECK_INTERVAL = 60.seconds
+  CHECK_INTERVAL = Rails.env.test? ? 2.seconds : 60.seconds
 
+  # if `last_check_successful` is false, `last_check_has_players` is also false, though its value doesn't matter
+  # `times` is the number of consecutive times we got the previous check's result
+  # e.g. if `last_check_successful = true`, `last_check_has_players = false`, `times = 2`, it means we've already seen that 2 times (and this may be the third)
+  # I used to check `TIMES_TO_CHECK_MINUS_ONE = 7` for 8 minutes shutdown... thinking about the logic now, not sure why...
+  # maybe I was wrong before, or maybe I'm missing something now
   def perform(server_id, last_check_successful = true, last_check_has_players = true, times = 0)
     # with models A has_one B, B belongs_to A
     # a.b.a.object_id != a.object_id
@@ -63,7 +67,7 @@ class AutoshutdownMinecraftWorker
   end
 
   def handle_failure(server, last_check_successful, times)
-    if !last_check_successful && times == TIMES_TO_CHECK_MINUS_ONE
+    if !last_check_successful && times == server.minecraft.autoshutdown_minutes
       UserMailer.autoshutdown_error_email(server).deliver_now
     else
       times_prime = last_check_successful ? 1 : (times + 1)
@@ -77,7 +81,7 @@ class AutoshutdownMinecraftWorker
       AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, true, true, 0)
       return
     end
-    if last_check_successful && times == TIMES_TO_CHECK_MINUS_ONE
+    if last_check_successful && times == server.minecraft.autoshutdown_minutes
       error = server.stop
       if error
         server.log("In autoshutdown worker, unable to stop server: #{error}")

@@ -3,22 +3,32 @@
 	<%= simple_form_for @server, (@demo.nil? ? { url: server_path(@server), method: :put } : { html: { onsubmit: 'return false;' } }) do |f| %>
 		<p>
 			You can setup a schedule to start/stop a server at different days of the week.
-			Autoshutdown also works with the schedule, but note that autoshutdown goes off after ~8 minutes of inactivity.
+			Autoshutdown also works with the schedule.
+			This feature is in beta!
+			Things may break, and if they do it'd be greatly appreciated if you <%= link_to 'submitted an issue', issues_path %> with as many details as possible.
+			Remember to backup your server locally!
 		</p>
+		<br />
+		<%= f.simple_fields_for :minecraft do |f_m| %>
+			<%= f_m.input :autoshutdown_minutes %>
+			<p>
+				Time of inactivity before shutting off your server (autoshutdown is <b><%= @server.minecraft.autoshutdown_enabled ? 'enabled' : 'disabled' %></b>, change this under the "Profile" tab).
+			</p>
+		<% end %>
 		<br />
 		<%= f.input :timezone_delta %>
 		<p>
-			The current server time is <b><%= ScheduledTask.server_time_string %></b> (Pacific Time).
-			Suppose your time is 3 hours ahead of the server: your "timezone delta" is 3.
-			If your time is behind the server, you can enter a negative number.
-			This way, your schedule will be based on your times.
+			The server's schedule is based on Pacific Time (currently <b><%= ScheduledTask.server_time_string %></b>).
+			By setting the timezone delta, you can enter times below based on your own clock.
+			Suppose you are 3 hours ahead (Eastern Time); your "timezone delta" is 3.
+			If you are behind, you can use negative numbers.
 		</p>
 		<br />
 		<%= f.input :schedule_text, as: :text, label: 'Schedule', input_html: { rows: 4 } %>
 		<p>
 			Enter a rule on each line, in the format <code>[day of week] [hour]:[minute] [am or pm] [start or stop]</code>:
 			<ul>
-				<li>A day of the week is [<%= ScheduledTask::DAYS_OF_WEEK_INVERSE.map { |k, v| k }.join(', ') %>], or just the first 3 letters</li>
+				<li>A day of the week is [<%= ScheduledTask::DAYS_OF_WEEK_INVERSE.map { |k, v| v }.join(', ') %>], or just the first 3 letters</li>
 				<li>The hour is in 12-hour format (1-12)</li>
 				<li>The minute is either "00" or "30" (only half-hour intervals supported)</li>
 				<li>Everything is case-insensitive ("am" is the same as "AM")</li>

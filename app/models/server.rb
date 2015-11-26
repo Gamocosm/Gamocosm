@@ -34,7 +34,8 @@ class Server < ActiveRecord::Base
   validates :remote_snapshot_id, numericality: { only_integer: true }, allow_nil: true
   validates :remote_region_slug, presence: true
   validates :remote_size_slug, presence: true
-
+  validates :ssh_port, numericality: { only_integer: true }
+  validates :timezone_delta, numericality: { only_integer: true, greater_than: -24, less_than: 24 }
 
   after_initialize :after_initialize_callback
   before_validation :before_validate_callback
@@ -58,6 +59,22 @@ class Server < ActiveRecord::Base
 
   def schedule_text
     return self.scheduled_tasks.map { |x| x.to_user_string }.join("\n")
+  end
+
+  def parse_and_save_schedule(text)
+    tasks = ScheduledTask.parse(text, self)
+    if tasks.error?
+      self.errors.add(:schedule_text, tasks.msg)
+      return false
+    end
+    self.scheduled_tasks.delete_all
+    tasks.each do |t|
+      if !t.save
+        self.errors.add(:schedule_text, 'Unknown error saving schedule item')
+        return false
+      end
+    end
+    return true
   end
 
   def host_name

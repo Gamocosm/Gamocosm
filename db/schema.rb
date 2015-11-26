@@ -26,6 +26,7 @@ ActiveRecord::Schema.define(version: 20151106024157) do
     t.boolean  "autoshutdown_enabled",         default: false, null: false
     t.datetime "autoshutdown_last_check",                      null: false
     t.datetime "autoshutdown_last_successful",                 null: false
+    t.integer  "autoshutdown_minutes",         default: 8,     null: false
   end
 
   add_index "minecrafts", ["server_id"], name: "index_minecrafts_on_server_id", unique: true, using: :btree

@@ -8,5 +8,6 @@ class CreateScheduledTasks < ActiveRecord::Migration
     add_foreign_key :scheduled_tasks, :servers, { on_delete: :cascade }
     add_index :scheduled_tasks, :partition
     add_column :servers, :timezone_delta, :integer, { null: false, default: 0 }
+    add_column :minecrafts, :autoshutdown_minutes, :integer, { null: false, default: 8 }
   end
 end

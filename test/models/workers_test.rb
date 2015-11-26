@@ -305,7 +305,7 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'autoshutdown minecraft worker remote error' do
-    times = AutoshutdownMinecraftWorker::TIMES_TO_CHECK_MINUS_ONE + 1
+    times = @server.minecraft.autoshutdown_minutes + 1
     mock_do_droplet_show(1).stub_do_droplet_show(400, 'active').times_only(times)
     AutoshutdownMinecraftWorker.perform_in(0.seconds, @server.id)
     for i in 0...times
@@ -319,7 +319,7 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'autoshutdown minecraft worker node error' do
-    times = AutoshutdownMinecraftWorker::TIMES_TO_CHECK_MINUS_ONE + 1
+    times = @server.minecraft.autoshutdown_minutes + 1
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(times)
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 1, { status: 'badness' }).times_only(times)
     @server.minecraft.update_columns(autoshutdown_enabled: true)
@@ -335,7 +335,7 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'autoshutdown minecraft worker server not active' do
-    times = AutoshutdownMinecraftWorker::TIMES_TO_CHECK_MINUS_ONE + 1
+    times = @server.minecraft.autoshutdown_minutes + 1
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'off').times_only(times)
     @server.minecraft.update_columns(autoshutdown_enabled: true)
     AutoshutdownMinecraftWorker.perform_in(0.seconds, @server.id)
@@ -350,7 +350,7 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'autoshutdown minecraft worker players online' do
-    times = AutoshutdownMinecraftWorker::TIMES_TO_CHECK_MINUS_ONE * 2
+    times = @server.minecraft.autoshutdown_minutes * 2
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(times)
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 1).times_only(times)
     @server.minecraft.update_columns(autoshutdown_enabled: true)
@@ -369,7 +369,7 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'autoshutdown minecraft server error stopping' do
-    times = AutoshutdownMinecraftWorker::TIMES_TO_CHECK_MINUS_ONE + 1
+    times = @server.minecraft.autoshutdown_minutes + 1
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(times)
     mock_do_droplet_action(1).stub_do_droplet_action(400, 'shutdown').times_only(1)
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 1).times_only(times)
@@ -389,7 +389,7 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'autoshutdown minecraft worker pid 0' do
-    times = AutoshutdownMinecraftWorker::TIMES_TO_CHECK_MINUS_ONE + 1
+    times = @server.minecraft.autoshutdown_minutes + 1
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(times)
     mock_do_droplet_action(1).stub_do_droplet_action(200, 'shutdown')
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 0).times_only(times)
@@ -407,7 +407,7 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'autoshutdown minecraft worker error querying' do
-    times = AutoshutdownMinecraftWorker::TIMES_TO_CHECK_MINUS_ONE + 1
+    times = @server.minecraft.autoshutdown_minutes + 1
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(times)
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 1).times_only(times)
     @server.minecraft.update_columns(autoshutdown_enabled: true)
