@@ -93,4 +93,22 @@ class ServerTest < ActiveSupport::TestCase
       @server.update_columns(remote_snapshot_id: nil)
     end
   end
+
+  test 'parse and save schedule' do
+    assert_not @server.parse_and_save_schedule('abc'), 'Server saved schedule text \'abc\'!'
+    assert_equal 1, @server.errors.full_messages_for(:schedule_text).count, 'Server schedule should have error for line "abc"'
+    @server.errors.clear
+    text = [
+      'monday 12:00 am start',
+      'tuesday 1:00 am start',
+      'wednesday 2:00 am start',
+    ].join("\n")
+    begin
+      assert @server.parse_and_save_schedule(text), 'Server should have saved valid schedule text'
+      assert @server.errors.empty?, 'Server should have no errors'
+      assert_equal 3, @server.scheduled_tasks.count, 'Server should have 3 scheduled tasks'
+    ensure
+      @server.scheduled_tasks.delete_all
+    end
+  end
 end

@@ -498,4 +498,46 @@ class WorkersTest < ActiveSupport::TestCase
     assert_match /snapshotting server on digital ocean failed/i, @server.logs.first.message
     assert_not @server.busy?, 'Worker should have reset server'
   end
+
+  test 'scheduled task worker' do
+    patch_schedule_time
+    @server.update_columns(remote_id: nil)
+    mock_do_ssh_keys_list(200, []).times_only(1)
+    mock_do_ssh_key_gamocosm(200)
+    mock_do_droplet_create().stub_do_droplet_create(200, @server.name, @server.remote_size_slug, @server.remote_region_slug, Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
+    mock_do_droplet_actions_list(200, 1)
+    begin
+      @server.scheduled_tasks.create!({
+        server: @server,
+        partition: 0,
+        action: 'start'
+      })
+      ScheduledTaskWorker.perform_in(0.seconds, 0)
+      ScheduledTaskWorker.perform_one
+      assert_equal 1, ScheduledTaskWorker.jobs.size, 'Scheduled task worker should have completed without exceptions'
+      ScheduledTaskWorker.clear
+      WaitForStartingServerWorker.clear
+
+      mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')
+      mock_do_droplet_action(1).stub_do_droplet_action(200, 'shutdown')
+      @server.update_columns(remote_id: 1, pending_operation: nil)
+      @server.scheduled_tasks.delete_all
+      @server.scheduled_tasks.create!({
+        server: @server,
+        partition: 0,
+        action: 'stop'
+      })
+      ScheduledTaskWorker.perform_in(0.seconds, 0)
+      ScheduledTaskWorker.perform_one
+      assert_equal 1, ScheduledTaskWorker.jobs.size, 'Scheduled task worker should have completed without exceptions'
+      ScheduledTaskWorker.clear
+      WaitForStoppingServerWorker.clear
+
+      # is this necessary?
+      @server.reload
+      assert_equal 0, @server.logs.count, "Server should have no errors from scheduled task worker, but has #{@server.logs.inspect}"
+    ensure
+      @server.scheduled_tasks.delete_all
+    end
+  end
 end

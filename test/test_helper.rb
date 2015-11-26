@@ -50,6 +50,15 @@ class ActiveSupport::TestCase
     end
   end
 
+  # hmmm
+  def patch_schedule_time
+    class << ScheduledTask::Partition
+      def server_current
+        return ScheduledTask::Partition.new(0)
+      end
+    end
+  end
+
   # WebMock basic helpers
   def mock_digital_ocean(verb, path)
     stub = stub_request(verb, File.join(DigitalOcean::Connection::API_URL, path))

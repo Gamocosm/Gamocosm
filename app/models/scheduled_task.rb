@@ -51,7 +51,7 @@ class ScheduledTask < ActiveRecord::Base
     h_12 = h_24 % 12
     ampm = h_24 < 12 ? 'am' : 'pm'
     d = hours / 24 % 7
-    return "#{DAYS_OF_WEEK_INVERSE[d]} #{h_12}:#{m.to_s.rjust(2, '0')} #{ampm} #{action}"
+    return "#{DAYS_OF_WEEK_INVERSE[d]} #{h_12 == 0 ? 12 : h_12}:#{m.to_s.rjust(2, '0')} #{ampm} #{action}"
   end
 
   def self.parse(str, server)
@@ -81,9 +81,10 @@ class ScheduledTask < ActiveRecord::Base
       if day.nil?
         return "Bad day of week \"#{$1}\"".error!(nil)
       end
-      if hour < 0 || hour >= 12
+      if hour <= 0 || hour > 12
         return "Bad hour \"#{$2}\"".error!(nil)
       end
+      hour = hour % 12
       if minute < 0 || minute >= 60 || minute % PARTITION_SIZE != 0
         return "Bad minute \"#{$3}\"".error!(nil)
       end
@@ -112,9 +113,8 @@ class ScheduledTask < ActiveRecord::Base
 
     def initialize(value)
       @value = value
-      x = @value % 100 % PARTITION_SIZE
-      y = @value - x
-      @snap = x * 2 < PARTITION_SIZE ? y : y + PARTITION_SIZE
+      @raw_snap = (value * 2 + PARTITION_SIZE) / 2 / PARTITION_SIZE * PARTITION_SIZE
+      @snap = Partition.fix(@raw_snap)
     end
 
     def self.calculate(day, hour, minute, ampm, delta)
@@ -123,18 +123,26 @@ class ScheduledTask < ActiveRecord::Base
     end
 
     def valid?
-      return (@value - @snap).abs <= PARTITION_DELTA
+      return (@value - @raw_snap).abs <= PARTITION_DELTA
     end
 
     def next
       if self.valid? || @snap < @value
-        return @value + PARTITION_SIZE
+        return Partition.fix(@snap + PARTITION_SIZE)
       end
       return @snap
     end
 
+    def self.fix(x)
+      y = x % 100
+      return (x / 100 + y / 60) * 100 + y % 60
+    end
+
     def self.server_current
-      x = DateTime.current
+      return self.from_datetime(DateTime.current)
+    end
+
+    def self.from_datetime(x)
       return Partition.new(Partition.calculate((x.wday - 1) % 7, x.hour, x.minute, 0, 0))
     end
   end

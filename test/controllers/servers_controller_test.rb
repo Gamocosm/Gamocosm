@@ -307,6 +307,33 @@ class ServersControllerTest < ActionController::TestCase
     assert_not_nil flash[:error], 'Updating ssh keys bad value, no error message'
   end
 
+  test 'edit schedule tab' do
+    sign_in @owner
+    view_server @server
+    assert_select '#server_timezone_delta', 1
+    begin
+      put :update, {
+        id: @server.id,
+        server: {
+          timezone_delta: 3,
+          minecraft_attributes: {
+            autoshutdown_minutes: 16,
+          },
+          schedule_text: 'saturday 10:00 am start',
+        }
+      }
+      assert_redirected_to server_path(@server)
+      view_server @server
+      assert_select '#server_timezone_delta[value=?]', '3'
+      assert_select '#server_schedule_text', { text: 'Saturday 10:00 am start' }
+      assert_select '#server_minecraft_attributes_autoshutdown_minutes[value=?]', '16'
+    ensure
+      @server.update_columns(timezone_delta: 0)
+      @server.minecraft.update_columns(autoshutdown_minutes: 8)
+      @server.scheduled_tasks.delete_all
+    end
+  end
+
   test 'busy page' do
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')
     sign_in @friend

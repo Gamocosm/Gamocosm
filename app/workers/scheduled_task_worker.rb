@@ -17,7 +17,7 @@ class ScheduledTaskWorker
         logger.error msg
         ExceptionNotification.notify_exception(RuntimeError.new(msg))
       end
-      ScheduledTask.find_by(partition: actual.snap).each do |task|
+      ScheduledTask.where(partition: actual.snap).each do |task|
         begin
           case task.action
           when 'start'
@@ -47,11 +47,11 @@ class ScheduledTaskWorker
       logger.error "Unhandled error in ScheduledTaskWorker! #{e.inspect}"
       raise e
     ensure
-      self.schedule_self
+      ScheduledTaskWorker.schedule_self
     end
   end
 
-  def schedule_self
+  def self.schedule_self
     actual = ScheduledTask::Partition.server_current
     minutes = actual.next - actual.value
     # doesn't take into account seconds, but should never be off by more than a minute, and should re-adjust when it passes a minute
