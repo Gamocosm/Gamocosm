@@ -11,6 +11,11 @@
 class ScheduledTask < ActiveRecord::Base
   belongs_to :server
 
+  # in minutes
+  PARTITION_SIZE = 30
+  # in minutes, the margin of error
+  PARTITION_DELTA = 5
+
   DAYS_OF_WEEK = {
     'mon' => 0,
     'monday' => 0,
@@ -74,7 +79,7 @@ class ScheduledTask < ActiveRecord::Base
         puts("Bad hour #{$2}")
         return nil
       end
-      if minute != 0 && minute != 30
+      if minute < 0 || minute >= 60 || minute % PARTITION_SIZE != 0
         puts("Bad minute #{$3}")
         return nil
       end
@@ -88,18 +93,46 @@ class ScheduledTask < ActiveRecord::Base
       end
       return ScheduledTask.new({
         server: server,
-        partition: self.calculate_partition(day, hour, minute, ampm, server.timezone_delta),
+        partition: Partition.calculate(day, hour, minute, ampm, server.timezone_delta),
         action: action,
       })
     end
   end
 
-  def self.calculate_partition(day, hour, minute, ampm, delta)
-    x = ((day * 24) + (hour) + (ampm * 12) - (delta)) % (7 * 24)
-    return x * 100 + minute
+  def self.server_time_string
+    return DateTime.now.in_time_zone(Gamocosm::TIMEZONE).strftime('%-I:%M %P (%H:%M) %Z')
   end
 
-  def self.server_time
-    return DateTime.now.in_time_zone(Gamocosm::TIMEZONE).strftime('%-I:%M %P (%H:%M) %Z')
+  class Partition
+    attr_reader :value
+    attr_reader :snap
+
+    def initialize(value)
+      @value = value
+      x = @value % 100 % PARTITION_SIZE
+      y = @value - x
+      @snap = x * 2 < PARTITION_SIZE ? y : y + PARTITION_SIZE
+    end
+
+    def self.calculate(day, hour, minute, ampm, delta)
+      x = ((day * 24) + (hour) + (ampm * 12) - (delta)) % (7 * 24)
+      return x * 100 + minute
+    end
+
+    def valid?
+      return (@value - @snap).abs <= PARTITION_DELTA
+    end
+
+    def next
+      if self.valid? || @snap < @value
+        return @value + PARTITION_SIZE
+      end
+      return @snap
+    end
+
+    def self.server_current
+      x = DateTime.current
+      return Partition.new(Partition.calculate((x.wday - 1) % 7, x.hour, x.minute, 0, 0))
+    end
   end
 end

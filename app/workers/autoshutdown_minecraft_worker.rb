@@ -3,7 +3,7 @@ class AutoshutdownMinecraftWorker
   sidekiq_options retry: 0
 
   TIMES_TO_CHECK_MINUS_ONE = Rails.env.test? ? 2 : 7
-  CHECK_INTERVAL = 64.seconds
+  CHECK_INTERVAL = 60.seconds
 
   def perform(server_id, last_check_successful = true, last_check_has_players = true, times = 0)
     # with models A has_one B, B belongs_to A

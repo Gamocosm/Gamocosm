@@ -12,7 +12,8 @@ cd /var/www/gamocosm
 git checkout release
 git pull origin release
 
-./run.sh bundle install
+# TODO rvm set for non-default case
+bundle install
 RAILS_ENV=production ./run.sh --bundler rake assets:precompile
 RAILS_ENV=production ./run.sh --bundler rake db:migrate
 RAILS_ENV=test ./run.sh rake db:migrate

@@ -70,6 +70,8 @@ module Gamocosm
     # config.i18n.default_locale = :de
 
     # Custom
+    # it seems even if you set this, DateTime#strftime's '%Z' format still shows a numeric timezone unless you use DateTime#in_time_zone
+    config.time_zone = TIMEZONE
     config.cache_store = :dalli_store, 'localhost', { namespace: "gamocosm-#{Rails.env}", expires_in: 24.hours, compress: true }
     config.exceptions_app = self.routes
     config.action_mailer.delivery_method = :smtp

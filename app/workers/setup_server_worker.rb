@@ -56,11 +56,8 @@ class SetupServerWorker
           execute :true
         end
       rescue SSHKit::Runner::ExecuteError => e
-        Rails.logger.error "Debugging #{self.class}: SSHKit error:"
-        Rails.logger.error "Debugging #{self.class}: SSHKit error to_s: #{e}"
-        Rails.logger.error "Debugging #{self.class}: SSHKit error inspect: #{e.inspect}"
-        Rails.logger.error "Debugging #{self.class}: SSHKit error cause to_s: #{e.cause}"
-        Rails.logger.error "Debugging #{self.class}: SSHKit error cause inspect: #{e.cause.inspect}"
+        logger.error "Debugging #{self.class}: SSHKit error: #{e.inspect}, #{e.cause.inspect}"
+        logger.error e.backtrace.join("\n")
         if times == 11
           server.log('Error connecting to server; failed to SSH. Aborting')
           server.reset_state
@@ -78,6 +75,11 @@ class SetupServerWorker
         end
         if e.cause.is_a?(Errno::ECONNREFUSED)
           server.log("Server started, but connection refused while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
+          SetupServerWorker.perform_in(16.seconds, server_id, times + 1)
+          return
+        end
+        if e.cause.is_a?(Net::SSH::ConnectionTimeout)
+          server.log("Server started, but connection timed out while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
           SetupServerWorker.perform_in(16.seconds, server_id, times + 1)
           return
         end
@@ -102,6 +104,8 @@ class SetupServerWorker
     rescue => e
       server.log("Background job setting up server failed: #{e}")
       server.reset_state
+      logger.error "Debugging #{self.class}: unhandled error: #{e.inspect}, #{e.cause.inspect}"
+      logger.error e.backtrace.join("\n")
       raise
     end
   rescue ActiveRecord::RecordNotFound => e

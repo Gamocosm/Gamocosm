@@ -8,7 +8,7 @@
 		<br />
 		<%= f.input :timezone_delta %>
 		<p>
-			The current server time is <b><%= ScheduledTask.server_time %></b> (Pacific Time).
+			The current server time is <b><%= ScheduledTask.server_time_string %></b> (Pacific Time).
 			Suppose your time is 3 hours ahead of the server: your "timezone delta" is 3.
 			If your time is behind the server, you can enter a negative number.
 			This way, your schedule will be based on your times.

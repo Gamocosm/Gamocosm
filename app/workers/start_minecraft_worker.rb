@@ -28,7 +28,7 @@ class StartMinecraftWorker
       end
       server.user.invalidate_digital_ocean_cache_snapshots
       if minecraft.autoshutdown_enabled
-        AutoshutdownMinecraftWorker.perform_in(64.seconds, server_id)
+        AutoshutdownMinecraftWorker.perform_in(AutoshutdownMinecraftWorker::CHECK_INTERVAL, server_id)
       end
       server.update_columns(pending_operation: nil)
     rescue => e
