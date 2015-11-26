@@ -9,13 +9,14 @@
 #  updated_at         :datetime
 #  domain             :string           not null
 #  pending_operation  :string
-#  ssh_port           :integer          default("4022"), not null
+#  ssh_port           :integer          default(4022), not null
 #  ssh_keys           :string
-#  setup_stage        :integer          default("0"), not null
+#  setup_stage        :integer          default(0), not null
 #  remote_id          :integer
 #  remote_region_slug :string           not null
 #  remote_size_slug   :string           not null
 #  remote_snapshot_id :integer
+#  timezone_delta     :integer          default(0), not null
 #
 
 class Server < ActiveRecord::Base
@@ -23,6 +24,7 @@ class Server < ActiveRecord::Base
   has_one :minecraft, dependent: :destroy
   has_and_belongs_to_many :friends, foreign_key: 'server_id', class_name: 'User', dependent: :destroy
   has_many :logs, foreign_key: 'server_id', class_name: 'ServerLog', dependent: :destroy
+  has_many :scheduled_tasks, dependent: :destroy
 
   validates :name, length: { in: 3...64 }
   validates :name, format: { with: /\A[a-z][a-z0-9-]*[a-z0-9]\z/, message: 'Name must start with a letter, and end with a letter or number. May include letters, numbers, and dashes in between' }
@@ -32,7 +34,8 @@ class Server < ActiveRecord::Base
   validates :remote_snapshot_id, numericality: { only_integer: true }, allow_nil: true
   validates :remote_region_slug, presence: true
   validates :remote_size_slug, presence: true
-
+  validates :ssh_port, numericality: { only_integer: true }
+  validates :timezone_delta, numericality: { only_integer: true, greater_than: -24, less_than: 24 }
 
   after_initialize :after_initialize_callback
   before_validation :before_validate_callback
@@ -52,6 +55,26 @@ class Server < ActiveRecord::Base
     self.remote_region_slug = self.remote_region_slug.clean
     self.remote_size_slug = self.remote_size_slug.clean
     self.ssh_keys = self.ssh_keys.try(:gsub, /\s/, '').clean
+  end
+
+  def schedule_text
+    return self.scheduled_tasks.map { |x| x.to_user_string }.join("\n")
+  end
+
+  def parse_and_save_schedule(text)
+    tasks = ScheduledTask.parse(text, self)
+    if tasks.error?
+      self.errors.add(:schedule_text, tasks.msg)
+      return false
+    end
+    self.scheduled_tasks.delete_all
+    tasks.each do |t|
+      if !t.save
+        self.errors.add(:schedule_text, 'Unknown error saving schedule item')
+        return false
+      end
+    end
+    return true
   end
 
   def host_name

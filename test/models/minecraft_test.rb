@@ -8,9 +8,10 @@
 #  server_id                    :uuid             not null
 #  flavour                      :string           not null
 #  mcsw_password                :string           not null
-#  autoshutdown_enabled         :boolean          default("false"), not null
+#  autoshutdown_enabled         :boolean          default(FALSE), not null
 #  autoshutdown_last_check      :datetime         not null
 #  autoshutdown_last_successful :datetime         not null
+#  autoshutdown_minutes         :integer          default(8), not null
 #
 
 require 'test_helper'

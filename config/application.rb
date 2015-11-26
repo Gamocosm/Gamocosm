@@ -37,6 +37,8 @@ module Gamocosm
   DIGITAL_OCEAN_SSH_PUBLIC_KEY_FINGERPRINT = Digest::MD5.hexdigest(Base64.decode64(DIGITAL_OCEAN_SSH_PUBLIC_KEY.split(/\s+/m)[1])).scan(/../).join(':')
   GIT_HEAD = `git rev-parse HEAD`.strip
   GIT_HEAD_DATE = Time.at(`git show -s --format=%ct HEAD`.to_i).strftime('%Y %b %-d %H:%M %Z')
+  # see ActiveSupport::TimeZone
+  TIMEZONE = 'Pacific Time (US & Canada)'
 
   @digital_ocean = nil
   def self.digital_ocean
@@ -68,6 +70,8 @@ module Gamocosm
     # config.i18n.default_locale = :de
 
     # Custom
+    # it seems even if you set this, DateTime#strftime's '%Z' format still shows a numeric timezone unless you use DateTime#in_time_zone
+    config.time_zone = TIMEZONE
     config.cache_store = :dalli_store, 'localhost', { namespace: "gamocosm-#{Rails.env}", expires_in: 24.hours, compress: true }
     config.exceptions_app = self.routes
     config.action_mailer.delivery_method = :smtp

@@ -43,12 +43,26 @@ class ServersController < ApplicationController
 
   def update
     @server = find_server_only_owner(params[:id])
+    # can be ftp ssh tab, schedule tab, or advanced tab
     ssh_keys = server_ssh_keys_params[:ssh_keys]
     if ssh_keys.nil?
-      if @server.update_attributes(server_advanced_params)
-        return redirect_to server_path(@server), flash: { success: 'Server advanced configuration updated' }
+      p = server_schedule_params
+      @server_tab = :schedule
+      schedule_text = nil
+      if p[:timezone_delta].nil?
+        p = server_advanced_params
+        @server_tab = :advanced
+      else
+        if !p[:minecraft_attributes].nil?
+          p[:minecraft_attributes][:id] = @server.minecraft.id
+        end
+        schedule_text = p.delete(:schedule_text)
       end
-      @server_advanced_tab = true
+      if @server.update_attributes(p)
+        if @server_tab != :schedule || @server.parse_and_save_schedule(schedule_text)
+          return redirect_to server_path(@server), flash: { success: (@server_tab == :schedule ? 'Server schedule updated' : 'Server advanced configuration updated') }
+        end
+      end
     else
       @server.ssh_keys = ssh_keys
       if @server.save
@@ -58,7 +72,7 @@ class ServersController < ApplicationController
         end
         return redirect_to server_path(@server), flash: { success: message }
       end
-      @server_ftp_ssh_tab = true
+      @server_tab = :ftp_ssh
     end
     flash[:error] = 'Something went wrong. Please try again'
     return render :show
@@ -367,6 +381,14 @@ class ServersController < ApplicationController
 
   def server_ssh_keys_params
     return params.require(:server).permit(:ssh_keys)
+  end
+
+  def server_schedule_params
+    return params.require(:server).permit(
+      :timezone_delta,
+      :schedule_text,
+      minecraft_attributes: [:autoshutdown_minutes],
+    )
   end
 
   def minecraft_command_params

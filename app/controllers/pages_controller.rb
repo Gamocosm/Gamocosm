@@ -20,12 +20,19 @@ class PagesController < ApplicationController
     @server.remote_size_slug = '1gb'
     @server.setup_stage = 5
     @server.remote_id = 1
+    @server.timezone_delta = 0
+    @server.scheduled_tasks = ScheduledTask.parse([
+      'Wednesday 8:00 pm start',
+      'Friday 3:30 pm start',
+      'Sunday 11:00 am start',
+    ].join("\n"), @server)
 
     minecraft = Mock::Minecraft.new
     minecraft.server = @server
     minecraft.autoshutdown_enabled = true
     minecraft.autoshutdown_last_check = Time.now - 32.seconds
     minecraft.autoshutdown_last_successful = Time.now - 32.seconds
+    minecraft.autoshutdown_minutes = 8
     @server.minecraft = minecraft
 
     user = User.new
