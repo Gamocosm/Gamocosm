@@ -110,11 +110,18 @@ class ScheduledTask < ActiveRecord::Base
   class Partition
     attr_reader :value
     attr_reader :snap
+    attr_reader :next
 
     def initialize(value)
       @value = value
-      @raw_snap = (value * 2 + PARTITION_SIZE) / 2 / PARTITION_SIZE * PARTITION_SIZE
-      @snap = Partition.fix(@raw_snap)
+      raw_snap = (value * 2 + PARTITION_SIZE) / 2 / PARTITION_SIZE * PARTITION_SIZE
+      @snap = Partition.fix(raw_snap)
+
+      @is_valid = (@value - raw_snap).abs <= PARTITION_DELTA
+      @next = @snap
+      if self.valid? || @snap < @value
+        @next = Partition.fix(@snap + PARTITION_SIZE)
+      end
     end
 
     def self.calculate(day, hour, minute, ampm, delta)
@@ -123,19 +130,18 @@ class ScheduledTask < ActiveRecord::Base
     end
 
     def valid?
-      return (@value - @raw_snap).abs <= PARTITION_DELTA
+      @is_valid
     end
 
-    def next
-      if self.valid? || @snap < @value
-        return Partition.fix(@snap + PARTITION_SIZE)
-      end
-      return @snap
-    end
-
+    # convers 60+ minutes to hour
     def self.fix(x)
       y = x % 100
       return (x / 100 + y / 60) * 100 + y % 60
+    end
+
+    # difference in minutes
+    def self.diff(x, y)
+      return x / 100 * 60 + x % 100 % 60 - (y / 100 * 60 + y % 100 % 60)
     end
 
     def self.server_current

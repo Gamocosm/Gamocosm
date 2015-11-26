@@ -43,7 +43,7 @@ class ScheduledTaskTest < ActiveSupport::TestCase
     assert_match /Bad schedule item format/, ScheduledTask.parse_line('abc', nil).msg
   end
 
-  test 'partition calculate, snap, valid, next' do
+  test 'partition calculate, snap, valid, diff, next' do
     a = ScheduledTask::Partition.calculate(0, 1, 5, 1, 20)
     assert_equal (6 * 24 + (24 - 7)) * 100 + 5, a, 'Partition A bad calculation'
 
@@ -65,6 +65,7 @@ class ScheduledTaskTest < ActiveSupport::TestCase
         assert_not b.valid?, "Partition B minute #{i} valid, but should not be #{b.inspect}"
         assert_equal i < 30 ? c : d, b.next, "Partition B minute #{i} bad next #{b.inspect}"
       end
+      assert_equal 0, ScheduledTask::Partition.diff(b.next, b.snap) % ScheduledTask::PARTITION_SIZE, "Scheduled task partition diff wrong: #{b.inspect}"
     end
   end
 end
