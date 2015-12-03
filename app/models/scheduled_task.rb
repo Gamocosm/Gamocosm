@@ -114,13 +114,13 @@ class ScheduledTask < ActiveRecord::Base
 
     def initialize(value)
       @value = value
-      raw_snap = (value * 2 + PARTITION_SIZE) / 2 / PARTITION_SIZE * PARTITION_SIZE
-      @snap = Partition.fix(raw_snap)
+      raw_snap = @value / 100 * 100 + (@value % 100 % 60 * 2 + PARTITION_SIZE) / 2 / PARTITION_SIZE * PARTITION_SIZE
+      @snap = Partition.fix(raw_snap) % (7 * 24 * 100)
 
       @is_valid = (@value - raw_snap).abs <= PARTITION_DELTA
       @next = @snap
       if self.valid? || @snap < @value
-        @next = Partition.fix(@snap + PARTITION_SIZE)
+        @next = Partition.fix(@snap + PARTITION_SIZE) % (7 * 24 * 100)
       end
     end
 
