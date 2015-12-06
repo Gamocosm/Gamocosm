@@ -1,3 +1,5 @@
+@import "variables";
+
 body {
 	font-family: "Open Sans", sans-serif;
 }
@@ -8,6 +10,27 @@ h1, h2, h3, h4, h5, h6 {
 
 .navbar-brand {
 	font-family: "Exo 2"/*"ocr-a-std"*/, sans-serif;
+}
+
+.btn-reverse {
+	&.btn-success {
+		background-color: transparent;
+		color: $btn-success-bg;
+		border-width: 2px;
+		border-style: solid;
+		border-color: $btn-success-bg;
+		text-decoration: none;
+
+		&:hover, &:focus {
+			background-color: $btn-success-bg;
+			color: white;
+			border-color: $btn-success-bg;
+		}
+		&:active {
+			background-color: darken($btn-success-bg, 5%);
+			border-color: darken($btn-success-bg, 5%);
+		}
+	}
 }
 
 table {
