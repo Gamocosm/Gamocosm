@@ -51,6 +51,9 @@ class ServersController < ApplicationController
       schedule_text = nil
       if p[:timezone_delta].nil?
         p = server_advanced_params
+        if !p[:minecraft_attributes].nil?
+          p[:minecraft_attributes][:id] = @server.minecraft.id
+        end
         @server_tab = :advanced
       else
         if !p[:minecraft_attributes].nil?
@@ -376,6 +379,7 @@ class ServersController < ApplicationController
       :remote_snapshot_id,
       :remote_region_slug,
       :remote_size_slug,
+      minecraft_attributes: [:mcsw_password],
     )
   end
 

@@ -53,7 +53,7 @@ class ScheduledTaskWorker
 
   def self.schedule_self
     actual = ScheduledTask::Partition.server_current
-    minutes = ScheduledTask::Partition.diff(actual.next, actual.value)
+    minutes = ScheduledTask::Partition.diff(actual.next, actual.value) % 60
     # doesn't take into account seconds, but should never be off by more than a minute, and should re-adjust when it passes a minute
     ScheduledTaskWorker.perform_in((minutes * 60).seconds, actual.next)
   end
