@@ -1,5 +1,7 @@
 vanilla:
     versions:
+        - { name: Vanilla (1.9.2), tag: 1.9.2 }
+        - { name: Vanilla (1.9), tag: 1.9 }
         - { name: Vanilla (1.8.8), tag: 1.8.8 }
         - { name: Vanilla (1.7.10), tag: 1.7.10 }
         - { name: Vanilla (1.7.2), tag: 1.7.2 }
@@ -41,6 +43,13 @@ forge:
     notes: []
 spigot:
     versions:
+        - { name: Spigot (Latest), tag: latest }
+        - { name: Spigot (1.9.4), tag: 1.9.4 }
+        - { name: Spigot (1.9.2), tag: 1.9.2 }
+        - { name: Spigot (1.9), tag: 1.9 }
+        - { name: Spigot (1.8.8), tag: 1.8.8 }
+        - { name: Spigot (1.8.7), tag: 1.8.7 }
+        - { name: Spigot (1.8.3), tag: 1.8.3 }
         - { name: Spigot (1.8), tag: 1.8 }
     time: 10
     developers:
