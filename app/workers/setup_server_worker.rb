@@ -20,7 +20,8 @@ class SetupServerWorker
     'git',
     'tmux',
     'unzip',
-    'wget'
+    'wget',
+    'policycoreutils-python-utils',
   ]
 
   ZRAM_SYSTEMD_SERVICE_FILE_URL = 'https://raw.githubusercontent.com/Gamocosm/Gamocosm/release/server_setup/zram.service'
@@ -271,6 +272,7 @@ class SetupServerWorker
             execute :'firewall-cmd', "--add-port=#{ssh_port}/tcp"
             execute :'firewall-cmd', '--permanent', "--add-port=#{ssh_port}/tcp"
             if ! test "semanage port -l | grep ssh | grep -q #{ssh_port}"
+              # see `/etc/ssh/sshd_config`
               execute :semanage, 'port', '-a', '-t', 'ssh_port_t', '-p', 'tcp', ssh_port
             end
             execute :sed, '-i', "'s/^#Port 22$/Port #{ssh_port}/'", '/etc/ssh/sshd_config'
