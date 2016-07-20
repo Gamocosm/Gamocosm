@@ -194,6 +194,10 @@ class Server < ActiveRecord::Base
     if error
       return error
     end
+    error = self.minecraft.pause
+    if error
+      log("Error stopping Minecraft server process #{error}, still proceeding with server shutdown")
+    end
     action = remote.shutdown
     if action.error?
       # action `unprocesable_entity`, already off
