@@ -6,8 +6,8 @@
 <% else %>
 	<%= simple_form_for @server, url: servers_path do |f| %>
 		<%= f.input :name, input_html: { size: 32 }, required: true %>
-		<%= f.input :remote_size_slug, collection: @do_sizes.collect { |x| [x.descriptor, x.slug] }, as: :select, include_blank: false, label: 'Size' %>
-		<%= f.input :remote_region_slug, collection: @do_regions.collect { |x| [x.name, x.slug] }, as: :select, include_blank: false, label: 'Region (higher tier better)' %>
+		<%= f.input :remote_size_slug, collection: @do_sizes.collect { |x| [x.descriptor, x.slug] }, as: :select, include_blank: false, label: 'Size (higher tier better)' %>
+		<%= f.input :remote_region_slug, collection: @do_regions.collect { |x| [x.name, x.slug] }, as: :select, include_blank: false, label: 'Region' %>
 		<%= f.simple_fields_for :minecraft do |s_f| %>
 			<%= s_f.input :flavour, collection: Gamocosm::MINECRAFT_FLAVOURS.collect { |k, v| [v[:name], k] }, as: :select, include_blank: false, label: 'Minecraft flavour', required: true %>
 		<% end %>
