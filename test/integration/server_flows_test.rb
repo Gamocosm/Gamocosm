@@ -21,6 +21,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
     server = create_server('test2', 'vanilla/1.7.10', 'nyc3', '512mb')
 
     mock_cf_domain(server.domain, 2)
+    mock_mcsw_stop(200, server.minecraft)
 
     start_server(server, { motd: 'A Minecraft Server' })
     update_minecraft_properties(server, { motd: 'A Gamocosm Minecraft Server' })

@@ -71,7 +71,7 @@ class ServerTest < ActiveSupport::TestCase
   test 'stop already off server' do
     mock_do_droplet_action(1).stub_do_droplet_action(422, 'shutdown').times_only(1)
     mock_do_droplet_action(1).stub_do_droplet_action(200, 'snapshot').times_only(1)
-    mock_do_droplet_show(1).stub_do_droplet_show(200, 'off').times_only(1)
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'off').times_only(2)
     begin
       @server.update_columns(remote_id: 1)
       x = @server.stop

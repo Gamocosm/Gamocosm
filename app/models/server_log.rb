@@ -16,4 +16,8 @@ class ServerLog < ActiveRecord::Base
   def when
     return created_at.in_time_zone(Gamocosm::TIMEZONE).strftime('%Y %b %-d (%H:%M:%S %Z)')
   end
+
+  def to_s
+    return "{ log #{id}: #{message} }"
+  end
 end

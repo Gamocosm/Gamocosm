@@ -14,6 +14,9 @@ class WorkersTest < ActiveSupport::TestCase
 
   test 'record not found in workers' do
     random_uuid = SecureRandom.uuid
+    while Server.find_by_id(random_uuid) != nil do
+      random_uuid = SecureRandom.uuid
+    end
     WaitForStartingServerWorker.perform_in(0.seconds, random_uuid, 0)
     WaitForStartingServerWorker.perform_one
     assert_equal 0, WaitForStartingServerWorker.jobs.size, 'Worker should have exited after record not found'
@@ -373,6 +376,7 @@ class WorkersTest < ActiveSupport::TestCase
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(times)
     mock_do_droplet_action(1).stub_do_droplet_action(400, 'shutdown').times_only(1)
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 1).times_only(times)
+    mock_mcsw_stop(200, @server.minecraft).times_only(1)
     @server.minecraft.update_columns(autoshutdown_enabled: true)
     AutoshutdownMinecraftWorker.perform_in(0.seconds, @server.id)
     with_minecraft_query_server do |mcqs|
@@ -393,6 +397,7 @@ class WorkersTest < ActiveSupport::TestCase
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(times)
     mock_do_droplet_action(1).stub_do_droplet_action(200, 'shutdown')
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 0).times_only(times)
+    mock_mcsw_stop(200, @server.minecraft)
     @server.minecraft.update_columns(autoshutdown_enabled: true)
     AutoshutdownMinecraftWorker.perform_in(0.seconds, @server.id)
     for i in 0...times
@@ -400,7 +405,7 @@ class WorkersTest < ActiveSupport::TestCase
     end
     @server.reload
     assert_equal 0, AutoshutdownMinecraftWorker.jobs.size, 'Autoshutdown Minecraft worker should be done'
-    assert_equal 0, @server.logs.count, 'Shouldn\'t have any server logs'
+    assert_equal 0, @server.logs.count, "Shouldn't have any server logs, but had #{@server.logs.join(',')}"
     assert_equal 'stopping', @server.pending_operation, 'Autoshutdown Minecraft worker should have stopped server'
     assert_equal 1, WaitForStoppingServerWorker.jobs.size, 'Autoshutdown Minecraft worker should have queued wait for stopping server worker'
     WaitForStoppingServerWorker.clear
@@ -520,6 +525,8 @@ class WorkersTest < ActiveSupport::TestCase
 
       mock_do_droplet_show(1).stub_do_droplet_show(200, 'active')
       mock_do_droplet_action(1).stub_do_droplet_action(200, 'shutdown')
+      mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 1).times_only(1)
+      mock_mcsw_stop(200, @server.minecraft)
       @server.update_columns(remote_id: 1, pending_operation: nil)
       @server.scheduled_tasks.delete_all
       @server.scheduled_tasks.create!({

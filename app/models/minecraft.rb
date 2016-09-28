@@ -86,6 +86,9 @@ class Minecraft < ActiveRecord::Base
   def pause
     error = pause?
     if error
+      if server.running? && !node.error? && !(node.pid > 0)
+        return nil
+      end
       return error
     end
     return node.pause

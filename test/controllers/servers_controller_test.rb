@@ -108,6 +108,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'new').times(1).stub_do_droplet_show(200, 'active')
     mock_do_droplet_actions_list(200, 1)
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 1)
+    mock_mcsw_stop(200, @server.minecraft)
     mock_do_droplet_action(1).stub_do_droplet_action(200, 'shutdown')
     sign_in @friend
     view_server @server
