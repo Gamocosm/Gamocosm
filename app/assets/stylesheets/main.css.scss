@@ -66,3 +66,57 @@ img.img-thumbnail {
 .container-fluid {
 	background-color: #fafafa;/*#C8E6C9;*/
 }
+
+.checkbox-pretty {
+	&:hover {
+		cursor: pointer;
+
+		.indicator {
+			color: $gray-dark;
+		}
+	}
+
+	input[type="checkbox"] {
+		display: none;
+	}
+
+	.indicator {
+		width: $font-size-base + 7;
+		margin-right: 3px;
+		padding: 3px;
+		border: 1px solid $gray-light;
+		border-radius: $border-radius-small;
+		color: $gray-light;
+		display: none;
+	}
+
+	input[type="checkbox"]:checked ~ .if-checked {
+		display: inline-block;
+	}
+
+	input[type="checkbox"]:not(:checked) ~ .if-not-checked {
+		display: inline-block;
+	}
+}
+
+.login-pane {
+	margin-top: 50px;
+
+	.btn {
+		min-width: 70%;
+	}
+}
+
+.devise-links {
+	text-align: center;
+
+	> a {
+		display: inline-block;
+		margin-right: $padding-small-horizontal;
+	}
+
+	// > a:last-child {
+	// 	float: right;
+	// 	margin-right: 0;
+	// }
+}

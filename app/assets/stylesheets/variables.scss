@@ -1,6 +1,10 @@
-
+$panel-default-border: #ddd;
 
 $btn-info-bg: #8BC34A;
 $btn-danger-bg: #3F51B5;
+
+.panel {
+  box-shadow: 0 0 3px #ddd;
+}
 
 @import "bootstrap/variables";

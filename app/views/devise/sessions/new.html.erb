@@ -1,22 +1,37 @@
 <% title 'Sign in - Gamocosm' %>
 <div class="row">
-  <h2>Sign in</h2>
 
-  <div class="col-sm-4">
-    <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-      <div class="form-inputs">
-        <%= f.input :email, required: false, autofocus: true %>
-        <%= f.input :password, required: false %>
-        <label>
-          Remember me
-          <%= f.input_field :remember_me, as: :boolean if devise_mapping.rememberable? %>
-        </label>
+  <div class="col-sm-4 col-sm-offset-4">
+    <div class="panel panel-default login-pane">
+      <div class="panel-header text-center">
+        <h2>Sign in</h2>
       </div>
 
-      <div class="form-actions">
-        <%= f.button :submit, "Sign in" %>
+      <div class="panel-body text-center">
+        <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+          <div class="form-group">
+            <%= f.label :email, class: "sr-only" %>
+            <%= f.text_field :email, required: false, autofocus: true, placeholder: "Email", class: "form-control input-lg" %>
+          </div>
+          <div class="form-group">
+            <%= f.label :password, class: "sr-only" %>
+            <%= f.password_field :password, required: false, placeholder: "Password", class: "form-control input-lg" %>
+          </div>
+          <div class="form-group">
+            <%= f.label :remember_me, class: "checkbox-pretty" do %>
+              <%= f.check_box :remember_me if devise_mapping.rememberable? %>
+              <span class="fa fa-check indicator if-checked"></span>
+              <span class="fa fa-close indicator if-not-checked"></span>
+              Remember me
+            <% end %>
+          </div>
+
+          <div class="form-actions">
+            <%= f.submit "Sign in", class: "btn btn-lg btn-primary" %>
+          </div>
+        <% end %>
       </div>
-    <% end %>
+    </div>
 
     <%= render "devise/shared/links" %>
   </div>
