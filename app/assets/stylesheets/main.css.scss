@@ -177,3 +177,11 @@ img.img-thumbnail {
 		}
 	}
 }
+
+.ftp-details {
+	table-layout: auto;
+
+	tr > *:first-child {
+		min-width: 150px;
+	}
+}

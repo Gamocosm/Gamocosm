@@ -1,18 +1,16 @@
 <%= panel_with_heading 'Server Credentials' do %>
-	FTP and SSH instructions are on the <%= link_to 'wiki', wiki_ftp_ssh_path %>.
-	<br /><br />
-	<dl>
-		<dt>Host</dt><dd><%= render_server_ip_address(@server, 'Your server\'s IP address when running') %></dd>
-		<dt>Port</dt><dd><%= @server.ssh_port %></dd>
-		<dt>User</dt><dd>mcuser</dd>
-		<dt>Password</dt>
-		<dd><ul>
-			<li>Default: your email and the name of your server separated with a plus, e.g. "steve@example.com+terrafirmacraft" (<strong>you should change this!</strong>)</li>
-			<li>Even if you specify SSH key(s) to add to your server, a password must be set for you to use sudo</li>
-		</ul></dd>
-		<dt>FTP Protocol</dt><dd>SFTP</dd>
-		<dt>FTP Logon Type</dt><dd>Normal (saves password) or Ask for password (every time)</dd>
-	</dl>
+	<p>FTP and SSH instructions are on the <%= link_to 'wiki', wiki_ftp_ssh_path %>.</p>
+	<table class="ftp-details table">
+		<tr><th scope="row">Host</th><td><%= render_server_ip_address(@server, 'Your server\'s IP address when running') %></td></tr>
+		<tr><th scope="row">Port</th><td><%= @server.ssh_port %></td></tr>
+		<tr><th scope="row">User</th><td>mcuser</td></tr>
+		<tr><th scope="row">Password</th>
+		<td><p>Defaults to your email and the name of your server separated with a plus, e.g. "steve@example.com+terrafirmacraft" (<strong>you should change this!</strong>)</p>
+			<p>Even if you specify SSH key(s) to add to your server, a password must be set for you to use sudo</p>
+		</td></tr>
+		<tr><th scope="row">FTP Protocol</th><td>SFTP</td></tr>
+		<tr><th scope="row">FTP Logon Type</th><td>Normal (saves password) or Ask for password (every time)</td></tr>
+	</table>
 <% end %>
 
 <%= panel_with_heading 'Changing your server password' do %>
@@ -28,9 +26,15 @@
 	<p>
 		The next time you start your server, Gamocosm will add these keys to your list of authorized keys (and reset this field)
 	</p>
-	<%= simple_form_for @server, (@demo.nil? ? { url: server_path(@server), method: :put } : { html: { onsubmit: 'return false;' } }) do |f| %>
-		<%= f.input :ssh_keys, label: false, hint: 'Comma separated list of Digital Ocean SSH key IDs (spaces will be stripped)' %>
-		<%= f.button :submit, 'Save', class: 'btn btn-default' %>
+	<%= form_for @server, (@demo.nil? ? { url: server_path(@server), method: :put } : { html: { onsubmit: 'return false;' } }) do |f| %>
+		<%= f.label :ssh_keys, class: "sr-only" %>
+		<div class="input-group">
+			<%= f.text_field :ssh_keys, class: "form-control" %>
+			<span class="input-group-btn">
+				<%= f.submit 'Save', class: 'btn btn-default' %>
+			</span>
+		</div>
+		<p class="help-block">Comma separated list of Digital Ocean SSH key IDs (spaces will be stripped)</p>
 	<% end %>
 	<hr />
 	<h4>SSH keys on Digital Ocean</h4>
