@@ -10,13 +10,13 @@
 		<br />
 		<%= f.simple_fields_for :minecraft do |f_m| %>
 			<%= f_m.input :autoshutdown_minutes %>
-			<p>
+			<p class="help-block">
 				Time of inactivity before shutting off your server (autoshutdown is <b><%= @server.minecraft.autoshutdown_enabled ? 'enabled' : 'disabled' %></b>, change this under the "Profile" tab).
 			</p>
 		<% end %>
 		<br />
 		<%= f.input :timezone_delta %>
-		<p>
+		<p class="help-block">
 			The server's schedule is based on Pacific Time (currently <b><%= ScheduledTask.server_time_string %></b>).
 			By setting the timezone delta, you can enter times below based on your own clock.
 			Suppose you are 3 hours ahead (Eastern Time); your "timezone delta" is 3.
@@ -24,15 +24,15 @@
 		</p>
 		<br />
 		<%= f.input :schedule_text, as: :text, label: 'Schedule', input_html: { rows: 4 } %>
-		<p>
+		<p class="help-block">
 			Enter a rule on each line, in the format <code>[day of week] [hour]:[minute] [am or pm] [start or stop]</code>:
-			<ul>
-				<li>A day of the week is [<%= ScheduledTask::DAYS_OF_WEEK_INVERSE.map { |k, v| v }.join(', ') %>], or just the first 3 letters</li>
-				<li>The hour is in 12-hour format (1-12)</li>
-				<li>The minute is either "00" or "30" (only half-hour intervals supported)</li>
-				<li>Everything is case-insensitive ("am" is the same as "AM")</li>
-			</ul>
 		</p>
+		<ul class="help-block">
+			<li>A day of the week is [<%= ScheduledTask::DAYS_OF_WEEK_INVERSE.map { |k, v| v }.join(', ') %>], or just the first 3 letters</li>
+			<li>The hour is in 12-hour format (1-12)</li>
+			<li>The minute is either "00" or "30" (only half-hour intervals supported)</li>
+			<li>Everything is case-insensitive ("am" is the same as "AM")</li>
+		</ul>
 		<br />
 		<%= f.button :submit, 'Save', class: 'btn btn-success' %>
 	<%end %>
