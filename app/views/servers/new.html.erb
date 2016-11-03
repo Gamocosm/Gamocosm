@@ -2,11 +2,8 @@
 <div class="row">
   <div class="col-sm-12">
 		<div class="page-header">
-			<h1>
-        <%= link_to "Servers", servers_path %>
-        <span class="fa fa-angle-right"></span>
-				New Server
-			</h1>
+			<%= breadcrumb_back_to_servers %>
+			<h1>New Server</h1>
 		</div>
 
     <%= render partial: 'create' %>

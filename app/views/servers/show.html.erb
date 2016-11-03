@@ -6,7 +6,11 @@
 	<div class="row">
 		<div class="col-sm-12">
 			<div class="page-header">
-				<h1><%= @server.name %></h1>
+				<%= breadcrumb_back_to_servers %>
+				<h1>
+					<%= @server.name %>
+					<small><%= @server.remote_region_slug %>-<%= @server.remote_size_slug %></small>
+				</h1>
 				<%= render partial: 'servers/control_panel' %>
 			</div>
 		</div>

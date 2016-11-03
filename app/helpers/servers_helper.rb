@@ -18,4 +18,10 @@ module ServersHelper
       'text-muted'
     end
   end
+
+  def breadcrumb_back_to_servers
+    link_to servers_path, class: "basic-breadcrumb" do
+      "Servers <span class='fa fa-angle-right'></span>".html_safe
+    end
+  end
 end
