@@ -77,6 +77,16 @@ img.img-thumbnail {
 	}
 }
 
+// Useful for putting information snippets in button groups
+.btn-fake {
+	border-color: $gray-lighter;
+	cursor: default;
+
+	&:active {
+		box-shadow: none;
+	}
+}
+
 .checkbox-pretty {
 	&:hover {
 		cursor: pointer;

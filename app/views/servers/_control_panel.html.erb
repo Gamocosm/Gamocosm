@@ -1,34 +1,52 @@
 <div class="control-panel">
 	<% if @demo.nil? %>
 		<span class="info-box btn-group">
-			<h4 class="btn btn-default">Physical Server: <strong><%= render_server_status(@server) %></strong></h4>
+			<h4 class="btn btn-fake">
+				Physical Server:
+				<strong class="<%= server_status_class(@server) %>"><%= render_server_status(@server) %></strong>
+			</h4>
 			<% if @server.start?.nil? %>
 				<%= link_to start_server_path(@server), class: "btn btn-success" do %>
 					<span class="fa fa-power-off"></span> Turn on
 				<% end %>
 			<% end %>
 			<% if @server.stop?.nil? %>
-				<%= link_to 'Turn off', stop_server_path(@server), class: "btn btn-danger" %>
+				<%= link_to stop_server_path(@server), class: "btn btn-danger" do %>
+					<span class="fa fa-power-off"></span> Turn off
+				<% end %>
 			<% end %>
 			<% if @server.reboot?.nil? %>
-				<%= link_to 'Reboot', reboot_server_path(@server), class: "btn btn-info" %>
+				<%= link_to reboot_server_path(@server), class: "btn btn-info" do %>
+					<span class="fa fa-refresh"></span> Reboot
+				<% end %>
 			<% end %>
 		</span>
 
 		<span class="info-box btn-group">
-			<h4 class="btn btn-default">Minecraft: <strong><%= @server.minecraft.resume? ? 'Inactive' : 'Running' %></strong></h4>
+			<h4 class="btn btn-fake">
+				Minecraft:
+				<strong class="<%= server_minecraft_status_class(@server) %>"><%= @server.minecraft.resume? ? 'Inactive' : 'Running' %></strong>
+			</h4>
 
 			<% if @server.minecraft.pause?.nil? %>
-				<%= link_to 'Stop', pause_server_path(@server), class: "btn btn-info btn-block" %>
+				<%= link_to pause_server_path(@server), class: "btn btn-info" do %>
+					<span class="fa fa-stop"></span> Stop
+				<% end %>
 			<% else %>
-				<%= link_to 'Start', resume_server_path(@server), class: "btn btn-success #{@server.minecraft.resume?.nil? ? '' : 'disabled'}" %>
+				<%= link_to resume_server_path(@server), class: "btn btn-success #{@server.minecraft.resume?.nil? ? '' : 'disabled'}" do %>
+					<span class="fa fa-play"></span> Start
+				<% end %>
 			<% end %>
 		</span>
 
 		<div class="pull-right">
 			<span class="info-box btn-group">
-				<%= link_to 'Backup remotely', backup_server_path(@server), class: "btn btn-success #{!@server.minecraft.backup?.nil? ? 'disabled' : ''}" %>
-				<%= link_to 'Download world', download_server_path(@server), class: "btn btn-info #{!@server.minecraft.download?.nil? ? 'disabled' : ''}" %>
+				<%= link_to backup_server_path(@server), class: "btn btn-info #{!@server.minecraft.backup?.nil? ? 'disabled' : ''}" do %>
+					<span class="fa fa-archive"></span> Backup remotely
+				<% end %>
+				<%= link_to download_server_path(@server), class: "btn btn-info #{!@server.minecraft.download?.nil? ? 'disabled' : ''}" do %>
+					<span class="fa fa-download"></span> Download world
+				<% end %>
 			</span>
 
 			<% if @server.owner?(current_user) %>
