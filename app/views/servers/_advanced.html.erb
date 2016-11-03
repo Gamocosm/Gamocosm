@@ -1,4 +1,3 @@
-<br />
 <%= simple_form_for @server, (@demo.nil? ? { url: server_path(@server), method: :put } : { html: { onsubmit: 'return false;' } }) do |f| %>
 	<%= panel_with_heading 'Advanced Configuration' do %>
 		View the documentation for these fields on the <%= link_to 'wiki', wiki_server_advanced_tab_path %>.

@@ -1,4 +1,3 @@
-<br />
 <%= panel_with_heading 'Schedule' do %>
 	<%= simple_form_for @server, (@demo.nil? ? { url: server_path(@server), method: :put } : { html: { onsubmit: 'return false;' } }) do |f| %>
 		<p>

@@ -71,6 +71,10 @@ img.img-thumbnail {
 	> .panel-heading {
 		border: none;
 	}
+
+	> .panel-body *:last-child {
+		margin-bottom: 0;
+	}
 }
 
 .checkbox-pretty {
@@ -146,7 +150,6 @@ img.img-thumbnail {
 		}
 	}
 }
-
 
 .friends-list {
 	padding: 0;
