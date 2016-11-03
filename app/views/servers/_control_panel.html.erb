@@ -33,19 +33,38 @@
 					<span class="fa fa-stop"></span> Stop
 				<% end %>
 			<% else %>
-				<%= link_to resume_server_path(@server), class: "btn btn-success #{@server.minecraft.resume?.nil? ? '' : 'disabled'}" do %>
-					<span class="fa fa-play"></span> Start
+				<% if @server.minecraft.resume? %>
+					<span class="btn btn-success disabled" data-toggle="tooltip" data-container="body" title="<%= @server.minecraft.resume? %>">
+						<span class="fa fa-play"></span> Start
+					</span>
+				<% else %>
+					<%= link_to resume_server_path(@server), class: "btn btn-success" do %>
+						<span class="fa fa-play"></span> Start
+					<% end %>
 				<% end %>
 			<% end %>
 		</span>
 
 		<div class="pull-right">
 			<span class="info-box btn-group">
-				<%= link_to backup_server_path(@server), class: "btn btn-info #{!@server.minecraft.backup?.nil? ? 'disabled' : ''}" do %>
-					<span class="fa fa-archive"></span> Backup remotely
+				<% if @server.minecraft.backup? %>
+					<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="<%= @server.minecraft.backup? %>">
+						<span class="fa fa-archive"></span> Backup remotely
+					</span>
+				<% else %>
+					<%= link_to backup_server_path(@server), class: "btn btn-info" do %>
+						<span class="fa fa-archive"></span> Backup remotely
+					<% end %>
 				<% end %>
-				<%= link_to download_server_path(@server), class: "btn btn-info #{!@server.minecraft.download?.nil? ? 'disabled' : ''}" do %>
-					<span class="fa fa-download"></span> Download world
+
+				<% if @server.minecraft.download? %>
+					<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="<%= @server.minecraft.download? %>">
+						<span class="fa fa-download"></span> Download world
+					</span>
+				<% else %>
+					<%= link_to backup_server_path(@server), class: "btn btn-info" do %>
+						<span class="fa fa-download"></span> Download world
+					<% end %>
 				<% end %>
 			</span>
 

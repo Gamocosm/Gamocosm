@@ -79,7 +79,7 @@ img.img-thumbnail {
 
 // Useful for putting information snippets in button groups
 .btn-fake {
-	border-color: $gray-lighter;
+	border-color: $btn-default-border;
 	cursor: default;
 
 	&:active {
