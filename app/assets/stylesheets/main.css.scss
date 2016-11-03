@@ -67,6 +67,12 @@ img.img-thumbnail {
 	background-color: #fafafa;/*#C8E6C9;*/
 }
 
+.panel {
+	> .panel-heading {
+		border: none;
+	}
+}
+
 .checkbox-pretty {
 	&:hover {
 		cursor: pointer;
@@ -119,4 +125,42 @@ img.img-thumbnail {
 	// 	float: right;
 	// 	margin-right: 0;
 	// }
+}
+
+.control-panel {
+	.info-box {
+		display: inline-block;
+		margin: $padding-base-vertical 0;
+		padding-right: $padding-large-horizontal;
+		border-radius: $border-radius-base;
+
+		&:last-child {
+			padding-right: 0;
+		}
+
+		h4 {
+			display: inline-block;
+			margin: 0;
+			font-size: $font-size-base;
+			padding-right: $padding-small-horizontal;
+		}
+	}
+}
+
+
+.friends-list {
+	padding: 0;
+
+	> li {
+		list-style-type: none;
+	}
+
+	.friend {
+		display: table;
+
+		.email {
+			display: table-cell;
+			width: 100%;
+		}
+	}
 }

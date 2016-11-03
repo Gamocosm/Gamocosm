@@ -1,9 +1,11 @@
-<tr>
-	<td><%= friend.email %></td>
-	<td>
-		<%= simple_form_for :server_friend, url: remove_friend_server_path(@server), method: :post do |f| %>
-			<%= f.input :email, as: :hidden, input_html: { value: friend.email } %>
-			<%= f.button :submit, 'Remove', class: 'btn btn-default pull-right' %>
-		<% end %>
-	</td>
-</tr>
+<li>
+	<%= simple_form_for :server_friend, url: remove_friend_server_path(@server), method: :post do |f| %>
+		<%= f.input :email, as: :hidden, input_html: { value: friend.email } %>
+		<div class="friend">
+			<span class="email"><%= friend.email %></span>
+			<span class="actions">
+				<%= f.button :submit, 'Remove', class: 'btn btn-default' %>
+			</span>
+		</div>
+	<% end %>
+</li>
