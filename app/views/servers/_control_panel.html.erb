@@ -25,7 +25,7 @@
 		<span class="info-box btn-group">
 			<h4 class="btn btn-fake">
 				Minecraft:
-				<strong class="<%= server_minecraft_status_class(@server) %>"><%= @server.minecraft.resume? ? 'Inactive' : 'Running' %></strong>
+				<strong class="<%= server_minecraft_status_class(@server) %>"><%= @server.minecraft.running? ? 'Running' : 'Inactive' %></strong>
 			</h4>
 
 			<% if @server.minecraft.pause?.nil? %>
@@ -62,7 +62,7 @@
 						<span class="fa fa-download"></span> Download world
 					</span>
 				<% else %>
-					<%= link_to backup_server_path(@server), class: "btn btn-info" do %>
+					<%= link_to download_server_path(@server), class: "btn btn-info" do %>
 						<span class="fa fa-download"></span> Download world
 					<% end %>
 				<% end %>
