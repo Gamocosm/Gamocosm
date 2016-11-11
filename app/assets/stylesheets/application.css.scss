@@ -9,14 +9,17 @@
  * compiled file so the styles you add here take precedence over styles defined in any styles
  * defined in the other CSS/SCSS files in this directory. It is generally better to create a new
  * file per style scope.
- *
- *= require_self
- *= require_tree .
  */
 
 @import "variables";
 
-//@import "bootstrap-sprockets";
 @import "bootstrap";
 @import "font-awesome-sprockets";
 @import "font-awesome";
+
+@import "components/flash";
+@import "components/footer";
+@import "components/navbar";
+@import "main";
+@import "minecrafts";
+@import "pages";
