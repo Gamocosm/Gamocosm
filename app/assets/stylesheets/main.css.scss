@@ -1,15 +1,7 @@
 @import "variables";
 
-body {
-	font-family: "Open Sans", sans-serif;
-}
-
-h1, h2, h3, h4, h5, h6 {
-	font-family: "Exo 2"/*"ocr-a-std"*/, sans-serif;
-}
-
 .navbar-brand {
-	font-family: "Exo 2"/*"ocr-a-std"*/, sans-serif;
+	font-family: $font-family-decorative;
 }
 
 .page-header {
