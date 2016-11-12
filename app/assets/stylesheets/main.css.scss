@@ -78,40 +78,40 @@ dl.faq dd {
 	}
 }
 
-.features {
-	padding-top: $padding-large-vertical * 2;
+.features-wrapper {
+	$spacing: $padding-large-horizontal;
+
+	padding: ($padding-large-vertical * 2) 0;
 	background-color: $gray-lighter;
 
-	.feature-highlight {
+	.features {
 		display: flex;
-		flex-direction: row;
-		align-items: center;
-		margin-bottom: ($grid-gutter-width / 2);
-		padding-top: ($grid-gutter-width / 2);
-		padding-bottom: ($grid-gutter-width / 2);
+		flex-wrap: wrap;
+		margin: 0 (-$spacing / 2);
+	}
+
+	.feature-highlight {
+		flex: 1;
+		flex-basis: 45%;
+		display: flex;
+		margin: ($spacing / 2);
+		padding: $padding-base-horizontal;
 		border-radius: $border-radius-base;
-		border-left: 5px solid transparent;
 		background: white;
 		box-shadow: 0 0 3px darken($gray-lighter, 15%);
 
-		&:nth-child(1) {
-			border-left-color: $brand-info;
+		.image {
+			flex: 0 0 30%;
+			margin-right: $padding-large-horizontal;
 		}
 
-		&:nth-child(2) {
-			border-left-color: $brand-success;
-		}
-
-		&:nth-child(3) {
-			border-left-color: $brand-warning;
-		}
-
-		&:nth-child(4) {
-			border-left-color: $brand-danger;
+		.description p:last-child {
+			margin-bottom: 0;
 		}
 
 		h2 {
 			margin-top: 0;
+			font-size: ceil($font-size-base * 1.75);
 		}
 	}
 }

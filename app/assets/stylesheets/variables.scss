@@ -1,4 +1,14 @@
-$brand-primary: #59ae44;
+// Palette
+$green: #59ae44;
+$blue: #5596db;
+$yellow: #ffc83e;
+$red: #fa3b55;
+
+$brand-primary: $green;
+$brand-success: $green;
+$brand-info: $blue;
+$brand-warning: $yellow;
+$brand-danger: $red;
 
 $font-family-base: "Libre Franklin", "Helvetica Neue", Helvetica, sans-serif;
 $font-family-decorative: "Bungee", sans-serif;
