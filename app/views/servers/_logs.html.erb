@@ -9,7 +9,7 @@
 				</h4>
 			</div>
 
-			<div id="server_log_panel" class="panel-body collapse">
+			<div id="server_log_panel" class="panel-body <%= 'collapse' if !@server.busy? %>">
 				<% if @server.logs.count == 0 %>
 					<em>No messages</em>
 				<% else %>
