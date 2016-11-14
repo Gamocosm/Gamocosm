@@ -5,10 +5,7 @@ class ServersController < ApplicationController
     @server = Server.new
     @server.minecraft = Minecraft.new
 
-    if !current_user.digital_ocean_missing?
-      @do_regions = Gamocosm.digital_ocean.region_list
-      @do_sizes = Gamocosm.digital_ocean.size_list
-    end
+    load_new
   end
 
   def edit
@@ -22,6 +19,13 @@ class ServersController < ApplicationController
     @friend_servers = current_user.friend_servers
   end
 
+  def load_new
+    if !current_user.digital_ocean_missing?
+      @do_regions = Gamocosm.digital_ocean.region_list
+      @do_sizes = Gamocosm.digital_ocean.size_list
+    end
+  end
+
   def index
     @servers = current_user.servers
     load_index
@@ -32,13 +36,14 @@ class ServersController < ApplicationController
       @server = current_user.servers.create!(server_params)
       return redirect_to server_path(@server), flash: { success: 'You made a new server! Start it to play' }
     rescue
-      load_index
       @server = Server.new(server_params)
       # run validations for error messages
       @server.valid?
-      @servers = current_user.servers.reload
+      @do_regions = Gamocosm.digital_ocean.region_list
+      @do_sizes = Gamocosm.digital_ocean.size_list
       flash[:error] = 'Something went wrong. Please try again'
-      return render :index
+      load_new
+      return render :new
     end
   end
 

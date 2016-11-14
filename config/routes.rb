@@ -69,6 +69,9 @@ Rails.application.routes.draw do
   devise_for :users, controllers: { registrations: 'registrations' }
 
   resources :servers, path: '/servers' do
+    collection do
+      post 'new', to: 'servers#create', as: :create
+    end
     member do
       get 'start'
       get 'stop'
