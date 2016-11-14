@@ -12,6 +12,12 @@ h1, h2, h3, h4, h5, h6 {
 	font-family: "Exo 2"/*"ocr-a-std"*/, sans-serif;
 }
 
+.page-header {
+	.basic-breadcrumb + h1 {
+		margin-top: 0;
+	}
+}
+
 .btn-reverse {
 	&.btn-success {
 		background-color: transparent;
@@ -65,4 +71,69 @@ img.img-thumbnail {
 
 .container-fluid {
 	background-color: #fafafa;/*#C8E6C9;*/
+}
+
+.panel {
+	> .panel-heading {
+		border: none;
+	}
+
+	> .panel-body *:last-child {
+		margin-bottom: 0;
+	}
+}
+
+// Useful for putting information snippets in button groups
+.btn-fake {
+	border-color: $btn-default-border;
+	cursor: default;
+
+	&:active {
+		box-shadow: none;
+	}
+}
+
+.control-panel {
+	.info-box {
+		display: inline-block;
+		margin: $padding-base-vertical 0;
+		padding-right: $padding-large-horizontal;
+		border-radius: $border-radius-base;
+
+		&:last-child {
+			padding-right: 0;
+		}
+
+		h4 {
+			display: inline-block;
+			margin: 0;
+			font-size: $font-size-base;
+			padding-right: $padding-small-horizontal;
+		}
+	}
+}
+
+.friends-list {
+	padding: 0;
+
+	> li {
+		list-style-type: none;
+	}
+
+	.friend {
+		display: table;
+
+		.email {
+			display: table-cell;
+			width: 100%;
+		}
+	}
+}
+
+.ftp-details {
+	table-layout: auto;
+
+	tr > *:first-child {
+		min-width: 150px;
+	}
 }

@@ -2,6 +2,13 @@ class ServersController < ApplicationController
   before_action :authenticate_user!
 
   def new
+    @server = Server.new
+    @server.minecraft = Minecraft.new
+
+    if !current_user.digital_ocean_missing?
+      @do_regions = Gamocosm.digital_ocean.region_list
+      @do_sizes = Gamocosm.digital_ocean.size_list
+    end
   end
 
   def edit
@@ -13,15 +20,9 @@ class ServersController < ApplicationController
 
   def load_index
     @friend_servers = current_user.friend_servers
-    if !current_user.digital_ocean_missing?
-      @do_regions = Gamocosm.digital_ocean.region_list
-      @do_sizes = Gamocosm.digital_ocean.size_list
-    end
   end
 
   def index
-    @server = Server.new
-    @server.minecraft = Minecraft.new
     @servers = current_user.servers
     load_index
   end

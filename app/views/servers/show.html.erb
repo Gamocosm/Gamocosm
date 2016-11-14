@@ -6,7 +6,12 @@
 	<div class="row">
 		<div class="col-sm-12">
 			<div class="page-header">
-				<h1><%= @server.name %></h1>
+				<%= breadcrumb_back_to_servers %>
+				<h1>
+					<%= @server.name %>
+					<small><%= @server.remote_region_slug %>-<%= @server.remote_size_slug %></small>
+				</h1>
+				<%= render partial: 'servers/control_panel' %>
 			</div>
 		</div>
 	</div>
@@ -16,8 +21,8 @@
 <% else %>
 	<% if @server.owner?(current_user) %>
 		<div class="row">
-			<div class="col-sm-9">
-				<ul class="nav nav-tabs">
+			<div class="col-sm-2">
+				<ul class="nav nav-pills nav-stacked">
 					<% if @demo.nil? %>
 						<li class="<%= @server_tab.nil? ? 'active' : '' %>"><%= link_to 'Profile', server_path(@server, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
 						<li><%= link_to 'Minecraft Settings', server_path(@server, anchor: 'settings'), 'data-toggle' => 'tab' %></li>
@@ -32,10 +37,11 @@
 						<li><a href="#advanced" data-toggle="tab">Advanced</a></li>
 					<% end %>
 				</ul>
+			</div>
 
+			<div class="col-sm-10">
 				<div class="tab-content">
 					<div class="tab-pane <%= @server_tab.nil? ? 'active' : '' %>" id="profile">
-						<br />
 						<%= render partial: 'servers/profile' %>
 					</div>
 					<div class="tab-pane" id="settings">
@@ -52,25 +58,12 @@
 					</div>
 				</div>
 			</div>
-
-			<div class="col-sm-3">
-				<%= render partial: 'servers/control_panel' %>
-			</div>
 		</div>
 	<% else %>
 		<div class="row">
-			<div class="col-sm-9">
+			<div class="col-sm-12">
 				<%= render partial: 'servers/profile' %>
-			</div>
-			<div class="col-sm-3">
-				<%= render partial: 'servers/control_panel' %>
 			</div>
 		</div>
 	<% end %>
-	<div class="row">
-		<div class="col-sm-9">
-			<%= render partial: 'servers/tips' %>
-			<%= render partial: 'servers/logs' %>
-		</div>
-	</div>
 <% end %>

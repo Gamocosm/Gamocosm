@@ -1,21 +1,31 @@
 <div class="row">
 	<div class="col-sm-12">
-		<%= panel_with_heading 'Server Log' do %>
-			<% if @server.logs.count == 0 %>
-				<em>No messages</em>
-			<% else %>
-				<% @server.logs.order('created_at DESC').each do |x| %>
-					<p><div>
-						<%= x.when %>
-						<div class="pull-right"><%= x.debuginfo %></div>
-						<br />
-						<%= x.message %>
-					</div></p>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" href="#server_log_panel" aria-controls="server_log_panel" aria-expanded="false">
+						<span class="fa fa-sort"></span> Server Log (<%= @server.logs.size %>)
+					</a>
+				</h4>
+			</div>
+
+			<div id="server_log_panel" class="panel-body <%= 'collapse' if !@server.busy? %>">
+				<% if @server.logs.count == 0 %>
+					<em>No messages</em>
+				<% else %>
+					<% @server.logs.order('created_at DESC').each do |x| %>
+						<p><div>
+							<%= x.when %>
+							<div class="pull-right"><%= x.debuginfo %></div>
+							<br />
+							<%= x.message %>
+						</div></p>
+					<% end %>
+					<% if @server.owner?(current_user) %>
+						<%= link_to 'Clear', clear_logs_server_path(@server), class: 'btn btn-default pull-right' %>
+					<% end %>
 				<% end %>
-				<% if @server.owner?(current_user) %>
-					<%= link_to 'Clear', clear_logs_server_path(@server), class: 'btn btn-default pull-right' %>
-				<% end %>
-			<% end %>
-		<% end %>
+			</div>
+		</div>
 	</div>
 </div>

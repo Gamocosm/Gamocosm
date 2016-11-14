@@ -1,6 +1,10 @@
+$brand-primary: #59ae44;
 
+$panel-default-border: #ddd;
+$panel-default-heading-bg: transparent !default;
 
-$btn-info-bg: #8BC34A;
-$btn-danger-bg: #3F51B5;
+$navbar-default-bg: white !default;
+$navbar-default-border: transparent !default;
+$navbar-default-brand-color: $brand-primary;
 
 @import "bootstrap/variables";

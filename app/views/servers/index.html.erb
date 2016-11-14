@@ -4,14 +4,19 @@
 		<div class="page-header">
 			<h1>
 				Servers <small>for <%= current_user.email %></small>
-				<%= link_to 'Open a support ticket', issues_path, class: 'btn btn-lg btn-default pull-right' %>
+				<div class="pull-right">
+					<%= link_to new_server_path, class: 'btn btn-lg btn-primary' do %>
+						<span class="fa fa-plus"></span> Create server
+					<% end %>
+					<%= link_to 'Open a support ticket', issues_path, class: 'btn btn-lg btn-default' %>
+				</div>
 			</h1>
 		</div>
 	</div>
 </div>
 
 <div class="row">
-	<div class="col-sm-8">
+	<div class="col-sm-12">
 		<table class="table table-striped">
 			<thead>
 				<tr>
@@ -33,16 +38,6 @@
 			<% end %>
 			</tbody>
 		</table>
-	</div>
-	<div class="col-sm-4">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<h3 class="panel-title">New Server</h3>
-			</div>
-			<div class="panel-body">
-				<%= render partial: 'create' %>
-			</div>
-		</div>
 	</div>
 </div>
 <% if !current_user.digital_ocean_missing? %>
