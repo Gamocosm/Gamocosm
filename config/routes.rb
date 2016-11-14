@@ -73,6 +73,7 @@ Rails.application.routes.draw do
       post 'new', to: 'servers#create', as: :create
     end
     member do
+      get 'delete'
       get 'start'
       get 'stop'
       get 'pause'

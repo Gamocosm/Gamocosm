@@ -1,0 +1,30 @@
+<% title "#{@server.name} - Gamocosm" %>
+<% if @server.remote.error? %>
+	<%= render partial: 'invalid' %>
+<% end %>
+<div class="row">
+	<div class="col-sm-12">
+		<div class="page-header">
+			<%= breadcrumb_back_to_servers %>
+			<h1>
+				<%= @server.name %>
+				<small><%= @server.remote_region_slug %>-<%= @server.remote_size_slug %></small>
+			</h1>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12">
+		<p>
+			Are you sure you want to delete server <strong><%= @server.name %></strong> forever? (A really long time!)
+		</p>
+		<hr />
+		<%= link_to server_path(@server), class: "btn btn-success" do %>
+			Go back
+		<% end %>
+		<span class="info-box pull-right">
+			<%= link_to 'Delete', server_path(@server), method: :delete, class: "btn btn-danger", data: { confirm: 'Yes. I am Eater of Worlds' } %>
+		</span>
+	</div>
+</div>

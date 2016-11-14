@@ -102,6 +102,11 @@ class ServersController < ApplicationController
     return redirect_to servers_path, flash: { success: 'Server is deleting' }
   end
 
+  def delete
+    @server = find_server_only_owner(params[:id])
+    return render :delete
+  end
+
   def start
     @server = find_server(params[:id])
     error = @server.start
