@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <title><%= content_for?(:title) ? yield(:title) : 'Gamocosm' %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <% if content_for?(:meta_description) %><meta name="description" content="<%= yield(:meta_description) %>" /><% end %>
   <% if content_for?(:meta_keywords) %><meta name="keywords" content="<%= yield(:meta_keywords) %>" /><% end %>
   <%= favicon_link_tag 'favicon.ico' %>
   <%= stylesheet_link_tag    'application', media: 'all' %>
   <%= javascript_include_tag 'application' %>
-  <%= stylesheet_link_tag '//fonts.googleapis.com/css?family=Exo+2' %>
-  <%= stylesheet_link_tag '//fonts.googleapis.com/css?family=Open+Sans' %>
+
+  <%= stylesheet_link_tag '//fonts.googleapis.com/css?family=Bungee|Libre+Franklin:400,600' %>
   <%= csrf_meta_tags %>
   <%= yield :head %>
   <script>

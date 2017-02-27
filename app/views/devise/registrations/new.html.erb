@@ -1,25 +1,33 @@
 <% title 'Sign up - Gamocosm' %>
 <div class="row">
-  <div class="col-sm-4">
-    <h2>Sign up</h2>
 
-    <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-      <%= f.error_notification %>
-
-      <div class="form-inputs">
-        <%= f.input :email, required: true, autofocus: true %>
-        <%= f.input :password, required: true %>
-        <%= f.input :password_confirmation, required: true %>
-		<%= f.input :digital_ocean_api_key, label: 'Digital Ocean API Token', hint: "Only required for server admins. #{link_to('Read more/Instructions', digital_ocean_setup_path)}".html_safe %>
-        <label>
-          By clicking 'Sign up', you agree to our <%= link_to 'Terms of Service', :tos %>.
-        </label>
+  <div class="col-sm-4 col-sm-offset-4">
+    <div class="panel panel-default login-pane">
+      <div class="panel-header text-center">
+        <h2>Sign up</h2>
       </div>
+      <div class="panel-body">
 
-      <div class="form-actions">
-        <%= f.button :submit, "Sign up" %>
+        <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+          <%= f.error_notification %>
+
+          <p class="form-inputs">
+            <%= f.input :email, required: true, autofocus: true %>
+            <%= f.input :password, required: true %>
+            <%= f.input :password_confirmation, required: true %>
+            <%= f.input :digital_ocean_api_key, label: 'Digital Ocean API Token', hint: "Only required for server admins. #{link_to('Read more/Instructions', digital_ocean_setup_path)}".html_safe %>
+          </p>
+
+          <p class="form-actions text-center">
+            <%= f.button :submit, "Sign up", class: "btn btn-lg btn-primary" %>
+          </p>
+
+          <p class="text-center">
+            <strong>By clicking 'Sign up', you agree to our <%= link_to 'Terms of Service', :tos %>.</strong>
+          </p>
+        <% end %>
       </div>
-    <% end %>
+    </div>
 
     <%= render "devise/shared/links" %>
   </div>

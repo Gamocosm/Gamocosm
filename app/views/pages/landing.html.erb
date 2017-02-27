@@ -1,114 +1,72 @@
 <% title 'Gamocosm · The open source Realms alternative' %>
 <% content_for :meta_description, 'Gamocosm is an open source Realms alternative. It helps you host cloud Minecraft servers.' %>
-<% meta_keywords ['Minecraft', 'hosting', 'open source', 'cloud', 'Digital Ocean', 'per-hour'] %>
-<div class="container-fluid">
+<% meta_keywords ['Minecraft', 'hosting', 'open source', 'cloud', 'DigitalOcean', 'per-hour'] %>
+<div class="container-fluid container-inverse">
 <div id="landing_main" class="row">
 	<div class="col-sm-12">
-		<div class="jumbotron text-center">
+		<div class="jumbotron">
 			<div class="container">
-			<br />
-			<h1>The open source Realms alternative</h1>
-			<br />
-			<br />
-			<div class="row">
-				<div class="col-sm-5 col-sm-offset-1">
-					<p>Full-access servers for family and friends at a fraction of the cost, and all the features.</p>
+				<div class="row">
+					<div class="col-sm-7">
+						<h1>The <span class="text-primary">open</span><br>Realms alternative</h1>
+						<p>
+							Gamocosm is like a home coffee machine.
+							Or a toolkit so you can do your own repairs.
+							Or courses posted online so everyone can learn.
+							Gamocosm helps you host your own servers.
+						</p>
+						<div class="actions">
+							<%= link_to 'How it Works', about_path, class: 'btn btn-lg btn-default btn-reverse' %>
+							<%= link_to 'Sign Up', new_user_registration_path, class: 'btn btn-lg btn-success btn-reverse' %>
+						</div>
+					</div>
+					<div class="col-sm-5">
+						<%= image_tag('splash.png', alt: 'Gamocosm control panel', class: 'img-responsive hidden-sm-block') %>
+					</div>
 				</div>
-				<div class="col-sm-5">
-					<p>Minecraft in the cloud is per-hour and more flexible. Why pay 24/7 if you don't play 24/7?</p>
-				</div>
-			</div>
-			<br />
-			<br />
-			<div class="row">
-				<div class="col-sm-10 col-sm-offset-1">
-					<p>
-						Gamocosm is like a home coffee machine.
-						Or a toolkit so you can do your own repairs.
-						Or courses posted online so everyone can learn.
-						Gamocosm helps you host your own servers.
-					</p>
-				</div>
-			</div>
-			<br />
-			<br />
-			<br />
-			<div class="row">
-				<div class="col-sm-3 col-sm-offset-1">
-					<%= link_to 'Demo', demo_path, class: 'btn-lg btn-success btn-reverse' %>
-				</div>
-				<div class="col-sm-4">
-					<%= link_to 'Frequently Asked Questions <i class="fa fa-chevron-right"></i>'.html_safe, about_path, class: 'btn-lg btn-success btn-reverse' %>
-				</div>
-				<div class="col-sm-3">
-					<%= link_to 'Sign up!', new_user_registration_path, class: 'btn-lg btn-success btn-reverse' %>
-				</div>
-			</div>
 			</div>
 		</div>
 	</div>
 </div>
 </div>
-<br />
-<br />
-<br />
-<div class="container">
-<div class="row">
-	<div class="col-sm-4">
-		<%= image_tag('screenshot-github.png', size: '480x300', alt: 'Gamocosm repository on GitHub', class: 'img-thumbnail') %>
+
+<div class="features-wrapper">
+	<%= image_tag('homepage/features.svg', alt: 'Gamocosm control panel', class: 'features-center') %>
+	<div class="container">
+		<div class="features">
+			<div class="feature first">
+				<h2>Why pay 24/7 if you don't play 24/7?</h2>
+				<p>
+					Gamocosm automates <%= link_to 'setting up', wiki_server_additional_info_path %> Minecraft servers on
+					<%= render_digital_ocean_referral_link('%s (%s)', 'DigitalOcean', digital_ocean_index_path, digital_ocean_index_no_ref_path) %>,
+					an established cloud server provider. You only need to pay per hour, so Gamocosm users average just <strong><%= link_to '$0.50-$2', about_path %> a month</strong>.
+				</p>
+			</div>
+			<div class="feature second">
+				<h2>Give access to family and friends</h2>
+				<p>
+					Get your server running just the way you like it, then add your friends so they can play while
+					you're away. See a <%= link_to 'demo', demo_path %> of the control panel.
+				</p>
+			</div>
+		</div>
+		<div class="features">
+			<div class="feature third">
+				<h2>The server is yours and yours alone</h2>
+				<p>
+					You have full access to a Linux machine; you can install mods, additional software and even
+					custom servers such as <%= link_to 'Cuberite', cuberite_website_path %>, the performant C++ Minecraft server.
+					Read more about the setup on the <%= link_to 'wiki', wiki_path %>.
+				</p>
+			</div>
+			<div class="feature fourth">
+				<h2>Free as in freedom</h2>
+				<p>
+					It costs nothing to use Gamocosm; no bills, no ads, no tracking user habits.
+					The <%= link_to 'source code', source_path %> is well documented and available for everyone's inspection
+					and contribution.
+				</p>
+			</div>
+		</div>
 	</div>
-	<div class="col-sm-8">
-		<h1>Gamocosm is FOSS</h1>
-		<p>
-			The <%= link_to 'source code', source_path %> is well documented and available for everyone's inspection and contribution.
-			It costs nothing to use Gamocosm; no bills, no ads, no tracking user habits.
-		</p>
-	</div>
-</div>
-<div class="row text-right">
-	<div class="col-sm-8">
-		<h1>Digital Ocean is a cloud hosting provider</h1>
-		<p>
-			They work with hundreds of thousands of developers and companies.
-			Gamocosm automates <%= link_to 'setting up', wiki_server_additional_info_path %> and <%= link_to 'managing', about_path %> Minecraft servers on <%= render_digital_ocean_referral_link('%s (%s)', 'Digital Ocean', digital_ocean_index_path, digital_ocean_index_no_ref_path) %>,
-			so you only pay Digital Ocean for your hourly usage (<%= render_digital_ocean_referral_link('%s, %s', 'pricing', digital_ocean_pricing_path, digital_ocean_pricing_no_ref_path) %>).
-			Gamocosm users average <strong><%= link_to '$0.50-$2', about_path %> a month</strong>.
-		</p>
-		<p>
-			Be sure to check out GitHub's <%= link_to 'Student Developer Pack', external_github_student_developer_pack_path %>, which among many other goodies, includes <strong>$100 credit for Digital Ocean</strong> (just for being a student enrolled in a degree/diploma granting program!).
-		</p>
-	</div>
-	<div class="col-sm-4">
-		<%= image_tag('digital_ocean-screenshot.png', size: '480x300', alt: 'Digital Ocean', class: 'img-thumbnail') %>
-	</div>
-</div>
-<div class="row">
-	<div class="col-sm-4">
-		<%= image_tag('screenshot-control_panel.png', size: '480x300', alt: 'Gamocosm control panel', class: 'img-thumbnail') %>
-	</div>
-	<div class="col-sm-8">
-		<h1>Let your friends start/stop your servers</h1>
-		<p>
-			Add your friends to your server so they can play when you're away.
-			See a <%= link_to 'demo', demo_path %> of the control panel.
-		</p>
-	</div>
-</div>
-<div class="row text-right">
-	<div class="col-sm-8">
-		<h1>Play!</h1>
-		<p>
-			The server is yours.
-			You have full access to a Linux machine; you can install mods and all the additional software you want.
-			Even custom servers are compatible; we recommend <%= link_to 'Cuberite', cuberite_website_path %>, the performant C++ Minecraft server.
-			Read more about the setup on the <%= link_to 'wiki', wiki_path %>.
-		</p>
-	</div>
-	<div class="col-sm-4">
-		<%= image_tag('screenshot-minecraft.png', size: '480x300', alt: 'Minecraft', class: 'img-thumbnail') %>
-	</div>
-</div>
-<br />
-<br />
-<br />
 </div>

@@ -1,41 +1,16 @@
 @import "variables";
 
-body {
-	font-family: "Open Sans", sans-serif;
-}
-
-h1, h2, h3, h4, h5, h6 {
-	font-family: "Exo 2"/*"ocr-a-std"*/, sans-serif;
-}
-
 .navbar-brand {
-	font-family: "Exo 2"/*"ocr-a-std"*/, sans-serif;
+	font-family: $font-family-decorative;
+
+	svg {
+		fill: currentColor;
+	}
 }
 
 .page-header {
 	.basic-breadcrumb + h1 {
 		margin-top: 0;
-	}
-}
-
-.btn-reverse {
-	&.btn-success {
-		background-color: transparent;
-		color: $btn-success-bg;
-		border-width: 2px;
-		border-style: solid;
-		border-color: $btn-success-bg;
-		text-decoration: none;
-
-		&:hover, &:focus {
-			background-color: $btn-success-bg;
-			color: white;
-			border-color: $btn-success-bg;
-		}
-		&:active {
-			background-color: darken($btn-success-bg, 5%);
-			border-color: darken($btn-success-bg, 5%);
-		}
 	}
 }
 
@@ -59,18 +34,118 @@ dl.faq dd {
 	}
 }
 
+.container-inverse {
+	border-top: 3px solid $brand-primary;
+	background-color: #222;
+	background-image: url(image-path('pixel-background.png'));
+	color: white;
+}
+
 .jumbotron {
 	background-color: transparent;
 	padding-left: 0 !important;
 	padding-right: 0 !important;
+	margin-bottom: 0;
+
+	h1 {
+		margin-top: 0;
+		font-family: $font-family-decorative;
+		font-size: ceil($font-size-base * 2.5);
+
+		@media screen and (min-width: $screen-md) {
+			font-size: $font-size-base * 4;
+		}
+	}
+
+	p {
+		font-size: ceil($font-size-base * 1.25);
+
+		@media screen and (min-width: $screen-md) {
+			font-size: ceil($font-size-base * 1.5);
+		}
+	}
+
+	.actions {
+		margin-top: $padding-large-vertical * 2;
+	}
+
+	.btn {
+		margin-bottom: $padding-large-vertical;
+		margin-right: $padding-base-horizontal;
+		border: none;
+	}
+
+	.img-responsive {
+		margin-top: $padding-base-vertical;
+	}
+}
+
+.features-wrapper {
+	$center-size: 30rem;
+
+	position: relative;
+	padding: ($padding-large-vertical * 3) 0;
+	background-color: $gray-lighter;
+
+	.features-center {
+		position: absolute;
+		width: $center-size;
+		top: 50%;
+		left: 50%;
+		margin-top: (-$center-size / 2);
+		margin-left: (-$center-size / 2);
+	}
+
+	.features {
+		display: flex;
+	}
+
+	.feature {
+		flex: 1;
+		margin-bottom: ($padding-large-vertical * 1.5);
+		padding: $padding-base-horizontal;
+		border: 3px solid black;
+		border-radius: $border-radius-base;
+		background: white;
+		box-shadow: 0 0 3px darken($gray-lighter, 15%);
+
+		&:first-child {
+			margin-right: ($center-size / 2);
+		}
+
+		&:last-child {
+			margin-left: ($center-size / 2);
+		}
+
+		&.first {
+			border-color: #266EBC;
+		}
+
+		&.second {
+			border-color: #A86720;
+		}
+
+		&.third {
+			border-color: #417A31;
+		}
+
+		&.fourth {
+			border-color: #65257F;
+		}
+
+		p:last-child {
+			margin-bottom: 0;
+		}
+
+		h2 {
+			margin-top: 0;
+			font-size: ceil($font-size-base * 1.5);
+		}
+	}
 }
 
 img.img-thumbnail {
 	margin-bottom: 10px;
-}
-
-.container-fluid {
-	background-color: #fafafa;/*#C8E6C9;*/
 }
 
 .panel {
@@ -91,6 +166,82 @@ img.img-thumbnail {
 	&:active {
 		box-shadow: none;
 	}
+}
+
+.form-group.integer,
+.form-group.string,
+.form-group.text,
+.form-group.email,
+.form-group.password {
+	label {
+		padding-left: $padding-base-horizontal;
+	}
+
+	label + div > .form-control {
+		$label-space: $font-size-base + $padding-base-vertical + $padding-large-vertical;
+
+		margin-top: -$label-space;
+		padding-top: $label-space;
+		height: auto;
+	}
+}
+
+.form-group + .help-block {
+	margin-top: -$padding-base-vertical;
+}
+
+.checkbox-pretty {
+	&:hover {
+		cursor: pointer;
+
+		.indicator {
+			color: $gray-dark;
+		}
+	}
+
+	input[type="checkbox"] {
+		display: none;
+	}
+
+	.indicator {
+		width: $font-size-base + 7;
+		margin-right: 3px;
+		padding: 3px;
+		border: 1px solid $gray-light;
+		border-radius: $border-radius-small;
+		color: $gray-light;
+		display: none;
+	}
+
+	input[type="checkbox"]:checked ~ .if-checked {
+		display: inline-block;
+	}
+
+	input[type="checkbox"]:not(:checked) ~ .if-not-checked {
+		display: inline-block;
+	}
+}
+
+.login-pane {
+	margin-top: 50px;
+
+	.btn {
+		min-width: 70%;
+	}
+}
+
+.devise-links {
+	text-align: center;
+
+	> a {
+		display: inline-block;
+		margin-right: $padding-small-horizontal;
+	}
+
+	// > a:last-child {
+	// 	float: right;
+	// 	margin-right: 0;
+	// }
 }
 
 .control-panel {
