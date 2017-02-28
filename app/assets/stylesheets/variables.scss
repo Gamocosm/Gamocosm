@@ -21,4 +21,8 @@ $navbar-default-bg: white !default;
 $navbar-default-border: transparent !default;
 $navbar-default-brand-color: $brand-primary;
 
+.panel {
+  box-shadow: 0 0 3px #ddd;
+}
+
 @import "bootstrap/variables";
