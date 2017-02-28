@@ -189,12 +189,12 @@ Example: `TEST_DOCKER=true ./tests.sh`
 
 ### Credits
 - Special thanks to [geetfun][2] who helped with the original development
+- Special thanks to [binary-koan][16] ([Jono Mingard][17]) for designing the new theme! Looks awesome!
 - [SuperMarioBro][7] for helping iron out some initial bugs, adding support for more Minecraft flavours
 - [bearbin][8] for helping iron out some initial bugs
 - [chiisana][9] for feedback and other ideas, resources
 - [KayoticSully][12] for planning and development on the server wrapper API
 - [Jadorel][14] for feedback and helping iron out some bugs
-- [binary-koan][16] for working on the new control panel theme!
 
 [1]: http://www.postgresql.org/docs/9.3/static/auth-pg-hba-conf.html
 [2]: https://github.com/geetfun
@@ -212,3 +212,4 @@ Example: `TEST_DOCKER=true ./tests.sh`
 [14]: https://www.reddit.com/user/Jadorel
 [15]: https://github.com/Gamocosm/Gamocosm/wiki/Additional-Info-for-Server-Admins
 [16]: https://github.com/binary-koan
+[17]: https://mingard.io
