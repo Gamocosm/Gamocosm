@@ -128,3 +128,11 @@ tppi:
     notes:
         - 2GB+ recommended
         - This script is not updated frequently!
+glowstone:
+    versions:
+        - { name: Glowstone, tag: "null" }
+    time: 1
+    developers:
+        - The Glowstone Project
+    website: https://www.glowstone.net/
+    notes: []
