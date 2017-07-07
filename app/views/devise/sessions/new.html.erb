@@ -21,7 +21,7 @@
             <%= f.label :remember_me, class: "checkbox-pretty" do %>
               <%= f.check_box :remember_me if devise_mapping.rememberable? %>
               <span class="fa fa-check indicator if-checked"></span>
-              <span class="fa fa-close indicator if-not-checked"></span>
+              <span class="fa indicator if-not-checked">&nbsp;</span>
               Remember me
             <% end %>
           </div>

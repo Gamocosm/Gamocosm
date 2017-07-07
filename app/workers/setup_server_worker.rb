@@ -276,6 +276,7 @@ class SetupServerWorker
               execute :semanage, 'port', '-a', '-t', 'ssh_port_t', '-p', 'tcp', ssh_port
             end
             execute :sed, '-i', "'s/^#Port 22$/Port #{ssh_port}/'", '/etc/ssh/sshd_config'
+            execute :sed, '-i', "'s/^PasswordAuthentication no/PasswordAuthentication yes/'", '/etc/ssh/sshd_config'
             execute :systemctl, 'restart', 'sshd'
           end
         end
