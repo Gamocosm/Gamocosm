@@ -32,7 +32,7 @@ module Gamocosm
   MINECRAFT_FLAVOURS_GIT_URL = 'https://github.com/Gamocosm/gamocosm-minecraft-flavours.git'
   MCSW_GIT_URL = 'https://github.com/Gamocosm/minecraft-server_wrapper.git'
   MCSW_USERNAME = 'gamocosm-mothership'
-  DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-25-x64'
+  DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-27-x64'
   DIGITAL_OCEAN_SSH_PUBLIC_KEY = File.read(DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH)
   DIGITAL_OCEAN_SSH_PUBLIC_KEY_FINGERPRINT = Digest::MD5.hexdigest(Base64.decode64(DIGITAL_OCEAN_SSH_PUBLIC_KEY.split(/\s+/m)[1])).scan(/../).join(':')
   GIT_HEAD = `git rev-parse HEAD`.strip
