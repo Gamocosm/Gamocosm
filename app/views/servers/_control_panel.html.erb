@@ -25,16 +25,16 @@
 		<span class="info-box btn-group">
 			<h4 class="btn btn-fake">
 				Minecraft:
-				<strong class="<%= server_minecraft_status_class(@server) %>"><%= @server.minecraft.running? ? 'Running' : 'Inactive' %></strong>
+				<strong class="<%= server_minecraft_status_class(@server) %>"><%= @server.busy? ? 'Busy' : (@server.minecraft.running? ? 'Running' : 'Inactive') %></strong>
 			</h4>
 
-			<% if @server.minecraft.pause?.nil? %>
+			<% if !@server.busy? && @server.minecraft.pause?.nil? %>
 				<%= link_to pause_server_path(@server), class: "btn btn-info" do %>
 					<span class="fa fa-stop"></span> Stop
 				<% end %>
 			<% else %>
-				<% if @server.minecraft.resume? %>
-					<span class="btn btn-success disabled" data-toggle="tooltip" data-container="body" title="<%= @server.minecraft.resume? %>">
+				<% if @server.busy? || @server.minecraft.resume? %>
+					<span class="btn btn-success disabled" data-toggle="tooltip" data-container="body" title="<%= @server.busy? ? 'Busy' : @server.minecraft.resume? %>">
 						<span class="fa fa-play"></span> Start
 					</span>
 				<% else %>

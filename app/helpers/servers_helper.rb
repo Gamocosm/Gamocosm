@@ -12,7 +12,7 @@ module ServersHelper
   end
 
   def server_minecraft_status_class(server)
-    if server.minecraft.pause?.nil?
+    if !server.busy? && server.minecraft.pause?.nil?
       'text-success'
     else
       'text-muted'
