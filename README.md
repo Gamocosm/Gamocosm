@@ -1,4 +1,4 @@
-Gamocosm [![Build Status](https://travis-ci.org/Gamocosm/Gamocosm.svg?branch=master)](https://travis-ci.org/Gamocosm/Gamocosm) [![Coverage Status](https://coveralls.io/repos/Gamocosm/Gamocosm/badge.svg)](https://coveralls.io/r/Gamocosm/Gamocosm)
+Gamocosm [![Build Status](https://travis-ci.org/Gamocosm/Gamocosm.svg?branch=master)](https://travis-ci.org/Gamocosm/Gamocosm) [![Coverage Status](https://coveralls.io/repos/Gamocosm/Gamocosm/badge.svg)](https://coveralls.io/r/Gamocosm/Gamocosm) [![Gitter chat](https://badges.gitter.im/gamocosm.png)](https://gitter.im/gamocosm/Lobby)
 ========
 
 Gamocosm makes it easy to run cloud Minecraft servers.

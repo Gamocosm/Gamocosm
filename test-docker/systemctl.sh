@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 echo 'In Docker container; patching systemctl.'
 if [[ "$1" == "start" ]] && [[ "$2" == "mcsw" ]]; then
 	cd /home/mcuser/minecraft
