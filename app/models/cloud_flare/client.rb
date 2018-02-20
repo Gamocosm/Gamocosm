@@ -38,6 +38,7 @@ class CloudFlare::Client
 
   def dns_update(name, ip)
     silence do
+=begin
       records = self.dns_list
       if records.error?
         return records
@@ -45,6 +46,13 @@ class CloudFlare::Client
       x = records.index { |x| x[:name] == name }
       if x.nil?
         return self.dns_add(name, ip)
+      end
+=end
+      error = self.dns_add(name, ip)
+      if !error.nil?
+        if error.data.body['msg'] != 'The record already exists.'
+          return error
+        end
       end
       res = do_request(:rec_edit, { id: records[x][:id], type: 'A', name: name, content: ip, ttl: 120 })
       return res.error? ? res : nil
