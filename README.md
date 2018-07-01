@@ -69,6 +69,7 @@ The following instructions were made for Fedora 20, but the steps should be simi
 - `USER_SERVERS_DOMAIN`: subdomain for user servers (e.g. `gamocosm.com`)
 - `CLOUDFLARE_API_TOKEN`: hmmm
 - `CLOUDFLARE_EMAIL`: hmmm
+- `CLOUDFLARE_ZONE`: TODO explain how to get this
 - `DEVISE_SECRET_KEY`: only tests, production
 - `SECRET_KEY`: only production
 - `DEVELOPER_EMAILS`: comma separated list of emails to send exceptions to

@@ -16,6 +16,7 @@ module Gamocosm
   USER_SERVERS_DOMAIN = ENV['USER_SERVERS_DOMAIN']
   CLOUDFLARE_API_TOKEN = ENV['CLOUDFLARE_API_TOKEN']
   CLOUDFLARE_EMAIL = ENV['CLOUDFLARE_EMAIL']
+  CLOUDFLARE_ZONE = ENV['CLOUDFLARE_ZONE']
 
   MINECRAFT_FLAVOURS = YAML.load_file(File.expand_path('config/minecraft_flavours.yml', Rails.root)).inject({}, &lambda do |a, x|
     x.second['versions'].each do |v|
@@ -51,7 +52,7 @@ module Gamocosm
   @cloudflare = nil
   def self.cloudflare
     if @cloudflare.nil?
-      @cloudflare = CloudFlare::Client.new(CLOUDFLARE_EMAIL, CLOUDFLARE_API_TOKEN, USER_SERVERS_DOMAIN)
+      @cloudflare = CloudFlare::Client.new(CLOUDFLARE_EMAIL, CLOUDFLARE_API_TOKEN, USER_SERVERS_DOMAIN, CLOUDFLARE_ZONE)
     end
     return @cloudflare
   end

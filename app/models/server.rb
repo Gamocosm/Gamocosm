@@ -138,7 +138,7 @@ class Server < ActiveRecord::Base
     if ip_address.error?
       return ip_address
     end
-    return Gamocosm.cloudflare.dns_update(domain, ip_address)
+    return Gamocosm.cloudflare.dns_add(domain, ip_address)
   end
 
   def remove_domain
