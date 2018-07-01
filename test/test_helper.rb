@@ -28,7 +28,7 @@ class ActiveSupport::TestCase
   fixtures :all
 
   # Add more helper methods to be used by all tests here...
-  self.use_transactional_fixtures = false
+  self.use_transactional_tests = false
 
   setup do
     Rails.cache.clear
