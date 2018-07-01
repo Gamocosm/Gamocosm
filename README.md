@@ -195,6 +195,7 @@ Example: `TEST_DOCKER=true ./tests.sh`
 - [chiisana][9] for feedback and other ideas, resources
 - [KayoticSully][12] for planning and development on the server wrapper API
 - [Jadorel][14] for feedback and helping iron out some bugs
+- [Ajusa][18] for helping with some bugs
 
 [1]: http://www.postgresql.org/docs/9.3/static/auth-pg-hba-conf.html
 [2]: https://github.com/geetfun
@@ -213,3 +214,4 @@ Example: `TEST_DOCKER=true ./tests.sh`
 [15]: https://github.com/Gamocosm/Gamocosm/wiki/Additional-Info-for-Server-Admins
 [16]: https://github.com/binary-koan
 [17]: https://mingard.io
+[18]: https://github.com/Ajusa
