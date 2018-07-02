@@ -78,7 +78,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
 =end
   def create_server(name, flavour, remote_region_slug, remote_size_slug)
     old_servers_count = Server.count
-    post servers_path, { server: {
+    post servers_path, params: { server: {
       name: name,
       remote_region_slug: remote_region_slug,
       remote_size_slug: remote_size_slug,

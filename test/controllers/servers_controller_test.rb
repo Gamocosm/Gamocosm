@@ -52,7 +52,7 @@ class ServersControllerTest < ActionController::TestCase
     sign_in @owner
     begin
       old_server_count = Server.count
-      post :create, {
+      post :create, params: {
         server: {
           name: 'test2',
           remote_region_slug: 'ams3',
@@ -67,12 +67,12 @@ class ServersControllerTest < ActionController::TestCase
       assert_redirected_to server_path(s2)
       assert_not_nil flash[:success], 'No new server message'
       s2.update_columns(remote_id: 1)
-      delete :destroy, { id: s2.id }
+      delete :destroy, params: { id: s2.id }
       assert_redirected_to servers_path
       assert_equal 'Server is deleting', flash[:success], 'Server delete not success'
       assert_equal old_server_count, Server.count, 'Server not actually deleted'
     ensure
-      Server.destroy_all(name: 'test2')
+      Server.where(name: 'test2').destroy_all
     end
   end
 
@@ -80,7 +80,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_do_base(200)
     sign_in @owner
     begin
-      post :create, {
+      post :create, params: {
         server: {
           name: 'test2',
           remote_region_slug: 'ams3',
@@ -94,7 +94,7 @@ class ServersControllerTest < ActionController::TestCase
       assert_equal 'Something went wrong. Please try again', flash[:error], 'Should have failed creating server with bad input'
       assert_select 'span.help-block', 'Invalid flavour'
     ensure
-      Server.destroy_all(name: 'test2')
+      Server.where(name: 'test2').destroy_all
     end
   end
 
@@ -211,7 +211,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_mcsw_exec(@server.minecraft).stub_mcsw_exec(200, 'help')
     sign_in @owner
     @server.update_columns(remote_id: 1)
-    post :command, { id: @server.id, command: { data: 'help' } }
+    post :command, params: { id: @server.id, command: { data: 'help' } }
     assert_redirected_to server_path(@server)
     assert_equal 'Command sent', flash[:success], 'Minecraft exec command not successful'
   end
@@ -247,19 +247,19 @@ class ServersControllerTest < ActionController::TestCase
       remote_region_slug: 'nyc3',
       remote_size_slug: '1gb',
     }
-    put :update, { id: @server.id, server: {
+    put :update, params: { id: @server.id, server: {
       setup_stage: 0,
       remote_size_slug: ' 512mb ',
       remote_region_slug: 'nyc3',
     } }
     assert_redirected_to server_path(@server)
     # reset values
-    view_server @server, {
+    view_server @server, params: {
       setup_stage: 0,
       remote_region_slug: 'nyc3',
       remote_size_slug: '512mb',
     }
-    put :update, { id: @server.id, server: {
+    put :update, params: { id: @server.id, server: {
       size_slug: ' ',
       remote_region_slug: "\n",
     } }
@@ -548,7 +548,7 @@ class ServersControllerTest < ActionController::TestCase
     }
     assert_redirected_to servers_path
     assert_match /added ssh public key/i, flash[:success], 'Adding Digital Ocean SSH key not success'
-    post :destroy_digital_ocean_ssh_key, {
+    post :destroy_digital_ocean_ssh_key, params: {
       id: 1,
     }
     assert_redirected_to servers_path
