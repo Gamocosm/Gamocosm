@@ -1,4 +1,6 @@
+require 'sshkit'
 require 'sshkit/dsl'
+include SSHKit::DSL
 require 'timeout'
 
 class String
