@@ -235,7 +235,7 @@ class ServersControllerTest < ActionController::TestCase
       remote_region_slug: 'nyc3',
       remote_size_slug: '512mb',
     }
-    put :update, { id: @server.id, server: {
+    put :update, params: { id: @server.id, server: {
       setup_stage: 5,
       remote_size_slug: '1gb',
       remote_region_slug: ' nyc3 ',
@@ -287,7 +287,7 @@ class ServersControllerTest < ActionController::TestCase
     view_server @server
     assert_select '#server_ssh_keys', 1
     assert_nil @server.ssh_keys, 'Server SSH keys were not default value'
-    put :update, {
+    put :update, params: {
       id: @server.id,
       server: {
         ssh_keys: ' 123, 456 , 789',
@@ -296,7 +296,7 @@ class ServersControllerTest < ActionController::TestCase
     assert_redirected_to server_path(@server)
     view_server @server
     assert_select '#server_ssh_keys[value=?]', '123,456,789'
-    put :update, {
+    put :update, params: {
       id: @server.id,
       server: {
         ssh_keys: "\t",
@@ -306,7 +306,7 @@ class ServersControllerTest < ActionController::TestCase
     view_server @server
     assert_select '#server_ssh_keys'
     assert_nil @server.ssh_keys, 'Server SSH keys were not reset'
-    put :update, {
+    put :update, params: {
       id: @server.id,
       server: {
         ssh_keys: '123,',
@@ -321,7 +321,7 @@ class ServersControllerTest < ActionController::TestCase
     view_server @server
     assert_select '#server_timezone_delta', 1
     begin
-      put :update, {
+      put :update, params: {
         id: @server.id,
         server: {
           timezone_delta: 3,
@@ -397,7 +397,7 @@ class ServersControllerTest < ActionController::TestCase
     @server.log_test('Hello')
     view_server @server
     assert_select '.panel-body div', /Hello/
-    get :clear_logs, { id: @server.id }
+    get :clear_logs, params: { id: @server.id }
     assert_redirected_to server_path(@server)
     view_server @server
     assert_not_nil flash[:success], 'Clearing server logs not success'
@@ -407,17 +407,17 @@ class ServersControllerTest < ActionController::TestCase
   test 'friend cannot delete, edit advanced tab, edit ssh keys' do
     sign_in @friend
     assert_raises(ActionController::RoutingError) do
-      delete :destroy, { id: @server.id }
+      delete :destroy, params: { id: @server.id }
     end
     assert_raises(ActionController::RoutingError) do
-      put :update, { id: @server.id, server: {
+      put :update, params: { id: @server.id, server: {
         setup_stage: 5,
         remote_size_slug: '1gb',
         remote_region_slug: ' nyc3 ',
       } }
     end
     assert_raises(ActionController::RoutingError) do
-      put :update, { id: @server.id, server: { ssh_keys: '123' } }
+      put :update, params: { id: @server.id, server: { ssh_keys: '123' } }
     end
   end
 
@@ -444,7 +444,7 @@ class ServersControllerTest < ActionController::TestCase
   end
 
   def start_server(server)
-    get :start, { id: server.id }
+    get :start, params: { id: server.id }
     assert_redirected_to server_path(server)
     view_server(server)
     assert_equal 'Server starting', flash[:success]
@@ -455,7 +455,7 @@ class ServersControllerTest < ActionController::TestCase
   end
 
   def stop_server(server)
-    get :stop, { id: server.id }
+    get :stop, params: { id: server.id }
     assert_redirected_to server_path(server)
     view_server(server)
     assert_equal 'Server stopping', flash[:success]
@@ -470,7 +470,7 @@ class ServersControllerTest < ActionController::TestCase
   end
 
   def add_friend_to_server(server, friend)
-    post :add_friend, { id: server.id, server_friend: { email: friend.email } }
+    post :add_friend, params: { id: server.id, server_friend: { email: friend.email } }
     assert_redirected_to server_path(server)
     view_server server
     assert_not_nil flash[:success], 'Add friend to server not success'
@@ -478,7 +478,7 @@ class ServersControllerTest < ActionController::TestCase
   end
 
   def remove_friend_from_server(server, friend)
-    post :remove_friend, { id: server, server_friend: { email: friend.email } }
+    post :remove_friend, params: { id: server, server_friend: { email: friend.email } }
     assert_redirected_to server_path(server)
     view_server server
     assert_not_nil flash[:success], 'Remove friend from server not success'

@@ -295,11 +295,7 @@ class ServersController < ApplicationController
     if ssh_key.error?
       f = { error: ssh_key }
     end
-    begin
-      return redirect_to :back, flash: f
-    rescue ActionController::RedirectBackError
-      return redirect_to servers_path, flash: f
-    end
+    return redirect_back fallback_location: servers_path, flash: f
   end
 
   def destroy_digital_ocean_ssh_key
@@ -309,11 +305,7 @@ class ServersController < ApplicationController
     if error
       f = { error: error }
     end
-    begin
-      return redirect_to :back, flash: f
-    rescue ActionController::RedirectBackError
-      return redirect_to servers_path, flash: f
-    end
+    return redirect_back fallback_location: servers_path, flash: f
   end
 
   def refresh_digital_ocean_cache
