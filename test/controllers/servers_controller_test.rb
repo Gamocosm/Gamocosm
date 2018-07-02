@@ -133,7 +133,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 1)
     sign_in @owner
     @server.update_columns(remote_id: 1)
-    get :reboot, { id: @server.id }
+    get :reboot, params: { id: @server.id }
     assert_redirected_to server_path(@server)
     view_server(@server)
     assert_equal flash[:success], 'Server is rebooting'
@@ -148,7 +148,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 0)
     sign_in @friend
     @server.update_columns(remote_id: 1)
-    get :download, { id: @server.id }
+    get :download, params: { id: @server.id }
     assert_redirected_to "http://#{Gamocosm::MCSW_USERNAME}:#{@server.minecraft.mcsw_password}@#{@server.remote.ip_address}:#{Minecraft::Node::MCSW_PORT}/download_world"
   end
 
@@ -163,7 +163,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_mcsw_properties_fetch(@server.minecraft).stub_mcsw_properties_fetch(200, p)
     sign_in @owner
     @server.update_columns(remote_id: 1)
-    put :update_properties, {
+    put :update_properties, params: {
       id: @server.id,
       minecraft_properties: {
         difficulty: 0,
@@ -184,7 +184,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_mcsw_properties_fetch(@server.minecraft).stub_mcsw_properties_fetch(400, p)
     sign_in @owner
     @server.update_columns(remote_id: 1)
-    get :show, { id: @server.id }
+    get :show, params: { id: @server.id }
     assert_response :success
     assert_select 'p', /error getting minecraft properties/i
   end
@@ -197,7 +197,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_mcsw_start(@server.minecraft).stub_mcsw_start(200, @server.ram)
     sign_in @friend
     @server.update_columns(remote_id: 1)
-    get :pause, { id: @server.id }
+    get :pause, params: { id: @server.id }
     assert_redirected_to server_path(@server)
     assert_equal 'Server paused', flash[:success], 'Minecraft pause not successful'
     get :resume, { id: @server.id }
@@ -222,7 +222,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_mcsw_backup(200, @server.minecraft)
     sign_in @friend
     @server.update_columns(remote_id: 1)
-    post :backup, { id: @server.id }
+    post :backup, params: { id: @server.id }
     assert_redirected_to server_path(@server)
     assert_equal 'World backed up remotely on server', flash[:success], 'Minecraft backup not successful'
   end
@@ -272,7 +272,7 @@ class ServersControllerTest < ActionController::TestCase
     sign_in @owner
     begin
       @server.minecraft.update_columns(autoshutdown_enabled: true)
-      get :autoshutdown_disable, { id: @server.id }
+      get :autoshutdown_disable, params: { id: @server.id }
       assert_redirected_to server_path(@server)
       assert_equal 'Autoshutdown disabled', flash[:success], 'No success message about autoshutdown disabled'
       @server.reload
@@ -424,19 +424,19 @@ class ServersControllerTest < ActionController::TestCase
   test 'other users see 404' do
     sign_in @other
     assert_raises(ActionController::RoutingError) do
-      get :show, { id: @server.id }
+      get :show, params: { id: @server.id }
       assert_redirected_to new_user_session_path
     end
   end
 
   test 'outsiders redirected to login' do
-    get :show, { id: @server.id }
+    get :show, params: { id: @server.id }
     assert_redirected_to new_user_session_path
   end
 
   def view_server(server, advanced_tab = { })
     mock_mcsw_properties_fetch(server.minecraft).stub_mcsw_properties_fetch(200, { }).times_only(1)
-    get :show, { id: server.id }
+    get :show, params: { id: server.id }
     assert_response :success
     advanced_tab.each do |k, v|
       assert_select "#server_#{k}[value=\"#{v}\"]"
@@ -489,7 +489,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_do_base(200)
     mock_do_droplet_delete(200, 1)
     sign_in @owner
-    post :destroy_digital_ocean_droplet, { id: 1 }
+    post :destroy_digital_ocean_droplet, params: { id: 1 }
     assert_redirected_to servers_path
     get :index
     assert_response :success
@@ -500,7 +500,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_do_base(200)
     mock_do_image_delete(200, 1)
     sign_in @owner
-    post :destroy_digital_ocean_snapshot, { id: 1 }
+    post :destroy_digital_ocean_snapshot, params: { id: 1 }
     assert_redirected_to servers_path
     get :index
     assert_response :success
@@ -512,7 +512,7 @@ class ServersControllerTest < ActionController::TestCase
     sign_in @owner
     request.host = 'example.com'
     request.env['HTTP_REFERER'] = server_path(@server)
-    post :add_digital_ocean_ssh_key, {
+    post :add_digital_ocean_ssh_key, params: {
       id: @server.id,
       digital_ocean_ssh_key: {
         name: 'me',
@@ -528,7 +528,7 @@ class ServersControllerTest < ActionController::TestCase
     sign_in @owner
     request.host = 'example.com'
     request.env['HTTP_REFERER'] = server_path(@server)
-    post :destroy_digital_ocean_ssh_key, {
+    post :destroy_digital_ocean_ssh_key, params: {
       id: 1,
     }
     assert_redirected_to server_path(@server)
@@ -540,7 +540,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_do_ssh_key_add().stub_do_ssh_key_add(200, 'me', 'a b c')
     mock_do_ssh_key_delete(204, 1)
     sign_in @owner
-    post :add_digital_ocean_ssh_key, {
+    post :add_digital_ocean_ssh_key, params: {
       digital_ocean_ssh_key: {
         name: 'me',
         data: 'a b c',

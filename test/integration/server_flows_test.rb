@@ -147,7 +147,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
   def login_user(email, password)
     mock_do_droplets_list(200, []).times_only(1)
     mock_do_images_list(200, []).times_only(1)
-    post user_session_path, { user: { email: email, password: password } }
+    post user_session_path, params: { user: { email: email, password: password } }
     assert_redirected_to servers_path
     follow_redirect!
     assert_response :success
