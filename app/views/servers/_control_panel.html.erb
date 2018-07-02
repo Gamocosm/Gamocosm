@@ -47,7 +47,7 @@
 
 		<div class="pull-right">
 			<span class="info-box btn-group">
-				<% if @server.minecraft.backup? %>
+				<% if @server.busy? || @server.minecraft.backup? %>
 					<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="<%= @server.minecraft.backup? %>">
 						<span class="fa fa-archive"></span> Backup remotely
 					</span>
@@ -57,7 +57,7 @@
 					<% end %>
 				<% end %>
 
-				<% if @server.minecraft.download? %>
+				<% if @server.busy? || @server.minecraft.download? %>
 					<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="<%= @server.minecraft.download? %>">
 						<span class="fa fa-download"></span> Download world
 					</span>
@@ -75,7 +75,7 @@
 			<% end %>
 		</div>
 	<% else %>
-		<%#TODO demo mode %>
+		<!-- TODO demo mode -->
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">Control Panel</h3>

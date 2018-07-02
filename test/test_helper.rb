@@ -14,7 +14,6 @@ Sidekiq::Testing.fake!
 require 'webmock/minitest'
 
 Sidekiq::Logging.logger = Rails.logger
-Sidekiq::Worker.jobs.define_singleton_method(:total_count, lambda { self.inject(0) { |total, kv| total + kv.second.size } })
 
 def test_have_user_server?
   return ENV['TEST_DOCKER'] == 'true'
@@ -36,7 +35,8 @@ class ActiveSupport::TestCase
   end
 
   teardown do
-    assert_equal 0, Sidekiq::Worker.jobs.total_count, "Unexpected Sidekiq jobs remain: #{Sidekiq::Worker.jobs}"
+    q = Sidekiq::Queue.new
+    assert_equal 0, q.size, "Unexpected Sidekiq jobs remain: #{q.size}"
   end
 
   def with_minecraft_query_server(&block)
