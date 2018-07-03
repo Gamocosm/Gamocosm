@@ -299,6 +299,11 @@ module DigitalOcean
           return x
         end
       end
+      for x in Size::DEFAULT_SIZES
+        if x.slug == slug
+          return x
+        end
+      end
       return nil
     end
 

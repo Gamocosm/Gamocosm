@@ -9,7 +9,7 @@
 				<%= breadcrumb_back_to_servers %>
 				<h1>
 					<%= @server.name %>
-					<small><%= @server.remote_region_slug %>-<%= @server.remote_size_slug %></small>
+					<small><%= @server.remote_region_slug %>/<%= @server.remote_size_slug %></small>
 				</h1>
 				<%= render partial: 'servers/control_panel' %>
 			</div>

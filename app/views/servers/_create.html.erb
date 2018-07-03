@@ -20,8 +20,17 @@
 			<%= link_to 'Read more', wiki_minecraft_versions_path %>
 		</p>
 		<br />
+		<ol>
+			<li>I understand that Gamocosm does not host my server.</li>
+			<li>I understand that Digital Ocean will charge me for this server when I start it.</li>
+			<li>I understand Digital Ocean's pricing policy.</li>
+			<li>I understand that to halt server charges when I stop the server, Gamocosm snapshots and destroys it for me.</li>
+			<li>I understand that Digital Ocean charges $0.05 per GB per month for snapshots (average $0.10 to $0.20 per month).</li>
+			<li>I will stop or destroy the server when I am done using it.</li>
+		</ol>
+		<br />
 		<%= link_to 'Digital Ocean pricing page', digital_ocean_pricing_no_ref_path %>
-		<button class="btn btn-default pull-right" type="submit">
+		<button class="btn btn-default pull-right" type="submit" onclick="return confirm('I have read the disclaimers.')">
 			Next <i class="fa fa-chevron-right"></i>
 		</button>
 	<% end %>
