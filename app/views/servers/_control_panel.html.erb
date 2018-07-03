@@ -48,7 +48,7 @@
 		<div class="pull-right">
 			<span class="info-box btn-group">
 				<% if @server.busy? || @server.minecraft.backup? %>
-					<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="Unavailable">
+					<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="<%= @server.busy? ? 'Busy' : @server.minecraft.backup? %>">
 						<span class="fa fa-archive"></span> Backup remotely
 					</span>
 				<% else %>
@@ -58,7 +58,7 @@
 				<% end %>
 
 				<% if @server.busy? || @server.minecraft.download? %>
-					<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="Unavailable">
+					<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="<%= @server.busy? ? 'Busy' : @server.minecraft.download? %>">
 						<span class="fa fa-download"></span> Download world
 					</span>
 				<% else %>

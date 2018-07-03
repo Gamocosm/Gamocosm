@@ -254,7 +254,7 @@ module DigitalOcean
         if res.error?
           return res
         end
-        res['sizes'].map { |x| self.class.size_from_response(x) }
+        res['sizes'].map { |x| self.class.size_from_response(x) }.select { |x| [ 's', 'c'].include?(x.slug[0] ) }
       end
     end
 
