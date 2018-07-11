@@ -141,6 +141,9 @@ class User < ActiveRecord::Base
     if keys.error?
       return keys
     end
+    if keys.nil?
+      return 'You do not have a Digital Ocean API key'.error!(nil)
+    end
     for x in keys
       if x.fingerprint == fingerprint
         return x.id
