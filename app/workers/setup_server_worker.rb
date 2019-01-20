@@ -174,6 +174,10 @@ class SetupServerWorker
     begin
       on host do
         Timeout::timeout(16) do
+          within '/' do
+            execute :sed, '-i', "'s/^PasswordAuthentication no/PasswordAuthentication yes/'", '/etc/ssh/sshd_config'
+            execute :systemctl, 'restart', 'sshd'
+          end
           within '/opt/gamocosm/' do
             execute :su, 'mcuser', '-c', "'git remote set-url origin \"#{mcsw_git_url}\"'"
             execute :su, 'mcuser', '-c', '"git checkout master"'
