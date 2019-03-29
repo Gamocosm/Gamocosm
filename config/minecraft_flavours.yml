@@ -65,6 +65,17 @@ spigot:
         - NOT TESTED IN A LONG TIME
         - 1GB+ recommended
         - This involves a long build process. It occasionally fails and you can try again or install it manually
+papermc:
+    versions:
+        - { name: PaperMC (1.13.2), tag: 1.13.2 }
+        - { name: PaperMC (1.12.2), tag: 1.12.2 }
+    time: 1
+    developers:
+        - PaperMC team
+    website: https://papermc.io
+    notes:
+        - High performance fork of Spigot
+        - Compatible with most Spigot and CraftBukkit plugins
 craftbukkit:
     versions:
         - { name: CraftBukkit (1.8), tag: 1.8 }
