@@ -1,5 +1,6 @@
 vanilla:
     versions:
+        - { name: Vanilla (1.13.2), tag: 1.13.2 }
         - { name: Vanilla (1.12.2), tag: 1.12.2 }
         - { name: Vanilla (1.11.2), tag: 1.11.2 }
         - { name: Vanilla (1.10.2), tag: 1.10.2 }
