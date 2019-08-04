@@ -29,6 +29,7 @@ Rails.application.routes.draw do
     match '/server_advanced_tab' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Server-advanced-tab-documentation'), as: :wiki_server_advanced_tab, via: :get
     match '/server_additional_info' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Additional-Info-for-Server-Admins'), as: :wiki_server_additional_info, via: :get
     match '/troubleshooting' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Troubleshooting'), as: :wiki_troubleshooting, via: :get
+    match '/custom_minecraft' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft'), as: :wiki_custom_minecraft, via: :get
   end
 
   scope '/digital_ocean' do
