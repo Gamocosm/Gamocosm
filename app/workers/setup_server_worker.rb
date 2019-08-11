@@ -49,7 +49,7 @@ class SetupServerWorker
       host.key = Gamocosm::DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH
       host.ssh_options = {
         passphrase: Gamocosm::DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE,
-        verify_host_key: false,
+        verify_host_key: :never,
         # how long to wait for initial connection
         # `e.cause` will be `Timeout::Error`
         timeout: 4

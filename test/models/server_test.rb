@@ -17,6 +17,7 @@
 #  remote_size_slug   :string           not null
 #  remote_snapshot_id :integer
 #  timezone_delta     :integer          default(0), not null
+#  api_key            :string           not null
 #
 
 require 'test_helper'

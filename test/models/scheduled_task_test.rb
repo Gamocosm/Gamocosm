@@ -2,7 +2,7 @@
 #
 # Table name: scheduled_tasks
 #
-#  id        :integer          not null, primary key
+#  id        :bigint           not null, primary key
 #  server_id :uuid             not null
 #  partition :integer          not null
 #  action    :string           not null

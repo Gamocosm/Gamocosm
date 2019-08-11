@@ -254,6 +254,94 @@ class ServersController < ApplicationController
     return redirect_to server_path(@server), flash: { success: 'Server logs cleared' }
   end
 
+  def api_status
+    server = Server.where(id: params[:id], api_key: params[:key])
+    if server.length == 0
+      render json: {
+        error: 'Not found',
+      }, status: 404
+      return
+    end
+    active = server[0].running?
+    status = server[0].pending_operation
+    minecraft = server[0].minecraft.running?
+    render json: {
+      server: active,
+      status: status,
+      minecraft: minecraft,
+    }
+  end
+
+  def api_start
+    server = Server.where(id: params[:id], api_key: params[:key])
+    if server.length == 0
+      render json: {
+        error: 'Not found',
+      }, status: 404
+      return
+    end
+    err = server[0].start
+    return render json: {
+      error: err,
+    }
+  end
+
+  def api_stop
+    server = Server.where(id: params[:id], api_key: params[:key])
+    if server.length == 0
+      render json: {
+        error: 'Not found',
+      }, status: 404
+      return
+    end
+    err = server[0].stop
+    return render json: {
+      error: err,
+    }
+  end
+
+  def api_reboot
+    server = Server.where(id: params[:id], api_key: params[:key])
+    if server.length == 0
+      render json: {
+        error: 'Not found',
+      }, status: 404
+      return
+    end
+    err = server[0].reboot
+    return render json: {
+      error: err,
+    }
+  end
+
+  def api_pause
+    server = Server.where(id: params[:id], api_key: params[:key])
+    if server.length == 0
+      render json: {
+        error: 'Not found',
+      }, status: 404
+      return
+    end
+    err = server[0].minecraft.pause
+    return render json: {
+      error: err,
+    }
+  end
+
+  def api_resume
+    server = Server.where(id: params[:id], api_key: params[:key])
+    if server.length == 0
+      render json: {
+        error: 'Not found',
+      }, status: 404
+      return
+    end
+    err = server[0].minecraft.resume
+    return render json: {
+      error: err,
+    }
+  end
+
   def show_digital_ocean_droplets
     @do_droplets = current_user.digital_ocean_droplets
     render layout: nil
@@ -382,6 +470,7 @@ class ServersController < ApplicationController
       :remote_snapshot_id,
       :remote_region_slug,
       :remote_size_slug,
+      :api_key,
       minecraft_attributes: [:mcsw_password],
     )
   end

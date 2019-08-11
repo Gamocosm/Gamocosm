@@ -89,6 +89,12 @@ Rails.application.routes.draw do
       get 'autoshutdown_enable'
       get 'autoshutdown_disable'
       get 'clear_logs'
+      get 'api/:key/status', to: 'servers#api_status', as: :api_status
+      get 'api/:key/start', to: 'servers#api_start', as: :api_start
+      get 'api/:key/stop', to: 'servers#api_stop', as: :api_stop
+      get 'api/:key/reboot', to: 'servers#api_reboot', as: :api_reboot
+      get 'api/:key/pause', to: 'servers#api_pause', as: :api_pause
+      get 'api/:key/resume', to: 'servers#api_resume', as: :api_resume
     end
   end
 

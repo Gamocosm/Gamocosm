@@ -2,7 +2,7 @@
 #
 # Table name: minecrafts
 #
-#  id                           :integer          not null, primary key
+#  id                           :bigint           not null, primary key
 #  created_at                   :datetime
 #  updated_at                   :datetime
 #  server_id                    :uuid             not null

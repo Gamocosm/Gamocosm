@@ -2,7 +2,7 @@
 #
 # Table name: server_logs
 #
-#  id         :integer          not null, primary key
+#  id         :bigint           not null, primary key
 #  server_id  :uuid             not null
 #  message    :text             not null
 #  debuginfo  :string(255)      not null

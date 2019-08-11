@@ -17,6 +17,7 @@
 #  remote_size_slug   :string           not null
 #  remote_snapshot_id :integer
 #  timezone_delta     :integer          default(0), not null
+#  api_key            :string           not null
 #
 
 class Server < ActiveRecord::Base
@@ -45,6 +46,7 @@ class Server < ActiveRecord::Base
   def after_initialize_callback
     chars = ('a'..'z').to_a
     self.domain ||= (0...8).map { chars[rand(chars.length)] }.join
+    self.api_key ||= SecureRandom.hex(16)
   end
 
   def before_validate_callback
@@ -55,6 +57,7 @@ class Server < ActiveRecord::Base
     self.remote_region_slug = self.remote_region_slug.clean
     self.remote_size_slug = self.remote_size_slug.clean
     self.ssh_keys = self.ssh_keys.try(:gsub, /\s/, '').clean
+    self.api_key = self.api_key.clean
   end
 
   def schedule_text
