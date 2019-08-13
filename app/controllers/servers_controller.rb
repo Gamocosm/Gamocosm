@@ -1,5 +1,15 @@
 class ServersController < ApplicationController
-  before_action :authenticate_user!
+  @@api_endpoints = [
+    :api_status,
+    :api_start,
+    :api_stop,
+    :api_reboot,
+    :api_pause,
+    :api_resume,
+    :api_backup,
+  ]
+  before_action :authenticate_user!, except: @@api_endpoints
+  skip_before_action :verify_authenticity_token, only: @@api_endpoints
 
   def new
     @server = Server.new
@@ -265,10 +275,16 @@ class ServersController < ApplicationController
     active = server[0].running?
     status = server[0].pending_operation
     minecraft = server[0].minecraft.running?
+    ip = server[0].remote.exists? ? server[0].remote.ip_address : nil
+    domain = "#{server[0].domain}.#{Gamocosm::USER_SERVERS_DOMAIN}"
+    download = server[0].minecraft.world_download_url
     render json: {
       server: active,
       status: status,
       minecraft: minecraft,
+      ip: ip,
+      domain: domain,
+      download: download,
     }
   end
 
@@ -337,6 +353,20 @@ class ServersController < ApplicationController
       return
     end
     err = server[0].minecraft.resume
+    return render json: {
+      error: err,
+    }
+  end
+
+  def api_backup
+    server = Server.where(id: params[:id], api_key: params[:key])
+    if server.length == 0
+      render json: {
+        error: 'Not found',
+      }, status: 404
+      return
+    end
+    err = server[0].minecraft.backup
     return render json: {
       error: err,
     }
