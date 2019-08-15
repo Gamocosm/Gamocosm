@@ -7,6 +7,7 @@ class ServersController < ApplicationController
     :api_pause,
     :api_resume,
     :api_backup,
+    :api_exec,
   ]
   before_action :authenticate_user!, except: @@api_endpoints
   skip_before_action :verify_authenticity_token, only: @@api_endpoints
@@ -367,6 +368,20 @@ class ServersController < ApplicationController
       return
     end
     err = server[0].minecraft.backup
+    return render json: {
+      error: err,
+    }
+  end
+
+  def api_exec
+    server = Server.where(id: params[:id], api_key: params[:key])
+    if server.length == 0
+      render json: {
+        error: 'Not found',
+      }, status: 404
+      return
+    end
+    err = server[0].minecraft.exec(server[0].user, params[:command])
     return render json: {
       error: err,
     }

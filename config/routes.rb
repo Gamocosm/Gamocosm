@@ -96,6 +96,7 @@ Rails.application.routes.draw do
       post 'api/:key/pause', to: 'servers#api_pause', as: :api_pause
       post 'api/:key/resume', to: 'servers#api_resume', as: :api_resume
       post 'api/:key/backup', to: 'servers#api_backup', as: :api_backup
+      post 'api/:key/exec', to: 'servers#api_exec', as: :api_exec
     end
   end
 
