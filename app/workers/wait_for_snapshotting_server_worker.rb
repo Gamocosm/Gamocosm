@@ -31,7 +31,7 @@ class WaitForSnapshottingServerWorker
         if times >= 32 && times % 8 == 0
           server.log("Still waiting for Digital Ocean server to snapshot, tried #{times} times")
         end
-        if times >= 256
+        if times >= 1024
           server.log('Digital Ocean took too long to snapshot server. Aborting')
           server.reset_state
           return
