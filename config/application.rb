@@ -85,5 +85,6 @@ module Gamocosm
       authentication: 'plain',
       enable_starttls_auto: true
     }
+    config.i18n.fallbacks = [ I18n.default_locale ]
   end
 end
