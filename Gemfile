@@ -51,6 +51,7 @@ gem 'simple_form', '>= 3.1.0.rc1'
 gem 'sshkit'
 gem 'dalli'
 gem 'exception_notification'
+gem 'droplet_kit', git: 'https://github.com/Gamocosm/droplet_kit'
 group :development do
 	gem 'newrelic_rpm'
 end
