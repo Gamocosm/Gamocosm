@@ -47,7 +47,7 @@ class WaitForSnapshottingServerWorker
           server.log('Finished snapshotting server on Digital Ocean, but unable to get latest snapshot id. Aborting')
           server.reset_state
         else
-          server.log('Finished snapshotting server on Digital Ocean, but unable to get latest snapshot id. Trying again (tried #{times} times)')
+          server.log("Finished snapshotting server on Digital Ocean, but unable to get latest snapshot id. Trying again (tried #{times} times)")
           WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times)
         end
         return

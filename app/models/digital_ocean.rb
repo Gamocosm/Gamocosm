@@ -52,8 +52,8 @@ module DigitalOcean
   end
 
   class Connection
-    OPEN_TIMEOUT = 16
-    TIMEOUT = 32
+    OPEN_TIMEOUT = 32
+    TIMEOUT = 64
     def initialize(api_key)
       @con = DropletKit::Client.new(access_token: api_key, open_timeout: OPEN_TIMEOUT, timeout: TIMEOUT)
     end
