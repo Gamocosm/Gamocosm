@@ -38,7 +38,7 @@ truecraft:
     notes: []
 vanilla_bedrock:
     versions:
-        { name: Bedrock Edition (1.14.32), tag: "null" }
+        - { name: Bedrock Edition (1.14.32), tag: "null" }
     time: 1
     developers:
         - Mojang
