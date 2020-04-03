@@ -58,5 +58,5 @@ end
 group :test do
     gem 'simplecov', require: false
     gem 'webmock', require: false
-    gem 'coveralls', require: false
+    gem 'coveralls', '>= 0.8.23', require: false
 end
