@@ -17,7 +17,6 @@ class AutoshutdownMinecraftWorker
     # in this case, if we find the Server object first, minecraft.server will return a new Server object
     minecraft = Minecraft.find_by!(server_id: server_id)
     server = minecraft.server
-    user = server.user
     begin
       minecraft.update_columns(autoshutdown_last_check: Time.now)
       # the next two checks and server.remote.status are !server.running?

@@ -58,26 +58,40 @@ module DigitalOcean
       @con = DropletKit::Client.new(access_token: api_key, open_timeout: OPEN_TIMEOUT, timeout: TIMEOUT)
     end
 
-    def droplet_list
+    def silence_digital_ocean_api(&block)
       silence do
-        @con.droplets.all.map { |x| self.class.droplet_from_response(x) }
+        begin
+          return block.call
+        rescue DropletKit::Error => e
+          msg = "Digital Ocean API error: #{e}"
+          return msg.error! e
+        end
+      end
+    end
+
+    def droplet_list
+      silence_digital_ocean_api do
+        res = @con.droplets.all
+        res.map { |x| self.class.droplet_from_response(x) }
       end
     end
 
     def droplet_show(id)
-      silence do
-        self.class.droplet_from_response(@con.droplets.find(id: id))
+      silence_digital_ocean_api do
+        res = @con.droplets.find(id: id)
+        self.class.droplet_from_response(res)
       end
     end
 
     def droplet_action_list(id)
-      silence do
-        @con.droplets.actions(id: id).map { |x| self.class.action_from_response(x) }.sort { |a, b| a.id <=> b.id }
+      silence_digital_ocean_api do
+        res = @con.droplets.actions(id: id)
+        res.map { |x| self.class.action_from_response(x) }.sort { |a, b| a.id <=> b.id }
       end
     end
 
     def droplet_create(name, region, size, image, ssh_keys)
-      silence do
+      silence_digital_ocean_api do
         droplet = DropletKit::Droplet.new(
           name: name,
           region: region,
@@ -85,90 +99,96 @@ module DigitalOcean
           image: image,
           ssh_keys: ssh_keys.map { |x| x.to_s },
         )
-        self.class.droplet_from_response(@con.droplets.create(droplet))
+        res = @con.droplets.create(droplet)
+        self.class.droplet_from_response(res)
       end
     end
 
     def droplet_snapshot(id, name)
-      silence do
+      silence_digital_ocean_api do
         action = @con.droplet_actions.snapshot(droplet_id: id, name: name)
         self.class.action_from_response(action)
       end
     end
 
     def droplet_delete(id)
-      silence do
+      silence_digital_ocean_api do
         @con.droplets.delete(id: id)
         nil
       end
     end
 
     def droplet_shutdown(id)
-      silence do
+      silence_digital_ocean_api do
         action = @con.droplet_actions.shutdown(droplet_id: id)
         self.class.action_from_response(action)
       end
     end
 
     def droplet_reboot(id)
-      silence do
+      silence_digital_ocean_api do
         action = @con.droplet_actions.reboot(droplet_id: id)
         self.class.action_from_response(action)
       end
     end
 
     def droplet_action_show(droplet_id, action_id)
-      silence do
+      silence_digital_ocean_api do
         action = @con.droplet_actions.find(droplet_id: droplet_id, id: action_id)
         self.class.action_from_response(action)
       end
     end
 
     def image_list(private_only = true)
-      silence do
-        @con.images.all(private: private_only).map { |x| self.class.image_from_response(x) }
+      silence_digital_ocean_api do
+        res = @con.images.all(private: private_only)
+        res.map { |x| self.class.image_from_response(x) }
       end
     end
 
     def image_delete(id)
-      silence do
+      silence_digital_ocean_api do
         @con.images.delete(id: id)
         nil
       end
     end
 
     def ssh_key_list
-      silence do
-        @con.ssh_keys.all.map { |x| self.class.ssh_key_from_response(x) }
+      silence_digital_ocean_api do
+        res = @con.ssh_keys.all
+        res.map { |x| self.class.ssh_key_from_response(x) }
       end
     end
 
     def ssh_key_show(id)
-      silence do
-        self.class.ssh_key_from_response(@con.ssh_keys.find(id: id))
+      silence_digital_ocean_api do
+        res = @con.ssh_keys.find(id: id)
+        self.class.ssh_key_from_response(res)
       end
     end
 
     def ssh_key_create(name, public_key)
-      silence do
+      silence_digital_ocean_api do
         key = DropletKit::SSHKey.new(
           name: name,
           public_key: public_key,
         )
-        self.class.ssh_key_from_response(@con.ssh_keys.create(key))
+        res = @con.ssh_keys.create(key)
+        self.class.ssh_key_from_response(res)
       end
     end
 
     def ssh_key_delete(id)
-      silence do
+      silence_digital_ocean_api do
         @con.ssh_keys.delete(id: id)
         nil
       end
     end
 
     def region_list_uncached
-      silence do
-        @con.regions.all.map { |x| self.class.region_from_response(x) }.sort do |a, b|
+      silence_digital_ocean_api do
+        res = @con.regions.all
+        res.map { |x| self.class.region_from_response(x) }.sort do |a, b|
           a_tier = a.slug[-1].to_i
           b_tier = b.slug[-1].to_i
           a_tier == b_tier ? a.slug <=> b.slug : b_tier <=> a_tier
@@ -177,8 +197,9 @@ module DigitalOcean
     end
 
     def size_list_uncached
-      silence do
-        @con.sizes.all.map { |x| self.class.size_from_response(x) }.select { |x| [ 's', 'c'].include?(x.slug[0] ) }
+      silence_digital_ocean_api do
+        res = @con.sizes.all
+        res.map { |x| self.class.size_from_response(x) }.select { |x| [ 's', 'c' ].include?(x.slug[0] ) }
       end
     end
 

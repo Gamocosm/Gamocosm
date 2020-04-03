@@ -6,7 +6,6 @@ class StartMinecraftWorker
     # see AutoshutdownMinecraftWorker for explanation of the next two lines
     minecraft = Minecraft.find_by!(server_id: server_id)
     server = minecraft.server
-    user = server.user
     begin
       if !server.remote.exists?
         server.log('Error starting server; remote_id is nil. Aborting')
@@ -24,7 +23,7 @@ class StartMinecraftWorker
       end
       error = server.remote.destroy_saved_snapshot
       if error
-        server.log("Error deleting saved snapshot on Digital Ocean after starting server; #{error}")
+        server.log("Error deleting saved snapshot on Digital Ocean after starting server: #{error}")
       end
       server.user.invalidate_digital_ocean_cache_snapshots
       if minecraft.autoshutdown_enabled
