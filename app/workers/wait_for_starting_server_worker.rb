@@ -40,8 +40,14 @@ class WaitForStartingServerWorker
         return
       end
       if server.remote.status != 'active'
-        server.log("Finished starting server on Digital Ocean, but remote status was #{server.remote.status} (not 'active'). Aborting")
-        server.reset_state
+        times += 1
+        if times >= 64
+          server.log("Finished starting server on Digital Ocean, but remote status was #{server.remote.status} (not 'active'). Aborting")
+          server.reset_state
+        else
+          server.log("Finished starting server on Digital Ocean, but remote status was #{server.remote.status} (not 'active'). Trying again (tried #{times} times)")
+          WaitForStartingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times)
+        end
         return
       end
       server.update_columns(pending_operation: 'preparing')
