@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class ServersControllerTest < ActionController::TestCase
-  include Devise::TestHelpers
+  include Devise::Test::ControllerHelpers
 
   def setup
     @owner = User.find(1)
@@ -48,7 +48,6 @@ class ServersControllerTest < ActionController::TestCase
 
   test 'create and destroy server' do
     mock_do_droplet_delete(200, 1)
-    mock_cloudflare.stub_cf_dns_list(200, 'success', [])
     sign_in @owner
     begin
       old_server_count = Server.count
@@ -67,6 +66,7 @@ class ServersControllerTest < ActionController::TestCase
       assert_redirected_to server_path(s2)
       assert_not_nil flash[:success], 'No new server message'
       s2.update_columns(remote_id: 1)
+      mock_cf_dns_list(200, true, [], s2.domain)
       delete :destroy, params: { id: s2.id }
       assert_redirected_to servers_path
       assert_equal 'Server is deleting', flash[:success], 'Server delete not success'
@@ -112,7 +112,7 @@ class ServersControllerTest < ActionController::TestCase
     @server.update_columns(remote_snapshot_id: nil)
     mock_do_ssh_keys_list(200, []).times_only(1)
     mock_do_ssh_key_gamocosm(200)
-    mock_do_droplet_create().stub_do_droplet_create(200, @server.name, @server.remote_size_slug, @server.remote_region_slug, Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
+    mock_do_droplet_create().stub_do_droplet_create(202, @server.name, @server.remote_size_slug, @server.remote_region_slug, Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'new').times(1).stub_do_droplet_show(200, 'active')
     mock_do_droplet_actions_list(200, 1)
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 1)
@@ -200,7 +200,7 @@ class ServersControllerTest < ActionController::TestCase
     get :pause, params: { id: @server.id }
     assert_redirected_to server_path(@server)
     assert_equal 'Server paused', flash[:success], 'Minecraft pause not successful'
-    get :resume, { id: @server.id }
+    get :resume, params: { id: @server.id }
     assert_redirected_to server_path(@server)
     assert_equal 'Server resumed', flash[:success], 'Minecraft resume not successful'
   end
@@ -254,7 +254,7 @@ class ServersControllerTest < ActionController::TestCase
     } }
     assert_redirected_to server_path(@server)
     # reset values
-    view_server @server, params: {
+    view_server @server, {
       setup_stage: 0,
       remote_region_slug: 'nyc3',
       remote_size_slug: '512mb',

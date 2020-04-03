@@ -52,16 +52,31 @@ module DigitalOcean
   end
 
   class Connection
+    API_URL = 'https://api.digitalocean.com/v2'
+    PER_PAGE = 200
     OPEN_TIMEOUT = 32
     TIMEOUT = 64
     def initialize(api_key)
       @con = DropletKit::Client.new(access_token: api_key, open_timeout: OPEN_TIMEOUT, timeout: TIMEOUT)
     end
 
-    def silence_digital_ocean_api(&block)
+    def silence_digital_ocean_api(is_delete = false, &block)
+      if @con.access_token.nil?
+        return 'You have not entered your Digital Ocean API token'.error!(nil)
+      end
       silence do
         begin
           return block.call
+        rescue DropletKit::HttpStatusError => e
+          if e.status == 401
+            msg = "Unable to authenticate your Digital Ocean API token: #{e}"
+            return msg.error! e
+          end
+          if is_delete && e.status == 404
+            return nil
+          end
+          msg = "Digital Ocean API HTTP response status not ok: #{e}"
+          return msg.error! e
         rescue DropletKit::Error => e
           msg = "Digital Ocean API error: #{e}"
           return msg.error! e
@@ -112,7 +127,7 @@ module DigitalOcean
     end
 
     def droplet_delete(id)
-      silence_digital_ocean_api do
+      silence_digital_ocean_api(true) do
         @con.droplets.delete(id: id)
         nil
       end
@@ -147,7 +162,7 @@ module DigitalOcean
     end
 
     def image_delete(id)
-      silence_digital_ocean_api do
+      silence_digital_ocean_api(true) do
         @con.images.delete(id: id)
         nil
       end
@@ -179,7 +194,7 @@ module DigitalOcean
     end
 
     def ssh_key_delete(id)
-      silence_digital_ocean_api do
+      silence_digital_ocean_api(true) do
         @con.ssh_keys.delete(id: id)
         nil
       end

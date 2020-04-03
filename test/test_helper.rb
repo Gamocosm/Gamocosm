@@ -62,32 +62,52 @@ class ActiveSupport::TestCase
   # WebMock basic helpers
   def mock_digital_ocean(verb, path)
     stub = stub_request(verb, File.join(DigitalOcean::Connection::API_URL, path))
+=begin
     if verb == :get
       stub.with({
         query: hash_including({ per_page: DigitalOcean::Connection::PER_PAGE.to_s }),
       })
     end
+=end
     return stub
   end
 
-  def mock_cloudflare
-    return stub_request(:post, CloudFlare::Client::CLOUDFLARE_API_URL)
+  def mock_cloudflare(verb, path = '', query = nil)
+    if query.nil?
+      query = ''
+    else
+      query = '?' + query.map { |k, v| "#{k}=#{v}" }.join('&')
+    end
+    if !path.empty?
+      path = '/' + path
+    end
+    return stub_request(verb, File.join(CloudFlare::Client::CLOUDFLARE_API_URL, "zones/#{Gamocosm::CLOUDFLARE_ZONE}/dns_records") + path)
+      .with({ query: hash_including({ }) })
   end
 
   def mock_mcsw(verb, minecraft, endpoint)
-    return stub_request(verb, "http://#{Gamocosm::MCSW_USERNAME}:#{minecraft.mcsw_password}@localhost:#{Minecraft::Node::MCSW_PORT}/#{endpoint}")
+    return stub_request(verb, "http://localhost:#{Minecraft::Node::MCSW_PORT}/#{endpoint}").with(basic_auth: [ Gamocosm::MCSW_USERNAME, minecraft.mcsw_password ])
   end
 
   # WebMock helpers that include response
   def mock_do_base(status)
     # ensure file loaded
     DigitalOcean::Connection
-    mock_digital_ocean(:get, '/sizes').to_return_json(status, { sizes: DigitalOcean::Size::DEFAULT_SIZES })
-    mock_digital_ocean(:get, '/regions').to_return_json(status, { regions: DigitalOcean::Region::DEFAULT_REGIONS })
+    mock_digital_ocean(:get, '/sizes')
+      .stub_do_list
+      .to_return_json(status, { sizes: DigitalOcean::Size::DEFAULT_SIZES })
+    mock_digital_ocean(:get, '/regions')
+      .stub_do_list
+      .to_return_json(status, { regions: DigitalOcean::Region::DEFAULT_REGIONS })
   end
 
   def mock_do_droplet_actions_list(status, droplet_id)
-    return mock_digital_ocean(:get, "/droplets/#{droplet_id}/actions").to_return_json(status, { actions: [{ id: 1 }] })
+    return mock_digital_ocean(:get, "/droplets/#{droplet_id}/actions")
+      .to_return_json(status, { actions: [{ id: 1 }], meta: { total: 1 } })
+      .with(query: {
+        page: 1,
+        per_page: 20,
+      })
   end
 
   def mock_do_droplet_delete(status, droplet_id)
@@ -107,15 +127,41 @@ class ActiveSupport::TestCase
   end
 
   def mock_do_droplets_list(status, droplets)
-    return mock_digital_ocean(:get, '/droplets').to_return_json(status, droplets: droplets)
+    return mock_digital_ocean(:get, '/droplets')
+      .to_return_json(status, { droplets: droplets, meta: { total: droplets.length } })
+      .stub_do_list
   end
 
   def mock_do_images_list(status, images)
-    return mock_digital_ocean(:get, '/images').to_return_json(status, images: images)
+    return mock_digital_ocean(:get, '/images')
+      .to_return_json(status, { images: images, meta: { total: images.length } })
+      .stub_do_list
   end
 
   def mock_do_ssh_keys_list(status, ssh_keys)
-    return mock_digital_ocean(:get, '/account/keys').to_return_json(status, ssh_keys: ssh_keys)
+    return mock_digital_ocean(:get, '/account/keys')
+      .to_return_json(status, { ssh_keys: ssh_keys, meta: { total: ssh_keys.length } })
+      .stub_do_list
+  end
+
+  def mock_cf_dns_list(status, success, recs, domain = nil)
+    ret = nil
+    if domain.nil?
+      ret = mock_cloudflare(:get)
+    else
+      ret = mock_cloudflare(:get, '', {
+        name: "#{domain}.#{Gamocosm::USER_SERVERS_DOMAIN}",
+      })
+    end
+    return ret.stub_cf_response(status, success, recs)
+  end
+
+  def mock_cf_dns_add(status, success, name, content)
+    return mock_cloudflare(:post).stub_cf_response(status, success, { })
+  end
+
+  def mock_cf_dns_delete(status, success, id)
+    return mock_cloudflare(:delete, id.to_s).stub_cf_response(status, success, { })
   end
 
   def mock_mcsw_stop(status, mc)
@@ -173,6 +219,7 @@ class ActiveSupport::TestCase
 
   # Other helpers
   def mock_cf_domain(domain_name, times)
+=begin
     mock_cloudflare.stub_cf_dns_list(200, 'success', []).times(1)
       .stub_cf_dns_list(200, 'success', [
         { rec_id: 1, display_name: domain_name, type: 'A' },
@@ -180,6 +227,14 @@ class ActiveSupport::TestCase
     mock_cloudflare.stub_cf_dns_add(200, 'success', domain_name, 'localhost').times_only(1)
     mock_cloudflare.stub_cf_dns_edit(200, 'success', 1, domain_name, 'localhost').times_only(times - 1)
     mock_cloudflare.stub_cf_dns_delete(200, 'success', 1).times_only(1)
+=end
+    mock_cf_dns_list(200, true, [{
+      id: 1,
+      type: 'A',
+      name: domain_name,
+    }]).times(1)
+    mock_cf_dns_add(200, true, domain_name, 'localhost').times_only(1)
+    mock_cf_dns_delete(200, true, 1).times_only(1)
   end
 end
 
@@ -194,6 +249,13 @@ class WebMock::RequestStub
 
   def times_only(n)
     return self.times(n).to_raise(RuntimeError)
+  end
+
+  def stub_do_list
+    return self.with({ query: WebMock::API.hash_including({
+      page: '1',
+      per_page: '20',
+    }) })
   end
 
   def stub_do_droplet_action(status, action)
@@ -248,54 +310,11 @@ class WebMock::RequestStub
     }).stub_do_ssh_key_show(status, name, public_key)
   end
 
-  def stub_cf_request(a, req)
-    return self.with(query: {
-      a: a,
-      tkn: Gamocosm::CLOUDFLARE_API_TOKEN,
-      email: Gamocosm::CLOUDFLARE_EMAIL,
-      z: Gamocosm::USER_SERVERS_DOMAIN,
-    }.merge(req))
-  end
-
-  def stub_cf_response(status, result, res)
+  def stub_cf_response(status, success, result)
     return self.to_return_json(status, {
+      success: success,
       result: result,
-      response: res,
     })
-  end
-
-  def stub_cf_dns_list(status, result, recs)
-    return self.stub_cf_request('rec_load_all', { })
-      .stub_cf_response(status, result, {
-        recs: {
-          objs: recs,
-        },
-      })
-  end
-
-  def stub_cf_dns_add(status, result, name, content)
-    return self.stub_cf_request('rec_new', {
-      type: 'A',
-      ttl: 120,
-      name: name,
-      content: content,
-    }).stub_cf_response(status, result, { })
-  end
-
-  def stub_cf_dns_edit(status, result, id, name, content)
-    return self.stub_cf_request('rec_edit', {
-      type: 'A',
-      ttl: 120,
-      id: id,
-      name: name,
-      content: content,
-    }).stub_cf_response(status, result, { })
-  end
-
-  def stub_cf_dns_delete(status, result, id)
-    return self.stub_cf_request('rec_delete', {
-      id: id,
-    }).stub_cf_response(status, result, { })
   end
 
   def stub_mcsw_pid(status, pid, opts = { })

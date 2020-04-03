@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'sidekiq/testing'
 
 class WorkersTest < ActiveSupport::TestCase
 
@@ -10,6 +11,7 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   def teardown
+    Sidekiq::Worker.clear_all
   end
 
   test 'record not found in workers' do
@@ -47,7 +49,7 @@ class WorkersTest < ActiveSupport::TestCase
     end
     assert_equal 1, @server.logs.count, 'Should have one server log'
     WaitForStartingServerWorker.drain
-    assert_equal 33, @server.logs.count, 'Should have 32 server logs'
+    assert_equal 33, @server.logs.count, 'Should have 33 server logs'
     assert_not @server.busy?, 'Worker should have reset server'
   end
 
@@ -91,11 +93,10 @@ class WorkersTest < ActiveSupport::TestCase
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'completed').times_only(1)
     WaitForStartingServerWorker.perform_in(0.seconds, @server.id, 1)
     WaitForStartingServerWorker.perform_one
-    assert_equal 0, WaitForStartingServerWorker.jobs.size, 'Worker should have failed and exited'
+    assert_equal 1, WaitForStartingServerWorker.jobs.size, 'Worker should have retried'
     @server.reload
     assert_equal 1, @server.logs.count, 'Should have one server log'
-    assert_match /finished starting server on digital ocean, but remote status was off/i, @server.logs.first.message
-    assert_not @server.busy?, 'Worker should have reset server'
+    assert_match /finished starting server on digital ocean, but remote status was off.*trying again/i, @server.logs.first.message
   end
 
   test 'wait for stopping server worker too many tries' do
@@ -172,15 +173,15 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'wait for snapshotting server worker too many tries' do
-    mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times_only(64)
-    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(64)
+    mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times_only(1024)
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1024)
     WaitForSnapshottingServerWorker.perform_in(0.seconds, @server.id, 1)
     for i in 0...32
       WaitForSnapshottingServerWorker.perform_one
     end
     assert_equal 1, @server.logs.count, 'Should have one server log'
     WaitForSnapshottingServerWorker.drain
-    assert_equal 33, @server.logs.count, 'Should have 32 server logs'
+    assert_equal ((1024 - 32) / 8) + 2, @server.logs.count, 'Should have 33 server logs'
     assert_not @server.busy?, 'Worker should have reset server'
   end
 
@@ -223,11 +224,10 @@ class WorkersTest < ActiveSupport::TestCase
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'completed').times_only(1)
     WaitForSnapshottingServerWorker.perform_in(0.seconds, @server.id, 1)
     WaitForSnapshottingServerWorker.perform_one
-    assert_equal 0, WaitForSnapshottingServerWorker.jobs.size, 'Worker should have failed and exited'
+    assert_equal 1, WaitForSnapshottingServerWorker.jobs.size, 'Worker should have retried'
     @server.reload
     assert_equal 1, @server.logs.count, 'Should have one server log'
-    assert_match /finished snapshotting server on digital ocean, but unable to get latest snapshot id/i, @server.logs.first.message
-    assert_not @server.busy?, 'Worker should have reset server'
+    assert_match /finished snapshotting server on digital ocean, but unable to get latest snapshot id. trying again/i, @server.logs.first.message
   end
 
   test 'wait for snapshotting server worker delete error' do
@@ -388,7 +388,7 @@ class WorkersTest < ActiveSupport::TestCase
     assert_equal 0, AutoshutdownMinecraftWorker.jobs.size, 'Autoshutdown Minecraft worker should be done'
     assert_equal 1, @server.logs.count, 'Should have 1 server log'
     assert_match /in autoshutdown worker, unable to stop server/i, @server.logs.first.message, 'Should have server log about unable to stop server'
-    assert_equal nil, @server.pending_operation, "Autoshutdown Minecraft worker should have failed to stop server, but pending operation is #{@server.pending_operation}"
+    assert_nil @server.pending_operation, "Autoshutdown Minecraft worker should have failed to stop server, but pending operation is #{@server.pending_operation}"
     assert_equal 0, WaitForStoppingServerWorker.jobs.size, 'Wait for stopping server worker should have failed and not queued'
   end
 
@@ -440,7 +440,7 @@ class WorkersTest < ActiveSupport::TestCase
     @server.reload
     assert_equal 0, SetupServerWorker.jobs.size, 'Setup server worker should be done'
     assert_equal 1, @server.logs.count, 'Should have 1 server log'
-    assert_match /digital ocean api error/i, @server.logs.first.message, 'Should have server log about error getting SSH key'
+    assert_match /digital ocean api http response status not ok: 400: /i, @server.logs.first.message, 'Should have server log about error getting SSH key'
     assert_nil @server.ssh_keys, 'Setup server worker should have added and reset ssh keys'
     assert_equal 1, StartMinecraftWorker.jobs.size, 'Setup server worker should have queued Start Minecraft worker'
     StartMinecraftWorker.jobs.clear
@@ -509,7 +509,7 @@ class WorkersTest < ActiveSupport::TestCase
     @server.update_columns(remote_id: nil)
     mock_do_ssh_keys_list(200, []).times_only(1)
     mock_do_ssh_key_gamocosm(200)
-    mock_do_droplet_create().stub_do_droplet_create(200, @server.name, @server.remote_size_slug, @server.remote_region_slug, Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
+    mock_do_droplet_create().stub_do_droplet_create(202, @server.name, @server.remote_size_slug, @server.remote_region_slug, Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
     mock_do_droplet_actions_list(200, 1)
     begin
       @server.scheduled_tasks.create!({

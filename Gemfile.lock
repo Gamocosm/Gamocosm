@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/Gamocosm/droplet_kit
-  revision: f68478e14108a00272eed8d441836a6b6954400f
+  revision: ea613d008dd226d825fc39e1d565473a626a96cc
   specs:
     droplet_kit (3.6.0)
       faraday (>= 1.0.0)
@@ -251,7 +251,7 @@ GEM
     tilt (2.0.10)
     tins (1.24.1)
       sync
-    tzinfo (1.2.6)
+    tzinfo (1.2.7)
       thread_safe (~> 0.1)
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)

@@ -204,7 +204,7 @@ class Server < ActiveRecord::Base
     action = remote.shutdown
     if action.error?
       # action `unprocesable_entity`, already off
-      if action.data.status == 422 && remote.status == 'off'
+      if action.data.instance_of?(DropletKit::FailedCreate) && remote.status == 'off'
         action = remote.snapshot
         if action.error?
           return action

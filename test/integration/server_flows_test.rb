@@ -38,7 +38,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
 
   def start_server(server, properties)
     mock_do_droplet_create
-      .stub_do_droplet_create(200, server.name, server.remote_size_slug, server.remote_region_slug, server.remote_snapshot_id || Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
+      .stub_do_droplet_create(202, server.name, server.remote_size_slug, server.remote_region_slug, server.remote_snapshot_id || Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
       .times_only(1)
     mock_do_droplet_actions_list(200, 1).times_only(1)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'new').times_only(1)
@@ -119,7 +119,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
   def update_minecraft_properties(server, properties)
     mock_mcsw_properties_update(server.minecraft).stub_mcsw_properties_update(200, properties).times_only(1)
     mock_mcsw_properties_fetch(server.minecraft).stub_mcsw_properties_fetch(200, properties).times_only(1)
-    put update_properties_server_path(server), { minecraft_properties: properties }
+    put update_properties_server_path(server), params: { minecraft_properties: properties }
     assert_redirected_to server_path(server)
     follow_redirect!
     assert_response :success

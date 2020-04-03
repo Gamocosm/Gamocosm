@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class PagesControllerTest < ActionController::TestCase
-  include Devise::TestHelpers
+  include Devise::Test::ControllerHelpers
 
   test "front page does not crash :)" do
     get :landing

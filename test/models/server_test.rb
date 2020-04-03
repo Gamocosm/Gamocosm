@@ -46,8 +46,8 @@ class ServerTest < ActiveSupport::TestCase
 
   test 'refresh domain' do
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1)
-    mock_cloudflare.stub_cf_dns_list(200, 'success', []).times_only(1)
-    mock_cloudflare.stub_cf_dns_add(200, 'success', @server.domain, 'localhost').times_only(1)
+    mock_cf_dns_list(200, true, [], @server.domain).times_only(1)
+    mock_cf_dns_add(200, true, @server.domain, 'localhost').times_only(1)
     begin
       @server.update_columns(remote_id: 1)
       x = @server.refresh_domain
@@ -63,7 +63,7 @@ class ServerTest < ActiveSupport::TestCase
       @server.update_columns(remote_id: 1)
       res = @server.refresh_domain
       assert res.error?, 'Should have error refreshing domain'
-      assert_match /Digital Ocean API error: HTTP response status not ok, was 400/, res.msg, 'Should have error about Digital Ocean request'
+      assert_match /Digital Ocean API HTTP response status not ok: 400: /, res.msg, 'Should have error about Digital Ocean request'
     ensure
       @server.update_columns(remote_id: nil)
     end
