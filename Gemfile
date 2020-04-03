@@ -53,10 +53,10 @@ gem 'dalli'
 gem 'exception_notification'
 gem 'droplet_kit', git: 'https://github.com/Gamocosm/droplet_kit'
 group :development do
-	gem 'newrelic_rpm'
+    gem 'newrelic_rpm'
 end
 group :test do
-	gem 'simplecov', require: false
+    gem 'simplecov', require: false
     gem 'webmock', require: false
     gem 'coveralls', require: false
 end

@@ -4,6 +4,7 @@ rvm:
 services:
     - memcached
     - redis
+    - postgresql
 env:
     global:
         - RAILS_ENV=test
