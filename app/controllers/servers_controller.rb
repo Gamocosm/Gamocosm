@@ -78,7 +78,7 @@ class ServersController < ApplicationController
         end
         schedule_text = p.delete(:schedule_text)
       end
-      if @server.update_attributes(p)
+      if @server.update(p)
         if @server_tab != :schedule || @server.parse_and_save_schedule(schedule_text)
           return redirect_to server_path(@server), flash: { success: (@server_tab == :schedule ? 'Server schedule updated' : 'Server advanced configuration updated') }
         end

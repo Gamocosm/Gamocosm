@@ -54,6 +54,7 @@ gem 'exception_notification'
 gem 'droplet_kit', git: 'https://github.com/Gamocosm/droplet_kit'
 group :development do
     gem 'newrelic_rpm'
+    gem 'listen'
 end
 group :test do
     gem 'simplecov', require: false

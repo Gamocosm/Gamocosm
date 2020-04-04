@@ -6,7 +6,7 @@ class WorkersTest < ActiveSupport::TestCase
     @server = Server.first
     @server.logs.delete_all
     @server.minecraft.update_columns(autoshutdown_enabled: false)
-    @server.update_columns(remote_id: 1, pending_operation: nil)
+    @server.update_columns(remote_id: 1, pending_operation: nil, remote_snapshot_id: nil)
   end
 
   def teardown
