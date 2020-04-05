@@ -5,4 +5,4 @@ rvm use 2.6.5
 
 source env.sh
 
-"$@"
+exec "$@"

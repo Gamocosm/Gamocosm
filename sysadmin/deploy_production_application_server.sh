@@ -61,6 +61,7 @@ su -l postgres -c 'createuser --createdb --pwprompt --superuser gamocosm'
 sed -i "/^# TYPE[[:space:]]*DATABASE[[:space:]]*USER[[:space:]]*ADDRESS[[:space:]]*METHOD/a local gamocosm_development,gamocosm_test,gamocosm_production gamocosm md5" /var/lib/pgsql/data/pg_hba.conf
 echo 'Add database postgres to /var/lib/pgsql/data/pg_hba.conf to user gamocosm if setting up a new database.'
 release
+systemctl restart postgresql
 
 cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.vanilla
 chsh -s /bin/bash nginx
@@ -78,11 +79,12 @@ echo "Example: su -l nginx -c 'ssh-keygen -t rsa'"
 release
 
 mkdir /var/www
-cd /var/www
+pushd /var/www
 git clone https://github.com/Gamocosm/Gamocosm.git gamocosm
-cd gamocosm
+pushd gamocosm
 git checkout release
 cp sysadmin/nginx.conf /etc/nginx/conf.d/gamocosm.conf
+cp sysadmin/run.sh /usr/local/bin/
 cp sysadmin/puma.service /etc/systemd/system/gamocosm-puma.service
 cp sysadmin/sidekiq.service /etc/systemd/system/gamocosm-sidekiq.service
 mkdir tmp
@@ -100,11 +102,14 @@ echo 'Please setup the database.'
 echo "Example: su -l nginx -c 'cd $(pwd) && RAILS_ENV=production ./run2.sh bundle exec rake db:setup"
 release
 
-su -l nginx -c 'cd /var/www/gamocosm && RAILS_ENV=production bundle exec rake assets:precompile'
+su -l nginx -c 'cd /var/www/gamocosm && RAILS_ENV=production ./run2.sh bundle exec rake assets:precompile'
 
 OUTDOORS_IP_ADDRESS="$(ifconfig | grep -m 1 'inet' | awk '{ print $2 }')"
 echo "Please update gamocosm.com entries in /etc/hosts (believe IP address is $OUTDOORS_IP_ADDRESS)."
 release
+
+popd
+popd
 
 systemctl enable gamocosm-puma
 systemctl start gamocosm-puma
@@ -118,14 +123,46 @@ release
 systemctl enable nginx
 systemctl start nginx
 
-echo 'Fix selinux nginx permissions.'
-echo '- run curl https://gamocosm.com'
-echo '- run grep nginx /var/log/audit/audit.log | audit2allow'
-echo '- run grep nginx /var/log/audit/audit.log | audit2allow -m nginx'
-echo '- run grep nginx /var/log/audit/audit.log | audit2allow -M nginx'
-echo '- run semodule -i nginx.pp'
-echo '- repeat until ok'
-release
+mkdir selinux
+pushd selinux
+
+mkdir 1
+pushd 1
+curl http://gamocosm.com
+grep nginx /var/log/audit/audit.log | audit2allow
+grep nginx /var/log/audit/audit.log | audit2allow -m nginx
+grep nginx /var/log/audit/audit.log | audit2allow -M nginx
+semodule -i nginx.pp
+popd
+
+mkdir 2
+pushd 2
+curl http://gamocosm.com
+grep nginx /var/log/audit/audit.log | audit2allow
+grep nginx /var/log/audit/audit.log | audit2allow -m nginx
+grep nginx /var/log/audit/audit.log | audit2allow -M nginx
+semodule -i nginx.pp
+popd
+
+mkdir 3
+pushd 3
+curl http://gamocosm.com/robots.txt
+grep nginx /var/log/audit/audit.log | audit2allow
+grep nginx /var/log/audit/audit.log | audit2allow -m nginx
+grep nginx /var/log/audit/audit.log | audit2allow -M nginx
+semodule -i nginx.pp
+popd
+popd
+
+mkdir 4
+pushd 4
+curl http://gamocosm.com/robots.txt
+grep nginx /var/log/audit/audit.log | audit2allow
+grep nginx /var/log/audit/audit.log | audit2allow -m nginx
+grep nginx /var/log/audit/audit.log | audit2allow -M nginx
+semodule -i nginx.pp
+popd
+popd
 
 firewall-cmd --add-service=https
 firewall-cmd --permanent --add-service=https
