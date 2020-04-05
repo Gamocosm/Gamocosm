@@ -40,7 +40,7 @@ gem 'sdoc', '>= 0.4.0',          group: :doc
 
 # Custom
 gem 'devise', '>= 3.4.1'
-gem 'sidekiq'
+gem 'sidekiq', '>= 6.0.6'
 gem 'bootstrap-sass', '>= 3.3.3'
 gem 'annotate'
 gem 'faraday'
@@ -52,6 +52,7 @@ gem 'sshkit'
 gem 'dalli'
 gem 'exception_notification'
 gem 'droplet_kit', git: 'https://github.com/Gamocosm/droplet_kit'
+gem 'puma'
 group :development do
     gem 'newrelic_rpm'
     gem 'listen'

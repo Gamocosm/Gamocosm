@@ -1,6 +1,7 @@
 Rails.application.configure do
   # Custom
   config.action_mailer.default_url_options = { host: 'localhost:3000' }
+  config.hosts << ENV['DEVELOPMENT_HOST']
 
   # Settings specified here will take precedence over those in config/application.rb.
 

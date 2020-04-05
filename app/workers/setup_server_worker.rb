@@ -181,8 +181,8 @@ class SetupServerWorker
           within '/opt/gamocosm/' do
             execute :su, 'mcuser', '-c', "'git remote set-url origin \"#{mcsw_git_url}\"'"
             execute :su, 'mcuser', '-c', '"git checkout master"'
-            execute :su, 'mcuser', '-c', '"git fetch origin master"'
             execute :su, 'mcuser', '-c', '"git reset --hard origin/master"'
+            execute :su, 'mcuser', '-c', '"git pull origin master"'
             execute :cp, '-f', '/opt/gamocosm/mcsw.service', '/etc/systemd/system/mcsw.service'
             execute :systemctl, 'daemon-reload'
             execute :systemctl, 'restart', 'mcsw'

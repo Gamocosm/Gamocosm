@@ -70,7 +70,8 @@ The following instructions were made for Fedora 20, but the steps should be simi
 - `CLOUDFLARE_API_TOKEN`: hmmm
 - `CLOUDFLARE_EMAIL`: hmmm
 - `CLOUDFLARE_ZONE`: TODO explain how to get this
-- `DEVISE_SECRET_KEY`: only tests, production
+- `DEVELOPMENT_HOST`: only development, allowed host to access development server
+- `DEVISE_SECRET_KEY`: only test, production
 - `SECRET_KEY`: only production
 - `DEVELOPER_EMAILS`: comma separated list of emails to send exceptions to
 - `BADNESS_SECRET`: secret to protect `/badness` endpoint
@@ -92,6 +93,7 @@ Depending on what method you want to use, add the following under the line that 
 - Type
 	- `local` (local Unix socket) or `host` (TCP connection)
 - Database
+	- Rails also needs to have access to the `postgres` database (to create new databases?)
 	- `postgres,gamocosm_development,gamocosm_test,gamocosm_production`
 - User
 	- `gamocosm`

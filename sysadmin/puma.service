@@ -1,21 +1,19 @@
 [Unit]
-Description=Gamocosm Sidekiq
+Description=Gamocosm Puma
 After=syslog.target network.target
 
 [Service]
-Type=notify
-WatchdogSec=8
+Type=simple
 WorkingDirectory=/var/www/gamocosm
-ExecStart=/var/www/gamocosm/run2.sh bundle exec sidekiq -e production
-ExecReload=/usr/bin/kill -TSTP $MAINPID
+ExecStart=/var/www/gamocosm/run2.sh bundle exec puma -C config/puma.rb
 User=nginx
 Group=nginx
 Environment=RAILS_ENV=production
 RestartSec=1
-Restart=on-failure
+Restart=always
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=gamocosm-sidekiq
+SyslogIdentifier=gamocosm-puma
 
 [Install]
 WantedBy=multi-user.target

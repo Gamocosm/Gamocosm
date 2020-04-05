@@ -5,15 +5,19 @@
 # - root cron job restart gamocosm and sidekiq
 # - root cron job certbot
 
-set -e
+set -ex
 
-RUBY_VERSION=2.4
+RUBY_VERSION=2.6.5
+
+function release {
+	read -p "Hit enter to continue (exit to return to script)... "
+	bash -l
+}
 
 # timezone
 unlink /etc/localtime
 ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
 
-# TODO: swap
 # TODO: firewalld cockpit service
 #       - see https://bugzilla.redhat.com/show_bug.cgi?id=1171114
 # TODO: rails database unix socket
@@ -26,24 +30,21 @@ ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
 dnf -y upgrade
 
 # basic tools
-dnf -y install vim tmux git wget
+dnf -y install vim tmux git
 # services
-dnf -y install memcached postgresql-server postgresql-contrib redis firewalld certbot
-# needed for passenger
-dnf -y install gcc gcc-c++ libcurl-devel openssl-devel zlib-devel ruby-devel
-# needed for some compilations
-dnf -y install redhat-rpm-config
-# needed for rvm
-dnf -y install patch libffi-devel bison libyaml-devel autoconf readline-devel automake libtool sqlite-devel
+dnf -y install memcached postgresql-server postgresql-contrib libpq-devel redis firewalld
+# nginx
+dnf -y install nginx certbot certbot-nginx util-linux-user
+# rvm
+dnf install -y patch autoconf automake bison gcc-c++ glibc-headers glibc-devel libffi-devel libtool libyaml-devel make patch readline-devel sqlite-devel zlib-devel openssl-devel
 # other
 dnf -y install nodejs
 
-# databases
-# - see https://fedoraproject.org/wiki/PostgreSQL
-postgresql-setup --initdb --unit postgresql
+echo 'Setup environment (e.g. vim, tmux conf)'
+release
 
-# append after line
-sed -i "/^# TYPE[[:space:]]*DATABASE[[:space:]]*USER[[:space:]]*ADDRESS[[:space:]]*METHOD/a local postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm md5" /var/lib/pgsql/data/pg_hba.conf
+systemctl enable firewalld
+systemctl start firewalld
 
 systemctl enable redis
 systemctl start redis
@@ -51,96 +52,96 @@ systemctl start redis
 systemctl enable memcached
 systemctl start memcached
 
+# - see https://fedoraproject.org/wiki/PostgreSQL
+postgresql-setup --initdb --unit postgresql
 systemctl enable postgresql
 systemctl start postgresql
+su -l postgres -c 'createuser --createdb --pwprompt --superuser gamocosm'
+# append after line
+sed -i "/^# TYPE[[:space:]]*DATABASE[[:space:]]*USER[[:space:]]*ADDRESS[[:space:]]*METHOD/a local gamocosm_development,gamocosm_test,gamocosm_production gamocosm md5" /var/lib/pgsql/data/pg_hba.conf
+echo 'Add database postgres to /var/lib/pgsql/data/pg_hba.conf to user gamocosm if setting up a new database.'
+release
 
-echo "Run: createuser --createdb --pwprompt --superuser gamocosm"
-echo "Run: psql"
-echo "Run: \\password postgres"
-echo "Run: \\q"
-echo "Run: exit"
-su - postgres
-
-# no ri (ruby index) or RDoc (ruby documentation)
-gem install passenger --no-rdoc --no-ri
-
-# nginx
-passenger-install-nginx-module
-
-# only modify 1st line
-sed -i "1s/^/user http;\\n/" /opt/nginx/conf/nginx.conf
-# umm...
-sed -i "$ s/}/include \\/opt\\/nginx\\/sites-enabled\\/\\*.conf;\\n}/" /opt/nginx/conf/nginx.conf
-# only modify 1st occurence
-sed -i "0,/listen[[:space:]]*80;/{s/80/8000/}" /opt/nginx/conf/nginx.conf
-
-mkdir /opt/nginx/sites-enabled;
-mkdir /opt/nginx/sites-available;
-
-wget -O /opt/nginx/sites-available/gamocosm.conf https://raw.githubusercontent.com/Gamocosm/Gamocosm/release/sysadmin/nginx.conf
-ln -s /opt/nginx/sites-available/gamocosm.conf /opt/nginx/sites-enabled/gamocosm.conf
-
-wget -O /etc/systemd/system/nginx.service https://raw.githubusercontent.com/Gamocosm/Gamocosm/release/sysadmin/nginx.service
-wget -O /etc/systemd/system/gamocosm-sidekiq.service https://raw.githubusercontent.com/Gamocosm/Gamocosm/release/sysadmin/sidekiq.service
-
-adduser -m http
+cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.vanilla
+chsh -s /bin/bash nginx
 
 # which better?
-#su -l http -c 'gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'
-su -l http -c 'curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -'
-su -l http -c 'curl -sSL https://get.rvm.io | bash -s stable'
-su -l http -c "rvm install $RUBY_VERSION"
-su -l http -c "rvm use --default $RUBY_VERSION"
+#su -l nginx -c 'gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'
+#su -l nginx -c 'curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -'
+su -l nginx -c 'gpg2 --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'
+su -l nginx -c 'curl -sSL https://get.rvm.io | bash -s stable'
+su -l nginx -c "rvm install $RUBY_VERSION"
+su -l nginx -c "rvm use --default $RUBY_VERSION"
 
-su -l http -c 'ssh-keygen -t rsa'
-
-mkdir /run/http
-chown http:http /run/http
+echo 'Please generate or fetch the SSH keys.'
+echo "Example: su -l nginx -c 'ssh-keygen -t rsa'"
+release
 
 mkdir /var/www
 cd /var/www
 git clone https://github.com/Gamocosm/Gamocosm.git gamocosm
 cd gamocosm
 git checkout release
+cp sysadmin/nginx.conf /etc/nginx/conf.d/gamocosm.conf
+cp sysadmin/puma.service /etc/systemd/system/gamocosm-puma.service
+cp sysadmin/sidekiq.service /etc/systemd/system/gamocosm-sidekiq.service
 mkdir tmp
 touch tmp/restart.txt
+mkdir run
 cp env.sh.template env.sh
-chown -R http:http .
+echo 'Please update /var/www/gamocosm/env.sh'
+release
+chown -R nginx:nginx .
 
-sudo -u http gem install bundler
-su - http -c "cd $(pwd) && bundle install --deployment"
+su -l nginx -c 'gem install bundler'
+su -l nginx -c 'cd /var/www/gamocosm && bundle config set deployment true && bundle install'
 
-SECRET_KEY_BASE="$(su - http -c "cd $(pwd) && bundle exec rake secret")"
-echo "Generated secret key base $SECRET_KEY_BASE"
-DEVISE_SECRET_KEY="$(su - http -c "cd $(pwd) && bundle exec rake secret")"
-echo "Generated Devise secret key $DEVISE_SECRET_KEY"
-read -p "Please fill in the information in env.sh (press any key to continue)... "
+echo 'Please setup the database.'
+echo "Example: su -l nginx -c 'cd $(pwd) && RAILS_ENV=production ./run2.sh bundle exec rake db:setup"
+release
 
-sed -i "/SECRET_KEY_BASE/ s/=.*$/=$SECRET_KEY_BASE/" env.sh
-sed -i "/DEVISE_SECRET_KEY/ s/=.*$/=$DEVISE_SECRET_KEY/" env.sh
-vi env.sh
+su -l nginx -c 'cd /var/www/gamocosm && RAILS_ENV=production bundle exec rake assets:precompile'
 
-su - http -c "cd $(pwd) && RAILS_ENV=production ./run.sh --bundler rake db:setup"
+OUTDOORS_IP_ADDRESS="$(ifconfig | grep -m 1 'inet' | awk '{ print $2 }')"
+echo "Please update gamocosm.com entries in /etc/hosts (believe IP address is $OUTDOORS_IP_ADDRESS)."
+release
 
-su - http -c "cd $(pwd) && RAILS_ENV=production ./run.sh --bundler rake assets:precompile"
-
-#OUTDOORS_IP_ADDRESS=$(ifconfig | grep -m 1 "inet" | awk "{ print \$2 }")
-#echo "$OUTDOORS_IP_ADDRESS gamocosm.com" >> /etc/hosts
+systemctl enable gamocosm-puma
+systemctl start gamocosm-puma
 
 systemctl enable gamocosm-sidekiq
 systemctl start gamocosm-sidekiq
 
+echo 'Setup letsencrypt/certbot'
+release
+
 systemctl enable nginx
 systemctl start nginx
 
-systemctl start firewalld
+echo 'Fix selinux nginx permissions.'
+echo '- run curl https://gamocosm.com'
+echo '- run grep nginx /var/log/audit/audit.log | audit2allow'
+echo '- run grep nginx /var/log/audit/audit.log | audit2allow -m nginx'
+echo '- run grep nginx /var/log/audit/audit.log | audit2allow -M nginx'
+echo '- run semodule -i nginx.pp'
+echo '- repeat until ok'
+release
 
-firewall-cmd --add-service=http
 firewall-cmd --add-service=https
 firewall-cmd --permanent --add-service=https
 
-# let's encrypt
-# - see https://certbot.eff.org/#fedora24-other
-certbot certonly
+SWAP_SIZE=1g
+SWAP="/mnt/$SWAP_SIZE.swap"
+fallocate -l "$SWAP_SIZE" "$SWAP"
+chmod 600 "$SWAP"
+mkswap "$SWAP"
+swapon "$SWAP"
 
-echo "Done!"
+echo 'Recommended: change ssh port.'
+echo '- edit /etc/ssh/sshd_config'
+echo '- run semanage port -a -t ssh_port_t -p tcp <port>'
+echo '- test semanage port -l | grep ssh'
+echo '- run systemctl restart sshd'
+release
+
+echo 'Done!'
