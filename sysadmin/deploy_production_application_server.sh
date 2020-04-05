@@ -17,6 +17,7 @@ set -ex
 # TODO: certbot
 
 RUBY_VERSION=2.6.5
+GAMOCOSM_HOME=/usr/share/nginx
 
 function release {
 	read -p "Hit enter to continue (exit to return to script)... "
@@ -82,8 +83,7 @@ echo 'Please generate or fetch the SSH keys.'
 echo "Example: su -l nginx -c 'ssh-keygen -t rsa'"
 release
 
-mkdir /var/www
-pushd /var/www
+pushd "$GAMOCOSM_HOME"
 git clone https://github.com/Gamocosm/Gamocosm.git gamocosm
 pushd gamocosm
 git checkout release
@@ -106,12 +106,15 @@ release
 
 su -l nginx -c "cd $(pwd) && RAILS_ENV=production ./sysadmin/run.sh bundle exec rake assets:precompile"
 
-OUTDOORS_IP_ADDRESS="$(ifconfig | grep -m 1 'inet' | awk '{ print $2 }')"
-echo "Please update gamocosm.com entries in /etc/hosts (believe IP address is $OUTDOORS_IP_ADDRESS)."
-release
+mkdir "$HOME/gamocosm"
+echo "0 6 * * * $(pwd)/gamocosm/sysadmin/cron.sh > $HOME/gamocosm/cron.stdout.txt 2> $HOME/gamocosm/cron.stderr.txt" | crontab -
 
 popd
 popd
+
+OUTDOORS_IP_ADDRESS="$(ifconfig | grep -m 1 'inet' | awk '{ print $2 }')"
+echo "Please update gamocosm.com entries in /etc/hosts (believe IP address is $OUTDOORS_IP_ADDRESS)."
+release
 
 systemctl enable gamocosm-puma
 systemctl start gamocosm-puma
@@ -146,40 +149,10 @@ grep nginx /var/log/audit/audit.log | audit2allow -M nginx
 semodule -i nginx.pp
 popd
 
-mkdir 3
-pushd 3
-curl http://gamocosm.com/robots.txt
-grep nginx /var/log/audit/audit.log | audit2allow
-grep nginx /var/log/audit/audit.log | audit2allow -m nginx
-grep nginx /var/log/audit/audit.log | audit2allow -M nginx
-semodule -i nginx.pp
-popd
-
-mkdir 4
-pushd 4
-curl http://gamocosm.com/robots.txt
-grep nginx /var/log/audit/audit.log | audit2allow
-grep nginx /var/log/audit/audit.log | audit2allow -m nginx
-grep nginx /var/log/audit/audit.log | audit2allow -M nginx
-semodule -i nginx.pp
-popd
-
-mkdir 5
-pushd 5
-curl http://gamocosm.com/robots.txt
-grep nginx /var/log/audit/audit.log | audit2allow
-grep nginx /var/log/audit/audit.log | audit2allow -m nginx
-grep nginx /var/log/audit/audit.log | audit2allow -M nginx
-semodule -i nginx.pp
-popd
-
 popd
 
 firewall-cmd --add-service=https
 firewall-cmd --permanent --add-service=https
-
-mkdir gamocosm
-echo "0 6 * * * /var/www/gamocosm/sysadmin/cron.sh > $(pwd)/gamocosm/cron.stdout.txt 2> $(pwd)/gamocosm/cron.stderr.txt" | crontab -
 
 SWAP_SIZE=1g
 SWAP="/mnt/$SWAP_SIZE.swap"
