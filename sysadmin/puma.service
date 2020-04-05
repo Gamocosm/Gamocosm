@@ -5,7 +5,7 @@ After=syslog.target network.target
 [Service]
 Type=simple
 WorkingDirectory=/var/www/gamocosm
-ExecStart=/usr/local/bin/run2.sh bundle exec puma -C config/puma.rb
+ExecStart=/usr/local/bin/run.sh bundle exec puma -C config/puma.rb
 User=nginx
 Group=nginx
 Environment=RAILS_ENV=production

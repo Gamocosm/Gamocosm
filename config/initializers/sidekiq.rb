@@ -7,4 +7,5 @@ Sidekiq.configure_client do |config|
 end
 Sidekiq.configure_server do |config|
   config.redis = { db: (Rails.env.production? ? 0 : (Rails.env.development? ? 1 : 2)) }
+  Rails.logger = Sidekiq.logger
 end

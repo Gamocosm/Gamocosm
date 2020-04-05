@@ -7,17 +7,6 @@
 
 set -ex
 
-RUBY_VERSION=2.6.5
-
-function release {
-	read -p "Hit enter to continue (exit to return to script)... "
-	bash -l
-}
-
-# timezone
-unlink /etc/localtime
-ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
-
 # TODO: firewalld cockpit service
 #       - see https://bugzilla.redhat.com/show_bug.cgi?id=1171114
 # TODO: rails database unix socket
@@ -26,6 +15,19 @@ ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
 # TODO: vim?
 # TODO: still need to modify /etc/hosts ?
 # TODO: certbot
+
+RUBY_VERSION=2.6.5
+
+function release {
+	read -p "Hit enter to continue (exit to return to script)... "
+	bash -l
+}
+
+cd "$HOME"
+
+# timezone
+unlink /etc/localtime
+ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
 
 dnf -y upgrade
 
@@ -65,6 +67,8 @@ systemctl restart postgresql
 
 cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.vanilla
 chsh -s /bin/bash nginx
+# this seems to be needed
+sleep 2
 
 # which better?
 #su -l nginx -c 'gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'
@@ -87,22 +91,20 @@ cp sysadmin/nginx.conf /etc/nginx/conf.d/gamocosm.conf
 cp sysadmin/run.sh /usr/local/bin/
 cp sysadmin/puma.service /etc/systemd/system/gamocosm-puma.service
 cp sysadmin/sidekiq.service /etc/systemd/system/gamocosm-sidekiq.service
-mkdir tmp
-touch tmp/restart.txt
 mkdir run
 cp env.sh.template env.sh
-echo 'Please update /var/www/gamocosm/env.sh'
+echo "Please update $(pwd)/env.sh"
 release
 chown -R nginx:nginx .
 
 su -l nginx -c 'gem install bundler'
-su -l nginx -c 'cd /var/www/gamocosm && bundle config set deployment true && bundle install'
+su -l nginx -c "cd $(pwd) && bundle config set deployment true && bundle install"
 
 echo 'Please setup the database.'
-echo "Example: su -l nginx -c 'cd $(pwd) && RAILS_ENV=production ./run2.sh bundle exec rake db:setup"
+echo "Example: su -l nginx -c 'cd $(pwd) && RAILS_ENV=production ./sysadmin/run.sh bundle exec rake db:setup'"
 release
 
-su -l nginx -c 'cd /var/www/gamocosm && RAILS_ENV=production ./run2.sh bundle exec rake assets:precompile'
+su -l nginx -c "cd $(pwd) && RAILS_ENV=production ./sysadmin/run.sh bundle exec rake assets:precompile"
 
 OUTDOORS_IP_ADDRESS="$(ifconfig | grep -m 1 'inet' | awk '{ print $2 }')"
 echo "Please update gamocosm.com entries in /etc/hosts (believe IP address is $OUTDOORS_IP_ADDRESS)."
@@ -152,7 +154,6 @@ grep nginx /var/log/audit/audit.log | audit2allow -m nginx
 grep nginx /var/log/audit/audit.log | audit2allow -M nginx
 semodule -i nginx.pp
 popd
-popd
 
 mkdir 4
 pushd 4
@@ -162,10 +163,23 @@ grep nginx /var/log/audit/audit.log | audit2allow -m nginx
 grep nginx /var/log/audit/audit.log | audit2allow -M nginx
 semodule -i nginx.pp
 popd
+
+mkdir 5
+pushd 5
+curl http://gamocosm.com/robots.txt
+grep nginx /var/log/audit/audit.log | audit2allow
+grep nginx /var/log/audit/audit.log | audit2allow -m nginx
+grep nginx /var/log/audit/audit.log | audit2allow -M nginx
+semodule -i nginx.pp
+popd
+
 popd
 
 firewall-cmd --add-service=https
 firewall-cmd --permanent --add-service=https
+
+mkdir gamocosm
+echo "0 6 * * * /var/www/gamocosm/sysadmin/cron.sh > $(pwd)/gamocosm/cron.stdout.txt 2> $(pwd)/gamocosm/cron.stderr.txt" | crontab -
 
 SWAP_SIZE=1g
 SWAP="/mnt/$SWAP_SIZE.swap"

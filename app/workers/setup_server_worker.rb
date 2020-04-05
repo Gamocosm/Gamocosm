@@ -61,29 +61,30 @@ class SetupServerWorker
       rescue SSHKit::Runner::ExecuteError => e
         logger.error "Debugging #{self.class}: SSHKit error: #{e.inspect}, #{e.cause.inspect}"
         logger.error e.backtrace.join("\n")
-        if times == 11
+        times += 1
+        if times >= 12
           server.log('Error connecting to server; failed to SSH. Aborting')
           server.reset_state
           return
         end
         if e.cause.is_a?(Timeout::Error)
           server.log("Server started, but timed out while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
-          SetupServerWorker.perform_in(16.seconds, server_id, times + 1)
+          SetupServerWorker.perform_in(16.seconds, server_id, times)
           return
         end
         if e.cause.is_a?(Errno::EHOSTUNREACH)
           server.log("Server started, but unreachable while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
-          SetupServerWorker.perform_in(16.seconds, server_id, times + 1)
+          SetupServerWorker.perform_in(16.seconds, server_id, times)
           return
         end
         if e.cause.is_a?(Errno::ECONNREFUSED)
           server.log("Server started, but connection refused while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
-          SetupServerWorker.perform_in(16.seconds, server_id, times + 1)
+          SetupServerWorker.perform_in(16.seconds, server_id, times)
           return
         end
         if e.cause.is_a?(Net::SSH::ConnectionTimeout)
           server.log("Server started, but connection timed out while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
-          SetupServerWorker.perform_in(16.seconds, server_id, times + 1)
+          SetupServerWorker.perform_in(16.seconds, server_id, times)
           return
         end
         raise
