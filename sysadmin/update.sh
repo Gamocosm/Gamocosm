@@ -2,28 +2,21 @@
 
 set -e
 
-if [[ "$USER" != "http" ]]; then
-	echo "Should be run as http"
+if [[ "$USER" != gamocosm ]]; then
+	echo 'Should be run as gamocosm'
 	exit 1
 fi
 
-cd /var/www/gamocosm
+cd "$HOME/gamocosm"
 
 git checkout release
 git pull origin release
 
-# TODO rvm set for non-default case
-bundle install
-RAILS_ENV=production ./run.sh --bundler rake assets:precompile
-RAILS_ENV=production ./run.sh --bundler rake db:migrate
-RAILS_ENV=test ./run.sh rake db:migrate
-./run.sh rake db:migrate
+RAILS_ENV=production ./sysadmin/run.sh bundle instasll
+RAILS_ENV=production ./sysadmin/run.sh bundle exec rake assets:precompile
+RAILS_ENV=production ./sysadmin/run.sh bundle exec rake db:migrate
 
-TIMESTAMP="$(date +'%Y_%m_%d-%H:%M')"
-mkdir -p log/archive
-[ -e log/production.log ] && mv log/production.log "log/archive/production.$TIMESTAMP.log"
-[ -e log/sidekiq.log ] && mv log/sidekiq.log "log/archive/sidekiq.$TIMESTAMP.log"
+rm -rf /usr/share/gamocosm/public
+cp -r public /usr/share/gamocosm/public
 
-touch tmp/restart.txt
-
-echo "Remember to restart the Gamocosm Sidekiq service!"
+echo "Remember to restart the Gamocosm Puma and Sidekiq service!"

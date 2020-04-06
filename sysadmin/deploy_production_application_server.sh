@@ -1,23 +1,15 @@
 #!/bin/bash
 
-# last updated: 2018 feb 12 for Fedora 27
-# not automated:
-# - root cron job restart gamocosm and sidekiq
-# - root cron job certbot
-
-set -ex
+# last updated: 2020 apr 06 for Fedora 31
 
 # TODO: firewalld cockpit service
 #       - see https://bugzilla.redhat.com/show_bug.cgi?id=1171114
-# TODO: rails database unix socket
 # TODO: redis unix socket
-# TODO: cron
-# TODO: vim?
-# TODO: still need to modify /etc/hosts ?
 # TODO: certbot
 
+set -ex
+
 RUBY_VERSION=2.6.5
-GAMOCOSM_HOME=/usr/share/nginx
 SWAP_SIZE=1g
 SWAP=/swapfile
 
@@ -52,8 +44,9 @@ dnf install -y patch autoconf automake bison gcc-c++ glibc-headers glibc-devel l
 # other
 dnf -y install nodejs
 
-echo 'Setup environment (e.g. vim, tmux conf)'
-release
+git clone https://github.com/Raekye/dotfiles.git
+ln -s "$(pwd)/dotfiles/vim" "$HOME/.vim"
+ln -s "$(pwd)/dotfiles/tmux" "$HOME/.tmux.conf"
 
 systemctl enable firewalld
 systemctl start firewalld
@@ -78,49 +71,63 @@ popd
 systemctl restart postgresql
 
 cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.vanilla
-chsh -s /bin/bash nginx
-# this seems to be needed
-sleep 2
 
-# which better?
-#su -l nginx -c 'gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'
-#su -l nginx -c 'curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -'
-su -l nginx -c 'gpg2 --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'
-su -l nginx -c 'curl -sSL https://get.rvm.io | bash -s stable'
-su -l nginx -c "rvm install $RUBY_VERSION"
-su -l nginx -c "rvm use --default $RUBY_VERSION"
+adduser gamocosm
+cp -r "$HOME/.ssh" /home/gamocosm/.ssh
+chown -R gamocosm:gamocosm /home/gamocosm/.ssh
+su -l gamocosm -c 'cd $HOME && git clone https://github.com/Raekye/dotfiles.git'
+su -l gamocosm -c 'ln -s "$HOME/dotfiles/vim" "$HOME/.vim"'
+su -l gamocosm -c 'ln -s "$HOME/dotfiles/tmux" "$HOME/.tmux.conf"'
 
 echo 'Please generate or fetch the SSH keys.'
-echo "Example: su -l nginx -c 'ssh-keygen -t rsa'"
+echo "Example: su -l gamocosm -c 'ssh-keygen -t rsa'"
 release
 
-pushd "$GAMOCOSM_HOME"
+# which better?
+#su -l gamocosm -c 'gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'
+#su -l gamocosm -c 'curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -'
+su -l gamocosm -c 'gpg2 --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'
+su -l gamocosm -c 'curl -sSL https://get.rvm.io | bash -s stable'
+su -l gamocosm -c "rvm install $RUBY_VERSION"
+su -l gamocosm -c "rvm use --default $RUBY_VERSION"
+
+pushd /home/gamocosm
 git clone https://github.com/Gamocosm/Gamocosm.git gamocosm
 pushd gamocosm
-git checkout release
+#git checkout release
 cp sysadmin/nginx.conf /etc/nginx/conf.d/gamocosm.conf
-cp sysadmin/run.sh /usr/local/bin/
+cp sysadmin/run.sh /usr/local/bin/gamocosm-run.sh
 cp sysadmin/puma.service /etc/systemd/system/gamocosm-puma.service
 cp sysadmin/sidekiq.service /etc/systemd/system/gamocosm-sidekiq.service
-mkdir run
 cp env.sh.template env.sh
 echo "Please update $(pwd)/env.sh"
 release
-chown -R nginx:nginx .
+chown -R gamocosm:gamocosm .
 
-su -l nginx -c 'gem install bundler'
-su -l nginx -c "cd $(pwd) && bundle config set deployment true && bundle install"
+su -l gamocosm -c 'gem install bundler'
+su -l gamocosm -c "cd $(pwd) && bundle config set deployment true && bundle install"
 
 echo 'Please setup the database.'
-echo "Example: su -l nginx -c 'cd $(pwd) && RAILS_ENV=production ./sysadmin/run.sh bundle exec rake db:setup'"
+echo "Example: su -l gamocosm -c 'cd $(pwd) && RAILS_ENV=production ./sysadmin/run.sh bundle exec rake db:setup'"
 release
 
-su -l nginx -c "cd $(pwd) && RAILS_ENV=production ./sysadmin/run.sh bundle exec rake assets:precompile"
+su -l gamocosm -c "cd $(pwd) && RAILS_ENV=production ./sysadmin/run.sh bundle exec rake assets:precompile"
+mkdir /usr/share/gamocosm
+chown gamocosm:gamocosm /usr/share/gamocosm
+su -l gamocosm -c "cp -r $(pwd)/public /usr/share/gamocosm/public"
+
+mkdir /var/run/gamocosm
+chown gamocosm:gamocosm /var/run/gamocosm
 
 mkdir "$HOME/gamocosm"
 echo "0 6 * * * $(pwd)/sysadmin/cron.sh > $HOME/gamocosm/cron.stdout.txt 2> $HOME/gamocosm/cron.stderr.txt" | crontab -
 
-su -l postgres -c "echo '0 0 * * 0 $(pwd)/sysadmin/postgres.cron.sh' | crontab -"
+POSTGRES_HOME="$(su -l postgres -c 'echo $HOME')"
+POSTGRES_CRON="$POSTGRES_HOME/gamocosm/cron.sh"
+mkdir "$POSTGRES_HOME/gamocosm"
+cp sysadmin/postgres.cron.sh "$POSTGRES_CRON"
+chown postgres:postgres "$POSTGRES_CRON"
+su -l postgres -c "echo '0 0 * * 0 $POSTGRES_CRON' | crontab -"
 
 popd
 popd
@@ -149,6 +156,8 @@ release
 mkdir selinux
 pushd selinux
 
+if false; then
+
 mkdir 1
 pushd 1
 curl http://gamocosm.com
@@ -166,6 +175,11 @@ grep nginx /var/log/audit/audit.log | audit2allow -m nginx
 grep nginx /var/log/audit/audit.log | audit2allow -M nginx
 semodule -i nginx.pp
 popd
+
+fi
+
+echo 'Fix selinux.'
+release
 
 popd
 

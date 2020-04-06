@@ -4,10 +4,10 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/usr/share/nginx/gamocosm
-ExecStart=/usr/local/bin/run.sh bundle exec puma -C config/puma.rb
-User=nginx
-Group=nginx
+WorkingDirectory=/home/gamocosm/gamocosm
+ExecStart=/usr/local/bin/gamocosm-run.sh bundle exec puma -C config/puma.rb
+User=gamocosm
+Group=gamocosm
 Environment=RAILS_ENV=production
 RestartSec=1
 Restart=always

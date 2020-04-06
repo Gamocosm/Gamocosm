@@ -5,11 +5,11 @@ After=syslog.target network.target
 [Service]
 Type=notify
 WatchdogSec=8
-WorkingDirectory=/usr/share/nginx/gamocosm
-ExecStart=/usr/local/bin/run.sh bundle exec sidekiq -e production
+WorkingDirectory=/home/gamocosm/gamocosm
+ExecStart=/usr/local/bin/gamocosm-run.sh bundle exec sidekiq -e production
 ExecReload=/usr/bin/kill -TSTP $MAINPID
-User=nginx
-Group=nginx
+User=gamocosm
+Group=gamocosm
 Environment=RAILS_ENV=production
 RestartSec=1
 Restart=on-failure
