@@ -18,6 +18,8 @@ set -ex
 
 RUBY_VERSION=2.6.5
 GAMOCOSM_HOME=/usr/share/nginx
+SWAP_SIZE=1g
+SWAP=/swapfile
 
 function release {
 	read -p "Hit enter to continue (exit to return to script)... "
@@ -31,6 +33,13 @@ unlink /etc/localtime
 ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
 
 dnf -y upgrade
+
+# see https://wiki.archlinux.org/index.php/Swap
+fallocate -l "$SWAP_SIZE" "$SWAP"
+chmod 600 "$SWAP"
+mkswap "$SWAP"
+swapon "$SWAP"
+echo "$SWAP none swap defaults,pri=0 0 0" >> /etc/fstab
 
 # basic tools
 dnf -y install vim tmux git
@@ -62,8 +71,10 @@ systemctl start postgresql
 su -l postgres -c 'createuser --createdb --pwprompt --superuser gamocosm'
 # append after line
 sed -i "/^# TYPE[[:space:]]*DATABASE[[:space:]]*USER[[:space:]]*ADDRESS[[:space:]]*METHOD/a local gamocosm_development,gamocosm_test,gamocosm_production gamocosm md5" /var/lib/pgsql/data/pg_hba.conf
+pushd /var/lib/pgsql/data
 echo 'Add database postgres to /var/lib/pgsql/data/pg_hba.conf to user gamocosm if setting up a new database.'
 release
+popd
 systemctl restart postgresql
 
 cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.vanilla
@@ -107,7 +118,9 @@ release
 su -l nginx -c "cd $(pwd) && RAILS_ENV=production ./sysadmin/run.sh bundle exec rake assets:precompile"
 
 mkdir "$HOME/gamocosm"
-echo "0 6 * * * $(pwd)/gamocosm/sysadmin/cron.sh > $HOME/gamocosm/cron.stdout.txt 2> $HOME/gamocosm/cron.stderr.txt" | crontab -
+echo "0 6 * * * $(pwd)/sysadmin/cron.sh > $HOME/gamocosm/cron.stdout.txt 2> $HOME/gamocosm/cron.stderr.txt" | crontab -
+
+su -l postgres -c "echo '0 0 * * 0 $(pwd)/sysadmin/postgres.cron.sh' | crontab -"
 
 popd
 popd
@@ -153,13 +166,6 @@ popd
 
 firewall-cmd --add-service=https
 firewall-cmd --permanent --add-service=https
-
-SWAP_SIZE=1g
-SWAP="/mnt/$SWAP_SIZE.swap"
-fallocate -l "$SWAP_SIZE" "$SWAP"
-chmod 600 "$SWAP"
-mkswap "$SWAP"
-swapon "$SWAP"
 
 echo 'Recommended: change ssh port.'
 echo '- edit /etc/ssh/sshd_config'
