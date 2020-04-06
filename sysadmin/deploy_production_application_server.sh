@@ -38,13 +38,14 @@ dnf -y install vim tmux git
 # services
 dnf -y install memcached postgresql-server postgresql-contrib libpq-devel redis firewalld
 # nginx
-dnf -y install nginx certbot certbot-nginx util-linux-user
+dnf -y install nginx certbot certbot-nginx
 # rvm
 dnf install -y patch autoconf automake bison gcc-c++ glibc-headers glibc-devel libffi-devel libtool libyaml-devel make patch readline-devel sqlite-devel zlib-devel openssl-devel
 # other
 dnf -y install nodejs
 
 git clone https://github.com/Raekye/dotfiles.git
+"$(pwd)/dotfiles/vim/setup.sh"
 ln -s "$(pwd)/dotfiles/vim" "$HOME/.vim"
 ln -s "$(pwd)/dotfiles/tmux" "$HOME/.tmux.conf"
 
@@ -76,6 +77,7 @@ adduser gamocosm
 cp -r "$HOME/.ssh" /home/gamocosm/.ssh
 chown -R gamocosm:gamocosm /home/gamocosm/.ssh
 su -l gamocosm -c 'cd $HOME && git clone https://github.com/Raekye/dotfiles.git'
+su -l gamocosm -c 'cd $HOME/dotfiles && ./vim/setup.sh'
 su -l gamocosm -c 'ln -s "$HOME/dotfiles/vim" "$HOME/.vim"'
 su -l gamocosm -c 'ln -s "$HOME/dotfiles/tmux" "$HOME/.tmux.conf"'
 
@@ -84,9 +86,11 @@ echo "Example: su -l gamocosm -c 'ssh-keygen -t rsa'"
 release
 
 # which better?
-#su -l gamocosm -c 'gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'
+if ! su -l gamocosm -c 'gpg2 --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'; then
+	echo 'Fetching RVM keys failed. Trying another server.'
+	su -l gamocosm -c 'gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'
+fi
 #su -l gamocosm -c 'curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -'
-su -l gamocosm -c 'gpg2 --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'
 su -l gamocosm -c 'curl -sSL https://get.rvm.io | bash -s stable'
 su -l gamocosm -c "rvm install $RUBY_VERSION"
 su -l gamocosm -c "rvm use --default $RUBY_VERSION"
@@ -147,16 +151,14 @@ firewall-cmd --add-service=http --permanent
 firewall-cmd --add-service=https
 firewall-cmd --add-service=https --permanent
 
+echo 'Remove default server block from /etc/nginx/nginx.conf'
+release
+
 systemctl enable nginx
 systemctl start nginx
 
-echo 'Setup letsencrypt/certbot'
-release
-
 mkdir selinux
 pushd selinux
-
-if false; then
 
 mkdir 1
 pushd 1
@@ -176,12 +178,10 @@ grep nginx /var/log/audit/audit.log | audit2allow -M nginx
 semodule -i nginx.pp
 popd
 
-fi
-
-echo 'Fix selinux.'
-release
-
 popd
+
+echo 'Setup letsencrypt/certbot'
+release
 
 echo 'Recommended: change ssh port.'
 echo '- edit /etc/ssh/sshd_config'

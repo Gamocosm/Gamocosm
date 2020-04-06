@@ -3,7 +3,7 @@ threads 0, 8
 
 preload_app!
 
-bind "unix:///#{File.expand_path('../run/puma.sock', __dir__)}"
+bind 'unix:///var/run/gamocosm/puma.sock'
 environment ENV['RAILS_ENV']
 
 
