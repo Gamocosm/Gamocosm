@@ -24,7 +24,7 @@ cd "$HOME"
 unlink /etc/localtime
 ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
 
-dnf -y upgrade
+dnf -y upgrade > >(tee dnf-upgrade.stdout.log) 2> >(tee dnf-upgrade.stderr.log)
 
 # see https://wiki.archlinux.org/index.php/Swap
 fallocate -l "$SWAP_SIZE" "$SWAP"
@@ -82,7 +82,7 @@ su -l gamocosm -c 'ln -s "$HOME/dotfiles/vim" "$HOME/.vim"'
 su -l gamocosm -c 'ln -s "$HOME/dotfiles/tmux" "$HOME/.tmux.conf"'
 
 echo 'Please generate or fetch the SSH keys.'
-echo "Example: su -l gamocosm -c 'ssh-keygen -t rsa'"
+echo "Example: su -P -l gamocosm -c 'ssh-keygen -t rsa'"
 release
 
 # which better?
@@ -136,9 +136,13 @@ su -l postgres -c "echo '0 0 * * 0 $POSTGRES_CRON' | crontab -"
 popd
 popd
 
-OUTDOORS_IP_ADDRESS="$(ifconfig | grep -m 1 'inet' | awk '{ print $2 }')"
-echo "Please update gamocosm.com entries in /etc/hosts (believe IP address is $OUTDOORS_IP_ADDRESS)."
-release
+OUTDOORS_IP_ADDRESS="$(ifconfig | grep -m 1 'inet' | awk '{ print $2; }')"
+OUTDOORS_IPV6_ADDRESS="$(ifconfig | grep -m 1 'inet6.*global' | awk '{ print $2; }')"
+echo "Believe IP addresses are $OUTDOORS_IP_ADDRESS (v4) and $OUTDOORS_IPV6_ADDRESS (v6)"
+sed -i '/127.0.0.1 gamocosm.com gamocosm/ s/^/#/' /etc/hosts
+sed -i '/::1 gamocosm.com gamocosm/ s/^/#/' /etc/hosts
+echo "$OUTDOORS_IP_ADDRESS gamocosm.com" >> /etc/hosts
+echo "$OUTDOORS_IPV6_ADDRESS gamocosm.com" >> /etc/hosts
 
 systemctl enable gamocosm-puma
 systemctl start gamocosm-puma
@@ -151,8 +155,10 @@ firewall-cmd --add-service=http --permanent
 firewall-cmd --add-service=https
 firewall-cmd --add-service=https --permanent
 
+pushd /etc/nginx
 echo 'Remove default server block from /etc/nginx/nginx.conf'
 release
+popd
 
 systemctl enable nginx
 systemctl start nginx
