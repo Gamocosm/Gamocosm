@@ -5,7 +5,9 @@
 </head>
 <body>
 	<h1>Error trying to check/autoshutdown your server "<%= @server.name %>"</h1>
-	We highly recommend you check your servers on <%= link_to 'Gamocosm', root_url %> and <%= link_to 'Digital Ocean', digital_ocean_control_panel_url %>.
+	We recommend you check your servers on <%= link_to 'Gamocosm', root_url %> and <%= link_to 'Digital Ocean', digital_ocean_control_panel_url %>.
+	<br /><br />
+	Please ensure that <code>enable-query=true</code> is set in your <code>server.properties</code>.
 	<br /><br />
 	There may be more information under "Server Logs" on your server on Gamocosm.
 	<br /><br />

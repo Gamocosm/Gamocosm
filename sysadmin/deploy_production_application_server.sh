@@ -135,11 +135,16 @@ systemctl start gamocosm-puma
 systemctl enable gamocosm-sidekiq
 systemctl start gamocosm-sidekiq
 
-echo 'Setup letsencrypt/certbot'
-release
+firewall-cmd --add-service=http
+firewall-cmd --add-service=http --permanent
+firewall-cmd --add-service=https
+firewall-cmd --add-service=https --permanent
 
 systemctl enable nginx
 systemctl start nginx
+
+echo 'Setup letsencrypt/certbot'
+release
 
 mkdir selinux
 pushd selinux
@@ -164,13 +169,12 @@ popd
 
 popd
 
-firewall-cmd --add-service=https
-firewall-cmd --permanent --add-service=https
-
 echo 'Recommended: change ssh port.'
 echo '- edit /etc/ssh/sshd_config'
 echo '- run semanage port -a -t ssh_port_t -p tcp <port>'
 echo '- test semanage port -l | grep ssh'
+echo '- run firewall-cmd --add-port=<port>/tcp'
+echo '- run firewall-cmd --add-port=<port>/tcp --permanent'
 echo '- run systemctl restart sshd'
 release
 
