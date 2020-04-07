@@ -44,6 +44,11 @@ dnf install -y patch autoconf automake bison gcc-c++ glibc-headers glibc-devel l
 # other
 dnf -y install nodejs
 
+systemctl daemon-reload
+
+echo 'Make sure nothing weird happened.'
+release
+
 git clone https://github.com/Raekye/dotfiles.git
 "$(pwd)/dotfiles/vim/setup.sh"
 ln -s "$(pwd)/dotfiles/vim" "$HOME/.vim"
@@ -120,18 +125,16 @@ mkdir /usr/share/gamocosm
 chown gamocosm:gamocosm /usr/share/gamocosm
 su -l gamocosm -c "cp -r $(pwd)/public /usr/share/gamocosm/public"
 
-mkdir /var/run/gamocosm
-chown gamocosm:gamocosm /var/run/gamocosm
-
 mkdir "$HOME/gamocosm"
-echo "0 6 * * * $(pwd)/sysadmin/cron.sh > $HOME/gamocosm/cron.stdout.txt 2> $HOME/gamocosm/cron.stderr.txt" | crontab -
+echo "0 6 * * * $(pwd)/sysadmin/cron.sh >> $HOME/gamocosm/cron.stdout.txt 2>> $HOME/gamocosm/cron.stderr.txt" | crontab -
 
 POSTGRES_HOME="$(su -l postgres -c 'echo $HOME')"
-POSTGRES_CRON="$POSTGRES_HOME/gamocosm/cron.sh"
-mkdir "$POSTGRES_HOME/gamocosm"
+POSTGRES_GAMOCOSM="$POSTGRES_HOME/gamocosm"
+POSTGRES_CRON="$POSTGRES_GAMOCOSM/cron.sh"
+mkdir "$POSTGRES_GAMOCOSM"
 cp sysadmin/postgres.cron.sh "$POSTGRES_CRON"
 chown postgres:postgres "$POSTGRES_CRON"
-su -l postgres -c "echo '0 0 * * 0 $POSTGRES_CRON' | crontab -"
+su -l postgres -c "echo '0 0 * * 0 $POSTGRES_CRON >> $POSTGRES_GAMOCOSM/cron.stdout.txt 2>> $POSTGRES_GAMOCOSM/cron.stderr.txt' | crontab -"
 
 popd
 popd
