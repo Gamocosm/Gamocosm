@@ -9,7 +9,7 @@ class ServersControllerTest < ActionController::TestCase
     @other = User.find(3)
     @server= Server.first
     @server.logs.delete_all
-    @server.update_columns(remote_id: nil, pending_operation: nil)
+    @server.update_columns(remote_id: nil, pending_operation: nil, setup_stage: 0)
   end
 
   def teardown

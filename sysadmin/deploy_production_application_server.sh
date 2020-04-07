@@ -141,7 +141,7 @@ popd
 
 OUTDOORS_IP_ADDRESS="$(ifconfig | grep -m 1 'inet' | awk '{ print $2; }')"
 OUTDOORS_IPV6_ADDRESS="$(ifconfig | grep -m 1 'inet6.*global' | awk '{ print $2; }')"
-echo "Believe IP addresses are $OUTDOORS_IP_ADDRESS (v4) and $OUTDOORS_IPV6_ADDRESS (v6)"
+echo "Believe IP addresses are $OUTDOORS_IP_ADDRESS (v4) and $OUTDOORS_IPV6_ADDRESS (v6)."
 sed -i '/127.0.0.1 gamocosm.com gamocosm/ s/^/#/' /etc/hosts
 sed -i '/::1 gamocosm.com gamocosm/ s/^/#/' /etc/hosts
 echo "$OUTDOORS_IP_ADDRESS gamocosm.com" >> /etc/hosts
@@ -157,11 +157,6 @@ firewall-cmd --add-service=http
 firewall-cmd --add-service=http --permanent
 firewall-cmd --add-service=https
 firewall-cmd --add-service=https --permanent
-
-pushd /etc/nginx
-echo 'Remove default server block from /etc/nginx/nginx.conf'
-release
-popd
 
 systemctl enable nginx
 systemctl start nginx
@@ -189,16 +184,22 @@ popd
 
 popd
 
-echo 'Setup letsencrypt/certbot'
+pushd /etc/nginx
+echo 'Remove default server block from /etc/nginx/nginx.conf'
+release
+popd
+systemctl restart nginx
+
+echo 'Setup letsencrypt/certbot.'
 release
 
-echo 'Recommended: change ssh port.'
-echo '- edit /etc/ssh/sshd_config'
-echo '- run semanage port -a -t ssh_port_t -p tcp <port>'
-echo '- test semanage port -l | grep ssh'
-echo '- run firewall-cmd --add-port=<port>/tcp'
-echo '- run firewall-cmd --add-port=<port>/tcp --permanent'
-echo '- run systemctl restart sshd'
-release
+echo 'Changing SSH port. Please enter a number:'
+read SSH_PORT
+sed -i "/^#Port 22/a Port $SSH_PORT" /etc/ssh/sshd_config
+semanage port -a -t ssh_port_t -p tcp "$SSH_PORT"
+semanage port -l | grep ssh
+firewall-cmd "--add-port=$SSH_PORT/tcp"
+firewall-cmd "--add-port=$SSH_PORT/tcp" --permanent
+systemctl restart sshd
 
 echo 'Done!'

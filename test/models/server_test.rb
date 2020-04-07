@@ -29,6 +29,7 @@ class ServerTest < ActiveSupport::TestCase
 
   def setup
     @server = Server.first
+    @server.update_columns(pending_operation: nil)
   end
 
   test 'invalid ram' do
