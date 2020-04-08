@@ -211,11 +211,6 @@ systemctl start gamocosm-puma
 systemctl enable gamocosm-sidekiq
 systemctl start gamocosm-sidekiq
 
-firewall-cmd --add-service=http
-firewall-cmd --add-service=http --permanent
-firewall-cmd --add-service=https
-firewall-cmd --add-service=https --permanent
-
 systemctl enable nginx
 systemctl start nginx
 
@@ -243,10 +238,15 @@ popd
 popd
 
 pushd /etc/nginx
-echo 'Remove default server block from /etc/nginx/nginx.conf'
+echo 'Update default server block from /etc/nginx/nginx.conf'
 release
 popd
 systemctl restart nginx
+
+firewall-cmd --add-service=http
+firewall-cmd --add-service=http --permanent
+firewall-cmd --add-service=https
+firewall-cmd --add-service=https --permanent
 
 echo 'Setup letsencrypt/certbot.'
 release
