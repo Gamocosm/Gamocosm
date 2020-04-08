@@ -20,6 +20,48 @@ function release {
 
 cd "$HOME"
 
+echo 'Please enter a new SSH port (will be changed at the very end):'
+read SSH_PORT
+
+echo 'Please enter the directory (in the home folder) containing restore files (empty for new setup):'
+read RESTORE_DIR
+
+SSH_PUBLIC_KEY="$HOME/$RESTORE_DIR/id_rsa.pub"
+SSH_PRIVATE_KEY="$HOME/$RESTORE_DIR/id_rsa"
+DB_SCRIPT="$HOME/$RESTORE_DIR/gamocosm_restore.sql"
+ENV_SCRIPT="$HOME/$RESTORE_DIR/env.sh"
+
+if [ ! -z "$RESTORE_DIR" ]; then
+	echo "Looking for SSH public key in: $SSH_PUBLIC_KEY"
+	if [ -f "$SSH_PUBLIC_KEY" ]; then
+		echo 'Found.'
+	else
+		echo 'Not found.'
+		exit 1
+	fi
+	echo "Looking for SSH private key in: $SSH_PRIVATE_KEY"
+	if [ -f "$SSH_PRIVATE_KEY" ]; then
+		echo 'Found.'
+	else
+		echo 'Not found.'
+		exit 1
+	fi
+	echo "Looking for DB script in: $DB_SCRIPT"
+	if [ -f "$DB_SCRIPT" ]; then
+		echo 'Found.'
+	else
+		echo 'Not found.'
+		exit 1
+	fi
+	echo "Looking for env.sh in: $ENV_SCRIPT"
+	if [ -f "$ENV_SCRIPT" ]; then
+		echo 'Found.'
+	else
+		echo 'Not found.'
+		exit 1
+	fi
+fi
+
 # timezone
 unlink /etc/localtime
 ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
@@ -69,26 +111,28 @@ systemctl enable postgresql
 systemctl start postgresql
 su -l postgres -c 'createuser --createdb --pwprompt --superuser gamocosm'
 # append after line
-sed -i "/^# TYPE[[:space:]]*DATABASE[[:space:]]*USER[[:space:]]*ADDRESS[[:space:]]*METHOD/a local gamocosm_development,gamocosm_test,gamocosm_production gamocosm md5" /var/lib/pgsql/data/pg_hba.conf
-pushd /var/lib/pgsql/data
-echo 'Add database postgres to /var/lib/pgsql/data/pg_hba.conf to user gamocosm if setting up a new database.'
-release
-popd
+NEEDS_POSTGRES=''
+if [ -z "$RESTORE_DIR" ]; then
+	NEEDS_POSTGRES='postgres,'
+fi
+sed -i "/^# TYPE[[:space:]]*DATABASE[[:space:]]*USER[[:space:]]*ADDRESS[[:space:]]*METHOD/a local ${NEEDS_POSTGRES}gamocosm_development,gamocosm_test,gamocosm_production gamocosm md5" /var/lib/pgsql/data/pg_hba.conf
 systemctl restart postgresql
 
 cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.vanilla
 
 adduser gamocosm
 cp -r "$HOME/.ssh" /home/gamocosm/.ssh
+if [ -z "$RESTORE_DIR" ]; then
+	su -P -l gamocosm -c 'ssh-keygen -t rsa'
+else
+	cp "$SSH_PUBLIC_KEY" /home/gamocosm/.ssh/
+	cp "$SSH_PRIVATE_KEY" /home/gamocosm/.ssh/
+fi
 chown -R gamocosm:gamocosm /home/gamocosm/.ssh
 su -l gamocosm -c 'cd $HOME && git clone https://github.com/Raekye/dotfiles.git'
 su -l gamocosm -c 'cd $HOME/dotfiles && ./vim/setup.sh'
 su -l gamocosm -c 'ln -s "$HOME/dotfiles/vim" "$HOME/.vim"'
 su -l gamocosm -c 'ln -s "$HOME/dotfiles/tmux" "$HOME/.tmux.conf"'
-
-echo 'Please generate or fetch the SSH keys.'
-echo "Example: su -P -l gamocosm -c 'ssh-keygen -t rsa'"
-release
 
 # which better?
 if ! su -l gamocosm -c 'gpg2 --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'; then
@@ -108,17 +152,30 @@ cp sysadmin/nginx.conf /etc/nginx/conf.d/gamocosm.conf
 cp sysadmin/run.sh /usr/local/bin/gamocosm-run.sh
 cp sysadmin/puma.service /etc/systemd/system/gamocosm-puma.service
 cp sysadmin/sidekiq.service /etc/systemd/system/gamocosm-sidekiq.service
-cp env.sh.template env.sh
-echo "Please update $(pwd)/env.sh"
-release
+if [ -z "$RESTORE_DIR" ]; then
+	cp env.sh.template env.sh
+	echo "Please update $(pwd)/env.sh"
+	release
+else
+	cp "$ENV_SCRIPT" env.sh
+fi
 chown -R gamocosm:gamocosm .
 
 su -l gamocosm -c 'gem install bundler'
 su -l gamocosm -c "cd $(pwd) && bundle config set deployment true && bundle install"
 
-echo 'Please setup the database.'
-echo "Example: su -l gamocosm -c 'cd $(pwd) && RAILS_ENV=production ./sysadmin/run.sh bundle exec rake db:setup'"
-release
+POSTGRES_HOME="$(su -l postgres -c 'echo $HOME')"
+POSTGRES_GAMOCOSM="$POSTGRES_HOME/gamocosm"
+POSTGRES_RESTORE="$POSTGRES_GAMOCOSM/gamocosm_restore.$(date +'%Y-%m-%d').sql"
+mkdir "$POSTGRES_GAMOCOSM"
+if [ -z "$RESTORE_DIR" ]; then
+	su -l gamocosm -c "cd $(pwd) && RAILS_ENV=production ./sysadmin/run.sh bundle exec rake db:setup"
+else
+	cp "$DB_SCRIPT" "$POSTGRES_RESTORE"
+	chown postgres:postgres "$POSTGRES_RESTORE"
+	su -l postgres -c 'psql -c "create database gamocosm_production owner gamocosm;"'
+	su -l postgres -c "psql gamocosm_production < $POSTGRES_RESTORE"
+fi
 
 su -l gamocosm -c "cd $(pwd) && RAILS_ENV=production ./sysadmin/run.sh bundle exec rake assets:precompile"
 mkdir /usr/share/gamocosm
@@ -128,10 +185,7 @@ su -l gamocosm -c "cp -r $(pwd)/public /usr/share/gamocosm/public"
 mkdir "$HOME/gamocosm"
 echo "0 6 * * * $(pwd)/sysadmin/cron.sh >> $HOME/gamocosm/cron.stdout.txt 2>> $HOME/gamocosm/cron.stderr.txt" | crontab -
 
-POSTGRES_HOME="$(su -l postgres -c 'echo $HOME')"
-POSTGRES_GAMOCOSM="$POSTGRES_HOME/gamocosm"
 POSTGRES_CRON="$POSTGRES_GAMOCOSM/cron.sh"
-mkdir "$POSTGRES_GAMOCOSM"
 cp sysadmin/postgres.cron.sh "$POSTGRES_CRON"
 chown postgres:postgres "$POSTGRES_CRON"
 su -l postgres -c "echo '0 0 * * 0 $POSTGRES_CRON >> $POSTGRES_GAMOCOSM/cron.stdout.txt 2>> $POSTGRES_GAMOCOSM/cron.stderr.txt' | crontab -"
@@ -193,8 +247,6 @@ systemctl restart nginx
 echo 'Setup letsencrypt/certbot.'
 release
 
-echo 'Changing SSH port. Please enter a number:'
-read SSH_PORT
 sed -i "/^#Port 22/a Port $SSH_PORT" /etc/ssh/sshd_config
 semanage port -a -t ssh_port_t -p tcp "$SSH_PORT"
 semanage port -l | grep ssh
