@@ -20,6 +20,9 @@ function release {
 
 cd "$HOME"
 
+# make sure cron is installed
+crontab -V
+
 echo 'Please enter a new SSH port (will be changed at the very end):'
 read SSH_PORT
 
@@ -85,11 +88,10 @@ dnf -y install nginx certbot certbot-nginx
 dnf install -y patch autoconf automake bison gcc-c++ glibc-headers glibc-devel libffi-devel libtool libyaml-devel make patch readline-devel sqlite-devel zlib-devel openssl-devel
 # other
 dnf -y install nodejs
+# for audit2allow
+dnf -y install policycoreutils-python-utils
 
 systemctl daemon-reload
-
-echo 'Make sure nothing weird happened.'
-release
 
 git clone https://github.com/Raekye/dotfiles.git
 "$(pwd)/dotfiles/vim/setup.sh"
@@ -123,12 +125,13 @@ cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.vanilla
 adduser gamocosm
 cp -r "$HOME/.ssh" /home/gamocosm/.ssh
 if [ -z "$RESTORE_DIR" ]; then
+	chown -R gamocosm:gamocosm /home/gamocosm/.ssh
 	su -P -l gamocosm -c 'ssh-keygen -t rsa'
 else
 	cp "$SSH_PUBLIC_KEY" /home/gamocosm/.ssh/
 	cp "$SSH_PRIVATE_KEY" /home/gamocosm/.ssh/
+	chown -R gamocosm:gamocosm /home/gamocosm/.ssh
 fi
-chown -R gamocosm:gamocosm /home/gamocosm/.ssh
 su -l gamocosm -c 'cd $HOME && git clone https://github.com/Raekye/dotfiles.git'
 su -l gamocosm -c 'cd $HOME/dotfiles && ./vim/setup.sh'
 su -l gamocosm -c 'ln -s "$HOME/dotfiles/vim" "$HOME/.vim"'
@@ -159,6 +162,7 @@ if [ -z "$RESTORE_DIR" ]; then
 else
 	cp "$ENV_SCRIPT" env.sh
 fi
+chmod 600 env.sh
 chown -R gamocosm:gamocosm .
 
 su -l gamocosm -c 'gem install bundler'
