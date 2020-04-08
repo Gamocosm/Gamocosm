@@ -25,7 +25,7 @@ class Minecraft < ActiveRecord::Base
   def after_initialize_callback
     self.autoshutdown_last_check ||= Time.now
     self.autoshutdown_last_successful ||= Time.now
-    self.mcsw_password ||= SecureRandom.hex
+    self.mcsw_password ||= SecureRandom.hex(16)
   end
 
   def before_validate_callback

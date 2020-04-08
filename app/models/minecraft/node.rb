@@ -53,7 +53,7 @@ class Minecraft::Node
 
   def resume
     silence do
-      res = do_post(:start, { ram: "#{@local_minecraft.server.ram}M" }, { timeout: 8 })
+      res = do_post(:start, { ram: "#{@local_minecraft.server.ram}M" })
       invalidate
       if res.error?
         return res
@@ -133,7 +133,7 @@ class Minecraft::Node
     end
   end
 
-  def do_post(endpoint, data, options = {})
+  def do_post(endpoint, data)
     begin
       res = @conn.post do |req|
         req.url "/#{endpoint}"

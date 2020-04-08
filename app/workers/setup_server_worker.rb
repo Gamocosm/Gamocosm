@@ -19,11 +19,13 @@ class SetupServerWorker
     'python3',
     'python3-devel',
     'python3-pip',
+    'vim',
     'git',
     'tmux',
     'unzip',
     'wget',
     'policycoreutils-python-utils',
+    'zram',
   ]
 
   ZRAM_SYSTEMD_SERVICE_FILE_URL = 'https://raw.githubusercontent.com/Gamocosm/Gamocosm/release/server_setup/zram.service'
@@ -118,7 +120,11 @@ class SetupServerWorker
 
   def base_install(user, server, host)
     mcuser_password_escaped = "#{user.email}+#{server.name}".shell_escape
-    server_ram_below_4gb = ['512mb', '1gb', '2gb'].include?(server.remote_size_slug)
+    server_ram_below_4gb = [
+      '1gb',
+      '2gb',
+      '3gb',
+    ].any? { |x| server.remote_size_slug.end_with?(x) }
     begin
       on host do
         Timeout::timeout(512) do
@@ -130,13 +136,9 @@ class SetupServerWorker
             execute :echo, mcuser_password_escaped, '|', :passwd, '--stdin', 'mcuser'
             execute :usermod, '-aG', 'wheel', 'mcuser'
 
-            # setup zram
-            execute :curl, '-s', '-o', '/etc/systemd/system/zram.service', "'#{ZRAM_SYSTEMD_SERVICE_FILE_URL}'"
-            execute :curl, '-s', '-o', '/usr/bin/zram-helper', "'#{ZRAM_HELPER_SCRIPT_URL}'"
-            execute :chmod, '+x', '/usr/bin/zram-helper'
             if server_ram_below_4gb
-              execute :systemctl, 'enable', 'zram'
-              execute :systemctl, 'start', 'zram'
+              execute :systemctl, 'start', 'zram-swap'
+              execute :systemctl, 'enable', 'zram-swap'
             end
 
             # setup swap
@@ -151,8 +153,9 @@ class SetupServerWorker
             # install system packages
             execute :dnf, '-y', 'install', *SYSTEM_PACKAGES
             execute :systemctl, 'start', 'firewalld'
-            execute :'firewall-cmd', '--add-port=5000/tcp'
-            execute :'firewall-cmd', '--permanent', '--add-port=5000/tcp'
+            # firewalld is enabled upon install
+            execute :'firewall-cmd', "--add-port=#{Minecraft::Node::MCSW_PORT}/tcp"
+            execute :'firewall-cmd', '--permanent', "--add-port=#{Minecraft::Node::MCSW_PORT}/tcp"
             execute :'firewall-cmd', '--add-port=25565/tcp'
             execute :'firewall-cmd', '--permanent', '--add-port=25565/tcp'
             execute :'firewall-cmd', '--add-port=25565/udp'
