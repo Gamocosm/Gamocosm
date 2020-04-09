@@ -249,7 +249,7 @@ class SetupServerWorker
         Timeout::timeout(16) do
           within '/opt/' do
             execute :rm, '-rf', '/tmp/pip_build_root'
-            execute :pip3, 'install', '--user', 'flask'
+            execute :su, 'mcuser', '-c', '"pip3 install --user flask"'
             execute :rm, '-rf', 'gamocosm'
             execute :git, 'clone', mcsw_git_url, 'gamocosm'
             within :gamocosm do
