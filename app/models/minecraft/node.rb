@@ -64,7 +64,7 @@ class Minecraft::Node
 
   def pause
     silence do
-      res = do_get(:stop)
+      res = do_post(:stop)
       invalidate
       if res.error?
         return res

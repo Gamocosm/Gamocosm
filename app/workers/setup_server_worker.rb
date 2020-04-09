@@ -19,6 +19,7 @@ class SetupServerWorker
     'python3',
     'python3-devel',
     'python3-pip',
+    'python3-systemd',
     'vim',
     'git',
     'tmux',
@@ -174,20 +175,22 @@ class SetupServerWorker
   end
 
   def base_update(user, server, host)
-    mcsw_git_url = Gamocosm::MCSW_GIT_URL
     begin
       on host do
         Timeout::timeout(16) do
           within '/' do
             execute :sed, '-i', "'s/^PasswordAuthentication no/PasswordAuthentication yes/'", '/etc/ssh/sshd_config'
             execute :systemctl, 'restart', 'sshd'
+            # for old servers (prior to 2020 April 8)
+            if ! test 'dnf repoquery --installed | grep -q python3-systemd'
+              execute :dnf, '-y', 'install', 'python3-systemd'
+            end
           end
           within '/opt/gamocosm/' do
-            execute :su, 'mcuser', '-c', "'git remote set-url origin \"#{mcsw_git_url}\"'"
-            execute :su, 'mcuser', '-c', '"git checkout master"'
+            execute :su, 'mcuser', '-c', '"git fetch origin master"'
             execute :su, 'mcuser', '-c', '"git reset --hard origin/master"'
-            execute :su, 'mcuser', '-c', '"git pull origin master"'
-            execute :cp, '-f', '/opt/gamocosm/mcsw.service', '/etc/systemd/system/mcsw.service'
+            execute :cp, '-f', 'run_mcsw.sh', '/usr/local/bin/run_mcsw.sh'
+            execute :cp, '-f', 'mcsw.service', '/etc/systemd/system/mcsw.service'
             execute :systemctl, 'daemon-reload'
             execute :systemctl, 'restart', 'mcsw'
           end
