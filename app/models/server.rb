@@ -87,8 +87,8 @@ class Server < ActiveRecord::Base
   def ram
     size = Gamocosm.digital_ocean.size_find(remote_size_slug)
     if size.nil?
-      log("Unknown Digital Ocean size slug #{remote_size_slug}; only starting server with 512MB of RAM")
-      return 512
+      log("Unknown Digital Ocean size slug #{remote_size_slug}; only starting server with 1 GB of RAM")
+      return 1024
     end
     return size.memory
   end

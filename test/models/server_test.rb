@@ -38,7 +38,7 @@ class ServerTest < ActiveSupport::TestCase
     old_size = @server.remote_size_slug
     @server.remote_size_slug = 'badness'
     x = @server.ram
-    assert_equal 512, x, 'Server should have selected default 512MB of RAM'
+    assert_equal 1024, x, 'Server should have selected default 1024MB of RAM'
     assert_equal 1, @server.logs.count, 'Should have 1 log message'
     assert_equal 'Unknown Digital Ocean size slug badness; only starting server with 512MB of RAM', @server.logs.first.message, 'Should have log message about bad size setting'
     @server.reload

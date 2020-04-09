@@ -8,7 +8,7 @@
 			Gamocosm is Free and Open-source Software.
 			Gamocosm is free in that it <a href="https://www.gnu.org/philosophy/free-sw.html">respects your freedom and the community</a>.
 			Gamocosm doesn't accept payment, no ads, and no tracking user data.
-			Read our <a href="https://github.com/Gamocosm/Gamocosm/wiki/Security-and-Privacy">Security and Privacy</a> wiki page.
+			Read our <%= link_to 'Security and Privacy', wiki_security_privacy_path %> wiki page.
 		</p>
 		<p>
 			I pay for all the development and production costs out of my pocket.
@@ -24,9 +24,9 @@
 		<ul>
 			<li>Submit an issue on <%= link_to 'GitHub', issues_path %></li>
 			<li>Reddit PM "raekye" (probably the most reliable way!)</li>
-			<li>IRC in <code>#gamocosm</code> on <a href="https://esper.net"><code>irc.esper.net</code></a> (<%= link_to 'web chat', irc_path %>) (<%= link_to 'chat history', irc_history_path %>)</li>
+			<li><%= link_to 'Gitter chat', external_gitter_path %></li>
+			<li>IRC in <code>#gamocosm</code> on <a href="https://esper.net"><code>irc.esper.net</code></a> (<%= link_to 'web chat', irc_path %>)</li>
 			<li>I have a terrible track record for IRC, but I set up a proper client now. I'm also on <a href="https://freenode.net"><code>chat.freenode.net</code></a> (you can direct message me on either network)</li>
-			<li><a href="https://gitter.im/gamocosm/Lobby">Gitter chat</a></li>
 		</ul>
 	</div>
 	<div class="col-sm-6">
@@ -82,9 +82,10 @@
 		<dl class="faq">
 			<dt>There's a bug!</dt>
 			<dd>Do one of the following:<ul>
-				<li>File an <%= link_to 'issue on GitHub', issues_path %></li>
-				<li>Developers may be online on IRC at <code>#gamocosm</code> on <code>irc.esper.net</code>
 				<li>Check the <%= link_to 'Troubleshooting page', wiki_troubleshooting_path %> on the wiki</li>
+				<li>File an <%= link_to 'issue on GitHub', issues_path %></li>
+				<li>Ask a question on <%= link_to 'Gitter chat', external_gitter_path %></li>
+				<li>Developers may be online on IRC at <code>#gamocosm</code> on <code>irc.esper.net</code>
 			</ul></dd>
 
 			<dt>Why does it take so long to start/stop a server?</dt>
@@ -174,8 +175,7 @@
 		<p>
 			At this time, I do not feel worthy of donations :P
 			If possible, using <%= link_to 'Gamocosm\'s referral link for Digital Ocean', digital_ocean_index_path %>
-			to subsidize server costs is appreciated
-			(this goes directly to Gamocosm's Digital Ocean account, not mine).
+			to subsidize server costs is appreciated.
 			However, if you wish to support, I encourage everyone to support internet freedom groups such as Wikipedia.
 			<strong>It's easy to gloss over their donation requests, but it is really important that we don't take them for granted!</strong>
 		</p>

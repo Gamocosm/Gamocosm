@@ -27,15 +27,7 @@ cuberite:
     time: 1
     developers:
         - Cuberite team
-    website: http://cuberite.org
-    notes: []
-truecraft:
-    versions:
-        - { name: TrueCraft (beta 1.7.3), tag: beta-1.7.3 }
-    time: 1
-    developers:
-        - SirCmpwn et al
-    website: http://truecraft.io
+    website: https://cuberite.org
     notes: []
 vanilla_bedrock:
     versions:
@@ -57,7 +49,7 @@ forge:
     time: 1
     developers:
         - Minecraft Forge team
-    website: http://minecraftforge.net
+    website: https://minecraftforge.net
     notes: []
 spigot:
     versions:
@@ -72,7 +64,7 @@ spigot:
     time: 10
     developers:
         - Spigot team
-    website: http://spigotmc.org
+    website: https://spigotmc.org
     notes:
         - NOT TESTED IN A LONG TIME
         - 1GB+ recommended
@@ -98,7 +90,7 @@ craftbukkit:
     developers:
         - Spigot team
         - CraftBukkit team
-    website: http://spigotmc.org
+    website: https://spigotmc.org
     notes:
         - NOT TESTED IN A LONG TIME
         - 1GB+ recommended
@@ -110,7 +102,7 @@ agrarian_skies:
     time: 1
     developers:
         - Jadedcat
-    website: http://forum.feed-the-beast.com/threads/41906/
+    website: https://forum.feed-the-beast.com/threads/41906/
     notes:
         - NOT TESTED IN A LONG TIME
         - 2GB+ recommended
@@ -121,7 +113,7 @@ ftb_resurrection:
     time: 2
     developers:
         - FTB team
-    website: http://feed-the-beast.com
+    website: https://feed-the-beast.com
     notes:
         - NOT TESTED IN A LONG TIME
         - 2GB+ recommended
@@ -133,7 +125,7 @@ crash_landing:
     developers:
         - Iskandar
         - others
-    website: http://forum.feed-the-beast.com/threads/46277/
+    website: https://forum.feed-the-beast.com/threads/46277/
     notes:
         - NOT TESTED IN A LONG TIME
         - 2GB+ recommended
@@ -144,7 +136,7 @@ direwolf20:
     time: 2
     developers:
         - FTB team
-    website: http://feed-the-beast.com
+    website: https://feed-the-beast.com
     notes:
         - NOT TESTED IN A LONG TIME
         - 2GB+ recommended
@@ -155,7 +147,7 @@ tppi:
     time: 2
     developers:
         - TPPI team
-    website: http://www.reddit.com/r/TestPackPleaseIgnore/
+    website: https://www.reddit.com/r/TestPackPleaseIgnore/
     notes:
         - NOT TESTED IN A LONG TIME
         - 2GB+ recommended

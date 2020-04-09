@@ -105,8 +105,8 @@ class SetupServerWorker
         self.install_mcsw(user, server, host)
         server.update_columns(setup_stage: 4)
         self.modify_ssh_port(user, server, host)
+        server.update_columns(setup_stage: 5)
       end
-      server.update_columns(setup_stage: 5)
       StartMinecraftWorker.perform_in(4.seconds, server_id)
     rescue => e
       server.log("Background job setting up server failed: #{e}")

@@ -19,7 +19,7 @@ Rails.application.routes.draw do
   match '/source' => redirect('https://github.com/Gamocosm/Gamocosm'), as: :source, via: :get
   match '/git_head' => redirect("https://github.com/Gamocosm/Gamocosm/tree/#{Gamocosm::GIT_HEAD}"), as: :git_head, via: :get
   match '/license' => redirect('https://github.com/Gamocosm/Gamocosm/blob/master/LICENSE'), as: :license, via: :get
-  match '/blog' => redirect('http://gamocosm.com/blog/'), as: :blog, via: :get
+  match '/blog' => redirect('https://gamocosm.com/blog/'), as: :blog, via: :get
   match '/irc' => redirect('https://webchat.esper.net/?channels=gamocosm'), as: :irc, via: :get
   match '/irc_history' => redirect('http://irc.gamocosm.com'), as: :irc_history, via: :get
 
@@ -30,6 +30,7 @@ Rails.application.routes.draw do
     match '/server_additional_info' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Additional-Info-for-Server-Admins'), as: :wiki_server_additional_info, via: :get
     match '/troubleshooting' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Troubleshooting'), as: :wiki_troubleshooting, via: :get
     match '/custom_minecraft' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft'), as: :wiki_custom_minecraft, via: :get
+    match '/security_privacy' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Security-and-Privacy'), as: :wiki_security_privacy, via: :get
   end
 
   scope '/digital_ocean' do
@@ -57,10 +58,11 @@ Rails.application.routes.draw do
 
   scope '/external' do
     match '/github_student_developer_pack' => redirect('https://education.github.com/pack'), as: :external_github_student_developer_pack, via: :get
+    match '/gitter' => redirect('https://gitter.im/gamocosm/Lobby'), as: :external_gitter, via: :get
   end
 
   scope '/cuberite' do
-    match '/' => redirect('http://cuberite.org'), as: :cuberite_website, via: :get
+    match '/' => redirect('https://cuberite.org'), as: :cuberite_website, via: :get
     match '/repo' => redirect('https://github.com/cuberite/cuberite'), as: :cuberite_repo, via: :get
   end
 

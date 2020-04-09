@@ -45,11 +45,10 @@ gem 'bootstrap-sass', '>= 3.3.3'
 gem 'annotate'
 gem 'faraday'
 gem 'faraday_middleware'
-gem 'sinatra', :require => nil
+#gem 'sinatra', :require => nil
 gem 'font-awesome-sass'
 gem 'simple_form', '>= 3.1.0.rc1'
 gem 'sshkit'
-gem 'dalli'
 gem 'exception_notification'
 gem 'droplet_kit', git: 'https://github.com/Gamocosm/droplet_kit'
 gem 'puma'

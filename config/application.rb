@@ -65,7 +65,7 @@ module Gamocosm
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
     # config.time_zone = 'Central Time (US & Canada)'
-    config.load_defaults 6.0
+    config.load_defaults '6.0'
 
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
@@ -74,8 +74,8 @@ module Gamocosm
     # Custom
     # it seems even if you set this, DateTime#strftime's '%Z' format still shows a numeric timezone unless you use DateTime#in_time_zone
     config.time_zone = TIMEZONE
-    config.cache_store = :dalli_store, 'localhost', { namespace: "gamocosm-#{Rails.env}", expires_in: 24.hours, compress: true }
-    config.exceptions_app = self.routes
+    config.cache_store = :mem_cache_store, 'localhost', { namespace: "gamocosm-#{Rails.env}", expires_in: 24.hours, compress: true }
+    #config.exceptions_app = self.routes
     config.action_mailer.delivery_method = :smtp
     config.action_mailer.smtp_settings = {
       address: ENV['MAIL_SERVER_ADDRESS'],
@@ -86,6 +86,6 @@ module Gamocosm
       authentication: 'plain',
       enable_starttls_auto: true
     }
-    config.i18n.fallbacks = [ I18n.default_locale ]
+    config.i18n.fallbacks = [ :en ]
   end
 end
