@@ -256,7 +256,7 @@ class SetupServerWorker
               execute :echo, mcsw_username, '>', 'mcsw-auth.txt'
               execute :echo, mcsw_password, '>>', 'mcsw-auth.txt'
               execute :cp, '-f', 'mcsw.service', '/etc/systemd/system/mcsw.service'
-              execute :cp, '-f', 'run_mcsw.sh', '/etc/systemd/system/run_mcsw.sh'
+              execute :cp, '-f', 'run_mcsw.sh', '/usr/local/bin/run_mcsw.sh'
             end
             execute :chown, '-R', 'mcuser:mcuser', 'gamocosm'
             execute :systemctl, 'enable', 'mcsw'
