@@ -46,5 +46,5 @@ if use_docker; then
 fi
 
 echo "Starting tests..."
-bundle exec rake test
+bundle exec rails test
 echo "Done tests."

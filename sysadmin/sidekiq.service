@@ -12,7 +12,7 @@ User=gamocosm
 Group=gamocosm
 Environment=RAILS_ENV=production
 RestartSec=1
-Restart=on-failure
+Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=gamocosm-sidekiq

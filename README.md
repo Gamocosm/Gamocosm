@@ -20,22 +20,23 @@ Pull requests are welcome!
 
 ### Setting up your development environment
 You should have a Unix/Linux system.
-The following instructions were made for Fedora 20, but the steps should be similar on other distributions.
+The following instructions were made for Fedora 31, but the steps should be similar on other distributions.
 
-1. Install postgresql and development headers and libraries, memcached, redis, and nodejs: `(sudo) yum install postgresql-server postgresql-contrib postgresql-devel memcached redis nodejs`
+1. Install postgresql and development headers and libraries, memcached, redis, and nodejs: `(sudo) dnf install postgresql-server postgresql-contrib postgresql-devel memcached redis nodejs`
 1. Install [RVM][13]. Read the instructions on their page (will be up to date)
-1. Install Ruby 2.2.0+: `rvm install 2.2`, and optionally `rvm use --default 2.2`. You may need to install extra packages for compiling ruby (it will tell you)
-1. Install other things needed for gems: `(sudo) yum install gcc`
-1. Check that `ruby -v` gives you version 2.2. If not, log out and back in (on the computer) to have it reread your `~/.bash_profile`
+1. Install Ruby 2.6.5+: `rvm install 2.6.5`, and optionally `rvm use --default 2.6.5`. You may need to install extra packages for compiling ruby (it will tell you)
+1. Install other things needed for gems: `(sudo) dnf install gcc`
+1. Check that `ruby -v` gives you version 2.6.5. If not, log out and back in (on the computer) to have it reread your `~/.bash_profile`
 1. Install Bundler: `gem install bundler`
 1. Install gem dependencies: `bundle install`
 1. Run `cp env.sh.template env.sh`
 1. Enter config in `env.sh`
-1. Initialize postgresql: `(sudo) postgresql-setup initdb`
-1. Start postgresql, memcached, and redis manually: `(sudo) service start postgresql/memcached/redis`, or enable them to start at boot time: `(sudo) service enable postgresql/memcached/redis`
-1. After configuring the database, run `./run.sh rake db:setup`
-1. Start the server: `./run.sh rails s`
-1. Start the Sidekiq worker: `./run.sh sidekiq`
+1. Initialize postgresql: `(sudo) postgresql-setup initdb --unit postgresql`
+1. Configure the database (explained below)
+1. Start postgresql, memcached, and redis manually: `(sudo) systemctl start <postgresql/memcached/redis>`, or enable them to start at boot time: `(sudo) systemctl enable <postgresql/memcached/redis>`
+1. Run `bundle exec rake db:setup`
+1. Start the server: `bundle exec rails s`
+1. Start the Sidekiq worker: `bundle exec sidekiq`
 
 ### Directory hierarchy
 - `app`: main source code
@@ -45,16 +46,13 @@ The following instructions were made for Fedora 20, but the steps should be simi
 - `lib`: rails stuff, don't touch
 - `log`: 'nuff said
 - `public`: static files
-- `server_setup`: stuff for the servers Gamocosm creates (e.g. zram scripts), used by `app/workers/setup_server_worker.rb`
-	- see [Additional Info for Server Admins][15] on the wiki for more information
-- `sysadmin`: stuff for the Gamocosm server (you can run your own server! this is an open source project)
+- `sysadmin`: stuff for the Gamocosm server (you can run your own server! This is a true open source project)
 - `test-docker`: use docker container to test most of `app/workers/setup_server_worker.rb` (more below)
 - `test`: pooteeweet
 - `vendor`: rails stuff, don't touch
 
-### run.sh and env.sh options
-`run.sh` and `tests.sh` both source `env.sh` for environment variables/configuration.
-`run.sh` also does `bundle exec` for you, so you just do `./run.sh GEM ARGS ...`.
+### env.sh options
+You should `source env.sh` to load the relevant environment variables into your shell (e.g. before running `bundle exec rails s`).
 
 - `DIGITAL_OCEAN_API_KEY`: your Digital Ocean api token
 - `DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH`: ssh key to be added to new servers to SSH into
@@ -69,7 +67,7 @@ The following instructions were made for Fedora 20, but the steps should be simi
 - `USER_SERVERS_DOMAIN`: subdomain for user servers (e.g. `gamocosm.com`)
 - `CLOUDFLARE_API_TOKEN`: hmmm
 - `CLOUDFLARE_EMAIL`: hmmm
-- `CLOUDFLARE_ZONE`: TODO explain how to get this
+- `CLOUDFLARE_ZONE`: shown on the bottom right of CloudFlare's control panel for the domain
 - `DEVELOPMENT_HOST`: only development, allowed host to access development server
 - `DEVISE_SECRET_KEY`: only test, production
 - `SECRET_KEY`: only production
@@ -165,17 +163,17 @@ Hmmmm.
 - The Sidekiq web interface is mounted at `/sidekiq`
 - Sidekiq doesn't automatically reload source files when you edit them. You must restart it for changes to take effect
 - New Relic RPM is available in developer mode at `/newrelic`
-- Run the console: `./run.sh rails c`
-- Reset the database: `./run.sh rake db:reset`
+- Run the console: `bundle exec rails c`
+- Reset the database: `bundle exec rake db:reset`
 - Reset Sidekiq jobs: `Sidekiq::Queue.new.each { |job| job.delete }` in the rails console
 - Reset Sidekiq stats: `Sidekiq::Stats.new.reset` in the rails console
 - The deployment scripts and configuration are in the `sysadmin/` directory
 - List of `rake db` commands: [Stack Overflow][3]
 
 ## Tests
-- `./run.sh rake test` or `./tests.sh`
+- `bundle exec rails test` or `./tests.sh`
 - tests use WebMock to mock http requests (no external requests)
-- `RAILS_ENV=test ./run.sh rails [s|c]` to run the server or console (respectively) in test mode
+- `RAILS_ENV=test bundle exec rails <s|c>` to run the server or console (respectively) in test mode
 - Note: the test server, unlike the dev server, does not automatically reload source files when you change them
 
 ### More testing by simulating a user server with Docker
@@ -184,7 +182,7 @@ Without a server to connect to, Gamocosm can't try SetupServerWorker or Autoshut
 If you set `$TEST_DOCKER` to "true", the tests will assume there is a running Docker Gamocosm container to connect to.
 
 `tests.sh` will build the image, start the container, and delete the container for you if you specify to use Docker.
-Otherwise, it will run the tests normally (equivalent to `./run.sh rake test`).
+Otherwise, it will run the tests normally (equivalent to `bundle exec rails test`).
 You should have non-root access to Docker.
 You could also manage Docker yourself; you can look at the `tests.sh` file for reference.
 
