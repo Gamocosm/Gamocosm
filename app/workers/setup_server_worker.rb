@@ -137,11 +137,6 @@ class SetupServerWorker
             execute :echo, mcuser_password_escaped, '|', :passwd, '--stdin', 'mcuser'
             execute :usermod, '-aG', 'wheel', 'mcuser'
 
-            if server_ram_below_4gb
-              execute :systemctl, 'start', 'zram-swap'
-              execute :systemctl, 'enable', 'zram-swap'
-            end
-
             # setup swap
             if test '[ ! -f "/swapfile" ]'
               execute :fallocate, '-l', '1G', '/swapfile'
@@ -161,8 +156,11 @@ class SetupServerWorker
             execute :'firewall-cmd', '--permanent', '--add-port=25565/tcp'
             execute :'firewall-cmd', '--add-port=25565/udp'
             execute :'firewall-cmd', '--permanent', '--add-port=25565/udp'
-            execute :rm, '-rf', '/tmp/pip_build_root'
-            execute :pip3, 'install', 'flask'
+
+            if server_ram_below_4gb
+              execute :systemctl, 'start', 'zram-swap'
+              execute :systemctl, 'enable', 'zram-swap'
+            end
           end
         end
       end
@@ -250,16 +248,17 @@ class SetupServerWorker
       on host do
         Timeout::timeout(16) do
           within '/opt/' do
+            execute :rm, '-rf', '/tmp/pip_build_root'
+            execute :pip3, 'install', '--user', 'flask'
             execute :rm, '-rf', 'gamocosm'
             execute :git, 'clone', mcsw_git_url, 'gamocosm'
             within :gamocosm do
               execute :echo, mcsw_username, '>', 'mcsw-auth.txt'
               execute :echo, mcsw_password, '>>', 'mcsw-auth.txt'
+              execute :cp, '-f', 'mcsw.service', '/etc/systemd/system/mcsw.service'
+              execute :cp, '-f', 'run_mcsw.sh', '/etc/systemd/system/run_mcsw.sh'
             end
             execute :chown, '-R', 'mcuser:mcuser', 'gamocosm'
-          end
-          within '/etc/systemd/system/' do
-            execute :cp, '/opt/gamocosm/mcsw.service', 'mcsw.service'
             execute :systemctl, 'enable', 'mcsw'
             execute :systemctl, 'start', 'mcsw'
           end
