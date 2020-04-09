@@ -2,9 +2,10 @@ class WaitForSnapshottingServerWorker
   include Sidekiq::Worker
   sidekiq_options retry: 0
 
-  def perform(server_id, digital_ocean_action_id, times = 0)
+  def perform(server_id, digital_ocean_action_id, times = 0, log_success = false)
     server = Server.find(server_id)
     user = server.user
+    times += 1
     begin
       if !server.remote.exists?
         server.log('Error snapshotting server; remote_id is nil. Aborting')
@@ -27,30 +28,31 @@ class WaitForSnapshottingServerWorker
         server.reset_state
         return
       elsif !event.done?
-        times += 1
-        if times >= 32 && times % 8 == 0
-          server.log("Still waiting for Digital Ocean server to snapshot, tried #{times} times")
-        end
         if times >= 1024
           server.log('Digital Ocean took too long to snapshot server. Aborting')
           server.reset_state
           return
+        elsif times >= 32 && times % 8 == 0
+          server.log("Still waiting for Digital Ocean server to snapshot, tried #{times} times")
+          log_success = true
         end
-        WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times)
+        WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times, log_success)
         return
       end
       user.invalidate_digital_ocean_cache_snapshots
       snapshot_id = server.remote.latest_snapshot_id
       if snapshot_id.nil?
-        times += 1
         if times >= 1024
           server.log('Finished snapshotting server on Digital Ocean, but unable to get latest snapshot id. Aborting')
           server.reset_state
         else
           server.log("Finished snapshotting server on Digital Ocean, but unable to get latest snapshot id. Trying again (tried #{times} times)")
-          WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times)
+          WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times, true)
         end
         return
+      end
+      if log_success
+        server.log('Finished snapshotting server on Digital Ocean and got snapshot ID')
       end
       server.update_columns(remote_snapshot_id: snapshot_id)
       error = server.remote.destroy

@@ -167,7 +167,7 @@ class ActiveSupport::TestCase
   end
 
   def mock_mcsw_stop(status, mc)
-    return mock_mcsw(:get, mc, :stop).to_return_json(status, { })
+    return mock_mcsw(:post, mc, :stop).to_return_json(status, { })
   end
 
   def mock_mcsw_backup(status, mc)

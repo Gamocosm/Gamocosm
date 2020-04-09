@@ -180,7 +180,8 @@ class WorkersTest < ActiveSupport::TestCase
     end
     assert_equal 1, @server.logs.count, 'Should have one server log'
     WaitForSnapshottingServerWorker.drain
-    assert_equal ((1024 - 32) / 8) + 2, @server.logs.count, 'Should have 33 server logs'
+    expected_logs = ((1024 - 32) / 8) + 1
+    assert_equal expected_logs, @server.logs.count, "Should have #{expected_logs} server logs"
     assert_not @server.busy?, 'Worker should have reset server'
   end
 
