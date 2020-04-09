@@ -183,6 +183,9 @@ class SetupServerWorker
             if ! test 'dnf repoquery --installed | grep -q python3-systemd'
               execute :dnf, '-y', 'install', 'python3-systemd'
             end
+            if ! test 'su mcuser -c "pip3 freeze" | grep -q Flask'
+              execute :su, 'mcuser', '-c', '"pip3 install --user flask"'
+            end
           end
           within '/opt/gamocosm/' do
             execute :su, 'mcuser', '-c', '"git fetch origin master"'
