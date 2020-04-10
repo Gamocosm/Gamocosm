@@ -79,13 +79,13 @@ swapon "$SWAP"
 echo "$SWAP none swap defaults,pri=0 0 0" >> /etc/fstab
 
 # basic tools
-dnf -y install vim tmux git
+dnf -y install vim tmux git htop
 # services
 dnf -y install memcached postgresql-server postgresql-contrib libpq-devel redis firewalld
 # nginx
 dnf -y install nginx certbot certbot-nginx
 # rvm
-dnf install -y patch autoconf automake bison gcc-c++ glibc-headers glibc-devel libffi-devel libtool libyaml-devel make patch readline-devel sqlite-devel zlib-devel openssl-devel
+#dnf install -y patch autoconf automake bison gcc-c++ glibc-headers glibc-devel libffi-devel libtool libyaml-devel make patch readline-devel sqlite-devel zlib-devel openssl-devel
 # other
 dnf -y install nodejs
 # for audit2allow
@@ -137,15 +137,14 @@ su -l gamocosm -c 'cd $HOME/dotfiles && ./vim/setup.sh'
 su -l gamocosm -c 'ln -s "$HOME/dotfiles/vim" "$HOME/.vim"'
 su -l gamocosm -c 'ln -s "$HOME/dotfiles/tmux" "$HOME/.tmux.conf"'
 
-# which better?
-if ! su -l gamocosm -c 'gpg2 --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'; then
-	echo 'Fetching RVM keys failed. Trying another server.'
-	su -l gamocosm -c 'gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'
-fi
-#su -l gamocosm -c 'curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -'
-su -l gamocosm -c 'curl -sSL https://get.rvm.io | bash -s stable'
-su -l gamocosm -c "rvm install $RUBY_VERSION"
-su -l gamocosm -c "rvm use --default $RUBY_VERSION"
+su -l gamocosm -c 'git clone https://github.com/rbenv/rbenv.git "$HOME/.rbenv"'
+su -l gamocosm -c 'git clone https://github.com/rbenv/ruby-build.git "$HOME/.rbenv/plugins/ruby-build"'
+su -l gamocosm -c "echo 'eval \"\$(\"\$HOME/.rbenv/bin/rbenv\" init -)\"' >> \$HOME/.bash_profile"
+su -l gamocosm -c 'which rbenv'
+su -l gamocosm -c 'which gem'
+echo 'Make sure rbenv set up correctly.'
+release
+su -l gamocosm -c "rbenv install $RUBY_VERSION"
 
 pushd /home/gamocosm
 git clone https://github.com/Gamocosm/Gamocosm.git gamocosm

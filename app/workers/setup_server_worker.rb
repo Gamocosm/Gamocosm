@@ -3,12 +3,6 @@ require 'sshkit/dsl'
 include SSHKit::DSL
 require 'timeout'
 
-class String
-  def shell_escape
-    return "'#{self.gsub('\'', '\'"\'"\'')}'"
-  end
-end
-
 class SetupServerWorker
   include Sidekiq::Worker
   sidekiq_options retry: 0
@@ -120,7 +114,7 @@ class SetupServerWorker
   end
 
   def base_install(user, server, host)
-    mcuser_password_escaped = "#{user.email}+#{server.name}".shell_escape
+    mcuser_password_escaped = "#{user.email}+#{server.name}".shellescape
     server_ram_below_4gb = [
       '1gb',
       '2gb',
@@ -184,6 +178,7 @@ class SetupServerWorker
               execute :dnf, '-y', 'install', 'python3-systemd'
             end
             if ! test 'su mcuser -c "pip3 freeze" | grep -q Flask'
+              execute :rm, '-rf', '/tmp/pip_build_root'
               execute :su, 'mcuser', '-c', '"pip3 install --user flask"'
             end
           end
@@ -314,7 +309,7 @@ class SetupServerWorker
       if key.error?
         server.log(key)
       else
-        key_contents.push(key.public_key.shell_escape)
+        key_contents.push(key.public_key.shellescape)
       end
     end
     server.update_columns(ssh_keys: nil)

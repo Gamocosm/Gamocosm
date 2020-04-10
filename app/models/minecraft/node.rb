@@ -64,7 +64,7 @@ class Minecraft::Node
 
   def pause
     silence do
-      res = do_post(:stop, {})
+      res = do_post(:stop, {}, 32)
       invalidate
       if res.error?
         return res
@@ -133,11 +133,11 @@ class Minecraft::Node
     end
   end
 
-  def do_post(endpoint, data)
+  def do_post(endpoint, data, timeout = HTTP_REQUEST_TIMEOUT)
     begin
       res = @conn.post do |req|
         req.url "/#{endpoint}"
-        req.options.timeout = HTTP_REQUEST_TIMEOUT
+        req.options.timeout = timeout
         req.headers['Content-Type'] = 'application/json'
         req.body = data.to_json
       end
