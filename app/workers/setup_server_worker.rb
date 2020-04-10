@@ -244,7 +244,7 @@ class SetupServerWorker
     mcsw_password = server.minecraft.mcsw_password
     begin
       on host do
-        Timeout::timeout(16) do
+        Timeout::timeout(64) do
           within '/opt/' do
             execute :rm, '-rf', '/tmp/pip_build_root'
             execute :su, 'mcuser', '-c', '"pip3 install --user flask"'
@@ -264,7 +264,7 @@ class SetupServerWorker
       end
     rescue SSHKit::Runner::ExecuteError => e
       if e.cause.is_a?(Timeout::Error)
-        raise 'Server setup (SSH): Server stalled/took too long setting up Minecraft. Please try again'
+        raise 'Server setup (SSH): Server stalled/took too long setting up Minecraft server wrapper. Please try again'
       end
       raise e
     end
