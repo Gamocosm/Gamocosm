@@ -45,6 +45,8 @@ Rails.application.routes.draw do
     match '/help' => redirect('https://www.digitalocean.com/help/'), as: :digital_ocean_help, via: :get
     match '/control_panel' => redirect('https://cloud.digitalocean.com'), as: :digital_ocean_control_panel, via: :get
     match '/status' => redirect('https://status.digitalocean.com'), as: :digital_ocean_status, via: :get
+    match '/referral_program' => redirect('https://www.digitalocean.com/referral-program/'), as: :digital_ocean_referral_program, via: :get
+    match '/referral_program_no_ref' => redirect('https://www.digitalocean.com/referral-program/?refcode=758af342c81e'), as: :digital_ocean_referral_program_no_ref, via: :get
 
     get 'droplets', to: 'servers#show_digital_ocean_droplets', as: :show_digital_ocean_droplets
     delete 'droplets/:id', to: 'servers#destroy_digital_ocean_droplet', as: :destroy_digital_ocean_droplet
