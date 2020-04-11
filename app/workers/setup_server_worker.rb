@@ -40,16 +40,18 @@ class SetupServerWorker
         server.reset_state
         return
       end
+      # see https://github.com/capistrano/sshkit/blob/master/lib/sshkit/host.rb
       host = SSHKit::Host.new(server.remote.ip_address.to_s)
       host.port = !server.done_setup? ? 22 : server.ssh_port
       host.user = 'root'
-      host.key = Gamocosm::DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH
+      # see https://net-ssh.github.io/net-ssh/Net/SSH.html
       host.ssh_options = {
+        keys: [ Gamocosm::DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH ],
         passphrase: Gamocosm::DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE,
         verify_host_key: :never,
         # how long to wait for initial connection
         # `e.cause` will be `Timeout::Error`
-        timeout: 4
+        timeout: 4,
       }
       begin
         on host do

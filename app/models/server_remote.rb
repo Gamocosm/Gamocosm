@@ -10,6 +10,9 @@ class ServerRemote
   end
 
   def sync
+    if !exists?
+      return 'Server is not running'.error! nil
+    end
     if @data.nil?
       @data = @con.droplet_show(@server.remote_id)
     end
@@ -30,17 +33,17 @@ class ServerRemote
 
   def ip_address
     d = sync
-    d.error? ? error : d.ipv4
+    d.error? ? d : d.ipv4
   end
 
   def status
     d = sync
-    d.error? ? error : d.status
+    d.error? ? d : d.status
   end
 
   def latest_snapshot_id
     d = sync
-    d.error? ? error : d.snapshot_ids.last
+    d.error? ? d : d.snapshot_ids.last
   end
 
   def create

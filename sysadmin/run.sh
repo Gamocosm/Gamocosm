@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-eval "$("$HOME/.rbenv/bin/rbenv" init -)"
+PATH="$HOME/.rbenv/bin:$PATH"
+PATH="$HOME/.rbenv/shims:$PATH"
 
 source env.sh
 
