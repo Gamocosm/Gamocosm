@@ -7,6 +7,8 @@ class SetupServerWorker
   include Sidekiq::Worker
   sidekiq_options retry: 0
 
+  CHECK_INTERVAL = Rails.env.test? ? 2.seconds : 16.seconds
+
   SYSTEM_PACKAGES = [
     'firewalld',
     'java-1.8.0-openjdk-headless',
@@ -68,28 +70,28 @@ class SetupServerWorker
           return
         end
         if e.cause.is_a?(Timeout::Error)
-          server.log("Server started, but timed out while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
-          SetupServerWorker.perform_in(16.seconds, server_id, times)
+          server.log("Server started, but timed out while trying to SSH (attempt #{times}, #{e}). Trying again in #{CHECK_INTERVAL} seconds")
+          SetupServerWorker.perform_in(CHECK_INTERVAL, server_id, times)
           return
         end
         if e.cause.is_a?(Errno::EHOSTUNREACH)
-          server.log("Server started, but unreachable while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
-          SetupServerWorker.perform_in(16.seconds, server_id, times)
+          server.log("Server started, but unreachable while trying to SSH (attempt #{times}, #{e}). Trying again in #{CHECK_INTERVAL} seconds")
+          SetupServerWorker.perform_in(CHECK_INTERVAL, server_id, times)
           return
         end
         if e.cause.is_a?(Errno::ECONNREFUSED)
-          server.log("Server started, but connection refused while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
-          SetupServerWorker.perform_in(16.seconds, server_id, times)
+          server.log("Server started, but connection refused while trying to SSH (attempt #{times}, #{e}). Trying again in #{CHECK_INTERVAL} seconds")
+          SetupServerWorker.perform_in(CHECK_INTERVAL, server_id, times)
           return
         end
         if e.cause.is_a?(Net::SSH::ConnectionTimeout)
-          server.log("Server started, but connection timed out while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
-          SetupServerWorker.perform_in(16.seconds, server_id, times)
+          server.log("Server started, but connection timed out while trying to SSH (attempt #{times}, #{e}). Trying again in #{CHECK_INTERVAL} seconds")
+          SetupServerWorker.perform_in(CHECK_INTERVAL, server_id, times)
           return
         end
         if e.cause.is_a?(SSHKit::Command::Failed)
-          logger.error 'SSHKit running `true` failed. Trying again in 16 seconds'
-          SetupServerWorker.perform_in(16.seconds, server_id, times)
+          logger.error "SSHKit running `true` failed. Trying again in #{CHECK_INTERVAL} seconds"
+          SetupServerWorker.perform_in(CHECK_INTERVAL, server_id, times)
           return
         end
         raise

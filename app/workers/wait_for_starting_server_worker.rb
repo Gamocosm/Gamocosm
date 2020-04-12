@@ -2,7 +2,10 @@ class WaitForStartingServerWorker
   include Sidekiq::Worker
   sidekiq_options retry: 0
 
+  CHECK_INTERVAL = Rails.env.test? ? 2.seconds : 4.seconds
+
   def perform(server_id, digital_ocean_action_id, times = 0, log_success = false)
+    logger.info "Running #{self.class.name} with server_id #{server_id}, times #{times}"
     server = Server.find(server_id)
     user = server.user
     times += 1
@@ -37,7 +40,7 @@ class WaitForStartingServerWorker
           server.log("Still waiting for Digital Ocean server to start, tried #{times} times")
           log_success = true
         end
-        WaitForStartingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times, log_success)
+        WaitForStartingServerWorker.perform_in(CHECK_INTERVAL, server_id, digital_ocean_action_id, times, log_success)
         return
       end
       if server.remote.status != 'active'
@@ -46,7 +49,7 @@ class WaitForStartingServerWorker
           server.reset_state
         else
           server.log("Finished starting server on Digital Ocean, but remote status was #{server.remote.status} (not 'active'). Trying again (tried #{times} times)")
-          WaitForStartingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times, true)
+          WaitForStartingServerWorker.perform_in(CHECK_INTERVAL, server_id, digital_ocean_action_id, times, true)
         end
         return
       end
@@ -54,7 +57,7 @@ class WaitForStartingServerWorker
         server.log('Server started successfully')
       end
       server.update_columns(pending_operation: 'preparing')
-      SetupServerWorker.perform_in(4.seconds, server_id)
+      SetupServerWorker.perform_in(SetupServerWorker::CHECK_INTERVAL, server_id)
     rescue => e
       server.log("Background job waiting for starting server failed: #{e}")
       server.reset_state

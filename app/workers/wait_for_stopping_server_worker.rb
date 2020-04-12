@@ -2,7 +2,10 @@ class WaitForStoppingServerWorker
   include Sidekiq::Worker
   sidekiq_options retry: 0
 
+  CHECK_INTERVAL = Rails.env.test? ? 2.seconds : 8.seconds
+
   def perform(server_id, digital_ocean_action_id, times = 0)
+    logger.info "Running #{self.class.name} with server_id #{server_id}, times #{times}"
     server = Server.find(server_id)
     user = server.user
     begin
@@ -34,7 +37,7 @@ class WaitForStoppingServerWorker
         elsif times >= 16
           server.log("Still waiting for Digital Ocean server to stop, tried #{times} times")
         end
-        WaitForStoppingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times)
+        WaitForStoppingServerWorker.perform_in(CHECK_INTERVAL, server_id, digital_ocean_action_id, times)
         return
       end
       action = server.remote.snapshot
@@ -44,7 +47,7 @@ class WaitForStoppingServerWorker
         return
       end
       server.update_columns(pending_operation: 'saving')
-      WaitForSnapshottingServerWorker.perform_in(16.seconds, server_id, action.id)
+      WaitForSnapshottingServerWorker.perform_in(WaitForSnapshottingServerWorker::CHECK_INTERVAL, server_id, action.id)
     rescue => e
       server.log("Background job waiting for stopping server failed: #{e}")
       server.reset_state

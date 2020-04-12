@@ -2,7 +2,10 @@ class WaitForSnapshottingServerWorker
   include Sidekiq::Worker
   sidekiq_options retry: 0
 
+  CHECK_INTERVAL = Rails.env.test? ? 2.seconds : 8.seconds
+
   def perform(server_id, digital_ocean_action_id, times = 0, log_success = false)
+    logger.info "Running #{self.class.name} with server_id #{server_id}, times #{times}"
     server = Server.find(server_id)
     user = server.user
     times += 1
@@ -36,18 +39,18 @@ class WaitForSnapshottingServerWorker
           server.log("Still waiting for Digital Ocean server to snapshot, tried #{times} times")
           log_success = true
         end
-        WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times, log_success)
+        WaitForSnapshottingServerWorker.perform_in(CHECK_INTERVAL, server_id, digital_ocean_action_id, times, log_success)
         return
       end
       user.invalidate_digital_ocean_cache_snapshots
       snapshot_id = server.remote.latest_snapshot_id
       if snapshot_id.nil?
-        if times >= 1024
+        if times >= 256
           server.log('Finished snapshotting server on Digital Ocean, but unable to get latest snapshot id. Aborting')
           server.reset_state
         else
           server.log("Finished snapshotting server on Digital Ocean, but unable to get latest snapshot id. Trying again (tried #{times} times)")
-          WaitForSnapshottingServerWorker.perform_in(4.seconds, server_id, digital_ocean_action_id, times, true)
+          WaitForSnapshottingServerWorker.perform_in(CHECK_INTERVAL, server_id, digital_ocean_action_id, times, true)
         end
         return
       end

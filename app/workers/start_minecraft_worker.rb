@@ -3,6 +3,7 @@ class StartMinecraftWorker
   sidekiq_options retry: 0
 
   def perform(server_id)
+    logger.info "Running #{self.class.name} with server_id #{server_id}"
     # see AutoshutdownMinecraftWorker for explanation of the next two lines
     minecraft = Minecraft.find_by!(server_id: server_id)
     server = minecraft.server
@@ -24,6 +25,8 @@ class StartMinecraftWorker
       error = server.remote.destroy_saved_snapshot
       if error
         server.log("Error deleting saved snapshot on Digital Ocean after starting server: #{error}")
+      else
+        server.update_columns(remote_snapshot_id: nil)
       end
       server.user.invalidate_digital_ocean_cache_snapshots
       if minecraft.autoshutdown_enabled
