@@ -23,10 +23,10 @@ You should have a Unix/Linux system.
 The following instructions were made for Fedora 31, but the steps should be similar on other distributions.
 
 1. Install postgresql and development headers and libraries, memcached, redis, and nodejs: `(sudo) dnf install postgresql-server postgresql-contrib postgresql-devel memcached redis nodejs`
-1. Install [RVM][13]. Read the instructions on their page (will be up to date)
-1. Install Ruby 2.6.5+: `rvm install 2.6.5`, and optionally `rvm use --default 2.6.5`. You may need to install extra packages for compiling ruby (it will tell you)
-1. Install other things needed for gems: `(sudo) dnf install gcc`
-1. Check that `ruby -v` gives you version 2.6.5. If not, log out and back in (on the computer) to have it reread your `~/.bash_profile`
+1. Install [rbenv][13] and [ruby-build][19]. Read the instructions on their page (will be up to date)
+1. Install dependencies to build ruby: `(sudo) dnf install gcc gcc-c++ openssl-devel readline-devel zlib-devel`
+1. Install Ruby 2.6.5: `rbenv install 2.6.5`.
+1. Check that `ruby -v` inside your cloned `gamocosm` folder gives you version 2.6.5
 1. Install Bundler: `gem install bundler`
 1. Install gem dependencies: `bundle install`
 1. Run `cp env.sh.template env.sh`
@@ -210,9 +210,10 @@ Example: `TEST_DOCKER=true ./tests.sh`
 [10]: https://github.com/Gamocosm/gamocosm-minecraft-flavours
 [11]: https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft
 [12]: https://github.com/KayoticSully
-[13]: https://rvm.io
+[13]: https://github.com/rbenv/rbenv
 [14]: https://www.reddit.com/user/Jadorel
 [15]: https://github.com/Gamocosm/Gamocosm/wiki/Additional-Info-for-Server-Admins
 [16]: https://github.com/binary-koan
 [17]: https://mingard.io
 [18]: https://github.com/Ajusa
+[19]: https://github.com/rbenv/ruby-build

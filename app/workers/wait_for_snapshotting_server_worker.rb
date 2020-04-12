@@ -54,10 +54,14 @@ class WaitForSnapshottingServerWorker
       if log_success
         server.log('Finished snapshotting server on Digital Ocean and got snapshot ID')
       end
+      error = server.remote.destroy_saved_snapshot
+      if error
+        server.log("Error deleting old saved snapshot on Digital Ocean (have new snapshot): #{error}")
+      end
       server.update_columns(remote_snapshot_id: snapshot_id)
       error = server.remote.destroy
       if error
-        server.log("Error destroying server on Digital Ocean (has been snapshotted and saved); #{error}")
+        server.log("Error destroying server on Digital Ocean (has been snapshotted and saved): #{error}")
       end
       user.invalidate_digital_ocean_cache_droplets
       server.update_columns(pending_operation: nil)

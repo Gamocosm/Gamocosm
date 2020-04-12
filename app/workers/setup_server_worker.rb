@@ -27,6 +27,7 @@ class SetupServerWorker
   ZRAM_HELPER_SCRIPT_URL = 'https://raw.githubusercontent.com/Gamocosm/Gamocosm/release/server_setup/zram-helper.sh'
 
   def perform(server_id, times = 0)
+    logger.info "Running #{self.class.name} with server_id #{server_id}, times #{times}"
     server = Server.find(server_id)
     user = server.user
     begin
@@ -83,6 +84,11 @@ class SetupServerWorker
         end
         if e.cause.is_a?(Net::SSH::ConnectionTimeout)
           server.log("Server started, but connection timed out while trying to SSH (attempt #{times}, #{e}). Trying again in 16 seconds")
+          SetupServerWorker.perform_in(16.seconds, server_id, times)
+          return
+        end
+        if e.cause.is_a?(SSHKit::Command::Failed)
+          logger.error 'SSHKit running `true` failed. Trying again in 16 seconds'
           SetupServerWorker.perform_in(16.seconds, server_id, times)
           return
         end

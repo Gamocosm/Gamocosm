@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+PATH="/usr/sbin:$PATH"
+
 systemctl stop gamocosm-puma
 logrotate /home/gamocosm/gamocosm/sysadmin/logrotate.conf
 systemctl start gamocosm-puma

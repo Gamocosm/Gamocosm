@@ -248,6 +248,9 @@ firewall-cmd --add-service=https --permanent
 echo 'Setup letsencrypt/certbot.'
 release
 
+systemctl enable crond
+systemctl start crond
+
 sed -i "/^#Port 22/a Port $SSH_PORT" /etc/ssh/sshd_config
 semanage port -a -t ssh_port_t -p tcp "$SSH_PORT"
 semanage port -l | grep ssh
