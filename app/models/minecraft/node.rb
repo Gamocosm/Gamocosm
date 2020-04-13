@@ -22,18 +22,25 @@ class Minecraft::Node
     return pid.error?
   end
 
-  def query
-    if @querier.nil?
-      @querier = Minecraft::Querier.new(@ip_address)
-    end
-    return @querier.read_all
-  end
-
   def num_players
+    errors = []
+    if @querier_status.nil?
+      @querier_status = Minecraft::Ping.new(@ip_address)
+    end
+    n = @querier_status.players_online
+    if !n.error?
+      return n
+    end
+    errors.push(n)
     if @querier.nil?
       @querier = Minecraft::Querier.new(@ip_address)
     end
-    return @querier.read_num_players
+    n = @querier.read_num_players
+    if !n.error?
+      return n
+    end
+    errors.push(n)
+    return "Could not query Minecraft: #{errors}".error!(errors)
   end
 
   def pid

@@ -31,9 +31,10 @@ class WaitForSnapshottingServerWorker
         server.reset_state
         return
       elsif !event.done?
-        if times >= 1024
+        if times >= 256
           server.log('Digital Ocean took too long to snapshot server. Aborting')
           server.reset_state
+          logger.error "#{self.class.name} failed get snapshot for server #{server_id} (action/event never finished)"
           return
         elsif times >= 32 && times % 8 == 0
           server.log("Still waiting for Digital Ocean server to snapshot, tried #{times} times")
@@ -48,6 +49,7 @@ class WaitForSnapshottingServerWorker
         if times >= 256
           server.log('Finished snapshotting server on Digital Ocean, but unable to get latest snapshot id. Aborting')
           server.reset_state
+          logger.error "#{self.class.name} failed get snapshot for server #{server_id} (action/event finished, but snapshot never visible)"
         else
           server.log("Finished snapshotting server on Digital Ocean, but unable to get latest snapshot id. Trying again (tried #{times} times)")
           WaitForSnapshottingServerWorker.perform_in(CHECK_INTERVAL, server_id, digital_ocean_action_id, times, true)

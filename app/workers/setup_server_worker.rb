@@ -61,12 +61,13 @@ class SetupServerWorker
           execute :true
         end
       rescue SSHKit::Runner::ExecuteError => e
-        logger.error "Debugging #{self.class}: SSHKit error: #{e.inspect}, #{e.cause.inspect}"
-        logger.error e.backtrace.join("\n")
+        logger.info "Debugging #{self.class}: SSHKit error: #{e.inspect}, #{e.cause.inspect}"
+        logger.info e.backtrace.join("\n")
         times += 1
         if times >= 12
           server.log('Error connecting to server; failed to SSH. Aborting')
           server.reset_state
+          logger.error "#{self.class.name} could not SSH into server #{server_id}"
           return
         end
         if e.cause.is_a?(Timeout::Error)
@@ -90,7 +91,8 @@ class SetupServerWorker
           return
         end
         if e.cause.is_a?(SSHKit::Command::Failed)
-          logger.error "SSHKit running `true` failed. Trying again in #{CHECK_INTERVAL} seconds"
+          logger.error "SSHKit running 'true' failed. Trying again in #{CHECK_INTERVAL} seconds"
+          server.log("Server started and SSH connected, but test command 'true' failed (attempt #{times}, #{e}). Trying again in #{CHECK_INTERVAL} seconds")
           SetupServerWorker.perform_in(CHECK_INTERVAL, server_id, times)
           return
         end

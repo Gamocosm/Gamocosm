@@ -173,14 +173,14 @@ class WorkersTest < ActiveSupport::TestCase
 
   test 'wait for snapshotting server worker too many tries' do
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times_only(1024)
-    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1024)
+    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(256)
     WaitForSnapshottingServerWorker.perform_in(0.seconds, @server.id, 1)
     for i in 0...32
       WaitForSnapshottingServerWorker.perform_one
     end
     assert_equal 1, @server.logs.count, 'Should have one server log'
     WaitForSnapshottingServerWorker.drain
-    expected_logs = ((1024 - 32) / 8) + 1
+    expected_logs = ((256 - 32) / 8) + 1
     assert_equal expected_logs, @server.logs.count, "Should have #{expected_logs} server logs"
     assert_not @server.busy?, 'Worker should have reset server'
   end
@@ -360,7 +360,7 @@ class WorkersTest < ActiveSupport::TestCase
     AutoshutdownMinecraftWorker.perform_in(0.seconds, @server.id)
     with_minecraft_query_server do |mcqs|
       mcqs.num_players = 1
-      for i in 0...times
+      for _ in 0...times
         AutoshutdownMinecraftWorker.perform_one
       end
     end
@@ -419,14 +419,14 @@ class WorkersTest < ActiveSupport::TestCase
     AutoshutdownMinecraftWorker.perform_in(0.seconds, @server.id)
     with_minecraft_query_server do |mcqs|
       mcqs.drop_packets = true
-      for i in 0...times
+      for _ in 0...times
         AutoshutdownMinecraftWorker.perform_one
       end
     end
     @server.reload
     assert_equal 0, AutoshutdownMinecraftWorker.jobs.size, 'Autoshutdown Minecraft worker should have aborted'
     assert_equal times, @server.logs.count, "Should have #{times} server logs"
-    assert_match /error querying minecraft server/i, @server.logs.first.message, 'Should have server log about error querying'
+    assert_match /could not query minecraft/i, @server.logs.first.message, 'Should have server log about error querying'
     assert_nil @server.pending_operation, 'Autoshutdown Minecraft worker shouldn\'t have changed anything'
   end
 

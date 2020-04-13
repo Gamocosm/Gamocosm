@@ -248,7 +248,7 @@ class ServersController < ApplicationController
     @server = find_server_only_owner(params[:id])
     @server.minecraft.update_columns(autoshutdown_enabled: true)
     if @server.remote.exists?
-      AutoshutdownMinecraftWorker.perform_in(64.seconds, @server.id)
+      AutoshutdownMinecraftWorker.perform_in(AutoshutdownMinecraftWorker::CHECK_INTERVAL, @server.id)
     end
     return redirect_to server_path(@server), flash: { success: 'Autoshutdown enabled' }
   end

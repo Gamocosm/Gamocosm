@@ -35,6 +35,7 @@ class WaitForStartingServerWorker
         if times >= 64
           server.log('Digital Ocean took too long to start server. Aborting')
           server.reset_state
+          logger.error "#{self.class.name} failed find active server #{server_id} (action/event never finished)"
           return
         elsif times >= 32
           server.log("Still waiting for Digital Ocean server to start, tried #{times} times")
@@ -47,6 +48,7 @@ class WaitForStartingServerWorker
         if times >= 64
           server.log("Finished starting server on Digital Ocean, but remote status was #{server.remote.status} (not 'active'). Aborting")
           server.reset_state
+          logger.error "#{self.class.name} failed find active server #{server_id} (action/event finished, but server status not active, was #{server.remote.status})"
         else
           server.log("Finished starting server on Digital Ocean, but remote status was #{server.remote.status} (not 'active'). Trying again (tried #{times} times)")
           WaitForStartingServerWorker.perform_in(CHECK_INTERVAL, server_id, digital_ocean_action_id, times, true)

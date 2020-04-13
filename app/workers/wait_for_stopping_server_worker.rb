@@ -33,6 +33,7 @@ class WaitForStoppingServerWorker
         if times >= 32
           server.log('Digital Ocean took too long to stop server. Aborting')
           server.reset_state
+          logger.error "#{self.class.name} failed find stopped server #{server_id} (action/event never finished)"
           return
         elsif times >= 16
           server.log("Still waiting for Digital Ocean server to stop, tried #{times} times")

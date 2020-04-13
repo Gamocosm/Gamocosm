@@ -50,8 +50,8 @@ class AutoshutdownMinecraftWorker
         return
       end
       num_players = minecraft.node.num_players
-      if num_players.nil?
-        server.log('Error querying Minecraft server')
+      if num_players.error?
+        server.log(num_players.msg)
         self.handle_failure(server, last_check_successful, times)
         return
       end
