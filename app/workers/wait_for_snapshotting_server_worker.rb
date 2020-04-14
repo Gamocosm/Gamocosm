@@ -43,7 +43,6 @@ class WaitForSnapshottingServerWorker
         WaitForSnapshottingServerWorker.perform_in(CHECK_INTERVAL, server_id, digital_ocean_action_id, times, log_success)
         return
       end
-      user.invalidate_digital_ocean_cache_snapshots
       snapshot_id = server.remote.latest_snapshot_id
       if snapshot_id.nil?
         if times >= 256
@@ -56,12 +55,23 @@ class WaitForSnapshottingServerWorker
         end
         return
       end
+      if !server.remote_snapshot_id.nil? && snapshot_id <= server.remote_snapshot_id
+        if times >= 256
+          server.log('Finished snapshotting server on Digital Ocean, but could not find new snapshot. Aborting')
+          server.reset_state
+          logger.error "#{self.class.name} failed to get snapshot for server #{server_id} (action/event finished, but new snapshot not found)"
+        else
+          server.log("Finished snapshotting server on Digital Ocean, but unable to find new snapshot. Trying again (tried #{times} times)")
+          WaitForSnapshottingServerWorker.perform_in(CHECK_INTERVAL, server_id, digital_ocean_action_id, times, true)
+        end
+        return
+      end
       if log_success
         server.log('Finished snapshotting server on Digital Ocean and got snapshot ID')
       end
       error = server.remote.destroy_saved_snapshot
       if error
-        server.log("Error deleting old saved snapshot on Digital Ocean (have new snapshot): #{error}")
+        server.log("Could not delete old snapshot on Digital Ocean (have new snapshot): #{error}")
       end
       server.update_columns(remote_snapshot_id: snapshot_id)
       error = server.remote.destroy
@@ -69,6 +79,7 @@ class WaitForSnapshottingServerWorker
         server.log("Error destroying server on Digital Ocean (has been snapshotted and saved): #{error}")
       end
       user.invalidate_digital_ocean_cache_droplets
+      user.invalidate_digital_ocean_cache_snapshots
       server.update_columns(pending_operation: nil)
     rescue => e
       server.log("Background job waiting for snapshotting server failed: #{e}")

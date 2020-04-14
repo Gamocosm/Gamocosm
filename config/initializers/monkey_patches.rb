@@ -15,6 +15,44 @@ class Object
   end
 end
 
+class NonblockIOTimeout < IOError
+end
+
+class IO
+  def read_timeout(timeout, &block)
+    begin
+      return block.call
+    rescue IO::WaitReadable
+      ready = IO.select([ self ], nil, nil, timeout)
+      if ready.nil?
+        raise NonblockIOTimeout, 'Unable to read: timeout'
+      end
+      begin
+        return block.call
+      rescue IO::WaitReadable
+        raise NonblockIOTimeout, 'Unable to read after IO#select ready'
+      end
+    end
+    raise 'Should not reach here'
+  end
+  def write_timeout(timeout, &block)
+    begin
+      return block.call
+    rescue IO::WaitWritable
+      ready = IO.select(nil, [ self ], nil, timeout)
+      if ready.nil?
+        raise NonblockIOTimeout, 'Unable to write: timeout'
+      end
+      begin
+        return block.call
+      rescue IO::WaitWritable
+        raise NonblockIOTimeout, 'Unable to write after IO#select ready'
+      end
+    end
+    raise 'Should not reach here'
+  end
+end
+
 class Error
   attr_reader :data
   attr_reader :msg

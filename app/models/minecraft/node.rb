@@ -8,8 +8,8 @@ class Minecraft::Node
     @ip_address = ip_address
     @port = MCSW_PORT
     @conn = Faraday.new(url: "http://#{@ip_address}:#{@port}") do |conn|
-      conn.response :json
       conn.basic_auth(Gamocosm::MCSW_USERNAME, @local_minecraft.mcsw_password)
+      conn.response :json
       conn.adapter Faraday.default_adapter
     end
   end
@@ -129,6 +129,7 @@ class Minecraft::Node
     begin
       res = @conn.get do |req|
         req.url "/#{endpoint}"
+        req.options.open_timeout = HTTP_REQUEST_TIMEOUT
         req.options.timeout = HTTP_REQUEST_TIMEOUT
       end
       return parse_response(res, endpoint)
@@ -144,6 +145,7 @@ class Minecraft::Node
     begin
       res = @conn.post do |req|
         req.url "/#{endpoint}"
+        req.options.open_timeout = timeout
         req.options.timeout = timeout
         req.headers['Content-Type'] = 'application/json'
         req.body = data.to_json

@@ -199,7 +199,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
   def wait_for_autoshutdown_server(server)
     mock_do_droplet_action(1).stub_do_droplet_action(200, 'shutdown').times_only(1)
     thread = nil
-    mcqs = Minecraft::QueryServer.new
+    mcqs = Minecraft::QueryServer.new('127.0.0.1', 25565)
     begin
       if test_have_user_server?
         sleep 32

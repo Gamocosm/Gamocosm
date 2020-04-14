@@ -34,9 +34,9 @@ The following instructions were made for Fedora 31, but the steps should be simi
 1. Initialize postgresql: `(sudo) postgresql-setup initdb --unit postgresql`
 1. Configure the database (explained below)
 1. Start postgresql, memcached, and redis manually: `(sudo) systemctl start <postgresql/memcached/redis>`, or enable them to start at boot time: `(sudo) systemctl enable <postgresql/memcached/redis>`
-1. Run `bundle exec rake db:setup`
-1. Start the server: `bundle exec rails s`
-1. Start the Sidekiq worker: `bundle exec sidekiq`
+1. Run `./sysadmin/run.sh bundle exec rake db:setup`
+1. Start the server: `./sysadmin/run.sh bundle exec rails s`
+1. Start the Sidekiq worker: `./sysadmin/run.sh bundle exec sidekiq`
 
 ### Directory hierarchy
 - `app`: main source code
@@ -52,7 +52,9 @@ The following instructions were made for Fedora 31, but the steps should be simi
 - `vendor`: rails stuff, don't touch
 
 ### env.sh options
-You should `source env.sh` to load the relevant environment variables into your shell (e.g. before running `bundle exec rails s`).
+The script `./sysadmin/run.sh` basically sources `env.sh` then `exec`s the supplied command.
+You can `source env.sh` to load the relevant environment variables into your shell yourself.
+Then you can run stuff like `bundle exec ...` directly.
 
 - `DIGITAL_OCEAN_API_KEY`: your Digital Ocean api token
 - `DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH`: ssh key to be added to new servers to SSH into

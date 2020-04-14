@@ -42,7 +42,7 @@ class ActiveSupport::TestCase
   end
 
   def with_minecraft_query_server(&block)
-    mcqs = Minecraft::QueryServer.new
+    mcqs = Minecraft::QueryServer.new('127.0.0.1', 25565)
     thread = Thread.new { mcqs.run }
     begin
       block.call(mcqs)
@@ -88,7 +88,7 @@ class ActiveSupport::TestCase
   end
 
   def mock_mcsw(verb, minecraft, endpoint)
-    return stub_request(verb, "http://localhost:#{Minecraft::Node::MCSW_PORT}/#{endpoint}").with(basic_auth: [ Gamocosm::MCSW_USERNAME, minecraft.mcsw_password ])
+    return stub_request(verb, "http://127.0.0.1:#{Minecraft::Node::MCSW_PORT}/#{endpoint}").with(basic_auth: [ Gamocosm::MCSW_USERNAME, minecraft.mcsw_password ])
   end
 
   # WebMock helpers that include response
@@ -278,7 +278,7 @@ class WebMock::RequestStub
     return self.to_return_json(status, {
       droplet: {
         id: 1,
-        networks: { v4: [{ ip_address: 'localhost', type: 'public' }] },
+        networks: { v4: [{ ip_address: '127.0.0.1', type: 'public' }] },
         status: remote_status,
         snapshot_ids: [1],
       }.merge(opts),

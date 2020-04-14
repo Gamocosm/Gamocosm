@@ -44,7 +44,7 @@ class SetupServerWorker
         return
       end
       # see https://github.com/capistrano/sshkit/blob/master/lib/sshkit/host.rb
-      host = SSHKit::Host.new(server.remote.ip_address.to_s)
+      host = SSHKit::Host.new(server.remote.ip_address)
       host.port = !server.done_setup? ? 22 : server.ssh_port
       host.user = 'root'
       # see https://net-ssh.github.io/net-ssh/Net/SSH.html
@@ -70,11 +70,11 @@ class SetupServerWorker
           logger.error "#{self.class.name} could not SSH into server #{server_id}"
           return
         end
-        if e.cause.is_a?(Timeout::Error)
-          server.log("Server started, but timed out while trying to SSH (attempt #{times}, #{e}). Trying again in #{CHECK_INTERVAL} seconds")
-          SetupServerWorker.perform_in(CHECK_INTERVAL, server_id, times)
-          return
-        end
+        #if e.cause.is_a?(Timeout::Error)
+        #  server.log("Server started, but timed out while trying to SSH (attempt #{times}, #{e}). Trying again in #{CHECK_INTERVAL} seconds")
+        #  SetupServerWorker.perform_in(CHECK_INTERVAL, server_id, times)
+        #  return
+        #end
         if e.cause.is_a?(Errno::EHOSTUNREACH)
           server.log("Server started, but unreachable while trying to SSH (attempt #{times}, #{e}). Trying again in #{CHECK_INTERVAL} seconds")
           SetupServerWorker.perform_in(CHECK_INTERVAL, server_id, times)

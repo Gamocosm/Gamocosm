@@ -22,13 +22,13 @@ class StartMinecraftWorker
       if error
         server.log("Error starting Minecraft on server: #{error}")
       end
-      error = server.remote.destroy_saved_snapshot
-      if error
-        server.log("Error deleting saved snapshot on Digital Ocean after starting server: #{error}")
-      else
-        server.update_columns(remote_snapshot_id: nil)
-      end
-      server.user.invalidate_digital_ocean_cache_snapshots
+      #error = server.remote.destroy_saved_snapshot
+      #if error
+      #  server.log("Error deleting saved snapshot on Digital Ocean after starting server: #{error}")
+      #else
+      #  server.update_columns(remote_snapshot_id: nil)
+      #end
+      #server.user.invalidate_digital_ocean_cache_snapshots
       if minecraft.autoshutdown_enabled
         AutoshutdownMinecraftWorker.perform_in(AutoshutdownMinecraftWorker::CHECK_INTERVAL, server_id)
       end

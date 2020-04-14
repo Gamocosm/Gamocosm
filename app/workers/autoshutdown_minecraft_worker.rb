@@ -10,6 +10,7 @@ class AutoshutdownMinecraftWorker
   # I used to check `TIMES_TO_CHECK_MINUS_ONE = 7` for 8 minutes shutdown... thinking about the logic now, not sure why...
   # maybe I was wrong before, or maybe I'm missing something now
   def perform(server_id, last_check_successful = true, last_check_has_players = true, times = 0)
+    logger.info "Running #{self.class.name} with server_id #{server_id}"
     # with models A has_one B, B belongs_to A
     # a.b.a.object_id != a.object_id
     # but

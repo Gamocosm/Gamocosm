@@ -1,10 +1,10 @@
 class Minecraft::Ping
   VERSION = 0
+  TIMEOUT = 1
 
   def initialize(ip_address, port = 25565)
     @ip_address = ip_address
     @port = port
-    @rng = Random.new
     self.reset(nil)
   end
 
@@ -12,7 +12,7 @@ class Minecraft::Ping
     @con = con
     @buf = ''.ascii
     @pos = 0
-    @token = @rng.rand(256)
+    @token = Random.rand(256)
   end
 
   def create_varint(x)
@@ -52,25 +52,25 @@ class Minecraft::Ping
     buf += self.create_short(@port)
     buf += self.create_varint(1)
     packet = self.create_packet(0, buf)
-    @con.send(packet, 0)
+    self.send(packet)
   end
 
   def ping
     buf = self.create_long(@token)
     packet = self.create_packet(1, buf)
-    @con.send(packet, 0)
+    self.send(packet)
   end
 
   def status
     buf = ''.ascii
     packet = self.create_packet(0, buf)
-    @con.send(packet, 0)
+    self.send(packet)
   end
 
   def read
-    data = @con.recv(1024)
+    data = self.recv(1024)
     if data.encoding != @buf.encoding
-      raise "Unexpected encoding from BasicSocket#recv: #{data.encoding}"
+      raise "Unexpected encoding from read: #{data.encoding}"
     end
     @buf += data
   end
@@ -141,30 +141,49 @@ class Minecraft::Ping
     return JSON.parse(status)
   end
 
+  def connect
+    address = Socket.pack_sockaddr_in(@port, @ip_address)
+    @con.write_timeout(TIMEOUT) do
+      @con.connect_nonblock(address)
+    end
+  end
+
+  def send(data)
+    @con.write_timeout(TIMEOUT) do
+      @con.write_nonblock(data)
+    end
+  end
+
+  def recv(n)
+    return @con.read_timeout(TIMEOUT) do
+      @con.read_nonblock(n)
+    end
+  end
+
   # shoutout to radu
-  def nike(t)
+  def nike
+    socket = Socket.new(:INET, :STREAM)
     begin
-      Timeout::timeout(t) do
-        Socket.tcp(@ip_address, @port) do |socket|
-          self.reset(socket)
-          self.handshake
-          self.status
-          ret = self.read_status
-          self.ping
-          self.read_ping
-          return ret
-        end
-      end
+      self.reset(socket)
+      self.connect
+      self.handshake
+      self.status
+      ret = self.read_status
+      self.ping
+      self.read_ping
+      return ret
     rescue => e
       msg = "Exception pinging Minecraft: #{e}"
       Rails.logger.error(msg)
       return msg.error!(e)
+    ensure
+      socket.close
     end
     raise 'Should not reach here'
   end
 
   def players_online
-    status = self.nike(2)
+    status = self.nike
     if status.error?
       return status
     end

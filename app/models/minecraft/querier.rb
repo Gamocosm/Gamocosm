@@ -1,38 +1,49 @@
-require 'socket'
-
 class Minecraft::Querier
   MAGIC = "\xfe\xfd"
   PACKET_TYPE_CHALLENGE = 9
   PACKET_TYPE_QUERY = 0
+  TIMEOUT = 1
 
   def initialize(ip_address, port = 25565)
     @ip_address = ip_address
     @port = port
   end
 
-  def handshake(connection)
-    connection.send(self.class.create_packet(PACKET_TYPE_CHALLENGE, 0, ''), 0)
-    data = connection.recvfrom(256).first.ascii
-    challenge = data[5...-1].to_i
+  def handshake(socket)
+    data = self.class.create_packet(PACKET_TYPE_CHALLENGE, 0, '')
+    socket.write_timeout(TIMEOUT) do
+      socket.write_nonblock(data)
+    end
+    data = socket.read_timeout(TIMEOUT) do
+      socket.read_nonblock(256)
+    end
+    challenge = data.ascii[5...-1].to_i
     return challenge
   end
 
   def read_all(tries = 4)
-    connection = UDPSocket.new
+    socket = Socket.new(:INET, :DGRAM)
     begin
-      Timeout::timeout(2) do
-        connection.connect(@ip_address, @port)
-        challenge = self.handshake(connection)
-        # 32 bit unsigned big endian
-        connection.send(self.class.create_packet(PACKET_TYPE_QUERY, 0, [challenge].pack('N')), 0)
-        return connection.recvfrom(4096).first.ascii[5..-1].split("\0")
+      address = Socket.pack_sockaddr_in(@port, @ip_address)
+      socket.write_timeout(TIMEOUT) do
+        socket.connect_nonblock(address)
       end
+      challenge = self.handshake(socket)
+      # 32 bit unsigned network order (big endian)
+      data = self.class.create_packet(PACKET_TYPE_QUERY, 0, [challenge].pack('N'))
+      socket.write_timeout(TIMEOUT) do
+        socket.write_nonblock(data)
+      end
+      data = socket.read_timeout(TIMEOUT) do
+        socket.read_nonblock(4096)
+      end
+      return data.ascii[5..-1].split("\0")
     rescue => e
       msg = "Exception querying Minecraft: #{e}"
       Rails.logger.error(msg)
       return msg.error!(e)
     ensure
-      connection.close
+      socket.close
     end
     raise 'Should not reach here'
   end

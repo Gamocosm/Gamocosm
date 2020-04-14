@@ -1,11 +1,12 @@
-require 'socket'
-
 class Minecraft::QueryServer
+  TIMEOUT = 1
+
   attr_accessor :so_it_goes
   attr_accessor :drop_packets
   attr_accessor :num_players
 
-  def initialize(port = 25565)
+  def initialize(host, port)
+    @host = host
     @port = port
     @challenge_token_time = 0
     @challenge_token = 0
@@ -27,34 +28,38 @@ class Minecraft::QueryServer
   end
 
   def run
-    socket = UDPSocket.new
+    log 'Starting.'
+    socket = Socket.new(:INET, :DGRAM)
     begin
-      log 'Starting.'
-      socket.bind('localhost', @port)
+      address = Socket.pack_sockaddr_in(@port, @host)
+      socket.bind(address)
       while !@so_it_goes
         begin
-          Timeout::timeout(2) do
-            listen_loop(socket)
-          end
-        rescue Timeout::Error
-          # ignore
+          self.listen_loop(socket)
+        rescue NonblockIOTimeout
+          # pass
         end
       end
-      log 'Ended.'
     ensure
       socket.close
     end
+    log 'Ended.'
   end
 
   def listen_loop(socket)
-    (data, (_, port, _, ip)) = socket.recvfrom(512)
+    msg = socket.read_timeout(TIMEOUT) do
+      socket.recvfrom_nonblock(256)
+    end
+    data, address = msg
     data = data.ascii
-    log "Received #{data.bytes}."
+    log "Received #{data.bytes} from #{address}."
     if data[0...2] == Minecraft::Querier::MAGIC.ascii
       res = handle_packet(data[2..-1])
       if !res.nil? && !@drop_packets
         log "Sending #{res.bytes}."
-        socket.send(res, 0, ip, port)
+        socket.write_timeout(TIMEOUT) do
+          socket.sendmsg_nonblock(res, 0, address)
+        end
       end
     else
       log 'Bad magic.'

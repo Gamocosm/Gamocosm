@@ -36,7 +36,7 @@ module ApplicationHelper
   def render_digital_ocean_referral_link(format, text, link, link_no_ref)
     return (format % [
       link_to(text, link, data: { toggle: 'tooltip' }, title: 'Literally $100 credit for the first 2 months'),
-      link_to('*', link_no_ref, data: { toggle: 'tooltip' }, title: 'no referral (no $100 credit)'),
+      link_to('*', link_no_ref, data: { toggle: 'tooltip' }, title: 'no referral'),
     ]).html_safe
   end
 

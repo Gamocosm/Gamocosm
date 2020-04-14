@@ -67,6 +67,7 @@ class CloudFlare::Client
       res = @conn.get do |req|
         req.url action, params
         update_headers(req.headers)
+        req.options.open_timeout = HTTP_REQUEST_TIMEOUT
         req.options.timeout = HTTP_REQUEST_TIMEOUT
       end
       return parse_response(res)
@@ -83,6 +84,7 @@ class CloudFlare::Client
       res = @conn.post do |req|
         req.url action
         update_headers(req.headers)
+        req.options.open_timeout = HTTP_REQUEST_TIMEOUT
         req.options.timeout = HTTP_REQUEST_TIMEOUT
         req.body = params.to_json
       end
@@ -100,6 +102,7 @@ class CloudFlare::Client
       res = @conn.delete do |req|
         req.url action
         update_headers(req.headers)
+        req.options.open_timeout = HTTP_REQUEST_TIMEOUT
         req.options.timeout = HTTP_REQUEST_TIMEOUT
       end
       return parse_response(res)

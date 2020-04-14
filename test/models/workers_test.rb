@@ -43,7 +43,7 @@ class WorkersTest < ActiveSupport::TestCase
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times_only(64)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(64)
     WaitForStartingServerWorker.perform_in(0.seconds, @server.id, 1)
-    for i in 0...32
+    for _ in 0...32
       WaitForStartingServerWorker.perform_one
     end
     assert_equal 1, @server.logs.count, 'Should have one server log'
@@ -102,7 +102,7 @@ class WorkersTest < ActiveSupport::TestCase
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times_only(32)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(32)
     WaitForStoppingServerWorker.perform_in(0.seconds, @server.id, 1)
-    for i in 0...16
+    for _ in 0...16
       WaitForStoppingServerWorker.perform_one
     end
     assert_equal 1, @server.logs.count, 'Should have one server log'
@@ -115,7 +115,7 @@ class WorkersTest < ActiveSupport::TestCase
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'completed').times_only(32)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(32)
     WaitForStoppingServerWorker.perform_in(0.seconds, @server.id, 1)
-    for i in 0...16
+    for _ in 0...16
       WaitForStoppingServerWorker.perform_one
     end
     assert_equal 1, @server.logs.count, 'Should have one server log'
@@ -175,7 +175,7 @@ class WorkersTest < ActiveSupport::TestCase
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times_only(1024)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(256)
     WaitForSnapshottingServerWorker.perform_in(0.seconds, @server.id, 1)
-    for i in 0...32
+    for _ in 0...32
       WaitForSnapshottingServerWorker.perform_one
     end
     assert_equal 1, @server.logs.count, 'Should have one server log'
@@ -269,7 +269,7 @@ class WorkersTest < ActiveSupport::TestCase
     mock_do_base(200)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1)
     mock_mcsw_start(@server.minecraft).stub_mcsw_start(400, @server.ram)
-    mock_do_image_delete(400, 1)
+    #mock_do_image_delete(400, 1)
     @server.minecraft.update_columns(autoshutdown_enabled: true)
     @server.update_columns(remote_snapshot_id: 1)
     StartMinecraftWorker.perform_in(0.seconds, @server.id)
@@ -278,9 +278,9 @@ class WorkersTest < ActiveSupport::TestCase
     assert_equal 1, AutoshutdownMinecraftWorker.jobs.size, 'Start Minecraft worker should have queued autoshutdown Minecraft worker'
     AutoshutdownMinecraftWorker.jobs.clear
     @server.reload
-    assert_equal 2, @server.logs.count, 'Should have two server logs'
+    assert_equal 1, @server.logs.count, 'Should have one server log'
     assert_match /error starting minecraft on server/i, @server.logs.sort.first.message
-    assert_match /error deleting saved snapshot on digital ocean after starting server/i, @server.logs.sort.second.message
+    #assert_match /error deleting saved snapshot on digital ocean after starting server/i, @server.logs.sort.second.message
     assert_not @server.busy?, 'Worker should have reset server pending operation'
   end
 
@@ -311,7 +311,7 @@ class WorkersTest < ActiveSupport::TestCase
     times = @server.minecraft.autoshutdown_minutes + 1
     mock_do_droplet_show(1).stub_do_droplet_show(400, 'active').times_only(times)
     AutoshutdownMinecraftWorker.perform_in(0.seconds, @server.id)
-    for i in 0...times
+    for _ in 0...times
       AutoshutdownMinecraftWorker.perform_one
     end
     @server.reload
@@ -327,7 +327,7 @@ class WorkersTest < ActiveSupport::TestCase
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 1, { status: 'badness' }).times_only(times)
     @server.minecraft.update_columns(autoshutdown_enabled: true)
     AutoshutdownMinecraftWorker.perform_in(0.seconds, @server.id)
-    for i in 0...times
+    for _ in 0...times
       AutoshutdownMinecraftWorker.perform_one
     end
     @server.reload
@@ -342,7 +342,7 @@ class WorkersTest < ActiveSupport::TestCase
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'off').times_only(times)
     @server.minecraft.update_columns(autoshutdown_enabled: true)
     AutoshutdownMinecraftWorker.perform_in(0.seconds, @server.id)
-    for i in 0...times
+    for _ in 0...times
       AutoshutdownMinecraftWorker.perform_one
     end
     @server.reload
@@ -380,7 +380,7 @@ class WorkersTest < ActiveSupport::TestCase
     @server.minecraft.update_columns(autoshutdown_enabled: true)
     AutoshutdownMinecraftWorker.perform_in(0.seconds, @server.id)
     with_minecraft_query_server do |mcqs|
-      for i in 0...times
+      for _ in 0...times
         AutoshutdownMinecraftWorker.perform_one
       end
     end
@@ -400,7 +400,7 @@ class WorkersTest < ActiveSupport::TestCase
     mock_mcsw_stop(200, @server.minecraft)
     @server.minecraft.update_columns(autoshutdown_enabled: true)
     AutoshutdownMinecraftWorker.perform_in(0.seconds, @server.id)
-    for i in 0...times
+    for _ in 0...times
       AutoshutdownMinecraftWorker.perform_one
     end
     @server.reload
