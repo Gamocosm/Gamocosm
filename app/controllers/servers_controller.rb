@@ -1,5 +1,5 @@
 class ServersController < ApplicationController
-  @@api_endpoints = [
+  API_ENDPOINTS = [
     :api_status,
     :api_start,
     :api_stop,
@@ -9,8 +9,8 @@ class ServersController < ApplicationController
     :api_backup,
     :api_exec,
   ]
-  before_action :authenticate_user!, except: @@api_endpoints
-  skip_before_action :verify_authenticity_token, only: @@api_endpoints
+  before_action :authenticate_user!, except: API_ENDPOINTS
+  skip_before_action :verify_authenticity_token, only: API_ENDPOINTS
 
   def new
     @server = Server.new

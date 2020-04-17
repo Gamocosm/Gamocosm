@@ -308,6 +308,7 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'autoshutdown minecraft worker remote error' do
+    @server.minecraft.update_columns(autoshutdown_enabled: true)
     times = @server.minecraft.autoshutdown_minutes + 1
     mock_do_droplet_show(1).stub_do_droplet_show(400, 'active').times_only(times)
     AutoshutdownMinecraftWorker.perform_in(0.seconds, @server.id)
