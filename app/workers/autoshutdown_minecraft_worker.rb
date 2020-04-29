@@ -4,22 +4,13 @@ class AutoshutdownMinecraftWorker
 
   CHECK_INTERVAL = Rails.env.test? ? 2.seconds : 60.seconds
 
-  # if `last_check_successful` is false, `last_check_has_players` is also false, though its value doesn't matter
-  # `times` is the number of consecutive times we got the previous check's result
-  # e.g. if `last_check_successful = true`, `last_check_has_players = false`, `times = 2`,
-  # it means we've already seen that 2 times (and this may be the third)
-  #
   # let `n = minecraft.autoshutdown_minutes`
-  # possible states for `last_check_successful`, `last_check_has_players`, `times`:
-  # - true, true, 0
-  # - true, false, in [1, n]
-  # - false, false (doesn't matter), in [1, n]
-  #
-  # so:
-  # - `!last_check_successful` implies `!last_check_has_players`
-  # - `last_check_has_players` implies `last_check_successful` and `times == 0`
-  def perform(server_id, last_check_successful = true, last_check_has_players = true, times = 0)
-    logger.info "Running #{self.class.name} with server_id #{server_id}, #{last_check_successful}, #{last_check_has_players}, #{times}"
+  # possible states for `last_check_successful`, `times`:
+  # - false, [1, n]: last checks unsuccessful
+  # - true, 0: last check had players
+  # - true, [1, n]: last checks had no players
+  def perform(server_id, last_check_successful = true, times = 0)
+    logger.info "Running #{self.class.name} with server_id #{server_id}, #{last_check_successful}, #{times}"
     # with models A has_one B, B belongs_to A
     # a.b.a.object_id != a.object_id
     # but
@@ -56,7 +47,7 @@ class AutoshutdownMinecraftWorker
         return
       end
       if minecraft.node.pid == 0
-        self.handle_success(server, 0, last_check_successful, last_check_has_players, times)
+        self.handle_success(server, 0, last_check_successful, times)
         return
       end
       num_players = minecraft.node.num_players
@@ -65,7 +56,7 @@ class AutoshutdownMinecraftWorker
         self.handle_failure(server, last_check_successful, times)
         return
       end
-      self.handle_success(server, num_players, last_check_successful, last_check_has_players, times)
+      self.handle_success(server, num_players, last_check_successful, times)
     rescue => e
       server.log("Background job checking for autoshutdown failed: #{e}")
       UserMailer.autoshutdown_error_email(server).deliver_now
@@ -78,39 +69,35 @@ class AutoshutdownMinecraftWorker
   def handle_failure(server, last_check_successful, times)
     logger.debug "#{self.class.name} handling failure: #{server.id}, #{last_check_successful}, #{times}"
     if last_check_successful
-      AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, false, false, 1)
+      AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, false, 1)
     else
       if times == server.minecraft.autoshutdown_minutes
         UserMailer.autoshutdown_error_email(server).deliver_now
       else
-        AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, false, false, times + 1)
+        AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, false, times + 1)
       end
     end
   end
 
-  def handle_success(server, current_players, last_check_successful, last_check_has_players, times)
-    logger.debug "#{self.class.name} handling success: #{server.id}, #{current_players}, #{last_check_successful}, #{last_check_has_players}, #{times}"
+  def handle_success(server, current_players, last_check_successful, times)
+    logger.debug "#{self.class.name} handling success: #{server.id}, #{current_players}, #{last_check_successful}, #{times}"
     server.minecraft.update_columns(autoshutdown_last_successful: Time.now)
     if current_players > 0
-      AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, true, true, 0)
+      AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, true, 0)
       return
     end
     if last_check_successful
-      if last_check_has_players
-        AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, true, false, 1)
-      else
-        if times == server.minecraft.autoshutdown_minutes
-          error = server.stop
-          if error
-            server.log("In autoshutdown worker, unable to stop server: #{error}")
-            UserMailer.autoshutdown_error_email(server).deliver_now
-          end
-        else
-          AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, true, false, times + 1)
+      if times == server.minecraft.autoshutdown_minutes
+        error = server.stop
+        if error
+          server.log("In autoshutdown worker, unable to stop server: #{error}")
+          UserMailer.autoshutdown_error_email(server).deliver_now
         end
+      else
+        AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, true, times + 1)
       end
     else
-      AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, true, false, 1)
+      AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, true, 1)
     end
   end
 

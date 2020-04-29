@@ -19,6 +19,20 @@
 		<p>
 			Are you sure you want to delete server <strong><%= @server.name %></strong> forever? (A really long time!)
 		</p>
+		<% if @server.remote.exists? || !@server.remote_snapshot_id.nil? %>
+			<p>
+				If you delete this server now, Gamocosm will also delete the following resources on Digital Ocean:
+				<ul>
+					<% if @server.remote.exists? %>
+						<li>Droplet #<%= @server.remote_id %></li>
+					<% end %>
+					<% if !@server.remote_snapshot_id.nil? %>
+						<li>Snapshot #<%= @server.remote_snapshot_id %></li>
+					<% end %>
+				</ul>
+				Please back up your Minecraft world (and any other data)!
+			</p>
+		<% end %>
 		<hr />
 		<%= link_to server_path(@server), class: "btn btn-success" do %>
 			Go back
