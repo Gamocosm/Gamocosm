@@ -2,6 +2,7 @@ require 'sidekiq/web'
 
 Rails.application.routes.draw do
 
+  resources :volumes
   root to: 'pages#landing'
 
   get '/about', to: 'pages#about', as: :about

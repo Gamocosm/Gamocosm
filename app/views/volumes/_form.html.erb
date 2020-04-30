@@ -1,0 +1,14 @@
+<%= simple_form_for(@volume) do |f| %>
+  <%= f.error_notification %>
+
+  <div class="form-inputs">
+    <%= f.input :remote_id %>
+    <%= f.input :remote_size_gb %>
+    <%= f.input :remote_region_slug %>
+    <%= f.input :remote_snapshot_id %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.button :submit %>
+  </div>
+<% end %>

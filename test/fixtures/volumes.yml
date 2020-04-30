@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  remote_id: MyString
+  remote_size_gb: 1
+  remote_region_slug: MyString
+  remote_snapshot_id: MyString
+
+two:
+  remote_id: MyString
+  remote_size_gb: 1
+  remote_region_slug: MyString
+  remote_snapshot_id: MyString
