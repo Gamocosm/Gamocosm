@@ -1,5 +1,5 @@
 class VolumesController < ApplicationController
-  before_action :set_volume, only: [:show, :edit, :update, :destroy, :delete]
+  before_action :set_volume, only: [:show, :edit, :update, :destroy, :delete, :suspend, :reload]
   before_action :authenticate_user!
 
   # GET /volumes
@@ -59,6 +59,13 @@ class VolumesController < ApplicationController
   # DELETE /volumes/1
   # DELETE /volumes/1.json
   def destroy
+    if !@volume.server.nil?
+      return redirect_to volume_path(@volume), flash: { error: "This volume is attached to server #{@volume.server.name}" }
+    end
+    error = @volume.remote_delete
+    if error?
+      return redirect_to volume_path(@volume), flash: { error: "Error deleting volume on Digital Ocean: #{error}" }
+    end
     @volume.destroy
     respond_to do |format|
       format.html { redirect_to volumes_url, notice: 'Volume was successfully destroyed.' }
@@ -70,6 +77,24 @@ class VolumesController < ApplicationController
     render :delete
   end
 
+  def suspend
+    error = @volume.save!
+    f = { success: 'Volume has been suspended' }
+    if error.error?
+      f = { error: error.msg }
+    end
+    return redirect_to volume_path(@volume), flash: f
+  end
+
+  def reload
+    error = @volume.load!
+    f = { success: 'Volume has been reloaded' }
+    if error.error?
+      f = { error: error.msg }
+    end
+    return redirect_to volume_path(@volume), flash: f
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_volume
@@ -78,6 +103,6 @@ class VolumesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def volume_params
-      params.require(:volume).permit(:remote_id, :remote_size_gb, :remote_region_slug, :remote_snapshot_id)
+      params.require(:volume).permit(:name, :status, :remote_id, :remote_size_gb, :remote_region_slug, :server_id)
     end
 end

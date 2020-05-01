@@ -20,28 +20,26 @@
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<td colspan="3">Name</td>
+					<td colspan="2">Name</td>
+					<td colspan="2">Server</td>
+					<td>Status</td>
 					<td colspan="3">Remote ID</td>
-					<td colspan="3">Remote Snapshot ID</td>
-					<td>Region</td>
-					<td>Size (GB)</td>
 				</tr>
 			</thead>
 			<tbody>
 			<% if @volumes.blank? %>
 				<tr>
-					<td colspan="11" class="text-center">
+					<td colspan="8" class="text-center">
 						<em>You have no volumes</em>
 					</td>
 				</tr>
 			<% else %>
 				<% @volumes.each do |v| %>
 					<tr>
-						<td colspan="3"><%= link_to v.name, volume_path(v) %></td>
+						<td colspan="2"><%= link_to v.name, volume_path(v) %></td>
+						<td colspan="2"><%= v.server.nil? ? 'n/a' : v.server.name %></td>
+						<td><%= v.status %></li>
 						<td colspan="3"><%= v.remote_id.nil? ? 'n/a' : v.remote_id %></td>
-						<td colspan="3"><%= v.remote_snapshot_id.nil? ? 'n/a' : v.remote_snapshot_id %></td>
-						<td><%= v.remote_region_slug %></td>
-						<td><%= v.remote_size_gb %></td>
 					</tr>
 				<% end %>
 			<% end %>

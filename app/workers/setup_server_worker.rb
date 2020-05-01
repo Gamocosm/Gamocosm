@@ -172,7 +172,7 @@ class SetupServerWorker
       end
     rescue SSHKit::Runner::ExecuteError => e
       if e.cause.is_a?(Timeout::Error)
-        raise 'Server setup (SSH): Server stalled/took too long doing base setup. Please try again'
+        raise 'Server setup (SSH): Server stalled/took too long doing base setup. Please re-create the server and try again'
       end
       raise e
     end

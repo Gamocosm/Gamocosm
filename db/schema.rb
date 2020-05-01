@@ -94,14 +94,16 @@ ActiveRecord::Schema.define(version: 2020_04_30_171709) do
 
   create_table "volumes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.integer "user_id", null: false
+    t.uuid "server_id"
     t.string "name", null: false
+    t.string "status", null: false
     t.string "remote_id"
     t.integer "remote_size_gb", null: false
     t.string "remote_region_slug", null: false
-    t.string "remote_snapshot_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["name"], name: "index_volumes_on_name", unique: true
+    t.index ["server_id"], name: "index_volumes_on_server_id", unique: true
     t.index ["user_id"], name: "index_volumes_on_user_id"
   end
 
@@ -111,5 +113,6 @@ ActiveRecord::Schema.define(version: 2020_04_30_171709) do
   add_foreign_key "servers", "users", on_delete: :cascade
   add_foreign_key "servers_users", "servers", on_delete: :cascade
   add_foreign_key "servers_users", "users", on_delete: :cascade
+  add_foreign_key "volumes", "servers", on_delete: :nullify
   add_foreign_key "volumes", "users", on_delete: :cascade
 end

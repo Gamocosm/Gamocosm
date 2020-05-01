@@ -114,7 +114,7 @@ module DigitalOcean
       end
     end
 
-    def droplet_create(name, region, size, image, ssh_keys)
+    def droplet_create(name, region, size, image, ssh_keys, volumes)
       silence_digital_ocean_api do
         droplet = DropletKit::Droplet.new(
           name: name,
@@ -122,6 +122,7 @@ module DigitalOcean
           size: size,
           image: image,
           ssh_keys: ssh_keys,
+          volumes: volumes,
         )
         res = @con.droplets.create(droplet)
         self.class.droplet_from_response(res)
@@ -288,9 +289,9 @@ module DigitalOcean
         args = {
           name: name,
           size_gigabytes: size,
+          region: region,
         }
         if snapshot_id.nil?
-          args[:region] = region
           args[:filesystem_type] = 'ext4'
         else
           args[:snapshot_id] = snapshot_id

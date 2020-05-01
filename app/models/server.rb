@@ -23,6 +23,7 @@
 class Server < ActiveRecord::Base
   belongs_to :user
   has_one :minecraft, dependent: :destroy
+  has_one :volume, dependent: :nullify
   has_and_belongs_to_many :friends, foreign_key: 'server_id', class_name: 'User', dependent: :destroy
   has_many :logs, foreign_key: 'server_id', class_name: 'ServerLog', dependent: :destroy
   has_many :scheduled_tasks, dependent: :destroy
@@ -37,6 +38,7 @@ class Server < ActiveRecord::Base
   validates :remote_size_slug, presence: true
   validates :ssh_port, numericality: { only_integer: true }
   validates :timezone_delta, numericality: { only_integer: true, greater_than: -24, less_than: 24 }
+  # TODO: validate pending_operation?
 
   after_initialize :after_initialize_callback
   before_validation :before_validate_callback

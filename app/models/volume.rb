@@ -1,22 +1,44 @@
 class Volume < ApplicationRecord
   belongs_to :user
+  belongs_to :server, optional: :true
 
-  validates :remote_size_gb, numericality: { only_integer: true }, allow_nil: false
+  validates :name, length: { in: 3...32 }
+  validates :name, format: { with: /\A[a-z][a-z0-9-]*[a-z0-9]\z/, message: 'Name must start with a letter, and end with a letter or number. May include letters, numbers, and dashes in between. Must be lower case' }
+  validates :status, inclusion: { in: %w(new volume snapshot), message: '%{value} is not a valid status' }
+  validates :remote_size_gb, numericality: { only_integer: true, greater_than: 0 }, allow_nil: false
   validates :remote_region_slug, presence: true
 
   after_initialize :after_initialize_callback
   before_validation :before_validation_callback
 
   def after_initialize_callback
-    self.name ||= SecureRandom.hex(16)
+    self.status ||= 'new'
   end
 
   def before_validation_callback
+    self.server_id = self.server_id.clean
     self.remote_id = self.remote_id.clean
-    self.remote_snapshot_id = self.remote_snapshot_id.clean
+    if self.remote_id.nil?
+      self.status = 'new'
+    end
+  end
+
+  def new?
+    return self.status == 'new'
+  end
+
+  def volume?
+    return %w(new volume).include? self.status
+  end
+
+  def snapshot?
+    return self.status == 'snapshot'
   end
 
   def remote
+    if !self.volume?
+      raise 'Badness'
+    end
     if self.remote_id.nil?
       return nil
     end
@@ -27,12 +49,127 @@ class Volume < ApplicationRecord
   end
 
   def remote_snapshot
-    if self.remote_snapshot_id.nil?
+    if !self.snapshot?
+      raise 'Badness'
+    end
+    if self.remote_id.nil?
       return nil
     end
     if @remote_snapshot.nil?
-      @remote_snapshot = self.user.digital_ocean.snapshot_show(self.remote_snapshot_id)
+      @remote_snapshot = self.user.digital_ocean.snapshot_show(self.remote_id)
     end
     return @remote_snapshot
+  end
+
+  def vivify!
+    if self.remote_id.nil?
+      res = self.user.digital_ocean.volume_create(self.do_name, self.remote_size_gb, self.region, nil)
+      if res.error?
+        return res
+      end
+      self.update_columns(status: 'new', remote_id: res.id)
+      return nil
+    end
+    if self.volume?
+      return nil
+    end
+    if self.snapshot?
+      res = self.user.digital_ocean.volume_create(self.do_name, self.remote_size_gb, self.remote_region_slug, self.remote_id)
+      if res.error?
+        return res
+      end
+      self.update_columns(status: 'volume', remote_id: res.id)
+      return nil
+    end
+    raise 'Badness'
+  end
+
+  def save?
+    if self.remote_id.nil?
+      return 'Volume has not been created yet.'
+    end
+    if self.status == 'new'
+      return 'Cannot snapshot new volume.'
+    end
+    if self.status == 'snapshot'
+      return 'Volume is already a snapshot.'
+    end
+    return nil
+  end
+
+  def load?
+    if self.remote_id.nil?
+      return 'Volume has not been created yet.'
+    end
+    if self.status == 'new'
+      return 'Volume is already active.'
+    end
+    if self.status == 'volume'
+      return 'Volume is already active.'
+    end
+    return nil
+  end
+
+  def save!
+    error = self.save?
+    if !error.nil?
+      return error.error! nil
+    end
+    volume_id = self.remote_id
+    res = self.user.digital_ocean.volume_snapshot(volume_id, self.do_name)
+    if res.error?
+      return error
+    end
+    self.update_columns(status: 'snapshot', remote_id: res.id)
+    res = self.user.digital_ocean.volume_delete(volume_id)
+    if res.error?
+      return res
+    end
+    return nil
+  end
+
+  def load!
+    error = self.load?
+    if !error.nil?
+      return error.error! nil
+    end
+    snapshot_id = self.remote_id
+    res = self.user.digital_ocean.volume_create(self.do_name, self.remote_size_gb, self.remote_region_slug, snapshot_id)
+    if res.error?
+      return error
+    end
+    self.update_columns(status: 'volume', remote_id: res.id)
+    res = self.user.digital_ocean.snapshot_delete(snapshot_id)
+    if res.error?
+      return res
+    end
+    return nil
+  end
+
+  def remote_delete
+    if self.remote_id.nil?
+      return nil
+    end
+    if self.volume?
+      res = self.user.digital_ocean.volume_delete(self.remote_id)
+      if res.error?
+        return res
+      end
+      self.update_columns(status: 'new', remote_id: nil)
+      return nil
+    end
+    if self.snapshot?
+      res = self.user.digital_ocean.snapshot_delete(self.remote_id)
+      if res.error?
+        return res
+      end
+      self.update_columns(status: 'new', remote_id: nil)
+      return nil
+    end
+    raise 'Badness'
+  end
+
+  def do_name
+    return 'gamocosm-' + self.name
   end
 end

@@ -16,15 +16,16 @@
 		<p>
 			Are you sure you want to delete volume <strong><%= @volume.name %></strong> forever? (A really long time!)
 		</p>
-		<% if !@volume.remote_id.nil? || !@volume.remote_snapshot_id.nil? %>
+		<% if !@volume.remote_id.nil? %>
 			<p>
-				If you delete this volume now, Gamocosm will also delete the following resources on Digital Ocean:
+				If you delete this volume now, Gamocosm will also delete the following resource on Digital Ocean:
 				<ul>
-					<% if !@volume.remote_id.nil? %>
+					<% if @volume.volume? %>
 						<li>Volume <%= @volume.remote_id %></li>
-					<% end %>
-					<% if !@volume.remote_snapshot_id.nil? %>
-						<li>Snapshot <%= @volume.remote_snapshot_id %></li>
+					<% elsif @volume.snapshot? %>
+						<li>Snapshot <%= @volume.remote_id %></li>
+					<% else %>
+						<li><em>Something bad happened</em></li>
 					<% end %>
 				</ul>
 				Please back up your Minecraft world (and any other data)!

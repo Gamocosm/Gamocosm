@@ -51,7 +51,15 @@ class ServerRemote
     if ssh_key_id.error?
       return ssh_key_id
     end
-    res = @con.droplet_create(@server.host_name, @server.remote_region_slug, @server.remote_size_slug, @server.remote_snapshot_id || Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG, [ssh_key_id])
+    volumes = []
+    if !@server.volume.nil?
+      error = @server.volume.vivify
+      if !error.nil?
+        return error
+      end
+      volumes = [ @server.volume.remote_id ]
+    end
+    res = @con.droplet_create(@server.host_name, @server.remote_region_slug, @server.remote_size_slug, @server.remote_snapshot_id || Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG, [ssh_key_id], volumes)
     if res.error?
       return res
     end

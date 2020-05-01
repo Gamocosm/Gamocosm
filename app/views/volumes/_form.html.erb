@@ -1,14 +1,16 @@
 <%= simple_form_for(@volume) do |f| %>
-  <%= f.error_notification %>
+	<%= f.error_notification %>
 
-  <div class="form-inputs">
-    <%= f.input :remote_id, label: 'Remote ID', hint: 'Leave blank for a new volume.' %>
-    <%= f.input :remote_snapshot_id, label: 'Remote Snapshot ID', hint: 'Leave blank for a new volume.' %>
-    <%= f.input :remote_size_gb, label: 'Size (GB)' %>
-    <%= f.input :remote_region_slug, collection: @do_regions.collect { |x| [x.name, x.slug] }, as: :select, include_blank: true, label: 'Region', hint: 'Should be the same as your droplet\'s region' %>
-  </div>
+	<div class="form-inputs">
+		<%= f.input :name, label: 'Name', hint: 'Lowercase, start with a number, end with a number or letter, numbers, letters, or dashes in between' %>
+		<%= f.input :status, label: 'Status', hint: 'One of "new", "volume", or "snapshot"' %>
+		<%= f.input :remote_id, label: 'Remote ID', hint: 'Leave blank for a new volume' %>
+		<%= f.input :remote_size_gb, label: 'Size (GB)' %>
+		<%= f.input :remote_region_slug, collection: @do_regions.collect { |x| [x.name, x.slug] }, as: :select, include_blank: true, label: 'Region', hint: 'Should be the same as your server\'s region' %>
+		<%= f.input :server_id, collection: current_user.servers.collect { |x| [ x.name, x.id ] }, as: :select, include_blank: true, label: 'Server', hint: 'Leave blank for no server' %>
+	</div>
 
-  <div class="form-actions">
-    <%= f.button :submit %>
-  </div>
+	<div class="form-actions">
+		<%= f.button :submit, class: 'btn btn-success' %>
+	</div>
 <% end %>

@@ -108,6 +108,8 @@ Rails.application.routes.draw do
   resources :volumes do
     member do
       get 'delete'
+      get 'suspend'
+      get 'reload'
     end
   end
 

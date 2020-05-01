@@ -16,12 +16,20 @@
 		<table class="table table-striped">
 			<tbody>
 				<tr>
-					<td>Remote ID</td>
-					<td colspan="3"><%= @volume.remote_id.nil? ? 'n/a' : @volume.remote_id %></td>
+					<td>ID</td>
+					<td colspan="3"><%= @volume.id %></td>
 				</tr>
 				<tr>
-					<td>Remote Snapshot ID</td>
-					<td colspan="3"><%= @volume.remote_snapshot_id.nil? ? 'n/a' : @volume.remote_snapshot_id %></td>
+					<td>Server</td>
+					<td colspan="3"><%= @volume.server.nil? ? 'n/a' : @volume.server.name %></td>
+				</tr>
+				<tr>
+					<td>Status</td>
+					<td colspan="3"><%= @volume.status %></td>
+				</tr>
+				<tr>
+					<td>Remote ID</td>
+					<td colspan="3"><%= @volume.remote_id.nil? ? 'n/a' : @volume.remote_id %></td>
 				</tr>
 				<tr>
 					<td>Size (GB)</td>
@@ -34,63 +42,99 @@
 			</tbody>
 		</table>
 		<% if !@volume.remote_id.nil? %>
-			<h4>Remote Volume</h4>
-			<% if @volume.remote.error? %>
-				<%= @volume.remote %>
+			<% if @volume.volume? %>
+				<h4>Remote Volume</h4>
+				<% if @volume.remote.error? %>
+					<%= @volume.remote %>
+				<% else %>
+					<p class="help-block">
+						The local information above should match this.
+					</p>
+					<table class="table table-striped">
+						<tbody>
+							<tr>
+								<td>Name</td>
+								<td colspan="3"><%= @volume.remote.name %></td>
+							</tr>
+							<tr>
+								<td>Size</td>
+								<td colspan="3"><%= @volume.remote.size %></td>
+							</tr>
+							<tr>
+								<td>Region</td>
+								<td colspan="3"><%= @volume.remote.region %></td>
+							</tr>
+						</tbody>
+					</table>
+				<% end %>
+			<% elsif @volume.snapshot? %>
+				<h4>Remote Volume Snapshot</h4>
+				<% if @volume.remote_snapshot.error? %>
+					<%= @volume.remote_snapshot %>
+				<% else %>
+					<p class="help-block">
+						The local information above should match this.
+					</p>
+					<table class="table table-striped">
+						<tbody>
+							<tr>
+								<td>Name</td>
+								<td colspan="3"><%= @volume.remote_snapshot.name %></td>
+							</tr>
+							<tr>
+								<td>Minimum Size</td>
+								<td colspan="3"><%= @volume.remote_snapshot.min_disk_size %></td>
+							</tr>
+							<tr>
+								<td>Regions Available</td>
+								<td colspan="3"><%= @volume.remote_snapshot.regions.join(', ') %></td>
+							</tr>
+						</tbody>
+					</table>
+				<% end %>
 			<% else %>
-				<p class="help-block">
-					The local information above should match this.
+				<p>
+					<strong><em>Something bad happened</em></strong>
 				</p>
-				<table class="table table-striped">
-					<tbody>
-						<tr>
-							<td>Name</td>
-							<td colspan="3"><%= @volume.remote.name %></td>
-						</tr>
-						<tr>
-							<td>Size</td>
-							<td colspan="3"><%= @volume.remote.size %></td>
-						</tr>
-						<tr>
-							<td>Region</td>
-							<td colspan="3"><%= @volume.remote.region %></td>
-						</tr>
-					</tbody>
-				</table>
-			<% end %>
-		<% end %>
-		<% if !@volume.remote_snapshot_id.nil? %>
-			<h4>Remote Volume Snapshot</h4>
-			<% if @volume.remote_snapshot.error? %>
-				<%= @volume.remote_snapshot %>
-			<% else %>
-				<p class="help-block">
-					The local information above should match this.
-				</p>
-				<table class="table table-striped">
-					<tbody>
-						<tr>
-							<td>Name</td>
-							<td colspan="3"><%= @volume.remote_snapshot.name %></td>
-						</tr>
-						<tr>
-							<td>Minimum Size</td>
-							<td colspan="3"><%= @volume.remote_snapshot.min_disk_size %></td>
-						</tr>
-						<tr>
-							<td>Regions Available</td>
-							<td colspan="3"><%= @volume.remote_snapshot.regions.join(', ') %></td>
-						</tr>
-					</tbody>
-				</table>
 			<% end %>
 		<% end %>
 		<hr />
 		<%= link_to 'Edit', edit_volume_path(@volume), class: "btn btn-success" %>
+		<span class="info-box btn-group">
+			<% if @volume.save?.nil? %>
+				<%= link_to suspend_volume_path(@volume), class: 'btn btn-info' do %>
+					<span data-toggle="tooltip" data-container="body" title="Suspend this volume for cheaper billing on Digital Ocean">Suspend</span>
+				<% end %>
+			<% else %>
+				<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="<%= @volume.save? %>">Suspend</span>
+			<% end %>
+			<% if @volume.load?.nil? %>
+				<%= link_to reload_volume_path(@volume), class: 'btn btn-info' do %>
+					<span data-toggle="tooltip" data-container="body" title="Manually reload this volume from its snapshot">Reload</span>
+				<% end %>
+			<% else %>
+				<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="<%= @volume.load? %>">Reload</span>
+			<% end %>
+		</span>
 		<span class="info-box pull-right">
 			<%= link_to 'Delete', delete_volume_path(@volume), class: "btn btn-danger" %>
 		</span>
 		<br />
 		<br />
+		<%= panel_with_heading 'Information' do %>
+			<ul>
+				<li>
+					Suspending a volume will create a snapshot (backup) and delete the volume.
+					Digital Ocean charges less for snapshots,
+					but the volume must be reloaded before it can be used.
+				</li>
+				<li>
+					If a server with a suspended volume is started, Gamocosm will automatically reload the volume for you.
+				</li>
+				<li>
+					Attaching a volume to an existing server is not recommended unless you know what you are doing.
+				</li>
+			</ul>
+		<% end %>
 	</div>
 </div>
