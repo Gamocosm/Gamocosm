@@ -1,24 +1,96 @@
-<p id="notice"><%= notice %></p>
-
-<p>
-  <strong>Remote:</strong>
-  <%= @volume.remote_id %>
-</p>
-
-<p>
-  <strong>Remote size gb:</strong>
-  <%= @volume.remote_size_gb %>
-</p>
-
-<p>
-  <strong>Remote region slug:</strong>
-  <%= @volume.remote_region_slug %>
-</p>
-
-<p>
-  <strong>Remote snapshot:</strong>
-  <%= @volume.remote_snapshot_id %>
-</p>
-
-<%= link_to 'Edit', edit_volume_path(@volume) %> |
-<%= link_to 'Back', volumes_path %>
+<% title "Volume #{@volume.name} - Gamocosm" %>
+<div class="row">
+	<div class="col-sm-12">
+		<div class="page-header">
+			<%= breadcrumb_back_to_volumes %>
+			<h1>
+				Volume <%= @volume.name %>
+				<small><%= @volume.remote_region_slug %>/<%= @volume.remote_size_gb %> GB</small>
+			</h1>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm-8 col-sm-offset-2">
+		<h4>Local Information</h4>
+		<table class="table table-striped">
+			<tbody>
+				<tr>
+					<td>Remote ID</td>
+					<td colspan="3"><%= @volume.remote_id.nil? ? 'n/a' : @volume.remote_id %></td>
+				</tr>
+				<tr>
+					<td>Remote Snapshot ID</td>
+					<td colspan="3"><%= @volume.remote_snapshot_id.nil? ? 'n/a' : @volume.remote_snapshot_id %></td>
+				</tr>
+				<tr>
+					<td>Size (GB)</td>
+					<td colspan="3"><%= @volume.remote_size_gb %></td>
+				</tr>
+				<tr>
+					<td>Region</td>
+					<td colspan="3"><%= @volume.remote_region_slug %></td>
+				</tr>
+			</tbody>
+		</table>
+		<% if !@volume.remote_id.nil? %>
+			<h4>Remote Volume</h4>
+			<% if @volume.remote.error? %>
+				<%= @volume.remote %>
+			<% else %>
+				<p class="help-block">
+					The local information above should match this.
+				</p>
+				<table class="table table-striped">
+					<tbody>
+						<tr>
+							<td>Name</td>
+							<td colspan="3"><%= @volume.remote.name %></td>
+						</tr>
+						<tr>
+							<td>Size</td>
+							<td colspan="3"><%= @volume.remote.size %></td>
+						</tr>
+						<tr>
+							<td>Region</td>
+							<td colspan="3"><%= @volume.remote.region %></td>
+						</tr>
+					</tbody>
+				</table>
+			<% end %>
+		<% end %>
+		<% if !@volume.remote_snapshot_id.nil? %>
+			<h4>Remote Volume Snapshot</h4>
+			<% if @volume.remote_snapshot.error? %>
+				<%= @volume.remote_snapshot %>
+			<% else %>
+				<p class="help-block">
+					The local information above should match this.
+				</p>
+				<table class="table table-striped">
+					<tbody>
+						<tr>
+							<td>Name</td>
+							<td colspan="3"><%= @volume.remote_snapshot.name %></td>
+						</tr>
+						<tr>
+							<td>Minimum Size</td>
+							<td colspan="3"><%= @volume.remote_snapshot.min_disk_size %></td>
+						</tr>
+						<tr>
+							<td>Regions Available</td>
+							<td colspan="3"><%= @volume.remote_snapshot.regions.join(', ') %></td>
+						</tr>
+					</tbody>
+				</table>
+			<% end %>
+		<% end %>
+		<hr />
+		<%= link_to 'Edit', edit_volume_path(@volume), class: "btn btn-success" %>
+		<span class="info-box pull-right">
+			<%= link_to 'Delete', delete_volume_path(@volume), class: "btn btn-danger" %>
+		</span>
+		<br />
+		<br />
+	</div>
+</div>

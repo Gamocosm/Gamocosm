@@ -1,33 +1,51 @@
-<p id="notice"><%= notice %></p>
+<% title 'My Volumes - Gamocosm' %>
+<div class="row">
+	<div class="col-sm-12">
+		<div class="page-header">
+			<h1>
+				Volumes <small>for <%= current_user.email %></small>
+				<div class="pull-right">
+					<%= link_to new_volume_path, class: 'btn btn-lg btn-primary' do %>
+						<span class="fa fa-plus"></span> Create volume
+					<% end %>
+					<%= link_to 'Open a support ticket', issues_path, class: 'btn btn-lg btn-default' %>
+				</div>
+			</h1>
+		</div>
+	</div>
+</div>
 
-<h1>Volumes</h1>
-
-<table>
-  <thead>
-    <tr>
-      <th>Remote</th>
-      <th>Remote size gb</th>
-      <th>Remote region slug</th>
-      <th>Remote snapshot</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @volumes.each do |volume| %>
-      <tr>
-        <td><%= volume.remote_id %></td>
-        <td><%= volume.remote_size_gb %></td>
-        <td><%= volume.remote_region_slug %></td>
-        <td><%= volume.remote_snapshot_id %></td>
-        <td><%= link_to 'Show', volume %></td>
-        <td><%= link_to 'Edit', edit_volume_path(volume) %></td>
-        <td><%= link_to 'Destroy', volume, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<br>
-
-<%= link_to 'New Volume', new_volume_path %>
+<div class="row">
+	<div class="col-sm-12">
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<td colspan="3">Name</td>
+					<td colspan="3">Remote ID</td>
+					<td colspan="3">Remote Snapshot ID</td>
+					<td>Region</td>
+					<td>Size (GB)</td>
+				</tr>
+			</thead>
+			<tbody>
+			<% if @volumes.blank? %>
+				<tr>
+					<td colspan="11" class="text-center">
+						<em>You have no volumes</em>
+					</td>
+				</tr>
+			<% else %>
+				<% @volumes.each do |v| %>
+					<tr>
+						<td colspan="3"><%= link_to v.name, volume_path(v) %></td>
+						<td colspan="3"><%= v.remote_id.nil? ? 'n/a' : v.remote_id %></td>
+						<td colspan="3"><%= v.remote_snapshot_id.nil? ? 'n/a' : v.remote_snapshot_id %></td>
+						<td><%= v.remote_region_slug %></td>
+						<td><%= v.remote_size_gb %></td>
+					</tr>
+				<% end %>
+			<% end %>
+			</tbody>
+		</table>
+	</div>
+</div>

@@ -2,10 +2,10 @@
   <%= f.error_notification %>
 
   <div class="form-inputs">
-    <%= f.input :remote_id %>
-    <%= f.input :remote_size_gb %>
-    <%= f.input :remote_region_slug %>
-    <%= f.input :remote_snapshot_id %>
+    <%= f.input :remote_id, label: 'Remote ID', hint: 'Leave blank for a new volume.' %>
+    <%= f.input :remote_snapshot_id, label: 'Remote Snapshot ID', hint: 'Leave blank for a new volume.' %>
+    <%= f.input :remote_size_gb, label: 'Size (GB)' %>
+    <%= f.input :remote_region_slug, collection: @do_regions.collect { |x| [x.name, x.slug] }, as: :select, include_blank: true, label: 'Region', hint: 'Should be the same as your droplet\'s region' %>
   </div>
 
   <div class="form-actions">

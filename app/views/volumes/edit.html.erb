@@ -1,6 +1,19 @@
-<h1>Editing Volume</h1>
-
-<%= render 'form', volume: @volume %>
-
-<%= link_to 'Show', @volume %> |
-<%= link_to 'Back', volumes_path %>
+<% title "Volume #{@volume.name} - Gamocosm" %>
+<div class="row">
+	<div class="col-sm-12">
+		<div class="page-header">
+			<%= breadcrumb_back_to_volumes %>
+			<h1>
+				Volume <%= @volume.name %>
+				<small><%= @volume.remote_region_slug %>/<%= @volume.remote_size_gb %> GB</small>
+			</h1>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm-8 col-sm-offset-2">
+		<%= render 'form', volume: @volume %>
+		<hr />
+		<%= link_to 'Go back', volume_path(@volume), class: "btn btn-success" %>
+	</div>
+</div>

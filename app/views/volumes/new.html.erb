@@ -1,5 +1,12 @@
-<h1>New Volume</h1>
-
-<%= render 'form', volume: @volume %>
-
-<%= link_to 'Back', volumes_path %>
+<% title 'New Volume - Gamocosm' %>
+<div class="row">
+	<div class="col-sm-12">
+		<div class="page-header">
+			<%= breadcrumb_back_to_volumes %>
+			<h1>New Volume</h1>
+		</div>
+	</div>
+	<div class="col-sm-8 col-sm-offset-2">
+		<%= render 'form', volume: @volume %>
+	</div>
+</div>

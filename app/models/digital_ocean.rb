@@ -51,11 +51,20 @@ module DigitalOcean
     ].map { |x| Region.new(x[:slug], x[:name], true) }
   end
 
+  class Volume < Struct.new(:id, :name, :size, :region)
+  end
+
+  class Snapshot < Struct.new(:id, :name, :min_disk_size, :regions)
+  end
+
   class Connection
+    attr_reader :con
+
     API_URL = 'https://api.digitalocean.com/v2'
     PER_PAGE = 200
     OPEN_TIMEOUT = 32
     TIMEOUT = 64
+
     def initialize(api_key)
       @con = DropletKit::Client.new(access_token: api_key, open_timeout: OPEN_TIMEOUT, timeout: TIMEOUT)
     end
@@ -112,7 +121,7 @@ module DigitalOcean
           region: region,
           size: size,
           image: image,
-          ssh_keys: ssh_keys.map { |x| x.to_s },
+          ssh_keys: ssh_keys,
         )
         res = @con.droplets.create(droplet)
         self.class.droplet_from_response(res)
@@ -267,6 +276,59 @@ module DigitalOcean
       return nil
     end
 
+    def volume_show(id)
+      silence_digital_ocean_api do
+        res = @con.volumes.find(id: id)
+        self.class.volume_from_response(res)
+      end
+    end
+
+    def volume_create(name, size, region, snapshot_id)
+      silence_digital_ocean_api do
+        args = {
+          name: name,
+          size_gigabytes: size,
+        }
+        if snapshot_id.nil?
+          args[:region] = region
+          args[:filesystem_type] = 'ext4'
+        else
+          args[:snapshot_id] = snapshot_id
+        end
+        volume = DropletKit::Volume.new(args)
+        res = @con.volumes.create(volume)
+        self.class.volume_from_response(res)
+      end
+    end
+
+    def volume_delete(id)
+      silence_digital_ocean_api(true) do
+        @con.volumes.delete(id: id)
+        nil
+      end
+    end
+
+    def volume_snapshot(id, name)
+      silence_digital_ocean_api do
+        res = @con.volumes.create_snapshot(id: id, name: name)
+        self.class.snapshot_from_response(res)
+      end
+    end
+
+    def snapshot_show(id)
+      silence_digital_ocean_api do
+        res = @con.snapshots.find(id: id)
+        self.class.snapshot_from_response(res)
+      end
+    end
+
+    def snapshot_delete(id)
+      silence_digital_ocean_api(true) do
+        @con.snapshots.delete(id: id)
+        nil
+      end
+    end
+
     def self.droplet_from_response(res)
       Droplet.new(res.id,
         res.name,
@@ -296,6 +358,14 @@ module DigitalOcean
 
     def self.region_from_response(res)
       Region.new(res.slug, res.name, res.available)
+    end
+
+    def self.volume_from_response(res)
+      Volume.new(res.id, res.name, res.size_gigabytes, res.region.slug)
+    end
+
+    def self.snapshot_from_response(res)
+      Snapshot.new(res.id, res.name, res.min_disk_size, res.regions)
     end
   end
 end

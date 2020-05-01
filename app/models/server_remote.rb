@@ -60,7 +60,11 @@ class ServerRemote
     if res.error?
       return res
     end
-    return res.last
+    action = res.last
+    if action.nil?
+      return 'Unable to get droplet-create action from Digital Ocean'.error! nil
+    end
+    return action
   end
 
   def shutdown

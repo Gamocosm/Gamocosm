@@ -2,7 +2,6 @@ require 'sidekiq/web'
 
 Rails.application.routes.draw do
 
-  resources :volumes
   root to: 'pages#landing'
 
   get '/about', to: 'pages#about', as: :about
@@ -103,6 +102,12 @@ Rails.application.routes.draw do
       post 'api/:key/resume', to: 'servers#api_resume', as: :api_resume
       post 'api/:key/backup', to: 'servers#api_backup', as: :api_backup
       post 'api/:key/exec', to: 'servers#api_exec', as: :api_exec
+    end
+  end
+
+  resources :volumes do
+    member do
+      get 'delete'
     end
   end
 

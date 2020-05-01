@@ -25,6 +25,7 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable
 
   has_many :servers, dependent: :destroy
+  has_many :volumes, dependent: :destroy
   has_and_belongs_to_many :friend_servers, foreign_key: 'user_id', class_name: 'Server', dependent: :destroy
 
   before_validation :before_validate_callback

@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_04_113825) do
+ActiveRecord::Schema.define(version: 2020_04_30_171709) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
@@ -91,10 +92,24 @@ ActiveRecord::Schema.define(version: 2020_04_04_113825) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "volumes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "name", null: false
+    t.string "remote_id"
+    t.integer "remote_size_gb", null: false
+    t.string "remote_region_slug", null: false
+    t.string "remote_snapshot_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_volumes_on_name", unique: true
+    t.index ["user_id"], name: "index_volumes_on_user_id"
+  end
+
   add_foreign_key "minecrafts", "servers", on_delete: :cascade
   add_foreign_key "scheduled_tasks", "servers", on_delete: :cascade
   add_foreign_key "server_logs", "servers", on_delete: :cascade
   add_foreign_key "servers", "users", on_delete: :cascade
   add_foreign_key "servers_users", "servers", on_delete: :cascade
   add_foreign_key "servers_users", "users", on_delete: :cascade
+  add_foreign_key "volumes", "users", on_delete: :cascade
 end

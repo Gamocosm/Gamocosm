@@ -1,0 +1,41 @@
+<% title "Volume #{@volume.name} - Gamocosm" %>
+<div class="row">
+	<div class="col-sm-12">
+		<div class="page-header">
+			<%= breadcrumb_back_to_volumes %>
+			<h1>
+				Volume <%= @volume.name %>
+				<small><%= @volume.remote_region_slug %>/<%= @volume.remote_size_gb %> GB</small>
+			</h1>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12">
+		<p>
+			Are you sure you want to delete volume <strong><%= @volume.name %></strong> forever? (A really long time!)
+		</p>
+		<% if !@volume.remote_id.nil? || !@volume.remote_snapshot_id.nil? %>
+			<p>
+				If you delete this volume now, Gamocosm will also delete the following resources on Digital Ocean:
+				<ul>
+					<% if !@volume.remote_id.nil? %>
+						<li>Volume <%= @volume.remote_id %></li>
+					<% end %>
+					<% if !@volume.remote_snapshot_id.nil? %>
+						<li>Snapshot <%= @volume.remote_snapshot_id %></li>
+					<% end %>
+				</ul>
+				Please back up your Minecraft world (and any other data)!
+			</p>
+		<% end %>
+		<hr />
+		<%= link_to volume_path(@volume), class: "btn btn-success" do %>
+			Go back
+		<% end %>
+		<span class="info-box pull-right">
+			<%= link_to 'Delete', volume_path(@volume), method: :delete, class: "btn btn-danger", data: { confirm: 'Yes. I am Eater of Worlds (an EthosLab reference).' } %>
+		</span>
+	</div>
+</div>
