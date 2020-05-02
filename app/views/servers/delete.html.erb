@@ -30,7 +30,26 @@
 						<li>Snapshot #<%= @server.remote_snapshot_id %></li>
 					<% end %>
 				</ul>
-				Please back up your Minecraft world (and any other data)!
+				<strong>Please download your Minecraft world (and any other data)!</strong>
+			</p>
+		<% end %>
+		<% if !@server.volume.nil? %>
+			<p>
+			The volume <strong><%= link_to @server.volume.name, volume_path(@server.volume) %></strong> is attached to this server.
+				<% if @server.volume.remote_exists?  %>
+					Note that:
+					<ul>
+						<li>
+							Gamocosm will not delete the volume automatically, and you will be billed for it on Digital Ocean.
+							You must delete it separately on the <%= link_to 'Volumes page', volumes_path %>.
+						</li>
+						<li>
+							<strong>Download your world from the volume!</strong>
+							While deleting this server will not delete the volume,
+							it will be inconvenient to retrieve your world afterwards.
+						</li>
+					</ul>
+				<% end %>
 			</p>
 		<% end %>
 		<hr />

@@ -291,7 +291,7 @@ class WebMock::RequestStub
       size: size,
       region: region,
       image: image,
-      ssh_keys: ['1'],
+      ssh_keys: [ 1 ],
     }).stub_do_droplet_show(status, 'new')
   end
 

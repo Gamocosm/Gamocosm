@@ -99,6 +99,7 @@ class SetupServerWorker
         raise
       end
       if server.done_setup?
+        self.setup_volume(server, host)
         self.base_update(user, server, host)
         self.add_ssh_keys(user, server, host)
       else
@@ -107,6 +108,7 @@ class SetupServerWorker
         server.update_columns(setup_stage: 2)
         self.add_ssh_keys(user, server, host)
         server.update_columns(setup_stage: 3)
+        self.setup_volume(server, host)
         self.install_minecraft(user, server, host)
         self.install_mcsw(user, server, host)
         server.update_columns(setup_stage: 4)
@@ -134,7 +136,7 @@ class SetupServerWorker
     ].any? { |x| server.remote_size_slug.end_with?(x) }
     begin
       on host do
-        Timeout::timeout(512) do
+        Timeout::timeout(600) do
           within '/tmp/' do
             # setup user
             if ! test 'id -u mcuser'
@@ -181,7 +183,7 @@ class SetupServerWorker
   def base_update(user, server, host)
     begin
       on host do
-        Timeout::timeout(64) do
+        Timeout::timeout(60) do
           within '/' do
             execute :sed, '-i', "'s/^PasswordAuthentication no/PasswordAuthentication yes/'", '/etc/ssh/sshd_config'
             execute :systemctl, 'restart', 'sshd'
@@ -212,6 +214,44 @@ class SetupServerWorker
     end
   end
 
+  def setup_volume(server, host)
+    volume = server.volume
+    begin
+      on host do
+        Timeout::timeout(30) do
+          within '/home/mcuser/' do
+            if volume.nil?
+              execute :mkdir, '-p', 'minecraft'
+            else
+              if volume.snapshot?
+                server.log('Started server with volume, but volume status is "snapshot". The volume will not be attached')
+                execute :mkdir, '-p', 'minecraft'
+              elsif volume.volume?
+                mount_path = volume.mount_path
+                if ! test "mountpoint -q #{mount_path}"
+                  execute :mkdir, '-p', mount_path
+                  execute :mount, '-o', 'defaults,nofail,discard,noatime', volume.device_path, mount_path
+                end
+                mount_minecraft_path = "#{mount_path}/minecraft"
+                execute :mkdir, '-p', mount_minecraft_path
+                if ! test '[ -e minecraft ]'
+                  execute :ln, '-s', mount_minecraft_path, 'minecraft'
+                end
+              else
+                raise 'Badness'
+              end
+            end
+          end
+        end
+      end
+    rescue SSHKit::Runner::ExecuteError => e
+      if e.cause.is_a?(Timeout::Error)
+        raise 'Server setup (SSH): Server stalled/took too long setting up the volume. Please try again'
+      end
+      raise e
+    end
+  end
+
   def install_minecraft(user, server, host)
     begin
       fi = server.minecraft.flavour_info
@@ -231,14 +271,14 @@ class SetupServerWorker
             execute :git, 'clone', mc_flavours_git_url, 'gamocosm-minecraft-flavours'
           end
           within '/home/mcuser/' do
-            execute :mkdir, '-p', 'minecraft'
             within :minecraft do
               execute :chmod, 'u+x', minecraft_script
               with minecraft_flavour_version: fv[1] do
                 execute :bash, '-c', minecraft_script
               end
             end
-            execute :chown, '-R', 'mcuser:mcuser', 'minecraft'
+            execute :chown, 'mcuser:mcuser', 'minecraft'
+            execute :chown, '-R', 'mcuser:mcuser', 'minecraft/'
           end
         end
       end
@@ -256,7 +296,7 @@ class SetupServerWorker
     mcsw_password = server.minecraft.mcsw_password
     begin
       on host do
-        Timeout::timeout(64) do
+        Timeout::timeout(90) do
           within '/opt/' do
             execute :rm, '-rf', '/tmp/pip_build_root'
             execute :su, 'mcuser', '-c', '"pip3 install --user flask"'
@@ -267,6 +307,9 @@ class SetupServerWorker
               execute :echo, mcsw_password, '>>', 'mcsw-auth.txt'
               execute :cp, '-f', 'mcsw.service', '/etc/systemd/system/mcsw.service'
               execute :cp, '-f', 'run_mcsw.sh', '/usr/local/bin/run_mcsw.sh'
+              execute :checkmodule, '-M', '-m', '-o', 'mcsw.mod', 'mcsw.te'
+              execute :semodule_package, '-m', 'mcsw.mod', '-o', 'mcsw.pp'
+              execute :semodule, '-i', 'mcsw.pp'
             end
             execute :chown, '-R', 'mcuser:mcuser', 'gamocosm'
             execute :systemctl, 'enable', 'mcsw'
@@ -289,7 +332,7 @@ class SetupServerWorker
     end
     begin
       on host do
-        Timeout::timeout(64) do
+        Timeout::timeout(60) do
           within '/tmp/' do
             execute :'firewall-cmd', "--add-port=#{ssh_port}/tcp"
             execute :'firewall-cmd', '--permanent', "--add-port=#{ssh_port}/tcp"
@@ -330,7 +373,7 @@ class SetupServerWorker
     end
     begin
       on host do
-        Timeout::timeout(32) do
+        Timeout::timeout(30) do
           within '/tmp/' do
             execute :mkdir, '-p', '/home/mcuser/.ssh/'
             key_contents.each do |key_escaped|

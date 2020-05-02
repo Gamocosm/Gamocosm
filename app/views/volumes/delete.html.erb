@@ -1,4 +1,4 @@
-<% title "Volume #{@volume.name} - Gamocosm" %>
+<% title "Delete Volume #{@volume.name} - Gamocosm" %>
 <div class="row">
 	<div class="col-sm-12">
 		<div class="page-header">
@@ -28,7 +28,19 @@
 						<li><em>Something bad happened</em></li>
 					<% end %>
 				</ul>
-				Please back up your Minecraft world (and any other data)!
+				<strong>Please download your Minecraft world (and any other data)!</strong>
+			</p>
+		<% end %>
+		<% if !@volume.server.nil? %>
+			<p>
+				This volume is attached to the server <strong><%= link_to @volume.server.name, server_path(@volume.server) %></strong>.
+				You will have to manually detach this volume from the server (on the <%= link_to 'Edit page', edit_volume_path(@volume) %>) before deleting this volume.
+				Note that:
+				<ul>
+					<li>Deleting this volume will not automatically delete the server.</li>
+					<li>You will still be billed for the server on Digital Ocean.</li>
+					<li>You must delete the server separately on the <%= link_to 'Servers page', servers_path %>.</li>
+				</ul>
 			</p>
 		<% end %>
 		<hr />

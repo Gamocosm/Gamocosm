@@ -124,9 +124,11 @@ class ServersController < ApplicationController
     if error
       flash[:error] = "Unable to start server: #{error}. Please contact the server admin about this"
     else
-      @server.user.invalidate_digital_ocean_cache_droplets
       flash[:success] = 'Server starting'
     end
+    @server.user.invalidate_digital_ocean_cache_droplets
+    @server.user.invalidate_digital_ocean_cache_volumes
+    @server.user.invalidate_digital_ocean_cache_snapshots
     return redirect_to server_path(@server)
   end
 
@@ -298,6 +300,9 @@ class ServersController < ApplicationController
       return
     end
     err = server[0].start
+    @server.user.invalidate_digital_ocean_cache_droplets
+    @server.user.invalidate_digital_ocean_cache_volumes
+    @server.user.invalidate_digital_ocean_cache_snapshots
     return render json: {
       error: err,
     }
@@ -401,14 +406,14 @@ class ServersController < ApplicationController
     return redirect_to servers_path, flash: { notice: 'Deleted droplet on Digital Ocean' }
   end
 
-  def show_digital_ocean_snapshots
-    @do_snapshots = current_user.digital_ocean_snapshots
+  def show_digital_ocean_images
+    @do_images = current_user.digital_ocean_images
     render layout: nil
   end
 
-  def destroy_digital_ocean_snapshot
+  def destroy_digital_ocean_image
     error = current_user.digital_ocean.image_delete(params[:id])
-    current_user.invalidate_digital_ocean_cache_snapshots
+    current_user.invalidate_digital_ocean_cache_images
     if error
       return redirect_to servers_path, flash: { error: error }
     end

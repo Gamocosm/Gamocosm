@@ -53,7 +53,7 @@ class ServerRemote
     end
     volumes = []
     if !@server.volume.nil?
-      error = @server.volume.vivify
+      error = @server.volume.vivify!
       if !error.nil?
         return error
       end

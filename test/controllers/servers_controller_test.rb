@@ -362,11 +362,11 @@ class ServersControllerTest < ActionController::TestCase
       @server.update_columns(pending_operation: 'preparing')
       [
         /connecting/i,
-        /connected/i,
         /installing and updating software/i,
+        /adding ssh keys/i,
         /downloading and installing minecraft/i,
         /finishing up/i,
-        /keeping system up to date/i,
+        /keeping the system up to date/i,
       ].each_with_index do |x, i|
         @server.update_columns(setup_stage: i)
         view_server @server

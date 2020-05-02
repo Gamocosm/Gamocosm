@@ -28,7 +28,7 @@ class StartMinecraftWorker
       #else
       #  server.update_columns(remote_snapshot_id: nil)
       #end
-      #server.user.invalidate_digital_ocean_cache_snapshots
+      #server.user.invalidate_digital_ocean_cache_images
       if minecraft.autoshutdown_enabled
         AutoshutdownMinecraftWorker.perform_in(AutoshutdownMinecraftWorker::CHECK_INTERVAL, server_id)
       end

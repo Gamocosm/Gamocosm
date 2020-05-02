@@ -38,6 +38,14 @@ class User < ActiveRecord::Base
     return "user-#{self.id}-servers"
   end
 
+  def digital_ocean_images_cache
+    return "user-#{self.id}-images"
+  end
+
+  def digital_ocean_volumes_cache
+    return "user-#{self.id}-volumes"
+  end
+
   def digital_ocean_snapshots_cache
     return "user-#{self.id}-snapshots"
   end
@@ -59,6 +67,8 @@ class User < ActiveRecord::Base
 
   def invalidate
     self.invalidate_digital_ocean_cache_droplets
+    self.invalidate_digital_ocean_cache_images
+    self.invalidate_digital_ocean_cache_volumes
     self.invalidate_digital_ocean_cache_snapshots
     self.invalidate_digital_ocean_cache_ssh_keys
   end
@@ -71,6 +81,16 @@ class User < ActiveRecord::Base
   def invalidate_digital_ocean_cache_droplets
     @digital_ocean_droplets = nil
     Rails.cache.delete(self.digital_ocean_servers_cache)
+  end
+
+  def invalidate_digital_ocean_cache_images
+    @digital_ocean_images = nil
+    Rails.cache.delete(self.digital_ocean_images_cache)
+  end
+
+  def invalidate_digital_ocean_cache_volumes
+    @digital_ocean_volumes = nil
+    Rails.cache.delete(self.digital_ocean_volumes_cache)
   end
 
   def invalidate_digital_ocean_cache_snapshots
@@ -98,6 +118,42 @@ class User < ActiveRecord::Base
     return @digital_ocean_droplets
   end
 
+  def digital_ocean_images
+    # parallel to User#digital_ocean_droplets
+    if digital_ocean_missing?
+      return nil
+    end
+    if @digital_ocean_images.nil?
+      images = Rails.cache.read(self.digital_ocean_images_cache)
+      if images.nil?
+        images = self.digital_ocean.image_list(true)
+        if !images.error?
+          Rails.cache.write(self.digital_ocean_images_cache, images, expires_in: 24.hours)
+        end
+      end
+      @digital_ocean_images = images
+    end
+    return @digital_ocean_images
+  end
+
+  def digital_ocean_volumes
+    # parallel to User#digital_ocean_droplets
+    if digital_ocean_missing?
+      return nil
+    end
+    if @digital_ocean_volumes.nil?
+      volumes = Rails.cache.read(self.digital_ocean_volumes_cache)
+      if volumes.nil?
+        volumes = self.digital_ocean.volume_list
+        if !volumes.error?
+          Rails.cache.write(self.digital_ocean_volumes_cache, volumes, expires_in: 24.hours)
+        end
+      end
+      @digital_ocean_volumes = volumes
+    end
+    return @digital_ocean_volumes
+  end
+
   def digital_ocean_snapshots
     # parallel to User#digital_ocean_droplets
     if digital_ocean_missing?
@@ -106,8 +162,8 @@ class User < ActiveRecord::Base
     if @digital_ocean_snapshots.nil?
       snapshots = Rails.cache.read(self.digital_ocean_snapshots_cache)
       if snapshots.nil?
-        snapshots = self.digital_ocean.image_list(true)
-        if !@snapshots.error?
+        snapshots = self.digital_ocean.snapshot_list
+        if !snapshots.error?
           Rails.cache.write(self.digital_ocean_snapshots_cache, snapshots, expires_in: 24.hours)
         end
       end

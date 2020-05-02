@@ -31,6 +31,7 @@ Rails.application.routes.draw do
     match '/troubleshooting' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Troubleshooting'), as: :wiki_troubleshooting, via: :get
     match '/custom_minecraft' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft'), as: :wiki_custom_minecraft, via: :get
     match '/security_privacy' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Security-and-Privacy'), as: :wiki_security_privacy, via: :get
+    match '/volumes' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Using-Digital-Ocean-Volumes'), as: :wiki_volumes, via: :get
   end
 
   scope '/digital_ocean' do
@@ -49,11 +50,15 @@ Rails.application.routes.draw do
 
     get 'droplets', to: 'servers#show_digital_ocean_droplets', as: :show_digital_ocean_droplets
     delete 'droplets/:id', to: 'servers#destroy_digital_ocean_droplet', as: :destroy_digital_ocean_droplet
-    get 'snapshots', to: 'servers#show_digital_ocean_snapshots', as: :show_digital_ocean_snapshots
-    delete 'snapshots/:id', to: 'servers#destroy_digital_ocean_snapshot', as: :destroy_digital_ocean_snapshot
+    get 'images', to: 'servers#show_digital_ocean_images', as: :show_digital_ocean_images
+    delete 'images/:id', to: 'servers#destroy_digital_ocean_image', as: :destroy_digital_ocean_image
     get 'ssh_keys', to: 'servers#show_digital_ocean_ssh_keys', as: :show_digital_ocean_ssh_keys
     post 'ssh_keys', to: 'servers#add_digital_ocean_ssh_key', as: :add_digital_ocean_ssh_key
     delete 'ssh_keys/:id', to: 'servers#destroy_digital_ocean_ssh_key', as: :destroy_digital_ocean_ssh_key
+    get 'volumes', to: 'volumes#show_digital_ocean_volumes', as: :show_digital_ocean_volumes
+    delete 'volumes/:id', to: 'volumes#destroy_digital_ocean_volume', as: :destroy_digital_ocean_volume
+    get 'snapshots', to: 'volumes#show_digital_ocean_snapshots', as: :show_digital_ocean_snapshots
+    delete 'snapshots/:id', to: 'volumes#destroy_digital_ocean_snapshot', as: :destroy_digital_ocean_snapshot
     delete 'cache', to: 'servers#refresh_digital_ocean_cache', as: :refresh_digital_ocean_cache
   end
 

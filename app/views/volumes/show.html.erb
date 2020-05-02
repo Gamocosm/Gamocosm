@@ -16,10 +16,6 @@
 		<table class="table table-striped">
 			<tbody>
 				<tr>
-					<td>ID</td>
-					<td colspan="3"><%= @volume.id %></td>
-				</tr>
-				<tr>
 					<td>Server</td>
 					<td colspan="3"><%= @volume.server.nil? ? 'n/a' : @volume.server.name %></td>
 				</tr>
@@ -101,23 +97,23 @@
 		<hr />
 		<%= link_to 'Edit', edit_volume_path(@volume), class: "btn btn-success" %>
 		<span class="info-box btn-group">
-			<% if @volume.save?.nil? %>
+			<% if @volume.suspend?.nil? %>
 				<%= link_to suspend_volume_path(@volume), class: 'btn btn-info' do %>
 					<span data-toggle="tooltip" data-container="body" title="Suspend this volume for cheaper billing on Digital Ocean">Suspend</span>
 				<% end %>
 			<% else %>
-				<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="<%= @volume.save? %>">Suspend</span>
+				<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="<%= @volume.suspend? %>">Suspend</span>
 			<% end %>
-			<% if @volume.load?.nil? %>
+			<% if @volume.reload?.nil? %>
 				<%= link_to reload_volume_path(@volume), class: 'btn btn-info' do %>
 					<span data-toggle="tooltip" data-container="body" title="Manually reload this volume from its snapshot">Reload</span>
 				<% end %>
 			<% else %>
-				<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="<%= @volume.load? %>">Reload</span>
+				<span class="btn btn-info disabled" data-toggle="tooltip" data-container="body" title="<%= @volume.reload? %>">Reload</span>
 			<% end %>
 		</span>
 		<span class="info-box pull-right">
-			<%= link_to 'Delete', delete_volume_path(@volume), class: "btn btn-danger" %>
+			<%= link_to 'Delete', delete_volume_path(@volume), class: 'btn btn-danger', data: { confirm: 'Are you sure you want to delete this volume forever? (A really long time!)' } %>
 		</span>
 		<br />
 		<br />
@@ -133,6 +129,9 @@
 				</li>
 				<li>
 					Attaching a volume to an existing server is not recommended unless you know what you are doing.
+				</li>
+				<li>
+					Read more on the <%= link_to 'wiki', wiki_volumes_path %>.
 				</li>
 			</ul>
 		<% end %>

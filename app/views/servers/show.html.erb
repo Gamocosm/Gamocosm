@@ -10,6 +10,9 @@
 				<h1>
 					<%= @server.name %>
 					<small><%= @server.remote_region_slug %>/<%= @server.remote_size_slug %></small>
+					<% if !@server.volume.nil? %>
+						<small>(volume <%= @server.volume.name %>)</small>
+					<% end %>
 				</h1>
 				<%= render partial: 'servers/control_panel' %>
 			</div>

@@ -24,7 +24,7 @@ class WaitForSnapshottingServerWorker
       if event.error?
         server.log("Error with Digital Ocean snapshot server action #{digital_ocean_action_id}; #{event}. Aborting")
         server.reset_state
-        user.invalidate_digital_ocean_cache_snapshots
+        #user.invalidate_digital_ocean_cache_images
         return
       elsif event.failed?
         server.log("Snapshotting server on Digital Ocean failed: #{event}. Aborting")
@@ -79,7 +79,7 @@ class WaitForSnapshottingServerWorker
         server.log("Error destroying server on Digital Ocean (has been snapshotted and saved): #{error}")
       end
       user.invalidate_digital_ocean_cache_droplets
-      user.invalidate_digital_ocean_cache_snapshots
+      user.invalidate_digital_ocean_cache_images
       server.update_columns(pending_operation: nil)
     rescue => e
       server.log("Background job waiting for snapshotting server failed: #{e}")

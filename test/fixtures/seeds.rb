@@ -30,3 +30,11 @@ s.minecraft = mc
 s.friends << User.find(2)
 
 s.save!
+
+v = Volume.new
+v.user = user
+v.name = 'test-volume'
+v.status = 'volume'
+v.remote_size_gb = 4
+v.remote_region_slug = 'nyc3'
+v.save!

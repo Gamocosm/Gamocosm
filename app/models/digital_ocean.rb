@@ -51,10 +51,10 @@ module DigitalOcean
     ].map { |x| Region.new(x[:slug], x[:name], true) }
   end
 
-  class Volume < Struct.new(:id, :name, :size, :region)
+  class Volume < Struct.new(:id, :name, :created_at, :size, :region)
   end
 
-  class Snapshot < Struct.new(:id, :name, :min_disk_size, :regions)
+  class Snapshot < Struct.new(:id, :name, :created_at, :min_disk_size, :regions)
   end
 
   class Connection
@@ -277,6 +277,13 @@ module DigitalOcean
       return nil
     end
 
+    def volume_list
+      silence_digital_ocean_api do
+        res = @con.volumes.all
+        res.map { |x| self.class.volume_from_response(x) }
+      end
+    end
+
     def volume_show(id)
       silence_digital_ocean_api do
         res = @con.volumes.find(id: id)
@@ -313,6 +320,13 @@ module DigitalOcean
       silence_digital_ocean_api do
         res = @con.volumes.create_snapshot(id: id, name: name)
         self.class.snapshot_from_response(res)
+      end
+    end
+
+    def snapshot_list
+      silence_digital_ocean_api do
+        res = @con.snapshots.all
+        res.map { |x| self.class.snapshot_from_response(x) }
       end
     end
 
@@ -362,11 +376,11 @@ module DigitalOcean
     end
 
     def self.volume_from_response(res)
-      Volume.new(res.id, res.name, res.size_gigabytes, res.region.slug)
+      Volume.new(res.id, res.name, res.created_at, res.size_gigabytes, res.region.slug)
     end
 
     def self.snapshot_from_response(res)
-      Snapshot.new(res.id, res.name, res.min_disk_size, res.regions)
+      Snapshot.new(res.id, res.name, res.created_at, res.min_disk_size, res.regions)
     end
   end
 end

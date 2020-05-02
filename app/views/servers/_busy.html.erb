@@ -21,15 +21,15 @@
 		<% if @server.setup_stage == 0 %>
 			Connecting
 		<% elsif @server.setup_stage == 1 %>
-			Connected
+			Installing and updating software (usually 2-5 minutes)
 		<% elsif @server.setup_stage == 2 %>
-			Installing and updating software (usually 2-3 minutes)
+			Adding SSH keys
 		<% elsif @server.setup_stage == 3 %>
 			Downloading and installing Minecraft (<%= @server.minecraft.flavour_info.try(:[], :name) %>, estimated <%= pluralize_with_count(@server.minecraft.flavour_info.try(:[], :time), 'minute') %>)
 		<% elsif @server.setup_stage == 4 %>
 			Finishing up
 		<% elsif @server.setup_stage == 5 %>
-			Keeping system up to date
+			Keeping the system up to date
 		<% end %>
 	<% elsif @server.pending_operation == 'stopping' %>
 		Your server is shutting down.

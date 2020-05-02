@@ -1,0 +1,24 @@
+<tbody>
+	<% if @do_volumes.nil? %>
+		<tr><td><em>You haven't entered your Digital Ocean API token</em></td></tr>
+	<% elsif @do_volumes.error? %>
+		<tr><td><em>Unable to get Digital Ocean volumes: <%= @do_volumes %></em></td></tr>
+	<% elsif @do_volumes.empty? %>
+		<tr><td><em>You have no volumes on Digital Ocean</em></td></tr>
+	<% else %>
+		<tr>
+			<th>Name</th>
+			<th class="text-right">ID</th>
+			<th>&nbsp;</th>
+		</tr>
+		<% @do_volumes.each do |x| %>
+			<tr>
+				<td><%= x.name %> (<%= x.created_at.to_datetime.in_time_zone(Gamocosm::TIMEZONE).strftime('%Y %b %-d %H:%M %Z') %>)</td>
+				<td class="text-right"><%= x.id %></td>
+				<td>
+					<%= link_to 'Delete', destroy_digital_ocean_volume_path(id: x.id), method: :delete, class: 'btn btn-default pull-right', data: { confirm: 'Are you sure you want to delete this volume forever? (A really long time!)' } %>
+				</td>
+			</tr>
+		<% end %>
+	<% end %>
+</tbody>
