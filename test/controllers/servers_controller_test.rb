@@ -500,7 +500,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_do_base(200)
     mock_do_image_delete(200, 1)
     sign_in @owner
-    post :destroy_digital_ocean_snapshot, params: { id: 1 }
+    post :destroy_digital_ocean_image, params: { id: 1 }
     assert_redirected_to servers_path
     get :index
     assert_response :success
@@ -597,14 +597,14 @@ class ServersControllerTest < ActionController::TestCase
 
   test 'show digital ocean snapshots' do
     sign_in @friend
-    get :show_digital_ocean_snapshots
+    get :show_digital_ocean_images
     assert_response :success
     assert_select 'em', /you haven't entered your digital ocean api token/i
     sign_out @friend
 
     sign_in @owner
     mock_do_images_list(200, []).times_only(1)
-    get :show_digital_ocean_snapshots
+    get :show_digital_ocean_images
     assert_response :success
     assert_select 'em', /you have no snapshots on digital ocean/i
 
@@ -617,14 +617,14 @@ class ServersControllerTest < ActionController::TestCase
         created_at: DateTime.current.to_s,
       },
     ]).times_only(1)
-    get :show_digital_ocean_snapshots
+    get :show_digital_ocean_images
     assert_response :success
     assert_select 'td', /def/
 
     delete :refresh_digital_ocean_cache
     assert_redirected_to servers_path
     mock_do_images_list(401, []).times_only(1)
-    get :show_digital_ocean_snapshots
+    get :show_digital_ocean_images
     assert_response :success
     assert_select 'em', /unable to get digital ocean snapshots/i
   end
