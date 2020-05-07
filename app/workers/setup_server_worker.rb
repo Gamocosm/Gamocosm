@@ -234,7 +234,7 @@ class SetupServerWorker
                 end
                 mount_minecraft_path = "#{mount_path}/minecraft"
                 execute :mkdir, '-p', mount_minecraft_path
-                if ! test '[ -e minecraft ]'
+                if ! test '[ -e /home/mcuser/minecraft ]'
                   execute :ln, '-s', mount_minecraft_path, 'minecraft'
                 end
               else
