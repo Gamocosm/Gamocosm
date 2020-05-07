@@ -5,7 +5,7 @@ class VolumesController < ApplicationController
   # GET /volumes
   # GET /volumes.json
   def index
-    @volumes = Volume.all
+    @volumes = current_user.volumes
   end
 
   # GET /volumes/1
