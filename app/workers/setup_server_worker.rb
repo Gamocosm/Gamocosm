@@ -196,13 +196,15 @@ class SetupServerWorker
               execute :su, 'mcuser', '-c', '"pip3 install --user flask"'
             end
           end
-          within '/opt/gamocosm/' do
-            execute :su, 'mcuser', '-c', '"git fetch origin master"'
-            execute :su, 'mcuser', '-c', '"git reset --hard origin/master"'
-            execute :cp, '-f', 'run_mcsw.sh', '/usr/local/bin/run_mcsw.sh'
-            execute :cp, '-f', 'mcsw.service', '/etc/systemd/system/mcsw.service'
-            execute :systemctl, 'daemon-reload'
-            execute :systemctl, 'restart', 'mcsw'
+          if ! test '[ -e /opt/gamocosm/noupdate ]'
+            within '/opt/gamocosm/' do
+              execute :su, 'mcuser', '-c', '"git fetch origin master"'
+              execute :su, 'mcuser', '-c', '"git reset --hard origin/master"'
+              execute :cp, '-f', 'run_mcsw.sh', '/usr/local/bin/run_mcsw.sh'
+              execute :cp, '-f', 'mcsw.service', '/etc/systemd/system/mcsw.service'
+              execute :systemctl, 'daemon-reload'
+              execute :systemctl, 'restart', 'mcsw'
+            end
           end
         end
       end
