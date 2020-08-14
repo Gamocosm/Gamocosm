@@ -26,10 +26,15 @@
 					<% if @server.remote.exists? %>
 						<li>Droplet #<%= @server.remote_id %></li>
 					<% end %>
-					<% if !@server.remote_snapshot_id.nil? %>
+					<% if !@server.remote_snapshot_id.nil? && !@server.preserve_snapshot %>
 						<li>Snapshot #<%= @server.remote_snapshot_id %></li>
 					<% end %>
 				</ul>
+				<% if !@server.remote_snapshot_id.nil? && @server.preserve_snapshot %>
+					<p>
+						Your snapshot #<%= @server.remote_snapshot_id %> will be preserved as you have <strong>preserve snapshot</strong> enabled.
+					</p>
+				<% end %>
 				<strong>Please download your Minecraft world (and any other data)!</strong>
 			</p>
 		<% end %>

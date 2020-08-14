@@ -199,6 +199,14 @@ class Server < ActiveRecord::Base
     if error
       return error
     end
+    if self.preserve_snapshot
+      error = self.remote.destroy
+      if error
+        return error
+      end
+      self.user.invalidate_digital_ocean_cache_droplets
+      return nil
+    end
     error = self.minecraft.pause
     if error
       log("Error stopping Minecraft server process #{error}, still proceeding with server shutdown")

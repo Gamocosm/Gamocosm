@@ -101,9 +101,11 @@ class ServersController < ApplicationController
   def destroy
     @server = find_server_only_owner(params[:id])
     @server.remove_domain
-    error = @server.remote.destroy_saved_snapshot
-    if error
-      return redirect_to server_path(@server), flash: { error: "Unable to delete saved server snapshot: #{error}" }
+    if !@server.preserve_snapshot
+      error = @server.remote.destroy_saved_snapshot
+      if error
+        return redirect_to server_path(@server), flash: { error: "Unable to delete saved server snapshot: #{error}" }
+      end
     end
     error = @server.remote.destroy
     if error
@@ -521,6 +523,7 @@ class ServersController < ApplicationController
       :remote_region_slug,
       :remote_size_slug,
       :api_key,
+      :preserve_snapshot,
       minecraft_attributes: [:mcsw_password],
     )
   end

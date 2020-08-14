@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_30_171709) do
+ActiveRecord::Schema.define(version: 2020_08_13_163157) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -62,6 +62,7 @@ ActiveRecord::Schema.define(version: 2020_04_30_171709) do
     t.integer "remote_snapshot_id"
     t.integer "timezone_delta", default: 0, null: false
     t.string "api_key", null: false
+    t.boolean "preserve_snapshot", default: false, null: false
     t.index ["domain"], name: "index_servers_on_domain", unique: true
     t.index ["user_id"], name: "index_servers_on_user_id"
   end
