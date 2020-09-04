@@ -31,7 +31,8 @@ cuberite:
     notes: []
 vanilla_bedrock:
     versions:
-        - { name: Bedrock Edition (1.14.32), tag: "null" }
+        - { name: Bedrock Edition (1.16.40), tag: "1.16.40.02" }
+        - { name: Bedrock Edition (1.14.32), tag: "1.14.32.1" }
     time: 1
     developers:
         - Mojang
