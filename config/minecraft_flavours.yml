@@ -72,6 +72,7 @@ spigot:
         - This involves a long build process. It occasionally fails and you can try again or install it manually
 papermc:
     versions:
+        - { name: PaperMC (1.16.3), tag: 1.16.3 }
         - { name: PaperMC (1.15.2), tag: 1.15.2 }
         - { name: PaperMC (1.14.4), tag: 1.14.4 }
         - { name: PaperMC (1.13.2), tag: 1.13.2 }
