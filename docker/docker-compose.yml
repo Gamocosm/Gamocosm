@@ -1,0 +1,65 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=gamocosm
+      - POSTGRES_PASSWORD=gamocosm
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gamocosm"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      web_net:  
+
+  redis:
+    image: "redis:alpine"
+    ports:
+     - "6379:6379"
+    command: redis-server
+    networks:
+      web_net:  
+
+  web:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    links:
+      - db
+      - redis
+    volumes:
+      - ..:/myapp
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_USER=gamocosm
+      - DATABASE_PASSWORD=gamocosm
+      - DATABASE_HOST=db
+      - DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH=/myapp/docker/keys/minecraft-server.pub
+      - DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH=/myapp/docker/keys/minecraft-server
+      - DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE=${DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE}
+      - DATABASE_URL:postgres://user:pass@postgres:5432/datex_dev?pool=5&encoding=utf-8
+      - SIDEKIQ_ADMIN_USERNAME=test
+      - SIDEKIQ_ADMIN_PASSWORD=1234
+      - MAIL_SERVER_ADDRESS=${MAIL_SERVER_ADDRESS}
+      - MAIL_SERVER_PORT=${MAIL_SERVER_PORT}
+      - MAIL_SERVER_DOMAIN=${MAIL_SERVER_DOMAIN}
+      - MAIL_SERVER_USERNAME=${MAIL_SERVER_USERNAME}
+      - MAIL_SERVER_PASSWORD=${MAIL_SERVER_PASSWORD}
+      - USER_SERVERS_DOMAIN=${USER_SERVERS_DOMAIN}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
+      - CLOUDFLARE_ZONE=${CLOUDFLARE_ZONE}
+      - MINECRAFT_FLAVOURS_GIT_URL=${MINECRAFT_FLAVOURS_GIT_URL}
+
+    networks:
+      web_net:   
+
+networks:
+  web_net:

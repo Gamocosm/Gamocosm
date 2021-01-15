@@ -19,15 +19,15 @@ module DigitalOcean
 
   class Size < Struct.new(:slug, :name, :memory, :disk, :cpu, :price_hourly, :price_monthly)
     DEFAULT_SIZES = [
-      { price_hourly: 0.00744, price_monthly: 5.0, cpu: 1, disk: 20, memory: 512, name: '512MB', slug: '512mb' },
-      { price_hourly: 0.01488, price_monthly: 10.0, cpu: 1, disk: 30, memory: 1024, name: '1GB', slug: '1gb' },
-      { price_hourly: 0.02976, price_monthly: 20.0, cpu: 2, disk: 40, memory: 2048, name: '2GB', slug: '2gb' },
-      { price_hourly: 0.05952, price_monthly: 40.0, cpu: 2, disk: 60, memory: 4096, name: '4GB', slug: '4gb' },
-      { price_hourly: 0.11905, price_monthly: 80.0, cpu: 4, disk: 80, memory: 8192, name: '8GB', slug: '8gb' },
-      { price_hourly: 0.2381, price_monthly: 160.0, cpu: 8, disk: 160, memory: 16384, name: '16GB', slug: '16gb' },
-      { price_hourly: 0.47619, price_monthly: 320.0, cpu: 12, disk: 320, memory: 32768, name: '32GB', slug: '32gb' },
-      { price_hourly: 0.71429, price_monthly: 480.0, cpu: 16, disk: 480, memory: 49152, name: '48GB', slug: '48gb' },
-      { price_hourly: 0.95238, price_monthly: 640.0, cpu: 20, disk: 640, memory: 65536, name: '64GB', slug: '64gb' }
+      { price_hourly: 0.00744, price_monthly: 5.0, cpu: 1, disk: 20, memory: 512, name: '512MB', slug: 's-1vcpu-512mb' },
+      { price_hourly: 0.01488, price_monthly: 10.0, cpu: 1, disk: 30, memory: 1024, name: '1GB', slug: 's-1vcpu-1gb' },
+      { price_hourly: 0.02976, price_monthly: 20.0, cpu: 2, disk: 40, memory: 2048, name: '2GB', slug: 's-2vcpu-2gb' },
+      { price_hourly: 0.05952, price_monthly: 40.0, cpu: 2, disk: 60, memory: 4096, name: '4GB', slug: 's-2vcpu-4gb' },
+      { price_hourly: 0.11905, price_monthly: 80.0, cpu: 4, disk: 80, memory: 8192, name: '8GB', slug: 's-4vcpu-8gb' },
+      { price_hourly: 0.2381, price_monthly: 160.0, cpu: 8, disk: 160, memory: 16384, name: '16GB', slug: 's-8vcpu-16gb' },
+      { price_hourly: 0.47619, price_monthly: 320.0, cpu: 12, disk: 320, memory: 32768, name: '32GB', slug: 's-12vcpu-32gb' },
+      { price_hourly: 0.71429, price_monthly: 480.0, cpu: 16, disk: 480, memory: 49152, name: '48GB', slug: 's-16vcpu-48gb' },
+      { price_hourly: 0.95238, price_monthly: 640.0, cpu: 20, disk: 640, memory: 65536, name: '64GB', slug: 's-20vcpu-64gb' }
     ].map do |x|
       Size.new(x[:slug], x[:name], x[:memory], x[:disk], x[:cpu], x[:price_hourly], x[:price_monthly])
     end
@@ -123,6 +123,7 @@ module DigitalOcean
           image: image,
           ssh_keys: ssh_keys,
           volumes: volumes,
+          monitoring: true
         )
         res = @con.droplets.create(droplet)
         self.class.droplet_from_response(res)

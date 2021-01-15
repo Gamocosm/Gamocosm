@@ -26,6 +26,7 @@ default: &default
 
 development:
   <<: *default
+  host: db
   database: gamocosm_development
 
   # The specified database role being used to connect to postgres.

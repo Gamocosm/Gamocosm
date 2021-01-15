@@ -14,6 +14,8 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
+/docker/tmp
+/docker/keys
 
 env.sh
 /coverage

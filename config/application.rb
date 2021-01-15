@@ -17,6 +17,7 @@ module Gamocosm
   CLOUDFLARE_API_TOKEN = ENV['CLOUDFLARE_API_TOKEN']
   CLOUDFLARE_EMAIL = ENV['CLOUDFLARE_EMAIL']
   CLOUDFLARE_ZONE = ENV['CLOUDFLARE_ZONE']
+  MINECRAFT_FLAVOURS_GIT_URL = ENV['MINECRAFT_FLAVOURS_GIT_URL']
 
   MINECRAFT_FLAVOURS = YAML.load_file(File.expand_path('config/minecraft_flavours.yml', Rails.root)).inject({}, &lambda do |a, x|
     x.second['versions'].each do |v|
@@ -30,7 +31,6 @@ module Gamocosm
     end
     a
   end)
-  MINECRAFT_FLAVOURS_GIT_URL = 'https://github.com/Gamocosm/gamocosm-minecraft-flavours.git'
   MCSW_GIT_URL = 'https://github.com/Gamocosm/minecraft-server_wrapper.git'
   MCSW_USERNAME = 'gamocosm-mothership'
   DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-32-x64'

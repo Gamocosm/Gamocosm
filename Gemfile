@@ -38,6 +38,10 @@ gem 'sdoc', '>= 0.4.0',          group: :doc
 # Use debugger
 # gem 'debugger', group: [:development, :test]
 
+# for docker
+gem 'ed25519', '>= 1.2', '< 1.3'
+gem 'bcrypt_pbkdf', '>= 1.0', '< 2.0'
+
 # Custom
 gem 'devise', '>= 3.4.1'
 gem 'sidekiq', '>= 6.0.6'
