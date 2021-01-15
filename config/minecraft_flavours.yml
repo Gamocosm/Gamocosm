@@ -38,6 +38,24 @@ vanilla_bedrock:
         - Mojang
     website: https://minecraft.net
     notes: []
+forge_new:
+    versions:
+        - { name: Forge (1.16.4-35.1.36), tag: 1.16.4-35.1.36 }
+        - { name: Forge (1.16.3-34.1.42), tag: 1.16.3-34.1.42 }
+        - { name: Forge (1.16.2-33.0.61), tag: 1.16.2-33.0.61 }
+        - { name: Forge (1.16.1-32.0.108), tag: 1.16.1-32.0.108 }
+        - { name: Forge (1.15.2-31.2.47), tag: 1.15.2-31.2.47 }
+        - { name: Forge (1.15.1-30.0.51), tag: 1.15.1-30.0.51 }
+        - { name: Forge (1.15-29.0.4), tag: 1.15-29.0.4 }
+        - { name: Forge (1.14.4-28.2.23), tag: 1.14.4-28.2.23 }
+        - { name: Forge (1.14.3-27.0.60), tag: 1.14.3-27.0.60 }
+        - { name: Forge (1.14.2-26.0.63), tag: 1.14.2-26.0.63 }
+        - { name: Forge (1.13.2-25.0.219), tag: 1.13.2-25.0.219 } 
+    time: 1
+    developers:
+        - Minecraft Forge team
+    website: https://minecraftforge.net
+    notes: ['Forge 1.13+']
 forge:
     versions:
         - { name: Forge (1.12.2-14.23.4.2705), tag: 1.12.2-14.23.4.2705 }
