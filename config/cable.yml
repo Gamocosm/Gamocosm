@@ -1,6 +1,9 @@
 development:
   adapter: async
 
+docker:
+  adapter: async
+
 test:
   adapter: test
 

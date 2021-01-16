@@ -1,4 +1,4 @@
 @echo off
 
-DEL /F /Q /S %CD%\tmp\pids
+DEL /F /Q /S %CD%\..\tmp\pids
 docker-compose up

@@ -24,10 +24,13 @@ default: &default
   password: <%= ENV['DATABASE_PASSWORD'] %>
   host: <%= ENV['DATABASE_HOST'] %>
 
-development:
+development: &development
   <<: *default
-  host: db
   database: gamocosm_development
+
+docker:
+  <<: *development
+  host: db
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.

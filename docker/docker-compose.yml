@@ -38,6 +38,7 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - RAILS_ENV=docker
       - DATABASE_USER=gamocosm
       - DATABASE_PASSWORD=gamocosm
       - DATABASE_HOST=db

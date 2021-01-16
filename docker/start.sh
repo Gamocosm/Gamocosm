@@ -1,4 +1,4 @@
 #!/bin/bash
 
-rm -rf ./tmp/pids
+rm -rf ../tmp/pids
 docker-compose up
