@@ -52,11 +52,18 @@ gem 'dalli'
 gem 'exception_notification'
 gem 'droplet_kit', git: 'https://github.com/Gamocosm/droplet_kit'
 gem 'puma'
+
 group :development do
     gem 'annotate', require: false
     gem 'newrelic_rpm'
     gem 'listen'
 end
+
+group :docker do
+    gem 'ed25519', '>= 1.2', '< 1.3'
+    gem 'bcrypt_pbkdf', '>= 1.0', '< 2.0'
+end
+
 group :test do
     gem 'simplecov', require: false
     gem 'webmock', require: false
