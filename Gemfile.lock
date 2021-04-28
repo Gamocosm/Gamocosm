@@ -112,6 +112,7 @@ GEM
       responders
       warden (~> 1.2.3)
     docile (1.3.2)
+    ed25519 (1.2.4)
     equalizer (0.0.11)
     erubi (1.9.0)
     exception_notification (4.4.0)
@@ -285,6 +286,7 @@ DEPENDENCIES
   dalli
   devise (>= 3.4.1)
   droplet_kit!
+  ed25519
   exception_notification
   faraday
   faraday_middleware
