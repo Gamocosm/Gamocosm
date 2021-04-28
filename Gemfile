@@ -47,7 +47,7 @@ gem 'faraday_middleware'
 #gem 'sinatra', :require => nil
 gem 'font-awesome-sass'
 gem 'simple_form', '>= 3.1.0.rc1'
-gem 'sshkit'
+gem 'sshkit', '>= 1.21.2'
 gem 'dalli'
 gem 'exception_notification'
 gem 'droplet_kit', git: 'https://github.com/Gamocosm/droplet_kit'
