@@ -78,6 +78,7 @@ GEM
       ice_nine (~> 0.11.0)
       thread_safe (~> 0.3, >= 0.3.1)
     bcrypt (3.1.13)
+    bcrypt_pbkdf (1.1.0)
     bootstrap-sass (3.4.1)
       autoprefixer-rails (>= 5.2.1)
       sassc (>= 2.0.0)
@@ -280,6 +281,7 @@ PLATFORMS
 
 DEPENDENCIES
   annotate
+  bcrypt_pbkdf
   bootstrap-sass (>= 3.3.3)
   coffee-rails (>= 4.0.0)
   coveralls (>= 0.8.23)
