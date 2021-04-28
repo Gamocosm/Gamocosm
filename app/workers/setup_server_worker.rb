@@ -25,9 +25,6 @@ class SetupServerWorker
     'zram',
   ]
 
-  ZRAM_SYSTEMD_SERVICE_FILE_URL = 'https://raw.githubusercontent.com/Gamocosm/Gamocosm/release/server_setup/zram.service'
-  ZRAM_HELPER_SCRIPT_URL = 'https://raw.githubusercontent.com/Gamocosm/Gamocosm/release/server_setup/zram-helper.sh'
-
   def perform(server_id, times = 0)
     logger.info "Running #{self.class.name} with server_id #{server_id}, times #{times}"
     server = Server.find(server_id)
@@ -165,10 +162,10 @@ class SetupServerWorker
             execute :'firewall-cmd', '--add-port=25565/udp'
             execute :'firewall-cmd', '--permanent', '--add-port=25565/udp'
 
-            if server_ram_below_4gb
-              execute :systemctl, 'start', 'zram-swap'
-              execute :systemctl, 'enable', 'zram-swap'
-            end
+            #if server_ram_below_4gb
+            #  execute :systemctl, 'start', 'zram-swap'
+            #  execute :systemctl, 'enable', 'zram-swap'
+            #end
           end
         end
       end
