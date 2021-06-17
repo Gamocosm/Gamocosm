@@ -12,6 +12,7 @@ class SetupServerWorker
   SYSTEM_PACKAGES = [
     'firewalld',
     'java-1.8.0-openjdk-headless',
+    'java-latest-openjdk-headless',
     'python3',
     'python3-devel',
     'python3-pip',
