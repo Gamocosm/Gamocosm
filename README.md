@@ -20,23 +20,24 @@ Pull requests are welcome!
 
 ### Setting up your development environment
 You should have a Unix/Linux system.
-The following instructions were made for Fedora 31, but the steps should be similar on other distributions.
+The following instructions were made for Fedora 35, but the steps should be similar on other distributions.
 
-1. Install postgresql and development headers and libraries, memcached, redis, and nodejs: `(sudo) dnf install postgresql-server postgresql-contrib postgresql-devel memcached redis nodejs`
-1. Install [rbenv][13] and [ruby-build][19]. Read the instructions on their page (will be up to date)
-1. Install dependencies to build ruby: `(sudo) dnf install gcc gcc-c++ openssl-devel readline-devel zlib-devel`
+1. Install postgresql and development headers and libraries, memcached, redis, and nodejs: `(sudo) dnf install postgresql-server postgresql-contrib memcached redis nodejs`.
+1. Install [rbenv][13] and [ruby-build][19]. You can use [rbenv-installer][20]. Read their docs for up to date instructions. Cached instructions:
+    - Run `curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash`.
+1. Install dependencies to build ruby and gems: `(sudo) dnf install gcc gcc-c++ openssl-devel readline-devel zlib-devel postgresql-devel`.
 1. Install Ruby 2.6.5: `rbenv install 2.6.5`.
-1. Check that `ruby -v` inside your cloned `gamocosm` folder gives you version 2.6.5
-1. Install Bundler: `gem install bundler`
-1. Install gem dependencies: `bundle install`
-1. Run `cp env.sh.template env.sh`
-1. Enter config in `env.sh`
-1. Initialize postgresql: `(sudo) postgresql-setup initdb --unit postgresql`
-1. Configure the database (explained below)
-1. Start postgresql, memcached, and redis manually: `(sudo) systemctl start <postgresql/memcached/redis>`, or enable them to start at boot time: `(sudo) systemctl enable <postgresql/memcached/redis>`
-1. Run `./sysadmin/run.sh bundle exec rake db:setup`
-1. Start the server: `./sysadmin/run.sh bundle exec rails s`
-1. Start the Sidekiq worker: `./sysadmin/run.sh bundle exec sidekiq`
+1. Check that `ruby -v` inside your cloned `gamocosm` folder gives you version 2.6.5.
+1. Install Bundler: `gem install bundler`.
+1. Install gem dependencies: `bundle install`.
+1. Run `cp env.sh.template env.sh`.
+1. Update config in `env.sh`.
+1. Initialize postgresql: `(sudo) postgresql-setup --initdb --unit postgresql` ([Fedora docs][21]).
+1. Configure the database (explained below).
+1. Start postgresql, memcached, and redis manually: `(sudo) systemctl start <postgresql/memcached/redis>`, and optionally enable them to start at boot time: `(sudo) systemctl enable <postgresql/memcached/redis>`.
+1. Run `./sysadmin/run.sh bundle exec rake db:setup`.
+1. Start the server: `./sysadmin/run.sh bundle exec rails s`.
+1. Start the Sidekiq worker: `./sysadmin/run.sh bundle exec sidekiq`.
 
 ### Directory hierarchy
 - `app`: main source code
@@ -219,3 +220,5 @@ Example: `TEST_DOCKER=true ./tests.sh`
 [17]: https://mingard.io
 [18]: https://github.com/Ajusa
 [19]: https://github.com/rbenv/ruby-build
+[20]: https://github.com/rbenv/rbenv-installer
+[21]: https://docs.fedoraproject.org/en-US/quick-docs/postgresql/
