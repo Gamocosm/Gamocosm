@@ -17,7 +17,12 @@
 			<% end %>
 			<% if @server.reboot?.nil? %>
 				<%= link_to reboot_server_path(@server), class: "btn btn-info" do %>
-					<span class="fa fa-refresh"></span> Reboot
+					<span class="fa fa-sync"></span> Reboot
+				<% end %>
+			<% end %>
+			<% if @server.remote.exists? && @server.remote.ip_address %>
+				<%= link_to "https://#{@server.remote.ip_address}:9090", target: :_blank, class: "btn btn-info" do %>
+					<span class="fa fa-terminal"></span> Console
 				<% end %>
 			<% end %>
 		</span>

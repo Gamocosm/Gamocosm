@@ -23,11 +23,15 @@
 			<p>
 				If you delete this server now, Gamocosm will also delete the following resources on Digital Ocean:
 				<ul>
-					<% if @server.remote.exists? %>
-						<li>Droplet #<%= @server.remote_id %></li>
-					<% end %>
-					<% if !@server.remote_snapshot_id.nil? && !@server.preserve_snapshot %>
-						<li>Snapshot #<%= @server.remote_snapshot_id %></li>
+					<% if @server.remote.exists? || (!@server.remote_snapshot_id.nil? && !@server.preserve_snapshot) %>
+						<% if @server.remote.exists? %>
+							<li>Droplet #<%= @server.remote_id %></li>
+						<% end %>
+						<% if !@server.remote_snapshot_id.nil? && !@server.preserve_snapshot %>
+							<li>Snapshot #<%= @server.remote_snapshot_id %></li>
+						<% end %>
+					<% else %>
+						<li>No resources to be deleted.</li>
 					<% end %>
 				</ul>
 				<% if !@server.remote_snapshot_id.nil? && @server.preserve_snapshot %>

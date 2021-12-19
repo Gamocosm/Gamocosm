@@ -12,6 +12,7 @@ class SetupServerWorker
   SYSTEM_PACKAGES = [
     'firewalld',
     'policycoreutils-python-utils',
+    'cockpit',
     'python3',
     'python3-devel',
     'python3-pip',
@@ -148,12 +149,16 @@ class SetupServerWorker
             execute :dnf, '-y', 'install', *SYSTEM_PACKAGES
             execute :systemctl, 'start', 'firewalld'
             # firewalld is enabled upon install
+            execute :systemctl, 'start', 'cockpit.socket'
+            execute :systemctl, 'enable', 'cockpit.socket'
+            execute :'firewall-cmd', '--add-service=cockpit'
+            execute :'firewall-cmd', '--add-service=cockpit', '--permanent'
             execute :'firewall-cmd', "--add-port=#{Minecraft::Node::MCSW_PORT}/tcp"
-            execute :'firewall-cmd', '--permanent', "--add-port=#{Minecraft::Node::MCSW_PORT}/tcp"
+            execute :'firewall-cmd', "--add-port=#{Minecraft::Node::MCSW_PORT}/tcp", '--permanent'
             execute :'firewall-cmd', '--add-port=25565/tcp'
-            execute :'firewall-cmd', '--permanent', '--add-port=25565/tcp'
+            execute :'firewall-cmd', '--permanent', '--add-port=25565/tcp', '--permanent'
             execute :'firewall-cmd', '--add-port=25565/udp'
-            execute :'firewall-cmd', '--permanent', '--add-port=25565/udp'
+            execute :'firewall-cmd', '--add-port=25565/udp', '--permanent'
           end
         end
       end
