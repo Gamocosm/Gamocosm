@@ -11,8 +11,7 @@ class SetupServerWorker
 
   SYSTEM_PACKAGES = [
     'firewalld',
-    'java-1.8.0-openjdk-headless',
-    'java-latest-openjdk-headless',
+    'policycoreutils-python-utils',
     'python3',
     'python3-devel',
     'python3-pip',
@@ -21,8 +20,6 @@ class SetupServerWorker
     'git',
     'tmux',
     'unzip',
-    'wget',
-    'policycoreutils-python-utils',
     'zram',
   ]
 
@@ -127,11 +124,6 @@ class SetupServerWorker
 
   def base_install(user, server, host)
     mcuser_password_escaped = "#{user.email}+#{server.name}".shellescape
-    server_ram_below_4gb = [
-      '1gb',
-      '2gb',
-      '3gb',
-    ].any? { |x| server.remote_size_slug.end_with?(x) }
     begin
       on host do
         Timeout::timeout(600) do
@@ -162,11 +154,6 @@ class SetupServerWorker
             execute :'firewall-cmd', '--permanent', '--add-port=25565/tcp'
             execute :'firewall-cmd', '--add-port=25565/udp'
             execute :'firewall-cmd', '--permanent', '--add-port=25565/udp'
-
-            #if server_ram_below_4gb
-            #  execute :systemctl, 'start', 'zram-swap'
-            #  execute :systemctl, 'enable', 'zram-swap'
-            #end
           end
         end
       end

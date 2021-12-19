@@ -38,6 +38,9 @@ The following instructions were made for Fedora 35, but the steps should be simi
 1. Run `./sysadmin/run.sh bundle exec rake db:setup`.
 1. Start the server: `./sysadmin/run.sh bundle exec rails s`.
 1. Start the Sidekiq worker: `./sysadmin/run.sh bundle exec sidekiq`.
+1. Use the console: `./sysadmin/run.sh bundle exec rails c`.
+
+Alternatively, instead of using the `sysadmin/run.sh` script, assuming you have set up rbenv correctly, you can just do `source env.sh` to load the environment file into your current shell, and then run the commands directly (e.g. `bundle exec rails c`).
 
 ### Directory hierarchy
 - `app`: main source code
@@ -80,16 +83,15 @@ Then you can run stuff like `bundle exec ...` directly.
 ### Database configuration
 Locate `pg_hba.conf`. On Fedora this is in `/var/lib/pgsql/data/`.
 This file tells postgresql how to authenticate users. Read about it on the [PostgreSQL docs][1].
-To restart postgresql: `(sudo) service postgresql restart`
 `config/database.yml` gets the database username from the environment variable `DATABASE_USER` (default "gamocosm").
 The default value in "env.sh.template" for `DATABASE_HOST` is blank, so if you don't change it Rails will use a local Unix socket connection.
 The postgres user you use must be a postgres superuser, as rails needs to enable the uuid extension.
 To create a postgres user "gamocosm":
 
-- Switch to the `postgres` user: `(sudo) su - postgres`
-- Run `createuser --createdb --pwprompt --superuser gamocosm` (`createuser --help` for more info)
+- Switch to the `postgres` user: `(sudo) su --login postgres`.
+- Run `createuser --createdb --pwprompt --superuser gamocosm` (`createuser --help` for more info).
 
-Depending on what method you want to use, add the following under the line that looks like `# TYPE DATABASE USER ADDRESS METHOD`.
+Depending on what method you want to use, in `pg_hba.conf` add the following under the line that looks like `# TYPE DATABASE USER ADDRESS METHOD`.
 
 - Type
 	- `local` (local Unix socket) or `host` (TCP connection)
@@ -113,7 +115,8 @@ Depending on what method you want to use, add the following under the line that 
 		- Client supplies an MD5-encrypted password
 		- This is the recommended method
 
-Example: `local postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm md5`
+Example: `local postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm md5`.
+You will have to restart postgresql (`(sudo) systemctl restart postgresql`) for the changes to take effect.
 
 ### Technical details
 Hmmmm.

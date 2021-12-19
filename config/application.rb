@@ -20,8 +20,8 @@ module Gamocosm
 
   MINECRAFT_FLAVOURS = YAML.load_file(File.expand_path('config/minecraft_flavours.yml', Rails.root)).inject({}, &lambda do |a, x|
     x.second['versions'].each do |v|
-      a["#{x.first}/#{v['tag']}"] = {
-        name: v['name'],
+      a["#{x.first}/#{v}"] = {
+        name: "#{x.second['name']} (#{v == 'null' ? 'latest' : v})",
         time: x.second['time'],
         developers: x.second['developers'],
         website: x.second['website'],
