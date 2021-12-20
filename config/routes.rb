@@ -19,9 +19,7 @@ Rails.application.routes.draw do
   match '/source' => redirect('https://github.com/Gamocosm/Gamocosm'), as: :source, via: :get
   match '/git_head' => redirect("https://github.com/Gamocosm/Gamocosm/tree/#{Gamocosm::GIT_HEAD}"), as: :git_head, via: :get
   match '/license' => redirect('https://github.com/Gamocosm/Gamocosm/blob/master/LICENSE'), as: :license, via: :get
-  match '/blog' => redirect('https://gamocosm.com/blog/'), as: :blog, via: :get
-  match '/irc' => redirect('https://webchat.esper.net/?channels=gamocosm'), as: :irc, via: :get
-  match '/irc_history' => redirect('http://irc.gamocosm.com'), as: :irc_history, via: :get
+  match '/blog' => redirect('https://gamocosm.com/blog.0/'), as: :blog, via: :get
 
   scope '/wiki' do
     match '/ftp_ssh' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/FTP-and-SSH'), as: :wiki_ftp_ssh, via: :get
@@ -66,6 +64,7 @@ Rails.application.routes.draw do
   scope '/external' do
     match '/github_student_developer_pack' => redirect('https://education.github.com/pack'), as: :external_github_student_developer_pack, via: :get
     match '/gitter' => redirect('https://gitter.im/gamocosm/Lobby'), as: :external_gitter, via: :get
+    match '/irc' => redirect('https://webchat.esper.net/?channels=gamocosm'), as: :irc, via: :get
   end
 
   scope '/cuberite' do

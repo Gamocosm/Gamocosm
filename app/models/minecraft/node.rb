@@ -8,7 +8,7 @@ class Minecraft::Node
     @ip_address = ip_address
     @port = MCSW_PORT
     @conn = Faraday.new(url: "http://#{@ip_address}:#{@port}") do |conn|
-      conn.basic_auth(Gamocosm::MCSW_USERNAME, @local_minecraft.mcsw_password)
+      conn.request :basic_auth, Gamocosm::MCSW_USERNAME, @local_minecraft.mcsw_password
       conn.response :json
       conn.adapter Faraday.default_adapter
     end
