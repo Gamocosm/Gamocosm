@@ -94,6 +94,7 @@ class SetupServerWorker
         end
         raise
       end
+      self.enable_ssh_password(server, host)
       if server.done_setup?
         self.setup_volume(server, host)
         self.base_update(user, server, host)
@@ -123,6 +124,24 @@ class SetupServerWorker
     logger.info "Record in #{self.class} not found #{e.message}"
   end
 
+  def enable_ssh_password(server, host)
+    begin
+      on host do
+        Timeout::timeout(16) do
+          within '/' do
+            execute :echo, 'PasswordAuthentication yes', '>', '/etc/ssh/sshd_config.d/01-gamocosm.conf'
+            execute :systemctl, 'restart', 'sshd'
+          end
+        end
+      end
+    rescue SSHKit::Runner::ExecuteError => e
+      if e.cause.is_a?(Timeout::Error)
+        raise 'Server setup (SSH): Server stalled/took too long doing base setup. Please re-create the server and try again'
+      end
+      raise e
+    end
+  end
+
   def base_install(user, server, host)
     mcuser_password_escaped = "#{user.email}+#{server.name}".shellescape
     begin
@@ -137,13 +156,16 @@ class SetupServerWorker
             execute :usermod, '-aG', 'wheel', 'mcuser'
 
             # setup swap
-            if test '[ ! -f "/swapfile" ]'
-              execute :fallocate, '-l', '1G', '/swapfile'
-              execute :chmod, '600', '/swapfile'
-              execute :mkswap, '/swapfile'
-              execute :swapon, '/swapfile'
+            if test '[ ! -f /swapfile ]'
               execute :echo, '/swapfile none swap defaults 0 0', '>>', '/etc/fstab'
             end
+            execute :rm, '-f', '/swapfile'
+            execute :touch, '/swapfile'
+            execute :chattr, '+C', '/swapfile'
+            execute :fallocate, '-l', '1G', '/swapfile'
+            execute :chmod, '600', '/swapfile'
+            execute :mkswap, '/swapfile'
+            execute :swapon, '/swapfile'
 
             # install system packages
             execute :dnf, '-y', 'install', *SYSTEM_PACKAGES
@@ -175,8 +197,6 @@ class SetupServerWorker
       on host do
         Timeout::timeout(60) do
           within '/' do
-            execute :sed, '-i', "'s/^PasswordAuthentication no/PasswordAuthentication yes/'", '/etc/ssh/sshd_config'
-            execute :systemctl, 'restart', 'sshd'
             # for old servers (prior to 2020 April 8)
             if ! test 'dnf repoquery --installed | grep -q python3-systemd'
               execute :dnf, '-y', 'install', 'python3-systemd'
@@ -333,8 +353,8 @@ class SetupServerWorker
               execute :semanage, 'port', '-a', '-t', 'ssh_port_t', '-p', 'tcp', ssh_port
             end
             execute :sed, '-i', "'s/^#Port 22$/Port #{ssh_port}/'", '/etc/ssh/sshd_config'
-            execute :sed, '-i', "'s/^PasswordAuthentication no/PasswordAuthentication yes/'", '/etc/ssh/sshd_config'
-            execute :sed, '-i', "'s/^PasswordAuthentication no/PasswordAuthentication yes/'", '/etc/ssh/sshd_config.d/50-redhat.conf'
+            #execute :sed, '-i', "'s/^PasswordAuthentication no/PasswordAuthentication yes/'", '/etc/ssh/sshd_config'
+            #execute :sed, '-i', "'s/^PasswordAuthentication no/PasswordAuthentication yes/'", '/etc/ssh/sshd_config.d/50-redhat.conf'
             execute :systemctl, 'restart', 'sshd'
           end
         end

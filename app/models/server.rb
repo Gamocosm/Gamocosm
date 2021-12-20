@@ -83,7 +83,7 @@ class Server < ActiveRecord::Base
   end
 
   def host_name
-    return "#{name}.minecraft.gamocosm"
+    return "#{self.domain}.#{Gamocosm::USER_SERVERS_DOMAIN}"
   end
 
   def ram

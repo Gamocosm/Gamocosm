@@ -70,7 +70,6 @@ Then you can run stuff like `bundle exec ...` directly.
 - `DATABASE_PASSWORD`: hmmmm
 - `DATABASE_HOST`: database host. If specified, Rails will use a TCP connection (e.g. "localhost"). If left blank, Rails will use a local Unix socket connection
 - `MAIL_SERVER_*`: see [action mailer configuration][6] in the Rails guide
-- `USER_SERVERS_DOMAIN`: subdomain for user servers (e.g. `gamocosm.com`)
 - `CLOUDFLARE_API_TOKEN`: hmmm
 - `CLOUDFLARE_EMAIL`: hmmm
 - `CLOUDFLARE_ZONE`: shown on the bottom right of CloudFlare's control panel for the domain
