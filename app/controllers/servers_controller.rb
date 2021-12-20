@@ -281,14 +281,13 @@ class ServersController < ApplicationController
     status = server[0].pending_operation
     minecraft = server[0].minecraft.running?
     ip = server[0].remote.exists? ? server[0].remote.ip_address : nil
-    domain = "#{server[0].domain}.#{Gamocosm::USER_SERVERS_DOMAIN}"
     download = server[0].minecraft.world_download_url
     render json: {
       server: active,
       status: status,
       minecraft: minecraft,
       ip: ip,
-      domain: domain,
+      domain: server.host_name,
       download: download,
     }
   end

@@ -3,9 +3,9 @@
 		<%= panel_with_heading 'Domain / IP Address' do %>
 			<div class="form-group">
 				<div class="input-group">
-					<input class="form-control" type="text" readonly value="<%= "#{@server.domain}.#{Gamocosm::USER_SERVERS_DOMAIN}" %>" data-toggle="tooltip" title="If you cannot connect with this domain, try using the IP address directly." />
+					<input class="form-control" type="text" readonly value="<%= @server.host_name %>" data-toggle="tooltip" title="If you cannot connect with this domain, try using the IP address directly." />
 					<div class="input-group-addon">
-						<div role="button" data-toggle="tooltip" title="Copy to clipboard." onclick="navigator.clipboard.writeText('<%= "#{@server.domain}.#{Gamocosm::USER_SERVERS_DOMAIN}" %>');">
+						<div role="button" data-toggle="tooltip" title="Copy to clipboard." onclick="navigator.clipboard.writeText('<%= "#{@server.host_name}" %>');">
 							<span class="fa fa-clipboard"></span>
 						</div>
 					</div>
@@ -33,9 +33,9 @@
 		<%= panel_with_heading 'Web Console' do %>
 			<div class="form-group">
 				<div class="input-group">
-					<input class="form-control" type="text" readonly value="<%= "https://#{@server.domain}.#{Gamocosm::USER_SERVERS_DOMAIN}:9090" %>" data-toggle="tooltip" title="For security reasons, you will have to copy and enter this URL into your browser directly." />
+					<input class="form-control" type="text" readonly value="https://<%= @server.host_name %>:9090" data-toggle="tooltip" title="For security reasons, you will have to copy and enter this URL into your browser directly." />
 					<div class="input-group-addon">
-						<div role="button" data-toggle="tooltip" title="Copy to clipboard." onclick="navigator.clipboard.writeText('<%= "https://#{@server.domain}.#{Gamocosm::USER_SERVERS_DOMAIN}:9090" %>');">
+						<div role="button" data-toggle="tooltip" title="Copy to clipboard." onclick="navigator.clipboard.writeText('https://<%= @server.host_name %>:9090');">
 							<span class="fa fa-clipboard"></span>
 						</div>
 					</div>

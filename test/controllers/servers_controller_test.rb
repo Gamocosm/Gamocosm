@@ -112,7 +112,7 @@ class ServersControllerTest < ActionController::TestCase
     @server.update_columns(remote_snapshot_id: nil)
     mock_do_ssh_keys_list(200, []).times_only(1)
     mock_do_ssh_key_gamocosm(200)
-    mock_do_droplet_create().stub_do_droplet_create(202, @server.name, @server.remote_size_slug, @server.remote_region_slug, Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
+    mock_do_droplet_create().stub_do_droplet_create(202, @server.domain, @server.remote_size_slug, @server.remote_region_slug, Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'new').times(1).stub_do_droplet_show(200, 'active')
     mock_do_droplet_actions_list(200, 1)
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 1)

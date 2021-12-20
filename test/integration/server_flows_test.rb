@@ -18,7 +18,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
     mock_do_ssh_keys_list(200, []).times_only(1)
 
     login_user('test@test.com', '1234test')
-    server = create_server('test2', 'vanilla/1.7.10', 'nyc3', '512mb')
+    server = create_server('test2', 'vanilla_java8/1.7.10', 'nyc3', '512mb')
 
     mock_cf_domain(server.domain, 2)
     mock_mcsw_stop(200, server.minecraft)
@@ -38,7 +38,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
 
   def start_server(server, properties)
     mock_do_droplet_create
-      .stub_do_droplet_create(202, server.name, server.remote_size_slug, server.remote_region_slug, server.remote_snapshot_id || Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
+      .stub_do_droplet_create(202, server.domain, server.remote_size_slug, server.remote_region_slug, server.remote_snapshot_id || Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
       .times_only(1)
     mock_do_droplet_actions_list(200, 1).times_only(1)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'new').times_only(1)
@@ -78,14 +78,16 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
 =end
   def create_server(name, flavour, remote_region_slug, remote_size_slug)
     old_servers_count = Server.count
-    post servers_path, params: { server: {
-      name: name,
-      remote_region_slug: remote_region_slug,
-      remote_size_slug: remote_size_slug,
-      minecraft_attributes: {
-        flavour: flavour,
+    post create_servers_path, params: {
+      server: {
+        name: name,
+        remote_region_slug: remote_region_slug,
+        remote_size_slug: remote_size_slug,
+        minecraft_attributes: {
+          flavour: flavour,
+        },
       },
-    } }
+    }
     assert_equal old_servers_count + 1, Server.count
     server = Server.find_by(name: name)
     assert_redirected_to server_path(server)

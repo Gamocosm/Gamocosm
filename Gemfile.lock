@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/Gamocosm/droplet_kit
-  revision: ea613d008dd226d825fc39e1d565473a626a96cc
+  revision: d9566317f39d09e414da68263b17eab725816c15
   specs:
-    droplet_kit (3.6.0)
+    droplet_kit (3.16.0)
       faraday (>= 1.0.0)
       kartograph (~> 0.2.3)
       resource_kit (~> 0.1.5)

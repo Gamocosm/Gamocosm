@@ -45,9 +45,9 @@ module ApplicationHelper
       return 'Error'
     end
     if server.remote.exists? && server.remote.ip_address
-      return "#{server.domain}.#{Gamocosm::USER_SERVERS_DOMAIN} (or #{server.remote.ip_address})"
+      return "#{server.host_name} (or #{server.remote.ip_address})"
     end
-    return fallback || "#{server.domain}.#{Gamocosm::USER_SERVERS_DOMAIN} (Not running)"
+    return fallback || "#{server.host_name} (Not running)"
   end
 
   def render_server_status(server)

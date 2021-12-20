@@ -287,7 +287,7 @@ class WebMock::RequestStub
 
   def stub_do_droplet_create(status, name, size, region, image)
     return self.with_body_hash_including({
-      name: "#{name}.minecraft.gamocosm",
+      name: "#{name}.#{Gamocosm::USER_SERVERS_DOMAIN}",
       size: size,
       region: region,
       image: image,
