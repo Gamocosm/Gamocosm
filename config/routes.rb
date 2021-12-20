@@ -32,6 +32,7 @@ Rails.application.routes.draw do
     match '/custom_minecraft' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft'), as: :wiki_custom_minecraft, via: :get
     match '/security_privacy' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Security-and-Privacy'), as: :wiki_security_privacy, via: :get
     match '/volumes' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Using-Digital-Ocean-Volumes'), as: :wiki_volumes, via: :get
+    match '/web_console' => redirect('https://github.com/Gamocosm/Gamocosm/wiki/Web-Console'), as: :wiki_web_console, via: :get
   end
 
   scope '/digital_ocean' do

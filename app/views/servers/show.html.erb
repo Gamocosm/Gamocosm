@@ -29,13 +29,13 @@
 					<% if @demo.nil? %>
 						<li class="<%= @server_tab.nil? ? 'active' : '' %>"><%= link_to 'Profile', server_path(@server, anchor: 'profile'), 'data-toggle' => 'tab' %></li>
 						<li><%= link_to 'Minecraft Settings', server_path(@server, anchor: 'settings'), 'data-toggle' => 'tab' %></li>
-						<li class="<%= @server_tab == :ftp_ssh ? 'active' : '' %>"><%= link_to 'FTP and SSH', server_path(@server, anchor: 'ftp_ssh'), 'data-toggle' => 'tab' %></li>
+						<li class="<%= @server_tab == :ftp_ssh ? 'active' : '' %>"><%= link_to 'SSH and FTP', server_path(@server, anchor: 'ftp_ssh'), 'data-toggle' => 'tab' %></li>
 						<li class="<%= @server_tab == :schedule ? 'active' : '' %>"><%= link_to 'Schedule', server_path(@server, anchor: 'schedule'), 'data-toggle' => 'tab' %></li>
 						<li class="<%= @server_tab == :advanced ? 'active' : '' %>"><%= link_to 'Advanced', server_path(@server, anchor: 'advanced'), 'data-toggle' => 'tab' %></li>
 					<% else %>
 						<li class="active"><a href="#profile" data-toggle="tab">Profile</a></li>
 						<li><a href="#settings" data-toggle="tab">Minecraft Settings</a></li>
-						<li><a href="#ftp_ssh" data-toggle="tab">FTP and SSH</a></li>
+						<li><a href="#ftp_ssh" data-toggle="tab">SSH and FTP</a></li>
 						<li><a href="#schedule" data-toggle="tab">Schedule</a></li>
 						<li><a href="#advanced" data-toggle="tab">Advanced</a></li>
 					<% end %>

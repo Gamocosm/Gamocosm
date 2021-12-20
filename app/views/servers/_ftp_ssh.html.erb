@@ -1,5 +1,5 @@
 <%= panel_with_heading 'Server Credentials' do %>
-	<p>FTP and SSH instructions are on the <%= link_to 'wiki', wiki_ftp_ssh_path %>.</p>
+	<p>SSH and FTP instructions are on the <%= link_to 'wiki', wiki_ftp_ssh_path %>.</p>
 	<table class="ftp-details table">
 		<tr><th scope="row">Host</th><td><%= render_server_ip_address(@server, 'Your server\'s IP address when running') %></td></tr>
 		<tr><th scope="row">Port</th><td><%= @server.ssh_port %></td></tr>
