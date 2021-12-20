@@ -22,11 +22,11 @@ Pull requests are welcome!
 You should have a Unix/Linux system.
 The following instructions were made for Fedora 35, but the steps should be similar on other distributions.
 
-1. Install postgresql and development headers and libraries, memcached, redis, and nodejs: `(sudo) dnf install postgresql-server postgresql-contrib memcached redis nodejs`.
+1. Install postgresql, memcached, redis, and nodejs: `(sudo) dnf install postgresql-server postgresql-contrib memcached redis nodejs`.
 1. Install [rbenv][13] and [ruby-build][19]. You can use [rbenv-installer][20]. Read their docs for up to date instructions. Cached instructions:
     - Run `curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash`.
 1. Install dependencies to build ruby and gems: `(sudo) dnf install gcc gcc-c++ openssl-devel readline-devel zlib-devel postgresql-devel`.
-1. Install Ruby 2.6.5: `rbenv install 2.6.5`.
+1. Install Ruby 3.0.3: `rbenv install` inside this project root directory (it reads `.ruby-version`).
 1. Check that `ruby -v` inside your cloned `gamocosm` folder gives you version 2.6.5.
 1. Install Bundler: `gem install bundler`.
 1. Install gem dependencies: `bundle install`.
