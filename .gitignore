@@ -15,7 +15,9 @@
 /log/*.log
 /tmp
 
-env.sh
+gamocosm.env
+id_gamocosm
+id_gamocosm.pub
 /coverage
 /test-docker/id_rsa
 /test-docker/id_rsa.pub

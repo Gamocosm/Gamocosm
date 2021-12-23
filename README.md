@@ -39,7 +39,13 @@ The following instructions were made for Fedora 35, but the steps should be simi
 1. Initialize postgresql: `(sudo) postgresql-setup --initdb` ([Fedora docs][21]; note that `--unit postgresql` is unecessary - it is the default - see `man postgresql-setup`).
 1. Configure the database; see below.
 1. Start postgresql and redis: `(sudo) systemctl start <postgresql/redis>`, and optionally enable them to start at boot time: `(sudo) systemctl enable <postgresql/redis>`.
+1. Generate or link your SSH keys; Gamocosm expects an `id_gamocosm` private key and an `id_gamocosm.pub` public key in the project root. Gamocosm uses this to connect to and set up the servers it creates. Gamocosm officially only supports `ed25519` keys; somewhere down the stack, `rsa` keys are not supported (`ed25519` keys are considered more secure):
+	- To generate new keys, run: `ssh-keygen -t ed25519`. The default path saves to `~/.ssh/id_ed25519`. If you leave it here, SSH will automatically try this key when SSHing (e.g. if you need to debug a Digital Ocean droplet created by your Gamocosm). Careful not to overwrite if you already have an existing `~/.ssh/id_ed25519` key!
+	- To link a key `~/.ssh/id_ed25519`, run `ln -s ~/.ssh/id_ed25519 id_gamocosm`, and similarly for the corresponding public key (with `.pub` extension).
+		- If you plan on running Gamocosm in a container, note that `podman`/`docker` cannot copy symlinks; use `cp` to copy the files instead.
+	- `id_gamocosm` and `id_gamocosm.pub` are ignored in Gamocosm's `.gitignore` so you don't have to worry about accidentally committing them.
 1. Create your environment file: `cp template.env gamocosm.env`.
+1. Make your environment file only readable (and writable) by the file owner (you): `chown 600 gamocosm.env`
 1. Update the config in `gamocosm.env`. See below for documentation.
 1. Load environment variables: `source load_env.sh`. You will need to do this in every new shell you run ruby/rails in.
 1. Setup the database: `bundle exec rails db:setup`.
@@ -53,9 +59,7 @@ The following instructions were made for Fedora 35, but the steps should be simi
 - `DATABASE_USER`: Hmmmm.
 - `DATABASE_PASSWORD`: Hmmmm.
 - `DIGITAL_OCEAN_API_KEY`: Your Digital Ocean API token.
-- `DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH`: SSH key to be added to new servers for Gamocosm to SSH into. Generate a key with `ssh-keygen -t ed25519`. Somewhere down the stack rsa keys are not supported.
-- `DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH`: See previous.
-- `DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE`: See above.
+- `DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE`: You should have generated or linked an `id_gamocosm` SSH key in the project root, with an (optional) passphrase.
 - `SIDEKIQ_REDIS_HOST`: You can leave this as the default.
 - `SIDEKIQ_REDIS_PORT`: You can leave this as the default.
 - `SIDEKIQ_ADMIN_USERNAME`: HTTP basic auth for Sidekiq web interface.

@@ -1,6 +1,7 @@
 [Unit]
 Description=Gamocosm Puma
-After=syslog.target network.target
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=simple

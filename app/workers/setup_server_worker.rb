@@ -169,7 +169,7 @@ class SetupServerWorker
             execute :fallocate, '-l', '1G', '/swapfile'
             execute :chmod, '600', '/swapfile'
             execute :mkswap, '/swapfile'
-            execute :swapon, '/swapfile'
+            execute :swapon, '--all'
 
             # install system packages
             execute :dnf, '-y', 'install', *SYSTEM_PACKAGES

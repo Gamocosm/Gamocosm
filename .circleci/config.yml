@@ -20,6 +20,7 @@ jobs:
           ./podman/run-postgresql.sh
           ./podman/run-sidekiq-redis.sh
 
+          ssh-keygen -t ed25519 -N '' -f id_gamocosm
           ./podman/build-image.sh
           ./podman/setup-db.sh
           ./podman/run-tests.sh

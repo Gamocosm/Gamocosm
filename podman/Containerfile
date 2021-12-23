@@ -1,4 +1,4 @@
-FROM ruby:3.0.3
+FROM docker.io/ruby:3.0.3
 
 WORKDIR /gamocosm
 
@@ -7,7 +7,5 @@ RUN gem update bundler
 COPY Gemfile Gemfile.lock ./
 
 RUN bundle install
-
-RUN ssh-keygen -t ed25519 -N '' -f id_ed25519
 
 COPY . ./

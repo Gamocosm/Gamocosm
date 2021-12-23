@@ -1,6 +1,7 @@
 [Unit]
-Description=Gamocosm Podman %i
-After=syslog.target network.target
+Description=Gamocosm Container %i
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 ExecStart=/usr/bin/podman start --attach %i
@@ -9,7 +10,7 @@ RestartSec=1
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=gamocosm-podman-%i
+SyslogIdentifier=%i
 
 [Install]
 WantedBy=multi-user.target
