@@ -128,8 +128,12 @@ class SetupServerWorker
     begin
       on host do
         Timeout::timeout(16) do
-          within '/' do
-            execute :echo, 'PasswordAuthentication yes', '>', '/etc/ssh/sshd_config.d/01-gamocosm.conf'
+          within '/etc/ssh' do
+            if test '[ -d sshd_config.d ]'
+              execute :echo, 'PasswordAuthentication yes', '>', 'sshd_config.d/01-gamocosm.conf'
+            else
+              execute :sed, '-i', '-e', '1i PasswordAuthentication yes', 'sshd_config'
+            end
             execute :systemctl, 'restart', 'sshd'
           end
         end

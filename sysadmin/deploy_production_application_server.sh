@@ -6,7 +6,6 @@
 
 set -ex
 
-RUBY_VERSION=2.6.5
 SWAP_SIZE=1g
 SWAP=/swapfile
 
@@ -78,19 +77,17 @@ echo "$SWAP none swap defaults,pri=0 0 0" >> /etc/fstab
 # basic tools
 dnf -y install vim tmux git htop
 # services
-dnf -y install memcached postgresql-server postgresql-contrib libpq-devel redis firewalld
+dnf -y install firewalld postgresql-server postgresql-contrib redis
 # nginx
 dnf -y install nginx certbot certbot-nginx
-# rvm
-#dnf install -y patch autoconf automake bison gcc-c++ glibc-headers glibc-devel libffi-devel libtool libyaml-devel make patch readline-devel sqlite-devel zlib-devel openssl-devel
 # rbenv
 dnf -y install gcc gcc-c++ make openssl-devel readline-devel zlib-devel
 # other
-dnf -y install nodejs
-# for audit2allow
+dnf -y install libpq-devel nodejs
+# for semanage and audit2allow
 dnf -y install policycoreutils-python-utils
 
-systemctl daemon-reload
+#systemctl daemon-reload
 
 git clone https://github.com/Raekye/dotfiles.git
 "$(pwd)/dotfiles/vim/setup.sh"
@@ -121,7 +118,7 @@ systemctl restart postgresql
 
 cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.vanilla
 
-adduser gamocosm
+useradd gamocosm
 cp -r "$HOME/.ssh" /home/gamocosm/.ssh
 if [ -z "$RESTORE_DIR" ]; then
 	chown -R gamocosm:gamocosm /home/gamocosm/.ssh

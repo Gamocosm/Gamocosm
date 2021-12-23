@@ -2,15 +2,17 @@ source 'https://rubygems.org'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '>= 4.2'
+gem 'rails'
+# The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
+gem "sprockets-rails"
 # Use postgresql as the database for Active Record
 gem 'pg'
 # Use SCSS for stylesheets
-gem 'sass-rails', '>= 5.0.1'
+gem 'sass-rails'
 # Use Uglifier as compressor for JavaScript assets
-gem 'uglifier', '>= 1.3.0'
+#gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .js.coffee assets and views
-gem 'coffee-rails', '>= 4.0.0'
+#gem 'coffee-rails', '>= 4.0.0'
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
 # gem 'therubyracer',  platforms: :ruby
 
@@ -19,9 +21,9 @@ gem 'jquery-rails'
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
 #gem 'turbolinks'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '>= 2.0'
+gem 'jbuilder'
 # bundle exec rake doc:rails generates the API under doc/api.
-gem 'sdoc', '>= 0.4.0',          group: :doc
+#gem 'sdoc', '>= 0.4.0',          group: :doc
 
 # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
 #gem 'spring',        group: :development
@@ -39,15 +41,14 @@ gem 'sdoc', '>= 0.4.0',          group: :doc
 # gem 'debugger', group: [:development, :test]
 
 # Custom
-gem 'devise', '>= 3.4.1'
-gem 'sidekiq', '>= 6.0.6'
-gem 'bootstrap-sass', '>= 3.3.3'
+gem 'devise'
+gem 'sidekiq'
+gem 'bootstrap-sass'
 gem 'faraday'
 gem 'faraday_middleware'
-#gem 'sinatra', :require => nil
 gem 'font-awesome-sass'
-gem 'simple_form', '>= 3.1.0.rc1'
-gem 'sshkit', '>= 1.21.2'
+gem 'simple_form'
+gem 'sshkit'
 gem 'x25519'
 gem 'ed25519'
 gem 'bcrypt_pbkdf'
@@ -55,13 +56,14 @@ gem 'dalli'
 gem 'exception_notification'
 gem 'droplet_kit', git: 'https://github.com/Gamocosm/droplet_kit'
 gem 'puma'
+gem 'redis'
+gem 'hiredis'
 group :development do
-    gem 'annotate', require: false
-    gem 'newrelic_rpm'
+    gem 'annotate'
     gem 'listen'
 end
 group :test do
-    gem 'simplecov', require: false
-    gem 'webmock', require: false
-    gem 'coveralls', '>= 0.8.23', require: false
+    gem 'simplecov'
+    gem 'webmock'
+    gem 'coveralls'
 end

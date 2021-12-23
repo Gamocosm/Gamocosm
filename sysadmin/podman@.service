@@ -1,0 +1,15 @@
+[Unit]
+Description=Gamocosm Podman %i
+After=syslog.target network.target
+
+[Service]
+ExecStart=/usr/bin/podman start --attach %i
+ExecStop=/usr/bin/podman stop --time 16 %i
+RestartSec=1
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=gamocosm-podman-%i
+
+[Install]
+WantedBy=multi-user.target

@@ -1,59 +1,28 @@
 version: 2.1
 jobs:
   test:
-    docker:
-      - image: fedora:latest
+    machine:
+      image: ubuntu-2004:202111-01
     resource_class: large
-    environment:
-      RAILS_ENV: test
-      DATABASE_USER: gamocosm
-      DATABASE_PASSWORD: 123
-      DEVISE_SECRET_KEY: 1234abcd
-      DIGITAL_OCEAN_API_KEY: abcd1234
-      DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH: id_ed25519.pub
-      CLOUDFLARE_API_TOKEN: 123abc
-      CLOUDFLARE_EMAIL: test@test.com
-      CLOUDFLARE_ZONE: abc123
-      USER_SERVERS_DOMAIN: example.com
     steps:
       - checkout
       - run: |
-          whoami
-          pwd
-      - run: |
-          dnf -y install vim tmux
-          dnf -y install git
-          dnf -y install gcc gcc-c++ openssl-devel readline-devel zlib-devel postgresql-devel
-      - run: |
-          git clone https://github.com/rbenv/rbenv.git ~/.rbenv
-          mkdir ~/.rbenv/plugins
-          git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
-          echo 'PATH="$HOME/.rbenv/bin:$PATH"' >> "$BASH_ENV"
-      - run: |
-          eval "$(rbenv init - bash)"
-          rbenv install
-          bundle install
-      - run: |
-          dnf -y install postgresql-server postgresql-contrib memcached redis nodejs
-          postgresql-setup --initdb --unit postgresql
-          systemctl start postgresql
-          systemctl start memcached
-          systemctl start redis
-      - run: |
-          echo "*:*:*:$DATABASE_USER:$DATABASE_PASSWORD" > ~postgres/.pgpass
-          chown postgres:postgres ~postgres/.pgpass
-          chmod 600 ~postgres/.pgpass
-          sudo --user postgres --login createuser --createdb --no-createrole --superuser --no-password gamocosm
-          sed -i -e '1i local postgres,gamocosm_test gamocosm md5' /var/lib/pgsql/data/pg_hba.conf
-          systemctl restart postgresql
-      - run: |
-          echo "*:*:*:$DATABASE_USER:$DATABASE_PASSWORD" > ~/.pgpass
-          chmod 600 ~/.pgpass
-          ssh-keygen -t ed25519 -N '' -f id_ed25519
-      - run: |
-          eval "$(rbenv init - bash)"
-          bundle exec rake db:setup
-          bundle exec rake test
+          echo 'podman() {' >> "$BASH_ENV"
+          echo 'docker "$@"' >> "$BASH_ENV"
+          echo '}' >> "$BASH_ENV"
+          echo 'export -f podman' >> "$BASH_ENV"
+
+          echo 'CI=true' >> podman/podman.env
+          echo "COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN" >> podman/podman.env
+
+          ./podman/create-network.sh
+
+          ./podman/run-postgresql.sh
+          ./podman/run-sidekiq-redis.sh
+
+          ./podman/build-image.sh
+          ./podman/setup-db.sh
+          ./podman/run-tests.sh
 workflows:
   version: 2
   doit:

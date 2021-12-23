@@ -6,6 +6,7 @@
 Rails.application.configure do
   # Custom
   config.log_level = :info
+  config.action_mailer.delivery_method = :test
   config.action_mailer.default_url_options = { host: 'localhost' }
 
   # Settings specified here will take precedence over those in config/application.rb.

@@ -1,10 +1,12 @@
-Gamocosm [![Build Status](https://travis-ci.org/Gamocosm/Gamocosm.svg?branch=master)](https://travis-ci.org/Gamocosm/Gamocosm) [![Coverage Status](https://coveralls.io/repos/Gamocosm/Gamocosm/badge.svg)](https://coveralls.io/r/Gamocosm/Gamocosm) [![Gitter chat](https://badges.gitter.im/gamocosm.png)](https://gitter.im/gamocosm/Lobby)
+Gamocosm [![Build Status](https://circleci.com/gh/Gamocosm/Gamocosm.svg?style=svg)](https://circleci.com/gh/Gamocosm/Gamocosm) [![Coverage Status](https://coveralls.io/repos/github/Gamocosm/Gamocosm/badge.svg?branch=master)](https://coveralls.io/github/Gamocosm/Gamocosm?branch=master) [![Gitter Chat](https://badges.gitter.im/gamocosm.png)](https://gitter.im/gamocosm/Lobby)
 ========
 
 Gamocosm makes it easy to run cloud Minecraft servers.
 Digital Ocean is used as the backend/hosting service, due to cost, reliability, and accessibility.
 Gamocosm works well for friends who play together, but not 24/7.
 Running a server 14 hours a week (2 hours every day) may cost 40 cents a month, instead of $5.
+
+**This README is directed towards developers; if you are a user looking for more information, please check out the [wiki][23] or drop by [Gitter chat][24].**
 
 ## Minecraft Server Wrapper
 The [Minecraft Server Wrapper][4] (for lack of a better name) is a light python webserver.
@@ -18,72 +20,77 @@ Read this [wiki page][11] for adding support for new flavours, or manually insta
 ## Contributing
 Pull requests are welcome!
 
-### Setting up your development environment
+### Setting Up Your Development Environment
 You should have a Unix/Linux system.
 The following instructions were made for Fedora 35, but the steps should be similar on other distributions.
 
-1. Install postgresql, memcached, redis, and nodejs: `(sudo) dnf install postgresql-server postgresql-contrib memcached redis nodejs`.
-1. Install [rbenv][13] and [ruby-build][19]. You can use [rbenv-installer][20]. Read their docs for up to date instructions. Cached instructions:
-    - Run `curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash`.
-1. Install dependencies to build ruby and gems: `(sudo) dnf install gcc gcc-c++ openssl-devel readline-devel zlib-devel postgresql-devel`.
+1. Install dependencies to build ruby: `(sudo) dnf install gcc gcc-c++ openssl-devel readline-devel zlib-devel`.
+1. Install [rbenv][13] and [ruby-build][19]. You can use [rbenv-installer][20]. Read their docs for up to date instructions. But as of 2021 December 21:
+	- Run `curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash`.
+	- Add `~/.rbenv/bin` to your shell: `echo 'PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile`.
+	- Add `eval "$(rbenv init - bash)"` to your shell: `echo 'eval "$(rbenv init - bash)"' >> ~/.bash_profile`.
+	- Restart (close and reopen) your shell for the changes to take effect.
 1. Install Ruby 3.0.3: `rbenv install` inside this project root directory (it reads `.ruby-version`).
-1. Check that `ruby -v` inside your cloned `gamocosm` folder gives you version 2.6.5.
+1. Check that `ruby -v` inside this project gives you version 3.0.3.
 1. Install Bundler: `gem install bundler`.
+1. Install dependencies to build gems: `(sudo) dnf install libpq-devel`.
 1. Install gem dependencies: `bundle install`.
-1. Run `cp env.sh.template env.sh`.
-1. Update config in `env.sh`.
-1. Initialize postgresql: `(sudo) postgresql-setup --initdb --unit postgresql` ([Fedora docs][21]).
-1. Configure the database (explained below).
-1. Start postgresql, memcached, and redis manually: `(sudo) systemctl start <postgresql/memcached/redis>`, and optionally enable them to start at boot time: `(sudo) systemctl enable <postgresql/memcached/redis>`.
-1. Run `./sysadmin/run.sh bundle exec rake db:setup`.
-1. Start the server: `./sysadmin/run.sh bundle exec rails s`.
-1. Start the Sidekiq worker: `./sysadmin/run.sh bundle exec sidekiq`.
-1. Use the console: `./sysadmin/run.sh bundle exec rails c`.
+1. Install postgresql and redis: `(sudo) dnf install postgresql-server postgresql-contrib redis`.
+1. Initialize postgresql: `(sudo) postgresql-setup --initdb` ([Fedora docs][21]; note that `--unit postgresql` is unecessary - it is the default - see `man postgresql-setup`).
+1. Configure the database; see below.
+1. Start postgresql and redis: `(sudo) systemctl start <postgresql/redis>`, and optionally enable them to start at boot time: `(sudo) systemctl enable <postgresql/redis>`.
+1. Create your environment file: `cp template.env gamocosm.env`.
+1. Update the config in `gamocosm.env`. See below for documentation.
+1. Load environment variables: `source load_env.sh`. You will need to do this in every new shell you run ruby/rails in.
+1. Setup the database: `bundle exec rails db:setup`.
+1. Start the server: `bundle exec rails s`.
+1. Start the Sidekiq worker: `bundle exec sidekiq`.
+1. Optional: open the console: `bundle exec rails c`.
 
-Alternatively, instead of using the `sysadmin/run.sh` script, assuming you have set up rbenv correctly, you can just do `source env.sh` to load the environment file into your current shell, and then run the commands directly (e.g. `bundle exec rails c`).
-
-### Directory hierarchy
-- `app`: main source code
-- `bin`: rails stuff, don't touch
-- `config`: rails app configuration
-- `db`: rails app database stuff (schema, migrations, seeds)
-- `lib`: rails stuff, don't touch
-- `log`: 'nuff said
-- `public`: static files
-- `sysadmin`: stuff for the Gamocosm server (you can run your own server! This is a true open source project)
-- `test-docker`: use docker container to test most of `app/workers/setup_server_worker.rb` (more below)
-- `test`: pooteeweet
-- `vendor`: rails stuff, don't touch
-
-### env.sh options
-The script `./sysadmin/run.sh` basically sources `env.sh` then `exec`s the supplied command.
-You can `source env.sh` to load the relevant environment variables into your shell yourself.
-Then you can run stuff like `bundle exec ...` directly.
-
-- `DIGITAL_OCEAN_API_KEY`: your Digital Ocean api token
-- `DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH`: ssh key to be added to new servers to SSH into
-- `DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH`: see above
-- `DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE`: see above
-- `SIDEKIQ_ADMIN_USERNAME`: HTTP basic auth for Sidekiq web interface
-- `SIDEKIQ_ADMIN_PASSWORD`: see above
-- `DATABASE_USER`: hmmmm
-- `DATABASE_PASSWORD`: hmmmm
-- `DATABASE_HOST`: database host. If specified, Rails will use a TCP connection (e.g. "localhost"). If left blank, Rails will use a local Unix socket connection
-- `MAIL_SERVER_*`: see [action mailer configuration][6] in the Rails guide
-- `CLOUDFLARE_API_TOKEN`: hmmm
-- `CLOUDFLARE_EMAIL`: hmmm
-- `CLOUDFLARE_ZONE`: shown on the bottom right of CloudFlare's control panel for the domain
-- `DEVELOPMENT_HOST`: only development, allowed host to access development server
-- `DEVISE_SECRET_KEY`: only test, production
-- `SECRET_KEY`: only production
-- `DEVELOPER_EMAILS`: comma separated list of emails to send exceptions to
-- `BADNESS_SECRET`: secret to protect `/badness` endpoint
+### Environment File
+- `DATABASE_HOST`: May be a directory (for a Unix domain socket), or an IP/hostname (for a TCP connection). The default should work on Fedora provided you didn't change the postgresql settings. See bwlo for more information.
+- `DATABASE_PORT`: Required even for Unix domain sockets. The default should work on Fedora provided you didn't change the postgresql settings.
+- `DATABASE_USER`: Hmmmm.
+- `DATABASE_PASSWORD`: Hmmmm.
+- `DIGITAL_OCEAN_API_KEY`: Your Digital Ocean API token.
+- `DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH`: SSH key to be added to new servers for Gamocosm to SSH into. Generate a key with `ssh-keygen -t ed25519`. Somewhere down the stack rsa keys are not supported.
+- `DIGITAL_OCEAN_SSH_PUBLIC_KEY_PATH`: See previous.
+- `DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE`: See above.
+- `SIDEKIQ_REDIS_HOST`: You can leave this as the default.
+- `SIDEKIQ_REDIS_PORT`: You can leave this as the default.
+- `SIDEKIQ_ADMIN_USERNAME`: HTTP basic auth for Sidekiq web interface.
+- `SIDEKIQ_ADMIN_PASSWORD`: See previous.
+- `CLOUDFLARE_API_TOKEN`: Hmmm.
+- `CLOUDFLARE_EMAIL`: Hmmm.
+- `CLOUDFLARE_ZONE`: Shown on the bottom right of CloudFlare's control panel for the domain.
+- `DEVISE_SECRET_KEY`: Only test, production.
+- `MAIL_SERVER_*`: See [action mailer configuration][6] in the Rails guide.
+- `CACHE_REDIS_HOST`: Caching for production. Is disabled/not used in development and test environments (see `config/environments/development.rb` and `config/environments/test.rb`).
+- `CACHE_REDIS_PORT`: See previous.
+- `SECRET_KEY_BASE`: Only production.
+- `DEVELOPER_EMAILS`: Comma separated list of emails to send exceptions to.
+- `BADNESS_SECRET`: Secret to protect `/badness` endpoint.
 
 ### Database configuration
-Locate `pg_hba.conf`. On Fedora this is in `/var/lib/pgsql/data/`.
+Locate your postgres data directory.
+On Fedora this is `/var/lib/pgsql/data/`.
+
+#### Connection
+Locate `postgresql.conf` in your postgres data directory.
+The convention is that commented out settings represent the default values.
+For a Unix domain socket connection, `DATABASE_HOST` should be one of the values of `unix_socket_directories`.
+In general, the default is `/tmp`.
+On Fedora, the default includes both `/tmp` and `/var/run/postgresql`.
+For a TCP connection, `DATABASE_HOST` should be one of the values of `listen_addresses` (default `localhost`).
+The value `localhost` should work if you're running postgresql locally.
+Your `DATABASE_PORT` should be the value of `port` in this file (default `5432`).
+
+You can read more about connecting to postgresql at [postgresql's docs][22].
+
+#### Authentication
+Locate `pg_hba.conf` in your postgres data directory.
 This file tells postgresql how to authenticate users. Read about it on the [PostgreSQL docs][1].
-`config/database.yml` gets the database username from the environment variable `DATABASE_USER` (default "gamocosm").
-The default value in "env.sh.template" for `DATABASE_HOST` is blank, so if you don't change it Rails will use a local Unix socket connection.
+The Rails config `config/database.yml` reads from the environment variables which you should have set in and loaded from `gamocosm.env` via `source load_env.sh`.
 The postgres user you use must be a postgres superuser, as rails needs to enable the uuid extension.
 To create a postgres user "gamocosm":
 
@@ -93,7 +100,7 @@ To create a postgres user "gamocosm":
 Depending on what method you want to use, in `pg_hba.conf` add the following under the line that looks like `# TYPE DATABASE USER ADDRESS METHOD`.
 
 - Type
-	- `local` (local Unix socket) or `host` (TCP connection)
+	- `local` (Unix domain socket) or `host` (TCP connection)
 - Database
 	- Rails also needs to have access to the `postgres` database (to create new databases?)
 	- `postgres,gamocosm_development,gamocosm_test,gamocosm_production`
@@ -116,6 +123,19 @@ Depending on what method you want to use, in `pg_hba.conf` add the following und
 
 Example: `local postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm md5`.
 You will have to restart postgresql (`(sudo) systemctl restart postgresql`) for the changes to take effect.
+
+### Directory hierarchy
+- `app`: main source code
+- `bin`: rails stuff, don't touch
+- `config`: rails app configuration
+- `db`: rails app database stuff (schema, migrations, seeds)
+- `lib`: rails stuff, don't touch
+- `log`: 'nuff said
+- `public`: static files
+- `sysadmin`: stuff for the Gamocosm server (you can run your own server! This is a true open source project)
+- `test-docker`: use docker container to test most of `app/workers/setup_server_worker.rb` (more below)
+- `test`: pooteeweet
+- `vendor`: rails stuff, don't touch
 
 ### Technical details
 Hmmmm.
@@ -224,3 +244,6 @@ Example: `TEST_DOCKER=true ./tests.sh`
 [19]: https://github.com/rbenv/ruby-build
 [20]: https://github.com/rbenv/rbenv-installer
 [21]: https://docs.fedoraproject.org/en-US/quick-docs/postgresql/
+[22]: https://www.postgresql.org/docs/current/runtime-config-connection.html
+[23]: https://github.com/Gamocosm/Gamocosm/wiki
+[24]: https://gitter.im/gamocosm/Lobby
