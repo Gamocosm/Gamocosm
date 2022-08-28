@@ -51,6 +51,7 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 1. Create your environment file: `cp template.env gamocosm.env`.
 1. Make your environment file only readable (and writable) by the file owner (you): `chown 600 gamocosm.env`
 1. Update the config in `gamocosm.env`. See below for documentation.
+	- In particular, if you are following these instructions to setup a development environment, you will want to change `DATABASE_HOST` and `SIDEKIQ_REDIS_HOST` both to `localhost`.
 1. Load environment variables: `source load_env.sh`. You will also need to do this in every new shell you run ruby/rails in.
 1. Install `podman` (or `docker`): `(sudo) dnf install podman`.
 1. Create the database container: `podman create --name gamocosm-database --env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" --publish 127.0.0.1:5432:5432 docker.io/postgres:14.5`.
