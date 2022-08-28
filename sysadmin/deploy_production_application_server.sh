@@ -7,7 +7,7 @@
 set -ex
 
 POSTGRESQL_VERSION=14.5
-REDIS_VERSION=7.0
+REDIS_VERSION=7.0.4
 
 GAMOCOSM_NETWORK=gamocosm-network
 GAMOCOSM_IMAGE=gamocosm-image
@@ -74,8 +74,12 @@ echo 'Updating the system...'
 #dnf -y upgrade > >(tee dnf-upgrade.stdout.log) 2> >(tee dnf-upgrade.stderr.log)
 
 echo 'Setting the timezone...'
+pushd /etc
+
 unlink /etc/localtime
 ln -s "$TIMEZONE" /etc/localtime
+
+popd
 
 echo 'Installing basic tools...'
 dnf -y install vim tmux git htop
@@ -133,8 +137,6 @@ mkdir backups
 echo 'Creating containers...'
 podman network create "$GAMOCOSM_NETWORK"
 
-podman build --tag localhost/gamocosm --file podman/Containerfile .
-
 podman create --name "$DATABASE_HOST" --network "$GAMOCOSM_NETWORK" --publish 127.0.0.1:5433:5432 --env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" "docker.io/postgres:$POSTGRESQL_VERSION"
 
 podman create --name "$SIDEKIQ_REDIS_HOST" --network "$GAMOCOSM_NETWORK" "docker.io/redis:$REDIS_VERSION"
@@ -144,6 +146,8 @@ podman create --name "$CACHE_REDIS_HOST" --network "$GAMOCOSM_NETWORK" "docker.i
 systemctl enable --now "podman@$DATABASE_HOST"
 systemctl enable --now "podman@$SIDEKIQ_REDIS_HOST"
 systemctl enable --now "podman@$CACHE_REDIS_HOST"
+
+podman build --tag localhost/gamocosm --file podman/Containerfile .
 
 if [ -z "$RESTORE_DIR" ]; then
 	podman run --rm --network "$GAMOCOSM_NETWORK" --env-file gamocosm.env --env RAILS_ENV=production localhost/gamocosm rails db:setup
@@ -189,7 +193,6 @@ echo 'Changing ssh port...'
 << EOF cat > /etc/ssh/sshd_config.d/01-gamocosm.conf
 Port $SSH_PORT
 PasswordAuthentication no
-PermitRootLogin no
 EOF
 
 semanage port -a -t ssh_port_t -p tcp "$SSH_PORT"

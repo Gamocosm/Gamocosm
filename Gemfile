@@ -58,6 +58,9 @@ gem 'droplet_kit', git: 'https://github.com/Gamocosm/droplet_kit'
 gem 'puma'
 gem 'redis'
 gem 'hiredis'
+gem 'net-smtp', require: false
+gem 'net-pop', require: false
+gem 'net-imap', require: false
 group :development do
     gem 'annotate'
     gem 'listen'
