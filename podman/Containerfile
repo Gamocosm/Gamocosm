@@ -9,3 +9,5 @@ COPY Gemfile Gemfile.lock ./
 RUN bundle install
 
 COPY . ./
+
+RUN rails assets:precompile
