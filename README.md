@@ -22,17 +22,16 @@ Pull requests are welcome!
 
 ### Setting Up Your Development Environment
 You should have a Unix/Linux system.
-The following instructions were made for Fedora 35, but the steps should be similar on other distributions.
+The following instructions were made for Fedora 36 Server, but the steps should be similar on other distributions.
 
-1. Install dependencies to build ruby: `(sudo) dnf install gcc gcc-c++ openssl-devel readline-devel zlib-devel`.
+1. Install dependencies to build ruby: `(sudo) dnf install openssl-devel perl zlib-devel`.
 1. Install [rbenv][13] and [ruby-build][19]. You can use [rbenv-installer][20]. Read their docs for up to date instructions. But as of 2021 December 21:
 	- Run `curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash`.
 	- Add `~/.rbenv/bin` to your shell: `echo 'PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile`.
 	- Add `eval "$(rbenv init - bash)"` to your shell: `echo 'eval "$(rbenv init - bash)"' >> ~/.bash_profile`.
 	- Restart (close and reopen) your shell for the changes to take effect.
-1. Install Ruby 3.0.3: `rbenv install` inside this project root directory (it reads `.ruby-version`).
-1. Check that `ruby -v` inside this project gives you version 3.0.3.
-1. Install Bundler: `gem install bundler`.
+1. Install Ruby 3.1.2: `rbenv install` inside this project root directory (it reads `.ruby-version`).
+1. Check that `ruby -v` inside this project gives you version 3.1.2.
 1. Install dependencies to build gems: `(sudo) dnf install libpq-devel`.
 1. Install gem dependencies: `bundle install`.
 1. Install postgresql and redis: `(sudo) dnf install postgresql-server postgresql-contrib redis`.

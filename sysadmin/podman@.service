@@ -6,10 +6,10 @@ After=network-online.target
 [Service]
 ExecStart=/usr/bin/podman start --attach %i
 ExecStop=/usr/bin/podman stop --time 16 %i
-RestartSec=1
+RestartSec=8
 Restart=always
-StandardOutput=syslog
-StandardError=syslog
+StandardOutput=journal
+StandardError=journal
 SyslogIdentifier=%i
 
 [Install]

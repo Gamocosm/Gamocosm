@@ -1,4 +1,4 @@
-FROM docker.io/ruby:3.0.3
+FROM docker.io/ruby:3.1.2
 
 WORKDIR /gamocosm
 

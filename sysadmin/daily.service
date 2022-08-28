@@ -1,0 +1,15 @@
+[Unit]
+Description=Gamocosm daily processes
+
+[Service]
+Type=oneshot
+StandardOutput=journal
+StandardError=journal
+EnvironmentFile=/root/gamocosm/gamocosm.env
+ExecStart=/usr/bin/certbot renew
+ExecStart=/usr/bin/systemctl restart nginx
+ExecStart=/usr/bin/systemctl restart podman@gamocosm-puma
+ExecStart=/usr/bin/systemctl restart podman@gamocosm-sidekiq
+ExecStart=/usr/bin/curl --silent --show-error --output /dev/null https://gamocosm.com
+ExecStart=/usr/bin/pg_dump --host localhost --port 5433 --username ${DATABASE_USER} --no-password --format custom gamocosm_production --file /root/gamocosm/backups/gamocosm-latest.dump
+ExecStart=/usr/bin/bash -c 'cd /root/gamocosm/backups && cp gamocosm-latest.dump "gamocosm-$(date '+%Y-%m-%d.%H-%M-%S').dump"'

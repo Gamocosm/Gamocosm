@@ -1,0 +1,8 @@
+[Unit]
+Description=Run Gamocosm daily processes
+
+[Timer]
+OnCalendar=daily
+
+[Install]
+WantedBy=timers.target
