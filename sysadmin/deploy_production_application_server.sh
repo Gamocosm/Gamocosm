@@ -74,12 +74,8 @@ echo 'Updating the system...'
 #dnf -y upgrade > >(tee dnf-upgrade.stdout.log) 2> >(tee dnf-upgrade.stderr.log)
 
 echo 'Setting the timezone...'
-pushd /etc
-
 unlink /etc/localtime
 ln -s "$TIMEZONE" /etc/localtime
-
-popd
 
 echo 'Installing basic tools...'
 dnf -y install vim tmux git htop

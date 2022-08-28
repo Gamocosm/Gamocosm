@@ -23,21 +23,26 @@ Pull requests are welcome!
 ### Setting Up Your Development Environment
 You should have a Unix/Linux system.
 The following instructions were made for Fedora 36 Server, but the steps should be similar on other distributions.
+As of 2022 August 28, deployment and CI have been changed to use containers.
+For development, containers are more convenient for the PostgreSQL and Redis processes,
+but it is still recommended to run the development Rails and Sidekiq server "locally".
 
 1. Install dependencies to build ruby: `(sudo) dnf install openssl-devel perl zlib-devel`.
-1. Install [rbenv][13] and [ruby-build][19]. You can use [rbenv-installer][20]. Read their docs for up to date instructions. But as of 2021 December 21:
-	- Run `curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash`.
-	- Add `~/.rbenv/bin` to your shell: `echo 'PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile`.
-	- Add `eval "$(rbenv init - bash)"` to your shell: `echo 'eval "$(rbenv init - bash)"' >> ~/.bash_profile`.
+1. Install [rbenv][13] and [ruby-build][19]. Read their docs for up to date instructions. But as of 2022 August 28:
+	- Run `git clone https://github.com/rbenv/rbenv.git ~/.rbenv`.
+	- Add `$HOME/.rbenv/bin` to your `$PATH`, usually done in `~/.bashrc`.
+	  On recent versions of Fedora, `~/.bashrc` sources any files in the directory `~/.bashrc.d` (if it exists), so you don't have to edit `.bashrc` directly.
+	  (To create the directory, run `mkdir ~/.bashrc.d`.)
+	  For example, run ` echo 'PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc.d/rbenv` (you can replace `~/.bashrc.d/rbenv` with `~/.bashrc` to modify `.bashrc` directly).
+	- Additionally, add `eval "$(rbenv init - bash)"` to your shell: `echo 'eval "$(rbenv init - bash)"' >> ~/.bashrc.d/rbenv` (again, you may choose to modify `.bashrc` directly).
 	- Restart (close and reopen) your shell for the changes to take effect.
+	- Create the plugins directory for rbenv: `mkdir ~/.rbenv/plugins`.
+	- Get ruby-build: `git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build`.
+	- Check that ruby-build has been installed correctly: `rbenv install --list`.
 1. Install Ruby 3.1.2: `rbenv install` inside this project root directory (it reads `.ruby-version`).
 1. Check that `ruby -v` inside this project gives you version 3.1.2.
 1. Install dependencies to build gems: `(sudo) dnf install libpq-devel`.
 1. Install gem dependencies: `bundle install`.
-1. Install postgresql and redis: `(sudo) dnf install postgresql-server postgresql-contrib redis`.
-1. Initialize postgresql: `(sudo) postgresql-setup --initdb` ([Fedora docs][21]; note that `--unit postgresql` is unecessary - it is the default - see `man postgresql-setup`).
-1. Configure the database; see below.
-1. Start postgresql and redis: `(sudo) systemctl start <postgresql/redis>`, and optionally enable them to start at boot time: `(sudo) systemctl enable <postgresql/redis>`.
 1. Generate or link your SSH keys; Gamocosm expects an `id_gamocosm` private key and an `id_gamocosm.pub` public key in the project root. Gamocosm uses this to connect to and set up the servers it creates. Gamocosm officially only supports `ed25519` keys; somewhere down the stack, `rsa` keys are not supported (`ed25519` keys are considered more secure):
 	- To generate new keys, run: `ssh-keygen -t ed25519`. The default path saves to `~/.ssh/id_ed25519`. If you leave it here, SSH will automatically try this key when SSHing (e.g. if you need to debug a Digital Ocean droplet created by your Gamocosm). Careful not to overwrite if you already have an existing `~/.ssh/id_ed25519` key!
 	- To link a key `~/.ssh/id_ed25519`, run `ln -s ~/.ssh/id_ed25519 id_gamocosm`, and similarly for the corresponding public key (with `.pub` extension).
@@ -46,14 +51,18 @@ The following instructions were made for Fedora 36 Server, but the steps should 
 1. Create your environment file: `cp template.env gamocosm.env`.
 1. Make your environment file only readable (and writable) by the file owner (you): `chown 600 gamocosm.env`
 1. Update the config in `gamocosm.env`. See below for documentation.
-1. Load environment variables: `source load_env.sh`. You will need to do this in every new shell you run ruby/rails in.
+1. Load environment variables: `source load_env.sh`. You will also need to do this in every new shell you run ruby/rails in.
+1. Install `podman` (or `docker`): `(sudo) dnf install podman`.
+1. Create the database container: `podman create --name gamocosm-database --env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" --publish 127.0.0.1:5432:5432 docker.io/postgres:14.5`.
+1. Create the Redis container for Sidekiq: `podman create --name gamocosm-sidekiq-redis --publish 127.0.0.1:6379:6379 docker.io/redis:7.0.4`.
+1. Start the containers: `podman start gamocosm-database gamocosm-sidekiq-redis`.
 1. Setup the database: `bundle exec rails db:setup`.
 1. Start the server: `bundle exec rails s`.
 1. Start the Sidekiq worker: `bundle exec sidekiq`.
 1. Optional: open the console: `bundle exec rails c`.
 
 ### Environment File
-- `DATABASE_HOST`: May be a directory (for a Unix domain socket), or an IP/hostname (for a TCP connection). The default should work on Fedora provided you didn't change the postgresql settings. See bwlo for more information.
+- `DATABASE_HOST`: May be a directory (for a Unix domain socket), or an IP/hostname (for a TCP connection). See below for more information.
 - `DATABASE_PORT`: Required even for Unix domain sockets. The default should work on Fedora provided you didn't change the postgresql settings.
 - `DATABASE_USER`: Hmmmm.
 - `DATABASE_PASSWORD`: Hmmmm.
@@ -75,6 +84,9 @@ The following instructions were made for Fedora 36 Server, but the steps should 
 - `BADNESS_SECRET`: Secret to protect `/badness` endpoint.
 
 ### Database configuration
+**Database configuration is greatly simplified if you use a container image as described above.
+However, the following information remains for reference, if you want to run PostgreSQL directly on your system.**
+
 Locate your postgres data directory.
 On Fedora this is `/var/lib/pgsql/data/`.
 

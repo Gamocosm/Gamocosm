@@ -6,7 +6,6 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
   Coveralls::SimpleCov::Formatter,
 ])
 SimpleCov.start
-Coveralls.wear!('rails')
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require File.expand_path('test/fixtures/seeds.rb', Rails.root)

@@ -7,23 +7,23 @@ jobs:
     steps:
       - checkout
       - run: |
-          echo 'podman() {' >> "$BASH_ENV"
-          echo 'docker "$@"' >> "$BASH_ENV"
-          echo '}' >> "$BASH_ENV"
-          echo 'export -f podman' >> "$BASH_ENV"
+          source template.env
 
-          echo 'CI=true' >> podman/podman.env
-          echo "COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN" >> podman/podman.env
+          echo 'CI=true' >> template.env
+          echo "COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN" >> template.env
 
-          ./podman/create-network.sh
+          ssh-keygen -t ed25519 -N "$DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE" -f id_gamocosm
 
-          ./podman/run-postgresql.sh
-          ./podman/run-sidekiq-redis.sh
+          docker network create gamocosm-network
 
-          ssh-keygen -t ed25519 -N '' -f id_gamocosm
-          ./podman/build-image.sh
-          ./podman/setup-db.sh
-          ./podman/run-tests.sh
+          docker run --detach --rm --name gamocosm-database --network gamocosm-network --env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" docker.io/postgres:14.5
+          docker run --detach --rm --name gamocosm-sidekiq-redis --network gamocosm-network docker.io/redis:7.0.4
+
+          docker build --file Containerfile --tag gamocosm .
+
+          docker run --rm --network gamocosm-network --env-file template.env gamocosm rails db:setup
+
+          docker run --rm --name gamocosm-tests --network gamocosm-network --env-file template.env gamocosm rails test
 workflows:
   version: 2
   doit:
