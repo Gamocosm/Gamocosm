@@ -132,7 +132,7 @@ class SetupServerWorker
             if test '[ -d sshd_config.d ]'
               execute :echo, 'PasswordAuthentication yes', '>', 'sshd_config.d/01-gamocosm.conf'
             else
-              execute :sed, '-i', '-e', '1i PasswordAuthentication yes', 'sshd_config'
+              execute :sed, '-i', '1i PasswordAuthentication yes', 'sshd_config'
             end
             execute :systemctl, 'restart', 'sshd'
           end
@@ -349,16 +349,14 @@ class SetupServerWorker
     begin
       on host do
         Timeout::timeout(60) do
-          within '/tmp/' do
+          within '/etc/ssh/' do
             execute :'firewall-cmd', "--add-port=#{ssh_port}/tcp"
             execute :'firewall-cmd', '--permanent', "--add-port=#{ssh_port}/tcp"
             if ! test "semanage port -l | grep ssh | grep -q #{ssh_port}"
               # see `/etc/ssh/sshd_config`
               execute :semanage, 'port', '-a', '-t', 'ssh_port_t', '-p', 'tcp', ssh_port
             end
-            execute :sed, '-i', "'s/^#Port 22$/Port #{ssh_port}/'", '/etc/ssh/sshd_config'
-            #execute :sed, '-i', "'s/^PasswordAuthentication no/PasswordAuthentication yes/'", '/etc/ssh/sshd_config'
-            #execute :sed, '-i', "'s/^PasswordAuthentication no/PasswordAuthentication yes/'", '/etc/ssh/sshd_config.d/50-redhat.conf'
+            execute :echo, "Port #{ssh_port}", '>>', 'sshd_config.d/01-gamocosm.conf'
             execute :systemctl, 'restart', 'sshd'
           end
         end
