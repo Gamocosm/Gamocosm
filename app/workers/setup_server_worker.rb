@@ -21,7 +21,6 @@ class SetupServerWorker
     'git',
     'tmux',
     'unzip',
-    'zram',
   ]
 
   def perform(server_id, times = 0)
@@ -132,7 +131,7 @@ class SetupServerWorker
             if test '[ -d sshd_config.d ]'
               execute :echo, 'PasswordAuthentication yes', '>', 'sshd_config.d/01-gamocosm.conf'
             else
-              execute :sed, '-i', '1i PasswordAuthentication yes', 'sshd_config'
+              execute :sed, '-i', '"1i PasswordAuthentication yes"', 'sshd_config'
             end
             execute :systemctl, 'restart', 'sshd'
           end

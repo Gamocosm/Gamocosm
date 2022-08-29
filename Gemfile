@@ -56,7 +56,7 @@ gem 'dalli'
 gem 'exception_notification'
 gem 'droplet_kit', git: 'https://github.com/Gamocosm/droplet_kit'
 gem 'puma'
-gem 'redis'
+gem 'redis', '< 4.8.0'
 gem 'hiredis'
 gem 'net-smtp', require: false
 gem 'net-pop', require: false

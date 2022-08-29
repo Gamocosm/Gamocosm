@@ -35,7 +35,7 @@ module Gamocosm
   MCSW_GIT_URL = 'https://github.com/Gamocosm/minecraft-server_wrapper.git'
   MCSW_USERNAME = 'gamocosm-mothership'
   USER_SERVERS_DOMAIN = 'gamocosm.com'
-  DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-35-x64'
+  DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-36-x64'
   DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH = 'id_gamocosm'
   DIGITAL_OCEAN_SSH_PUBLIC_KEY = File.read("#{DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH}.pub")
   DIGITAL_OCEAN_SSH_PUBLIC_KEY_FINGERPRINT = Digest::MD5.hexdigest(Base64.decode64(DIGITAL_OCEAN_SSH_PUBLIC_KEY.split(/\s+/m)[1])).scan(/../).join(':')
