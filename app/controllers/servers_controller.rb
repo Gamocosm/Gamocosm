@@ -301,9 +301,9 @@ class ServersController < ApplicationController
       return
     end
     err = server[0].start
-    @server.user.invalidate_digital_ocean_cache_droplets
-    @server.user.invalidate_digital_ocean_cache_volumes
-    @server.user.invalidate_digital_ocean_cache_snapshots
+    server[0].user.invalidate_digital_ocean_cache_droplets
+    server[0].user.invalidate_digital_ocean_cache_volumes
+    server[0].user.invalidate_digital_ocean_cache_snapshots
     return render json: {
       error: err,
     }
