@@ -351,7 +351,7 @@ class SetupServerWorker
               # see `/etc/ssh/sshd_config`
               execute :semanage, 'port', '-a', '-t', 'ssh_port_t', '-p', 'tcp', ssh_port
             end
-            execute :sed, '-i', "'Port #{ssh_port}'", 'sshd_config'
+            execute :sed, '-i', "1i 'Port #{ssh_port}'", 'sshd_config'
             execute :systemctl, 'restart', 'sshd'
           end
         end
