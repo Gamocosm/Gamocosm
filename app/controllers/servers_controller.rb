@@ -287,7 +287,7 @@ class ServersController < ApplicationController
       status: status,
       minecraft: minecraft,
       ip: ip,
-      domain: server.host_name,
+      domain: server[0].host_name,
       download: download,
     }
   end
