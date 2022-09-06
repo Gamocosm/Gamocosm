@@ -129,6 +129,7 @@ class SetupServerWorker
         Timeout::timeout(16) do
           within '/etc/ssh' do
             execute :sed, '-i', '"1i PasswordAuthentication yes"', 'sshd_config'
+            execute :sed, '-i', '"/PasswordAuthentication no/d"', 'sshd_config'
             execute :systemctl, 'restart', 'sshd'
           end
         end
@@ -351,7 +352,7 @@ class SetupServerWorker
               # see `/etc/ssh/sshd_config`
               execute :semanage, 'port', '-a', '-t', 'ssh_port_t', '-p', 'tcp', ssh_port
             end
-            execute :sed, '-i', "1i 'Port #{ssh_port}'", 'sshd_config'
+            execute :sed, '-i', "'1i Port #{ssh_port}'", 'sshd_config'
             execute :systemctl, 'restart', 'sshd'
           end
         end
