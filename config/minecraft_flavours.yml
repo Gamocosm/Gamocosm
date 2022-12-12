@@ -56,7 +56,8 @@ vanilla_bedrock:
 forge:
     name: Forge
     versions:
-        - 1.18.1-39.0.6
+        - 1.19.2-43.2.0
+        - 1.18.2-40.1.86
         - 1.17.1-37.1.1
     time: 1
     developers:
@@ -71,16 +72,16 @@ forge_java8:
         - 1.15.2-31.2.57
         - 1.14.4-28.2.26
         - 1.13.2-25.0.223
+        - 1.12.2-14.23.5.2860
     time: 1
     developers:
         - Minecraft Forge team
     website: https://minecraftforge.net
     notes:
-        - Forge 1.13+
+        - Forge 1.12+
 forge_old:
     name: Forge
     versions:
-        - 1.12.2-14.23.5.2860
         - 1.11.2-13.20.1.2588
         - 1.10.2-12.18.3.2511
         - 1.9.4-12.17.0.2317-1.9.4
