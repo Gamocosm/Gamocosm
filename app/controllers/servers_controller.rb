@@ -195,7 +195,7 @@ class ServersController < ApplicationController
     if error
       return redirect_to server_path(@server), flash: { error: "Unable to download world: #{error}. Please contact the server admin about this" }
     end
-    return redirect_to @server.minecraft.world_download_url
+    return redirect_to @server.minecraft.world_download_url, allow_other_host: true
   end
 
   def command
