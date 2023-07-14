@@ -2,7 +2,9 @@ vanilla:
     name: Vanilla
     versions:
         - latest
-        - 1.18.1
+        - 1.20.1
+        - 1.19.4
+        - 1.18.2
         - 1.17.1
     time: 1
     developers:
@@ -116,6 +118,7 @@ papermc:
         - PaperMC team
     website: https://papermc.io
     notes:
+        - NOT TESTED IN A LONG TIME
         - High performance fork of Spigot
         - Compatible with most Spigot and CraftBukkit plugins
 glowstone:

@@ -58,7 +58,7 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 1. Create the Redis container for Sidekiq: `podman create --name gamocosm-sidekiq-redis --publish 127.0.0.1:6379:6379 docker.io/redis:7.0.4`.
 1. Start the containers: `podman start gamocosm-database gamocosm-sidekiq-redis`.
 1. Setup the database: `bundle exec rails db:setup`.
-1. Start the server: `bundle exec rails s`.
+1. Start the server: `bundle exec rails s` (defaults to `localhost` in development; use `--binding 0.0.0.0` to listen on all interfaces).
 1. Start the Sidekiq worker: `bundle exec sidekiq`.
 1. Optional: open the console: `bundle exec rails c`.
 
