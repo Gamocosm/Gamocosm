@@ -18,8 +18,8 @@ module Gamocosm
   CLOUDFLARE_EMAIL = ENV['CLOUDFLARE_EMAIL']
   CLOUDFLARE_ZONE = ENV['CLOUDFLARE_ZONE']
 
-  GIT_HEAD = ENV['GIT_HEAD'].blank? ? 'master' : ENV['GIT_HEAD'].strip
-  GIT_HEAD_DATE = ENV['GIT_HEAD_TIMESTAMP'].blank? ? '(now)' : Time.at(ENV['GIT_HEAD_TIMESTAMP'].to_i).strftime('%Y %b %-d %H:%M %Z')
+  GIT_HEAD = ENV.fetch('GIT_HEAD', 'master').strip
+  GIT_HEAD_DATE = Time.at(ENV.fetch('GIT_HEAD_TIMESTAMP', Time.now.to_i).to_i).strftime('%Y %b %-d %H:%M %Z')
 
   MINECRAFT_FLAVOURS = YAML.load_file(File.expand_path('config/minecraft_flavours.yml', Rails.root)).inject({}, &lambda do |a, x|
     x.second['versions'].each do |v|

@@ -23,7 +23,7 @@ ExceptionNotification.configure do |config|
     config.add_notifier :email, {
       email_prefix: '[Gamocosm Badness] ',
       sender_address: 'Gamocosm no-reply <no-reply@gamocosm.com>',
-      exception_recipients: ENV['DEVELOPER_EMAILS'].split(',')
+      exception_recipients: ENV.fetch('DEVELOPER_EMAILS', '').split(',')
     }
   end
 

@@ -21,6 +21,4 @@ COPY public public
 COPY config.ru Rakefile ./
 COPY LICENSE README.md ./
 
-COPY id_gamocosm.pub ./
-
-RUN rails assets:precompile
+RUN --mount=type=secret,id=gamocosm-ssh-key,target=/gamocosm/id_gamocosm rails assets:precompile

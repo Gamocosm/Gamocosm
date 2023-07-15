@@ -6,16 +6,12 @@ cd ~/gamocosm
 
 git pull origin master
 
-podman build \
-	--tag gamocosm-image:latest \
-	--env "GIT_HEAD=$(git rev-parse HEAD)" \
-	--env "GIT_HEAD_TIMESTAMP=$(git show --no-patch --format=%ct HEAD)" \
-	.
-
 systemctl stop pod-gamocosm || true
 
 podman rm --ignore gamocosm-puma
 podman rm --ignore gamocosm-sidekiq
+
+./sysadmin/build.sh
 
 podman create \
 	--name gamocosm-puma --pod gamocosm
