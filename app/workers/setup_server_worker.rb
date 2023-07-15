@@ -44,8 +44,8 @@ class SetupServerWorker
       host.user = 'root'
       # see https://net-ssh.github.io/net-ssh/Net/SSH.html
       host.ssh_options = {
-        keys: [ Gamocosm::DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH ],
-        passphrase: Gamocosm::DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE,
+        keys: [ Gamocosm::SSH_PRIVATE_KEY_PATH ],
+        passphrase: nil,
         verify_host_key: :never,
         # how long to wait for initial connection
         # `e.cause` will be `Timeout::Error`

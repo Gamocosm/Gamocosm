@@ -43,11 +43,19 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 1. Check that `ruby -v` inside this project gives you version 3.1.2.
 1. Install dependencies to build gems: `(sudo) dnf install libpq-devel`.
 1. Install gem dependencies: `bundle install`.
-1. Generate or link your SSH keys; Gamocosm expects an `id_gamocosm` private key and an `id_gamocosm.pub` public key in the project root. Gamocosm uses this to connect to and set up the servers it creates. Gamocosm officially only supports `ed25519` keys; somewhere down the stack, `rsa` keys are not supported (`ed25519` keys are considered more secure):
-	- To generate new keys, run: `ssh-keygen -t ed25519`. The default path saves to `~/.ssh/id_ed25519`. If you leave it here, SSH will automatically try this key when SSHing (e.g. if you need to debug a Digital Ocean droplet created by your Gamocosm). Careful not to overwrite if you already have an existing `~/.ssh/id_ed25519` key!
-	- To link a key `~/.ssh/id_ed25519`, run `ln -s ~/.ssh/id_ed25519 id_gamocosm`, and similarly for the corresponding public key (with `.pub` extension).
-		- If you plan on running Gamocosm in a container, note that `podman`/`docker` cannot copy symlinks; use `cp` to copy the files instead.
-	- `id_gamocosm` and `id_gamocosm.pub` are ignored in Gamocosm's `.gitignore` so you don't have to worry about accidentally committing them.
+1. Generate SSH keys; Gamocosm expects a passphraseless `id_gamocosm` private key in the project root.
+
+	Typically, a passphrase is used to encrypt private keys on the local filesystem, and you would be interactively prompted to provide the passphrase when using the key.
+	However, since Gamocosm uses this SSH key "automatically", it can't prompt for a passphrase.
+	Gamocosm used to take a passphrase as a configuration option; however, this doesn't actually provide any additional security - the passphrase would be stored (in plain text) on the same filesystem with the same permissions as the private key itself.
+	So, now, Gamocosm just expects a passphraseless private key.
+
+	Gamocosm uses SSH to connect to and set up the servers it creates.
+	Gamocosm officially only supports `ed25519` keys; somewhere down the stack, `rsa` keys are not supported (`ed25519` keys are considered more secure).
+	To generate a new passphraseless key, run: `ssh-keygen -t ed25519 -f id_gamocosm -N ''`.
+
+	You can use this key directly with `ssh -i id_gamocosm` (e.g. if you need to connect to a server directly).
+	The file `id_gamocosm` is ignored in Gamocosm's `.gitignore` so you don't have to worry about accidentally committing it.
 1. Create your environment file: `cp template.env gamocosm.env`.
 1. Make your environment file only readable (and writable) by the file owner (you): `chown 600 gamocosm.env`
 1. Update the config in `gamocosm.env`. See below for documentation.
@@ -68,7 +76,6 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 - `DATABASE_USER`: Hmmmm.
 - `DATABASE_PASSWORD`: Hmmmm.
 - `DIGITAL_OCEAN_API_KEY`: Your Digital Ocean API token.
-- `DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE`: You should have generated or linked an `id_gamocosm` SSH key in the project root, with an (optional) passphrase.
 - `SIDEKIQ_REDIS_HOST`: You can leave this as the default.
 - `SIDEKIQ_REDIS_PORT`: You can leave this as the default.
 - `SIDEKIQ_ADMIN_USERNAME`: HTTP basic auth for Sidekiq web interface.

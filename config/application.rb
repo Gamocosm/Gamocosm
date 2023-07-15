@@ -8,7 +8,6 @@ Bundler.require(*Rails.groups)
 
 module Gamocosm
   DIGITAL_OCEAN_API_KEY = ENV['DIGITAL_OCEAN_API_KEY']
-  DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE = ENV['DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE']
   SIDEKIQ_REDIS_HOST = ENV['SIDEKIQ_REDIS_HOST']
   SIDEKIQ_REDIS_PORT = ENV['SIDEKIQ_REDIS_PORT']
   SIDEKIQ_ADMIN_USERNAME = ENV['SIDEKIQ_ADMIN_USERNAME']
@@ -18,6 +17,9 @@ module Gamocosm
   CLOUDFLARE_API_TOKEN = ENV['CLOUDFLARE_API_TOKEN']
   CLOUDFLARE_EMAIL = ENV['CLOUDFLARE_EMAIL']
   CLOUDFLARE_ZONE = ENV['CLOUDFLARE_ZONE']
+
+  GIT_HEAD = ENV['GIT_HEAD'].blank? ? 'master' : ENV['GIT_HEAD'].strip
+  GIT_HEAD_DATE = ENV['GIT_HEAD_TIMESTAMP'].blank? ? '(now)' : Time.at(ENV['GIT_HEAD_TIMESTAMP'].to_i).strftime('%Y %b %-d %H:%M %Z')
 
   MINECRAFT_FLAVOURS = YAML.load_file(File.expand_path('config/minecraft_flavours.yml', Rails.root)).inject({}, &lambda do |a, x|
     x.second['versions'].each do |v|
@@ -35,12 +37,11 @@ module Gamocosm
   MCSW_GIT_URL = 'https://github.com/Gamocosm/minecraft-server_wrapper.git'
   MCSW_USERNAME = 'gamocosm-mothership'
   USER_SERVERS_DOMAIN = 'gamocosm.com'
-  DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-36-x64'
-  DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH = 'id_gamocosm'
-  DIGITAL_OCEAN_SSH_PUBLIC_KEY = File.read("#{DIGITAL_OCEAN_SSH_PRIVATE_KEY_PATH}.pub")
-  DIGITAL_OCEAN_SSH_PUBLIC_KEY_FINGERPRINT = Digest::MD5.hexdigest(Base64.decode64(DIGITAL_OCEAN_SSH_PUBLIC_KEY.split(/\s+/m)[1])).scan(/../).join(':')
-  GIT_HEAD = `git rev-parse HEAD`.strip
-  GIT_HEAD_DATE = Time.at(`git show -s --format=%ct HEAD`.to_i).strftime('%Y %b %-d %H:%M %Z')
+  DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-38-x64'
+  SSH_PRIVATE_KEY_PATH = 'id_gamocosm'
+  SSH_PUBLIC_KEY = `ssh-keygen -y -f "#{SSH_PRIVATE_KEY_PATH}"`
+  SSH_PUBLIC_KEY_FINGERPRINT = Digest::MD5.hexdigest(Base64.decode64(SSH_PUBLIC_KEY.split(/\s+/m)[1])).scan(/../).join(':')
+
   # see ActiveSupport::TimeZone
   TIMEZONE = 'Pacific Time (US & Canada)'
 

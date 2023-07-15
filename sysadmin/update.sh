@@ -2,22 +2,42 @@
 
 set -e
 
-if [[ "$USER" != gamocosm ]]; then
-	echo 'Should be run as gamocosm.'
-	exit 1
-fi
-
 cd ~/gamocosm
 
-git checkout release
-git pull origin release
+git pull origin master
 
-RAILS_ENV=production ./sysadmin/run.sh bundle install
-rbenv rehash
-RAILS_ENV=production ./sysadmin/run.sh bundle exec rails db:migrate
-RAILS_ENV=production ./sysadmin/run.sh bundle exec rails assets:precompile
+podman build \
+	--tag gamocosm-image:latest \
+	--env "GIT_HEAD=$(git rev-parse HEAD)" \
+	--env "GIT_HEAD_TIMESTAMP=$(git show --no-patch --format=%ct HEAD)" \
+	.
+
+systemctl stop pod-gamocosm || true
+
+podman rm --ignore gamocosm-puma
+podman rm --ignore gamocosm-sidekiq
+
+podman create \
+	--name gamocosm-puma --pod gamocosm
+	--env-file gamocosm.env \
+	--secret gamocosm-ssh-key,type=mount,target=/gamocosm/id_gamocosm \
+	gamocosm-image:latest \
+	puma --config config/puma.rb
+
+podman create \
+	--name gamocosm-sidekiq --pod gamocosm \
+	--env-file gamocosm.env \
+	--secret gamocosm-ssh-key,type=mount,target=/gamocosm/id_gamocosm \
+	gamocosm-image:latest \
+	sidekiq --config config/sidekiq.yml
 
 rm -rf /usr/share/gamocosm/public
-cp -r public /usr/share/gamocosm/public
+podman cp gamocosm-puma:/gamocosm/public/. /usr/share/gamocosm/public
 
-echo "Remember to restart the Gamocosm Puma and Sidekiq service!"
+pushd /etc/systemd/system
+podman generate systemd --name --restart-policy always --restart-sec 8 --files gamocosm
+popd
+
+podman image prune
+
+systemctl start pod-gamocosm

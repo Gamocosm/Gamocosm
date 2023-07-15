@@ -12,7 +12,7 @@ jobs:
           echo 'CI=true' >> template.env
           echo "COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN" >> template.env
 
-          ssh-keygen -t ed25519 -N "$DIGITAL_OCEAN_SSH_PRIVATE_KEY_PASSPHRASE" -f id_gamocosm
+          ssh-keygen -t ed25519 -f id_gamocosm -N ''
 
           docker network create gamocosm-network
 

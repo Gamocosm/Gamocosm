@@ -191,8 +191,8 @@ class User < ActiveRecord::Base
   end
 
   def digital_ocean_gamocosm_ssh_key_id
-    public_key = Gamocosm::DIGITAL_OCEAN_SSH_PUBLIC_KEY
-    fingerprint = Gamocosm::DIGITAL_OCEAN_SSH_PUBLIC_KEY_FINGERPRINT
+    public_key = Gamocosm::SSH_PUBLIC_KEY
+    fingerprint = Gamocosm::SSH_PUBLIC_KEY_FINGERPRINT
     self.invalidate_digital_ocean_cache_ssh_keys
     keys = self.digital_ocean_ssh_keys
     if keys.error?
