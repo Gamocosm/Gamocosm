@@ -268,7 +268,7 @@ Example: `TEST_DOCKER=true ./tests.sh`
 
 [geetfun]: https://github.com/geetfun
 [binary-koan]: https://github.com/binary-koan
-[jono-mingard]: https://mingard.io
+[jono-mingard]: https://mingard.link
 [super-mario-bro]: http://www.reddit.com/user/SuperMarioBro
 [bearbin]: https://github.com/bearbin
 [chiisana]: http://www.reddit.com/user/chiisana

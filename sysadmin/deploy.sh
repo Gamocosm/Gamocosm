@@ -82,7 +82,7 @@ fi
 
 mkdir /usr/share/gamocosm
 mkdir /usr/share/gamocosm/public
-mkdir /usr/share/gamocosm/blog
+mkdir /usr/share/gamocosm/blog.old
 mkdir /usr/share/gamocosm/blog.0
 
 echo 'Cloning Gamocosm repository...'
@@ -106,23 +106,27 @@ source gamocosm.env
 
 echo 'Creating containers...'
 podman network create gamocosm-network
-podman pod create \
-	--network gamocosm-network \
-	--publish 127.0.0.1:9293:9292/tcp \
-	gamocosm
 
 podman create \
-	--name "$DATABASE_HOST" --pod gamocosm \
+	--name "$DATABASE_HOST" --network gamocosm-network \
 	--env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" \
 	"docker.io/postgres:$POSTGRESQL_VERSION"
 
 podman create \
-	--name "$SIDEKIQ_REDIS_HOST" --pod gamocosm \
+	--name "$SIDEKIQ_REDIS_HOST" --network gamocosm-network \
 	"docker.io/redis:$REDIS_VERSION"
 
 podman create \
-	--name "$CACHE_REDIS_HOST" --pod gamocosm \
+	--name "$CACHE_REDIS_HOST" --network gamocosm-network \
 	"docker.io/redis:$REDIS_VERSION"
+
+pushd /etc/systemd/system
+podman generate systemd --name --restart-policy always --restart-sec 8 --files "$DATABASE_HOST"
+podman generate systemd --name --restart-policy always --restart-sec 8 --files "$SIDEKIQ_REDIS_HOST"
+podman generate systemd --name --restart-policy always --restart-sec 8 --files "$CACHE_REDIS_HOST"
+popd
+
+systemctl enable --now "container-$DATABASE_HOST" "container-$SIDEKIQ_REDIS_HOST" "container-$CACHE_REDIS_HOST"
 
 podman secret create gamocosm-ssh-key ~/.ssh/id_ed25519
 
@@ -131,13 +135,11 @@ mkdir "$HOME/backups"
 ./sysadmin/update.sh
 
 if [ -z "$RESTORE_DIR" ]; then
-	podman run --rm --pod gamocosm --env-file gamocosm.env gamocosm-image rails db:setup
+	podman run --rm --network gamocosm-network --env-file gamocosm.env gamocosm-image rails db:setup
 else
-	podman run --rm --pod gamocosm --env-file gamocosm.env gamocosm-image rails db:create
-	podman exec "$DATABASE_HOST" psql gamocosm_production < "$DB_SCRIPT"
+	podman run --rm --network gamocosm-network --env-file gamocosm.env gamocosm-image rails db:create
+	podman exec "$DATABASE_HOST" pg_restore gamocosm_production < "$DB_SCRIPT"
 fi
-
-systemctl enable pod-gamocosm
 
 systemctl enable --now gamocosm-daily.timer
 

@@ -2,11 +2,14 @@
 
 set -e
 
+cd "$(dirname "$0")"
+cd ..
+source gamocosm.env
+
 cd "$HOME/backups"
 
-podman run --rm --pod gamocosm \
-	postgres:14.5 \
-	pg_dump --host ${DATABASE_HOST} --port ${DATABASE_PORT} --user ${DATABASE_USER} --password ${DATABASE_PASSWORD} --format custom gamocosm_production \
+podman exec "$DATABASE_HOST" \
+	pg_dump --format custom gamocosm_production \
 	> gamocosm-latest.dump
 
 mv gamocosm-latest.dump "gamocosm-$(date '+%Y-%m-%d.%H-%M-%S').dump"
