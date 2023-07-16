@@ -191,8 +191,7 @@ class User < ActiveRecord::Base
   end
 
   def digital_ocean_gamocosm_ssh_key_id
-    public_key = Gamocosm::SSH_PUBLIC_KEY
-    fingerprint = Gamocosm::SSH_PUBLIC_KEY_FINGERPRINT
+    gamocosm_key = Gamocosm.ssh_public_key
     self.invalidate_digital_ocean_cache_ssh_keys
     keys = self.digital_ocean_ssh_keys
     if keys.error?
@@ -202,11 +201,11 @@ class User < ActiveRecord::Base
       return 'You do not have a Digital Ocean API key'.error!(nil)
     end
     for x in keys
-      if x.fingerprint == fingerprint
+      if x.fingerprint == gamocosm_key.fingerprint
         return x.id
       end
     end
-    res = self.digital_ocean.ssh_key_create('gamocosm', public_key)
+    res = self.digital_ocean.ssh_key_create('gamocosm', gamocosm_key.contents)
     if res.error?
       return res
     end

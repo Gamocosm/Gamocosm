@@ -68,5 +68,4 @@ end
 group :test do
     gem 'simplecov'
     gem 'webmock'
-    gem 'coveralls_reborn'
 end

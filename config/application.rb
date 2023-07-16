@@ -39,8 +39,6 @@ module Gamocosm
   USER_SERVERS_DOMAIN = 'gamocosm.com'
   DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-38-x64'
   SSH_PRIVATE_KEY_PATH = 'id_gamocosm'
-  SSH_PUBLIC_KEY = `ssh-keygen -y -f "#{SSH_PRIVATE_KEY_PATH}"`
-  SSH_PUBLIC_KEY_FINGERPRINT = Digest::MD5.hexdigest(Base64.decode64(SSH_PUBLIC_KEY.split(/\s+/m)[1])).scan(/../).join(':')
 
   # see ActiveSupport::TimeZone
   TIMEZONE = 'Pacific Time (US & Canada)'
@@ -59,6 +57,16 @@ module Gamocosm
       @cloudflare = CloudFlare::Client.new(CLOUDFLARE_EMAIL, CLOUDFLARE_API_TOKEN, USER_SERVERS_DOMAIN, CLOUDFLARE_ZONE)
     end
     return @cloudflare
+  end
+
+  @ssh_public_key = nil
+  def self.ssh_public_key
+    if @ssh_public_key.nil?
+      contents = `ssh-keygen -y -f "#{SSH_PRIVATE_KEY_PATH}"`
+      fingerprint = Digest::MD5.hexdigest(Base64.decode64(contents.split(/\s+/m)[1])).scan(/../).join(':')
+      @ssh_public_key = Struct.new(:contents, :fingerprint).new(contents, fingerprint)
+    end
+    return @ssh_public_key
   end
 
   class Application < Rails::Application

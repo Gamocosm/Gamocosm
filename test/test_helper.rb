@@ -1,10 +1,5 @@
 ENV['RAILS_ENV'] ||= 'test'
 require 'simplecov'
-require 'coveralls'
-SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
-  SimpleCov::Formatter::HTMLFormatter,
-  Coveralls::SimpleCov::Formatter,
-])
 SimpleCov.start
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
@@ -124,7 +119,7 @@ class ActiveSupport::TestCase
   end
 
   def mock_do_ssh_key_gamocosm(status)
-    return mock_do_ssh_key_add().stub_do_ssh_key_add(status, 'gamocosm', Gamocosm::SSH_PUBLIC_KEY)
+    return mock_do_ssh_key_add().stub_do_ssh_key_add(status, 'gamocosm', Gamocosm.ssh_public_key.contents)
   end
 
   def mock_do_droplets_list(status, droplets)
