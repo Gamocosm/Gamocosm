@@ -15,7 +15,7 @@
             <%= f.input :email, required: true, autofocus: true %>
             <%= f.input :password, required: true %>
             <%= f.input :password_confirmation, required: true %>
-            <%= f.input :digital_ocean_api_key, label: 'Digital Ocean API Token', hint: "Only required for server admins. Using a #{link_to('referral link', digital_ocean_index_path)} literally gives you a $100 credit for the first 2 months. #{link_to('Read more/Instructions', digital_ocean_setup_path)}".html_safe %>
+            <%= f.input :digital_ocean_api_key, label: 'Digital Ocean API Token', hint: "Only required for server admins. Please consider using #{render_digital_ocean_referral_link('%s (%s)', 'our referral link')} if signing up. #{link_to('Read more/Instructions', digital_ocean_setup_path)}".html_safe %>
           </p>
 
           <p class="form-actions text-center">

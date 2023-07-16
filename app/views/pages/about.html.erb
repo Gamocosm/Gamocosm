@@ -5,16 +5,22 @@
 	<div class="col-sm-12">
 		<h1>About</h1>
 		<p>
-			Gamocosm is Free and Open-source Software.
+			Gamocosm is free and open-source software.
 			Gamocosm is free in that it <a href="https://www.gnu.org/philosophy/free-sw.html">respects your freedom and the community</a>.
-			Gamocosm doesn't accept payment, no ads, and no tracking user data.
-			Read our <%= link_to 'Security and Privacy', wiki_security_privacy_path %> wiki page.
+			Gamocosm doesn't accept payment, hosts no ads, and doesn't track any user data (it only stores what it directly needs to use).
+			Read our <%= link_to 'Security and Privacy', wiki_link('Security-and-Privacy') %> wiki page.
 		</p>
 		<p>
-			I pay for all the development and production costs out of my pocket.
-			I do this because I want to make something useful.
-			I'll accept donations later if costs start being an issue.
+			I don't make any money off of Gamocosm.
 			I intend to keep everything as transparent as possible.
+
+			Gamocosm does present my referral link for Digital Ocean
+			- each such link should have a hover-text saying so, and be followed by a "no referral" link in parantheses.
+
+			The Gamocosm server(s) used to be hosted on a Digital Ocean account separate from my personal account,
+			but at this point (especially with the introduction of Digital Ocean teams),
+			it's just easier for me to manage everything under one account.
+			I changed the referral link to point to my personal account in <a href="https://github.com/Gamocosm/Gamocosm/commit/8a98a89ab8b882ef0c70e1bd9258576a60b6a4e7">this commit</a>.
 		</p>
 	</div>
 </div>
@@ -22,21 +28,23 @@
 	<div class="col-sm-6">
 		<h2>Contact</h2>
 		<ul>
-			<li>Submit an issue on <%= link_to 'GitHub', issues_path %></li>
+			<li>Submit an issue on <%= link_to 'GitHub', issues_link %></li>
 			<li>
-				<%= link_to 'Gitter chat', external_gitter_path %>
+				<%= link_to 'Gitter chat', gitter_lobby_link %>
 				(you can also join <code>#gamocosm_Lobby</code> on the <code>gitter.im</code> homeserver using any <a href="https://matrix.org">Matrix</a> client).
-				This is the updated/preferred method of contacting me.
+				This is the preferred method of contacting me.
 			</li>
 			<li>
-				IRC in <code>#gamocosm</code> on <a href="https://esper.net"><code>irc.esper.net</code></a> (<%= link_to 'web chat', irc_path %>).
+				IRC in <code>#gamocosm</code> on <a href="https://esper.net"><code>irc.esper.net</code></a>.
 				You can also direct message me on <a href="https://libera.chat"><code>libera.chat</code></a>.
+
+				Although IRC doesn't require any sign up, it doesn't keep history by default, so unless you actually run your own IRC client/bouncer, you're probably going to miss my response/I won't bother if you've disconnected.
 			</li>
 		</ul>
 	</div>
 	<div class="col-sm-6">
 		<h2>Source</h2>
-		<p>The source code is on <%= link_to 'GitHub', source_path %>. Feel free to fork and send a pull request!</p>
+		<p>The source code is on <%= link_to 'GitHub', source_link %>. Feel free to fork and send a pull request!</p>
 	</div>
 </div>
 <div class="row">
@@ -48,7 +56,7 @@
 				Let's say you and your friends play 2 hours a day, every day.
 				That's ~60 hours a month.
 				Typically, private servers only need 1GB-2GB of RAM.
-				On <%= render_digital_ocean_referral_link('%s (%s)', 'Digital Ocean', digital_ocean_index_path, digital_ocean_index_no_ref_path) %>, this is 0.7-1.5 <em>cents</em> an hour (<%= render_digital_ocean_referral_link('%s, %s', 'pricing', digital_ocean_pricing_path, digital_ocean_pricing_no_ref_path) %>), or <strong>~$0.40-$0.80 a month</strong>.
+				On <%= render_digital_ocean_referral_link('%s (%s)', 'Digital Ocean') %>, this is 0.7-1.5 <em>cents</em> an hour (<%= render_digital_ocean_referral_link('%s, %s', 'pricing', 'https://www.digitalocean.com/pricing/') %>), or <strong>~$0.40-$0.80 a month</strong>.
 			</dd>
 			<dt>What is Digital Ocean?</dt>
 			<dd>
@@ -62,7 +70,7 @@
 			<dd>
 				<p>Gamocosm sets up your server.
 				Digital Ocean provides a bare linux server, so you/Gamocosm needs to install and configure it to be a ready, secure Minecraft server.
-				If you're interested, check this <%= link_to 'wiki page', wiki_server_additional_info_path %> for more info on the setup.</p>
+				If you're interested, check this <%= link_to 'wiki page', wiki_link('Additional-Info-for-Server-Admins') %> for more info on the setup.</p>
 
 				<p><strong>Secondly, Digital Ocean continues charging you when you <em>just</em> stop a server</strong>, because its resources are still allocated.
 				When you turn off a server on Gamocosm, it snapshots (backs up), and destroys your server.
@@ -76,7 +84,7 @@
 			<dt>Anything else I should know?</dt>
 			<dd>
 				Gamocosm just automates the general process of running Minecraft on a cloud server - you have <em>full access</em> to a Linux machine; you can do whatever you want with it!
-				You can <%= link_to 'SSH, FTP', wiki_ftp_ssh_path %>, install mods, and even use entirely <%= link_to 'custom servers', wiki_minecraft_versions_path %>!
+				You can <%= link_to 'SSH, FTP', wiki_link('FTP-and-SSH') %>, install mods, and even use entirely <%= link_to 'custom servers', wiki_link('Installing-different-versions-of-Minecraft') %>!
 			</dd>
 		</dl>
 	</div>
@@ -87,10 +95,9 @@
 		<dl class="faq">
 			<dt>There's a bug!</dt>
 			<dd>Do one of the following:<ul>
-				<li>Check the <%= link_to 'Troubleshooting page', wiki_troubleshooting_path %> on the wiki</li>
-				<li>File an <%= link_to 'issue on GitHub', issues_path %></li>
-				<li>Ask a question on <%= link_to 'Gitter chat', external_gitter_path %></li>
-				<li>Developers may be online on IRC at <code>#gamocosm</code> on <code>irc.esper.net</code>
+				<li>Check the <%= link_to 'Troubleshooting page', wiki_link('Troubleshooting') %> on the wiki</li>
+				<li>File an <%= link_to 'issue on GitHub', issues_link %></li>
+				<li>Ask a question on <%= link_to 'Gitter chat', gitter_lobby_link %></li>
 			</ul></dd>
 
 			<dt>Why does it take so long to start/stop a server?</dt>
@@ -127,13 +134,13 @@
 			and keep your own local backups</dd>
 
 			<dt>How do I FTP or SSH?</dt>
-			<dd>See this <%= link_to 'wiki page', wiki_ftp_ssh_path %>.</dd>
+			<dd>See this <%= link_to 'wiki page', wiki_link('FTP-and-SSH') %>.</dd>
 
 			<dt>How do I run different Minecraft versions, modded, or custom servers (e.g. Bukkit, Forge, Cuberite)?</dt>
-			<dd>See this <%= link_to 'wiki page', wiki_minecraft_versions_path %></dd>
+			<dd>See this <%= link_to 'wiki page', wiki_link('Installing-different-versions-of-Minecraft') %>.</dd>
 
 			<dt>Why/how do I set up Gamocosm with Digital Ocean?</dt>
-			<dd>See <%= link_to 'this page', digital_ocean_setup_path %></dd>
+			<dd>See <%= link_to 'this page', digital_ocean_setup_path %>.</dd>
 
 			<dt>How do I resize a server?</dt>
 			<dd>
@@ -179,7 +186,7 @@
 		<h2>Donations/Internet Freedom</h2>
 		<p>
 			At this time, I do not feel worthy of donations :P
-			If possible, using <%= link_to 'Gamocosm\'s referral link for Digital Ocean', digital_ocean_index_path %>
+			If possible, using <%= render_digital_ocean_referral_link('%s (%s)', 'Gamocosm\'s referral link for Digital Ocean') %>
 			to subsidize server costs is appreciated.
 			However, if you wish to support, I encourage everyone to support internet freedom groups such as Wikipedia.
 			<strong>It's easy to gloss over their donation requests, but it is really important that we don't take them for granted!</strong>
@@ -203,7 +210,7 @@
 					is no different than saying you don't care about free speech because you have nothing to say.
 				</p>
 				<footer>
-					<a href="https://www.reddit.com/r/IAmA/comments/36ru89/just_days_left_to_kill_mass_surveillance_under/crglgh2/">Edward Snowden</a>
+					<a href="https://old.reddit.com/r/IAmA/comments/36ru89/just_days_left_to_kill_mass_surveillance_under/crglgh2/">Edward Snowden</a>
 				</footer>
 			</blockquote>
 			<blockquote>
@@ -225,10 +232,10 @@
 			</blockquote>
 			Other good reads:
 			<ul>
-				<li><a href="https://www.reddit.com/r/InsightfulQuestions/comments/t1dlo/why_do_people_care_so_much_about_privacy/c4iscqv/">
+				<li><a href="https://old.reddit.com/r/InsightfulQuestions/comments/t1dlo/why_do_people_care_so_much_about_privacy/c4iscqv/">
 					"A lack of control over your information means a lack of control over your life"
 				</a> (includes real examples)</li>
-				<li><a href="https://www.reddit.com/r/changemyview/comments/1fv4r6/i_believe_the_government_should_be_allowed_to/cd89cqr/">
+				<li><a href="https://old.reddit.com/r/changemyview/comments/1fv4r6/i_believe_the_government_should_be_allowed_to/cd89cqr/">
 					Someone's personal experience
 				</a> (there was controversy over edits, this is (to my understanding) the original post)</li>
 			</ul>

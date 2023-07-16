@@ -33,10 +33,16 @@ module ApplicationHelper
     return n == 1 ? "1 #{str}" : "#{n} #{str.pluralize(n)}"
   end
 
-  def render_digital_ocean_referral_link(format, text, link, link_no_ref)
+  def render_digital_ocean_referral_link(format, text, link_no_ref = nil)
+    if link_no_ref.nil?
+      link = 'https://m.do.co/c/758af342c81e'
+      link_no_ref = 'https://www.digitalocean.com/'
+    else
+      link = "#{link_no_ref}?refcode=758af342c81e"
+    end
     return (format % [
-      link_to(text, link, data: { toggle: 'tooltip' }, title: 'Literally $200 credit for the first 2 months (as of 2023 March 30)'),
-      link_to('*', link_no_ref, data: { toggle: 'tooltip' }, title: 'no referral'),
+      link_to(text, link, data: { toggle: 'tooltip' }, title: 'Literally $200 credit for the first 2 months (as of 2023 July 16)'),
+      link_to('no referral', link_no_ref),
     ]).html_safe
   end
 
@@ -61,5 +67,45 @@ module ApplicationHelper
       return 'Active'
     end
     return 'Not running'
+  end
+
+  def git_head_link
+    "https://github.com/Gamocosm/Gamocosm/tree/#{Gamocosm::GIT_HEAD}"
+  end
+
+  def wiki_link(page = nil)
+    if page.nil?
+      'https://github.com/Gamocosm/Gamocosm/wiki'
+    else
+      "https://github.com/Gamocosm/Gamocosm/wiki/#{page}"
+    end
+  end
+
+  def issues_link
+    'https://github.com/Gamocosm/Gamocosm/issues'
+  end
+
+  def source_link
+    'https://github.com/Gamocosm/Gamocosm'
+  end
+
+  def license_link
+    'https://github.com/Gamocosm/Gamocosm/blob/master/LICENSE'
+  end
+
+  def cuberite_website_link
+    'https://cuberite.org'
+  end
+
+  def gitter_lobby_link
+    'https://gitter.im/gamocosm/Lobby'
+  end
+
+  def digital_ocean_control_panel_link
+    'https://cloud.digitalocean.com'
+  end
+
+  def digital_ocean_status_link
+    'https://status.digitalocean.com'
   end
 end
