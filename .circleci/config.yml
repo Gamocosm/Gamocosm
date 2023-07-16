@@ -1,33 +1,32 @@
 version: 2.1
 jobs:
-  test:
+  build:
     machine:
-      image: ubuntu-2004:202111-01
+      image: ubuntu-2204:2023.04.2
     resource_class: large
     steps:
       - checkout
       - run: |
-          echo 'CI=true' >> template.env
-          echo "COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN" >> template.env
-          echo "SECRET_KEY_BASE=$(rails secret)" >> template.env
+          cp template.env gamocosm.env
+          echo 'CI=true' >> gamocosm.env
+          echo "COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN" >> gamocosm.env
+          echo "SECRET_KEY_BASE=$(openssl rand -hex 64)" >> gamocosm.env
 
-          source template.env
+          source gamocosm.env
 
           ssh-keygen -t ed25519 -f id_gamocosm -N ''
-          docker secret create gamocosm-ssh-key id_gamocosm
+
+          DOCKER_BUILDKIT=1 docker build --file Containerfile --tag gamocosm --build-arg "secret_key_base=$SECRET_KEY_BASE" --secret id=gamocosm-ssh-key,src=id_gamocosm .
 
           docker network create gamocosm-network
 
           docker run --detach --rm --network gamocosm-network --name "$DATABASE_HOST" --env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" docker.io/postgres:14.5
           docker run --detach --rm --network gamocosm-network --name "$SIDEKIQ_REDIS_HOST" docker.io/redis:7.0.4
 
-          ./sysadmin/build.sh
+          docker run --detach --rm --network gamocosm-network --name gamocosm-test --env-file gamocosm.env --env RAILS_ENV=test gamocosm yes
 
-          docker run --rm --network gamocosm-network --env-file template.env --secret gamocosm-ssh-key,type=mount,target=/gamocosm/id_gamocosm gamocosm rails db:setup
+          docker cp id_gamocosm gamocosm-test:/gamocosm/
+          docker cp .git gamocosm-test:/gamocosm/
 
-          docker run --rm --network gamocosm-network --env-file template.env --secret gamocosm-ssh-key,type=mount,target=/gamocosm/id_gamocosm gamocosm rails test
-workflows:
-  version: 2
-  doit:
-    jobs:
-      - test
+          docker exec gamocosm-test rails db:setup
+          docker exec gamocosm-test rails test
