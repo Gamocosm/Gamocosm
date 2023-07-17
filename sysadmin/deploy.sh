@@ -90,9 +90,10 @@ git clone https://github.com/Gamocosm/Gamocosm.git gamocosm
 
 pushd gamocosm
 
-cp sysadmin/nginx.conf /etc/nginx/conf.d/gamocosm.conf
-cp sysadmin/daily.service /etc/systemd/system/gamocosm-daily.service
-cp sysadmin/daily.timer /etc/systemd/system/gamocosm-daily.timer
+ln -s "$(pwd)/sysadmin/nginx.conf" /etc/nginx/conf.d/gamocosm.conf
+ln -s "$(pwd)/sysadmin/daily.service" /etc/systemd/system/gamocosm-daily.service
+ln -s "$(pwd)/sysadmin/daily.timer" /etc/systemd/system/gamocosm-daily.timer
+ln -s "$(pwd)/sysadmin/backup.sh" /usr/local/bin/gamocosm-backup
 
 if [ -z "$RESTORE_DIR" ]; then
 	cp template.env gamocosm.env

@@ -8,19 +8,19 @@ cd ..
 
 git pull origin master
 
+podman build --tag gamocosm-image:latest .
+
 systemctl stop container-gamocosm-puma container-gamocosm-sidekiq || true
 
 podman rm --ignore gamocosm-puma
 podman rm --ignore gamocosm-sidekiq
-
-podman build --tag gamocosm-image:latest .
 
 podman create \
 	--name gamocosm-puma --network gamocosm-network \
 	--env-file gamocosm.env \
 	--env "GIT_HEAD=$(git rev-parse HEAD)" \
 	--env "GIT_HEAD_TIMESTAMP=$(git show --no-patch --format=%ct HEAD)" \
-	--secret gamocosm-ssh-key,type=mount,target=/gamocosm/id_gamocosm \
+	--secret gamocosm-ssh-key,type=mount,target=/gamocosm/id_gamocosm,mode=0400 \
 	--publish 127.0.0.1:9293:9292/tcp \
 	gamocosm-image:latest \
 	puma --config config/puma.rb
@@ -28,7 +28,7 @@ podman create \
 podman create \
 	--name gamocosm-sidekiq --network gamocosm-network \
 	--env-file gamocosm.env \
-	--secret gamocosm-ssh-key,type=mount,target=/gamocosm/id_gamocosm \
+	--secret gamocosm-ssh-key,type=mount,target=/gamocosm/id_gamocosm,mode=0400 \
 	gamocosm-image:latest \
 	sidekiq --config config/sidekiq.yml
 
