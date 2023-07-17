@@ -17,6 +17,7 @@ COPY config config
 COPY db db
 COPY lib lib
 COPY public public
+COPY scripts scripts
 COPY test test
 
 COPY config.ru Rakefile ./

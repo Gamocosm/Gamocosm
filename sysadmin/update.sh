@@ -6,14 +6,13 @@ cd "$(dirname "$0")"
 
 cd ..
 
-git pull origin master
-
 podman build --tag gamocosm-image:latest .
 
-systemctl stop container-gamocosm-puma container-gamocosm-sidekiq || true
+systemctl stop container-gamocosm-puma container-gamocosm-sidekiq container-gamocosm-dns || true
 
 podman rm --ignore gamocosm-puma
 podman rm --ignore gamocosm-sidekiq
+podman rm --ignore gamocosm-dns
 
 podman create \
 	--name gamocosm-puma --network gamocosm-network \
@@ -32,6 +31,14 @@ podman create \
 	gamocosm-image:latest \
 	sidekiq --config config/sidekiq.yml
 
+podman create \
+	--name gamocosm-dns --network gamocosm-network \
+	--env-file gamocosm.env \
+	--publish 127.0.0.1:5353:53/tcp \
+	--publish 127.0.0.1:5353:53/udp \
+	gamocosm-image:latest \
+	rails runner scripts/dns.rb
+
 rm -rf /usr/share/gamocosm/public
 podman cp gamocosm-puma:/gamocosm/public/. /usr/share/gamocosm/public
 
@@ -40,9 +47,10 @@ podman image prune --all --force
 pushd /etc/systemd/system
 podman generate systemd --name --restart-policy always --restart-sec 8 --files gamocosm-puma
 podman generate systemd --name --restart-policy always --restart-sec 8 --files gamocosm-sidekiq
+podman generate systemd --name --restart-policy always --restart-sec 8 --files gamocosm-dns
 popd
 
 systemctl daemon-reload
-systemctl start container-gamocosm-puma container-gamocosm-sidekiq || true
+systemctl start container-gamocosm-puma container-gamocosm-sidekiq container-gamocosm-dns
 
 systemctl restart nginx

@@ -1,0 +1,28 @@
+#!/usr/bin/env -S rails runner
+
+INTERFACES = [
+  [:udp, '0.0.0.0', 5353],
+  [:tcp, '0.0.0.0', 5353],
+]
+
+IN = Resolv::DNS::Resource::IN
+
+RubyDNS::run_server(INTERFACES) do
+  match(/^([a-z]+).#{Gamocosm::USER_SERVERS_DOMAIN}$/, IN::A) do |transaction, match_data|
+    domain = match_data[1]
+    server = Server.find_by_domain(domain)
+    if !server.nil?
+      ip_address = server.remote.ip_address
+      if !ip_address.error?
+        transaction.respond!(ip_address)
+      else
+        false
+      end
+    end
+  end
+
+
+  otherwise do |transaction|
+    transaction.fail!(:NXDomain)
+  end
+end
