@@ -15,8 +15,6 @@ podman rm --ignore gamocosm-sidekiq
 
 podman build --tag gamocosm-image:latest .
 
-podman image prune --all --force
-
 podman create \
 	--name gamocosm-puma --network gamocosm-network \
 	--env-file gamocosm.env \
@@ -36,6 +34,8 @@ podman create \
 
 rm -rf /usr/share/gamocosm/public
 podman cp gamocosm-puma:/gamocosm/public/. /usr/share/gamocosm/public
+
+podman image prune --all --force
 
 pushd /etc/systemd/system
 podman generate systemd --name --restart-policy always --restart-sec 8 --files gamocosm-puma
