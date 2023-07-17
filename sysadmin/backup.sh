@@ -9,7 +9,7 @@ source gamocosm.env
 cd "$HOME/backups"
 
 podman exec "$DATABASE_HOST" \
-	pg_dump --format custom gamocosm_production \
+	pg_dump --username "$DATABASE_USERNAME" --format custom gamocosm_production \
 	> gamocosm-latest.dump
 
 mv gamocosm-latest.dump "gamocosm-$(date '+%Y-%m-%d.%H-%M-%S').dump"

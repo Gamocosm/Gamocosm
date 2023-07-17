@@ -15,10 +15,10 @@ podman rm --ignore gamocosm-sidekiq
 
 podman build --tag gamocosm-image:latest .
 
-podman image prune
+podman image prune --all --force
 
 podman create \
-	--name gamocosm-puma --network gamocosm-network
+	--name gamocosm-puma --network gamocosm-network \
 	--env-file gamocosm.env \
 	--env "GIT_HEAD=$(git rev-parse HEAD)" \
 	--env "GIT_HEAD_TIMESTAMP=$(git show --no-patch --format=%ct HEAD)" \
@@ -42,6 +42,7 @@ podman generate systemd --name --restart-policy always --restart-sec 8 --files g
 podman generate systemd --name --restart-policy always --restart-sec 8 --files gamocosm-sidekiq
 popd
 
-podman image prune
-
+systemctl daemon-reload
 systemctl start container-gamocosm-puma container-gamocosm-sidekiq || true
+
+systemctl restart nginx

@@ -132,7 +132,7 @@ podman secret create gamocosm-ssh-key ~/.ssh/id_ed25519
 
 mkdir "$HOME/backups"
 
-./sysadmin/update.sh
+podman build --tag gamocosm-image:latest .
 
 if [ -z "$RESTORE_DIR" ]; then
 	podman run --rm --network gamocosm-network --env-file gamocosm.env gamocosm-image rails db:setup
@@ -140,6 +140,9 @@ else
 	podman run --rm --network gamocosm-network --env-file gamocosm.env gamocosm-image rails db:create
 	podman exec "$DATABASE_HOST" pg_restore gamocosm_production < "$DB_SCRIPT"
 fi
+
+./sysadmin/update.sh
+systemctl enable container-gamocosm-puma container-gamocosm-sidekiq
 
 systemctl enable --now gamocosm-daily.timer
 
