@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class DigitalOceanTest < ActiveSupport::TestCase
-
   def setup
     @con = DigitalOcean::Connection.new('abc')
   end

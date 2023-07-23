@@ -100,5 +100,4 @@ class AutoshutdownMinecraftWorker
       AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, true, 1)
     end
   end
-
 end

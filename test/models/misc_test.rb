@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class MiscTest < ActiveSupport::TestCase
-
   test 'monkey patches' do
     x = silence do
       1 / 0

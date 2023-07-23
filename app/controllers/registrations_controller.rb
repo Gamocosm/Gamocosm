@@ -1,5 +1,4 @@
 class RegistrationsController < Devise::RegistrationsController
-
   def update
     current_user.invalidate
     super

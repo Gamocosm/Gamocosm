@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class WorkersTest < ActiveSupport::TestCase
-
   def setup
     @server = Server.first
     @server.logs.delete_all

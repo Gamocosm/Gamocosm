@@ -1,5 +1,4 @@
 class CloudFlare::Client
-
   CLOUDFLARE_API_URL = 'https://api.cloudflare.com/client/v4/'
   HTTP_REQUEST_TIMEOUT = 4
 
@@ -127,5 +126,4 @@ class CloudFlare::Client
     end
     res.body['result']
   end
-
 end

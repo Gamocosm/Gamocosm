@@ -33,5 +33,4 @@ class PagesControllerTest < ActionController::TestCase
     get :internal_error
     assert_response 500
   end
-
 end

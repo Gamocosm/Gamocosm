@@ -57,5 +57,4 @@ class WaitForStoppingServerWorker
   rescue ActiveRecord::RecordNotFound => e
     logger.info "Record in #{self.class} not found #{e.message}"
   end
-
 end

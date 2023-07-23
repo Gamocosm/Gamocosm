@@ -60,5 +60,4 @@ class Minecraft::Querier
     end
     data[3].to_i
   end
-
 end

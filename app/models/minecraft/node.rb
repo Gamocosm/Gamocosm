@@ -1,5 +1,4 @@
 class Minecraft::Node
-
   MCSW_PORT = 5000
   HTTP_REQUEST_TIMEOUT = 4
 

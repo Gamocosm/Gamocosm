@@ -193,5 +193,4 @@ class Minecraft::Ping
     end
     online
   end
-
 end

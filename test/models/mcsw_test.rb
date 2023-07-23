@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class MCSWTest < ActiveSupport::TestCase
-
   def setup
     @minecraft = Server.first.minecraft
   end
