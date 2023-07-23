@@ -125,7 +125,7 @@ class ScheduledTask < ActiveRecord::Base
     end
 
     def self.calculate(day, hour, minute, ampm, delta)
-      x = ((day * 24) + (hour) + (ampm * 12) - (delta)) % (7 * 24)
+      x = ((day * 24) + hour + (ampm * 12) - delta) % (7 * 24)
       x * 100 + minute
     end
 

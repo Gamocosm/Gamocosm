@@ -1,6 +1,5 @@
 source 'https://rubygems.org'
 
-
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails'
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]

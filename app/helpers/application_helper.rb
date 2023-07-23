@@ -1,5 +1,4 @@
 module ApplicationHelper
-
   def panel_with_heading(title, &block)
     result = content_tag :div, class: 'panel panel-default' do
       inner_html = content_tag :div, class: 'panel-heading' do
