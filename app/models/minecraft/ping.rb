@@ -2,7 +2,7 @@ class Minecraft::Ping
   VERSION = 0
   TIMEOUT = 1
 
-  def initialize(ip_address, port = 25565)
+  def initialize(ip_address, port = 25_565)
     @ip_address = ip_address
     @port = port
     self.reset(nil)

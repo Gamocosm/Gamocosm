@@ -20,6 +20,16 @@ Style/BlockComments:
   Enabled: false
 Style/RedundantBegin:
   Enabled: false
+Style/WordArray:
+  Enabled: false
+Style/AccessorGrouping:
+  EnforcedStyle: separated
+Style/NegatedWhile:
+  Enabled: false
+Style/IfInsideElse:
+  Enabled: false
+Style/SoleNestedConditional:
+  Enabled: false
 Lint/AmbiguousRegexpLiteral:
   Enabled: false
 Layout/FirstHashElementIndentation:

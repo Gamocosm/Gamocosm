@@ -36,7 +36,7 @@ class ActiveSupport::TestCase
   end
 
   def with_minecraft_query_server(&block)
-    mcqs = Minecraft::QueryServer.new('127.0.0.1', 25565)
+    mcqs = Minecraft::QueryServer.new('127.0.0.1', 25_565)
     thread = Thread.new { mcqs.run }
     begin
       block.call(mcqs)

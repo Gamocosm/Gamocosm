@@ -4,7 +4,7 @@ class Minecraft::Querier
   PACKET_TYPE_QUERY = 0
   TIMEOUT = 1
 
-  def initialize(ip_address, port = 25565)
+  def initialize(ip_address, port = 25_565)
     @ip_address = ip_address
     @port = port
   end

@@ -25,10 +25,10 @@ module DigitalOcean
       { price_hourly: 0.02976, price_monthly: 20.0, cpu: 2, disk: 40, memory: 2048, name: '2GB', slug: '2gb' },
       { price_hourly: 0.05952, price_monthly: 40.0, cpu: 2, disk: 60, memory: 4096, name: '4GB', slug: '4gb' },
       { price_hourly: 0.11905, price_monthly: 80.0, cpu: 4, disk: 80, memory: 8192, name: '8GB', slug: '8gb' },
-      { price_hourly: 0.2381, price_monthly: 160.0, cpu: 8, disk: 160, memory: 16384, name: '16GB', slug: '16gb' },
-      { price_hourly: 0.47619, price_monthly: 320.0, cpu: 12, disk: 320, memory: 32768, name: '32GB', slug: '32gb' },
-      { price_hourly: 0.71429, price_monthly: 480.0, cpu: 16, disk: 480, memory: 49152, name: '48GB', slug: '48gb' },
-      { price_hourly: 0.95238, price_monthly: 640.0, cpu: 20, disk: 640, memory: 65536, name: '64GB', slug: '64gb' }
+      { price_hourly: 0.2381, price_monthly: 160.0, cpu: 8, disk: 160, memory: 16_384, name: '16GB', slug: '16gb' },
+      { price_hourly: 0.47619, price_monthly: 320.0, cpu: 12, disk: 320, memory: 32_768, name: '32GB', slug: '32gb' },
+      { price_hourly: 0.71429, price_monthly: 480.0, cpu: 16, disk: 480, memory: 49_152, name: '48GB', slug: '48gb' },
+      { price_hourly: 0.95238, price_monthly: 640.0, cpu: 20, disk: 640, memory: 65_536, name: '64GB', slug: '64gb' }
     ].map do |x|
       Size.new(x[:slug], x[:name], x[:memory], x[:disk], x[:cpu], x[:price_hourly], x[:price_monthly])
     end
