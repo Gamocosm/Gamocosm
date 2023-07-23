@@ -6,18 +6,6 @@ cd "$(dirname "$0")"
 
 cd ..
 
-source gamocosm.env
-if [ "$DATABASE_HOST" == localhost ]; then
-	echo 'You probably did not intend to run this...'
-	exit 1
-fi
-if [ "$REDIS_HOST" == localhost ]; then
-	echo 'You probably did not intend to run this...'
-	exit 1
-fi
-
-podman build --tag gamocosm-image:latest .
-
 systemctl stop container-gamocosm-puma container-gamocosm-sidekiq container-gamocosm-dns || true
 
 podman rm --ignore gamocosm-puma

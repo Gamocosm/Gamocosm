@@ -71,6 +71,12 @@ ln -s ~/dotfiles/vim ~/.vim
 ln -s ~/dotfiles/tmux ~/.tmux.conf
 ~/.vim/setup.sh
 
+# https://btrfs.readthedocs.io/en/latest/Swapfile.html
+btrfs filesystem mkswap --size 1G /swapfile
+swapon /swapfile
+echo '/swapfile none swap defaults 0 0' >> /etc/fstab
+systemctl daemon-reload
+
 if [ -z "$RESTORE_DIR" ]; then
 	echo 'Creating SSH keys...'
 	ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519
@@ -82,8 +88,7 @@ fi
 
 mkdir /usr/share/gamocosm
 mkdir /usr/share/gamocosm/public
-mkdir /usr/share/gamocosm/blog.old
-mkdir /usr/share/gamocosm/blog.0
+mkdir /usr/share/gamocosm/blog
 
 echo 'Cloning Gamocosm repository...'
 git clone https://github.com/Gamocosm/Gamocosm.git gamocosm
@@ -96,6 +101,7 @@ ln -s "$(pwd)/sysadmin/daily.timer" /etc/systemd/system/gamocosm-daily.timer
 ln -s "$(pwd)/sysadmin/dns-tcp.service" /etc/systemd/system/gamocosm-dns-tcp.service
 ln -s "$(pwd)/sysadmin/dns-udp.service" /etc/systemd/system/gamocosm-dns-udp.service
 ln -s "$(pwd)/sysadmin/backup.sh" /usr/local/bin/gamocosm-backup
+ln -s "$(pwd)/sysadmin/console.sh" /usr/local/bin/gamocosm-console
 
 firewall-offline-cmd --add-forward-port=port=53:toport=5354:proto=udp
 firewall-offline-cmd --add-forward-port=port=53:toport=5354:proto=tcp

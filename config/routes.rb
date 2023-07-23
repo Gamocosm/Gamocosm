@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   match '/422', to: 'pages#unacceptable', via: :all
   match '/500', to: 'pages#internal_error', via: :all
 
-  match '/blog' => redirect('https://gamocosm.com/blog.0/'), as: :blog, via: :get
+  match '/blog' => redirect('https://gamocosm.com/blog/'), as: :blog, via: :get
 
   scope '/digital_ocean' do
     get '/setup', to: 'pages#digital_ocean_setup', as: :digital_ocean_setup

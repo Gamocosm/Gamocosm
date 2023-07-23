@@ -243,6 +243,12 @@ You could also manage Docker yourself; you can look at the `tests.sh` file for r
 
 Example: `TEST_DOCKER=true ./tests.sh`
 
+## Notes
+- If `podman build` gets interrupted, you may be left with dangling images: [relevant GitHub issue][podman-dangling-images].
+	The solution is to run `buildah rm --all`
+	(may need to be installed separately, e.g. `(sudo) dnf install buildah`)
+	(followed by `podman image prune`).
+
 ### Credits
 - Special thanks to [geetfun][geetfun] who helped with the original development
 - Special thanks to [binary-koan][binary-koan] ([Jono Mingard][jono-mingard]) for designing the new theme! Looks awesome!
@@ -281,3 +287,4 @@ Example: `TEST_DOCKER=true ./tests.sh`
 
 [rake-db-commands]: http://stackoverflow.com/questions/10301794/
 [rails-action-mailer]: http://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-configuration
+[podman-dangling-images]: https://github.com/containers/podman/issues/7889
