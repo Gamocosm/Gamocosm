@@ -34,11 +34,11 @@ class Minecraft::Ping
   end
 
   def create_short(x)
-    [ x ].pack('S>').ascii
+    [x].pack('S>').ascii
   end
 
   def create_long(x)
-    [ x ].pack('q>').ascii
+    [x].pack('q>').ascii
   end
 
   def create_packet(id, buf)

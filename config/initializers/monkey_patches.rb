@@ -24,7 +24,7 @@ class IO
     begin
       return block.call
     rescue IO::WaitReadable
-      ready = IO.select([ self ], nil, nil, timeout)
+      ready = IO.select([self], nil, nil, timeout)
       if ready.nil?
         raise NonblockIOTimeout, 'Unable to read: timeout'
       end
@@ -41,7 +41,7 @@ class IO
     begin
       return block.call
     rescue IO::WaitWritable
-      ready = IO.select(nil, [ self ], nil, timeout)
+      ready = IO.select(nil, [self], nil, timeout)
       if ready.nil?
         raise NonblockIOTimeout, 'Unable to write: timeout'
       end

@@ -12,6 +12,8 @@ Style/IfUnlessModifier:
   Enabled: false
 Style/WhileUntilModifier:
   Enabled: false
+Style/RescueStandardError:
+  EnforcedStyle: implicit
 Lint/AmbiguousRegexpLiteral:
   Enabled: false
 Layout/FirstHashElementIndentation:

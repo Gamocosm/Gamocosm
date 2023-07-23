@@ -57,7 +57,7 @@ class ServerRemote
       if !error.nil?
         return error
       end
-      volumes = [ @server.volume.remote_id ]
+      volumes = [@server.volume.remote_id]
     end
     res = @con.droplet_create(@server.host_name, @server.remote_region_slug, @server.remote_size_slug, @server.remote_snapshot_id || Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG, [ssh_key_id], volumes)
     if res.error?

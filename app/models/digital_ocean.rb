@@ -226,7 +226,7 @@ module DigitalOcean
     def size_list_uncached
       silence_digital_ocean_api do
         res = @con.sizes.all
-        res.map { |x| self.class.size_from_response(x) }.select { |x| [ 's', 'c' ].include?(x.slug[0] ) }
+        res.map { |x| self.class.size_from_response(x) }.select { |x| ['s', 'c'].include?(x.slug[0] ) }
       end
     end
 

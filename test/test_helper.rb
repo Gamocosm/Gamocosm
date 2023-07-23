@@ -69,7 +69,7 @@ class ActiveSupport::TestCase
   end
 
   def mock_mcsw(verb, minecraft, endpoint)
-    stub_request(verb, "http://127.0.0.1:#{Minecraft::Node::MCSW_PORT}/#{endpoint}").with(basic_auth: [ Gamocosm::MCSW_USERNAME, minecraft.mcsw_password ])
+    stub_request(verb, "http://127.0.0.1:#{Minecraft::Node::MCSW_PORT}/#{endpoint}").with(basic_auth: [Gamocosm::MCSW_USERNAME, minecraft.mcsw_password])
   end
 
   # WebMock helpers that include response
@@ -232,7 +232,7 @@ class WebMock::RequestStub
       size:,
       region:,
       image:,
-      ssh_keys: [ 1 ],
+      ssh_keys: [1],
     }).stub_do_droplet_show(status, 'new')
   end
 
