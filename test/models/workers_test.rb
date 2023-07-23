@@ -15,7 +15,7 @@ class WorkersTest < ActiveSupport::TestCase
 
   test 'record not found in workers' do
     random_uuid = SecureRandom.uuid
-    while Server.find_by_id(random_uuid) != nil do
+    while Server.find_by_id(random_uuid) != nil
       random_uuid = SecureRandom.uuid
     end
     WaitForStartingServerWorker.perform_in(0.seconds, random_uuid, 0)

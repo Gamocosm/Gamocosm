@@ -10,6 +10,8 @@ Style/GuardClause:
   Enabled: false
 Style/IfUnlessModifier:
   Enabled: false
+Style/WhileUntilModifier:
+  Enabled: false
 Lint/AmbiguousRegexpLiteral:
   Enabled: false
 Layout/FirstHashElementIndentation:
