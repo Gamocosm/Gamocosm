@@ -144,7 +144,7 @@ class ActiveSupport::TestCase
     mock_digital_ocean(:get, "/droplets/#{droplet_id}/actions/#{action_id}")
   end
 
-  def mock_do_ssh_key_add()
+  def mock_do_ssh_key_add
     mock_digital_ocean(:post, '/account/keys')
   end
 
@@ -156,7 +156,7 @@ class ActiveSupport::TestCase
     mock_digital_ocean(:get, "/droplets/#{remote_id}")
   end
 
-  def mock_do_droplet_create()
+  def mock_do_droplet_create
     mock_digital_ocean(:post, '/droplets')
   end
 

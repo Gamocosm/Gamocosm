@@ -6,5 +6,19 @@ Style/NegatedIf:
   Enabled: false
 Style/RedundantSelf:
   Enabled: false
+Style/GuardClause:
+  Enabled: false
+Style/IfUnlessModifier:
+  Enabled: false
+Lint/AmbiguousRegexpLiteral:
+  Enabled: false
 Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: consistent
+Layout/LeadingCommentSpace:
+  Enabled: false
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+Layout/LineLength:
+  Max: 160
