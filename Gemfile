@@ -62,9 +62,9 @@ gem 'connection_pool'
 gem 'rubydns'
 group :development do
   gem 'annotate'
-    gem 'listen'
+  gem 'listen'
 end
 group :test do
   gem 'simplecov'
-    gem 'webmock'
+  gem 'webmock'
 end

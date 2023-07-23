@@ -25,6 +25,5 @@ class MinecraftTest < ActiveSupport::TestCase
     @minecraft = Minecraft.first
   end
 
-  def teardown
-  end
+  def teardown; end
 end

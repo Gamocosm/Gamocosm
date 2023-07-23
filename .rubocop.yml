@@ -48,5 +48,7 @@ Layout/LineLength:
   Max: 160
 Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation
+Layout/EmptyLinesAroundAccessModifier:
+  EnforcedStyle: only_before
 Bundler/OrderedGems:
   Enabled: false

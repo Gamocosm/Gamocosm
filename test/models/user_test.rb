@@ -29,8 +29,7 @@ class UserTest < ActiveSupport::TestCase
     @owner = User.find(1)
   end
 
-  def teardown
-  end
+  def teardown; end
 
   test 'validate user' do
     a = User.new

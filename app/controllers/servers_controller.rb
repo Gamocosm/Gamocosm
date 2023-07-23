@@ -19,8 +19,7 @@ class ServersController < ApplicationController
     load_new
   end
 
-  def edit
-  end
+  def edit; end
 
   def show
     @server = find_server(params[:id])
@@ -455,12 +454,12 @@ class ServersController < ApplicationController
     begin
       server = Server.find(id)
     rescue
-      raise ActionController::RoutingError.new('Not found')
+      raise ActionController::RoutingError, 'Not found'
     end
     if server.owner?(current_user) || server.friend?(current_user)
       return server
     end
-    raise ActionController::RoutingError.new('Not found')
+    raise ActionController::RoutingError, 'Not found'
   end
 
   def find_server_only_owner(id)
@@ -468,7 +467,7 @@ class ServersController < ApplicationController
       return current_user.servers.find(id)
     rescue
     end
-    raise ActionController::RoutingError.new('Not found')
+    raise ActionController::RoutingError, 'Not found'
   end
 
   def server_params

@@ -12,8 +12,7 @@ class ServersControllerTest < ActionController::TestCase
     @server.update_columns(remote_id: nil, pending_operation: nil, setup_stage: 0)
   end
 
-  def teardown
-  end
+  def teardown; end
 
   test 'servers page with digital ocean api token' do
     mock_do_base(200)

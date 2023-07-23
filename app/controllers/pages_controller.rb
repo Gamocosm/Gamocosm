@@ -7,11 +7,9 @@ class PagesController < ApplicationController
     @do_sizes = Gamocosm.digital_ocean.size_list
   end
 
-  def tos
-  end
+  def tos; end
 
-  def digital_ocean_setup
-  end
+  def digital_ocean_setup; end
 
   def demo
     @server = Mock::Mocker.new.mock_server(Server.new)

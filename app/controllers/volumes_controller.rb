@@ -10,8 +10,7 @@ class VolumesController < ApplicationController
 
   # GET /volumes/1
   # GET /volumes/1.json
-  def show
-  end
+  def show; end
 
   # GET /volumes/new
   def new
