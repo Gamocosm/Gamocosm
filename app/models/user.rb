@@ -35,34 +35,34 @@ class User < ActiveRecord::Base
   end
 
   def digital_ocean_servers_cache
-    return "user-#{self.id}-servers"
+    "user-#{self.id}-servers"
   end
 
   def digital_ocean_images_cache
-    return "user-#{self.id}-images"
+    "user-#{self.id}-images"
   end
 
   def digital_ocean_volumes_cache
-    return "user-#{self.id}-volumes"
+    "user-#{self.id}-volumes"
   end
 
   def digital_ocean_snapshots_cache
-    return "user-#{self.id}-snapshots"
+    "user-#{self.id}-snapshots"
   end
 
   def digital_ocean_ssh_keys_cache
-    return "user-#{self.id}-ssh_keys"
+    "user-#{self.id}-ssh_keys"
   end
 
   def digital_ocean_missing?
-    return digital_ocean_api_key.blank?
+    digital_ocean_api_key.blank?
   end
 
   def digital_ocean
     if @digital_ocean_connection.nil?
       @digital_ocean_connection = DigitalOcean::Connection.new(digital_ocean_api_key)
     end
-    return @digital_ocean_connection
+    @digital_ocean_connection
   end
 
   def invalidate
@@ -115,7 +115,7 @@ class User < ActiveRecord::Base
       # cache the result for this request (if there was an error, don't keep trying)
       @digital_ocean_droplets = droplets
     end
-    return @digital_ocean_droplets
+    @digital_ocean_droplets
   end
 
   def digital_ocean_images
@@ -133,7 +133,7 @@ class User < ActiveRecord::Base
       end
       @digital_ocean_images = images
     end
-    return @digital_ocean_images
+    @digital_ocean_images
   end
 
   def digital_ocean_volumes
@@ -151,7 +151,7 @@ class User < ActiveRecord::Base
       end
       @digital_ocean_volumes = volumes
     end
-    return @digital_ocean_volumes
+    @digital_ocean_volumes
   end
 
   def digital_ocean_snapshots
@@ -169,7 +169,7 @@ class User < ActiveRecord::Base
       end
       @digital_ocean_snapshots = snapshots
     end
-    return @digital_ocean_snapshots
+    @digital_ocean_snapshots
   end
 
   def digital_ocean_ssh_keys
@@ -187,7 +187,7 @@ class User < ActiveRecord::Base
       end
       @digital_ocean_ssh_keys = keys
     end
-    return @digital_ocean_ssh_keys
+    @digital_ocean_ssh_keys
   end
 
   def digital_ocean_gamocosm_ssh_key_id
@@ -209,6 +209,6 @@ class User < ActiveRecord::Base
     if res.error?
       return res
     end
-    return res.id
+    res.id
   end
 end

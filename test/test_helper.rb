@@ -12,7 +12,7 @@ require 'webmock/minitest'
 Sidekiq.logger.level = Logger::WARN
 
 def test_have_user_server?
-  return ENV['TEST_DOCKER'] == 'true'
+  ENV['TEST_DOCKER'] == 'true'
 end
 
 class ActiveSupport::TestCase
@@ -50,7 +50,7 @@ class ActiveSupport::TestCase
   def patch_schedule_time
     class << ScheduledTask::Partition
       def server_current
-        return ScheduledTask::Partition.new(0)
+        ScheduledTask::Partition.new(0)
       end
     end
   end
@@ -65,11 +65,11 @@ class ActiveSupport::TestCase
       })
     end
 =end
-    return stub
+    stub
   end
 
   def mock_mcsw(verb, minecraft, endpoint)
-    return stub_request(verb, "http://127.0.0.1:#{Minecraft::Node::MCSW_PORT}/#{endpoint}").with(basic_auth: [ Gamocosm::MCSW_USERNAME, minecraft.mcsw_password ])
+    stub_request(verb, "http://127.0.0.1:#{Minecraft::Node::MCSW_PORT}/#{endpoint}").with(basic_auth: [ Gamocosm::MCSW_USERNAME, minecraft.mcsw_password ])
   end
 
   # WebMock helpers that include response
@@ -85,7 +85,7 @@ class ActiveSupport::TestCase
   end
 
   def mock_do_droplet_actions_list(status, droplet_id)
-    return mock_digital_ocean(:get, "/droplets/#{droplet_id}/actions")
+    mock_digital_ocean(:get, "/droplets/#{droplet_id}/actions")
       .to_return_json(status, { actions: [{ id: 1 }], meta: { total: 1 } })
       .with(query: {
         page: 1,
@@ -94,66 +94,66 @@ class ActiveSupport::TestCase
   end
 
   def mock_do_droplet_delete(status, droplet_id)
-    return mock_digital_ocean(:delete, "/droplets/#{droplet_id}").to_return_json(status, { })
+    mock_digital_ocean(:delete, "/droplets/#{droplet_id}").to_return_json(status, { })
   end
 
   def mock_do_image_delete(status, image_id, data = { })
-    return mock_digital_ocean(:delete, "/images/#{image_id}").to_return_json(status, data)
+    mock_digital_ocean(:delete, "/images/#{image_id}").to_return_json(status, data)
   end
 
   def mock_do_ssh_key_delete(status, key_id)
-    return mock_digital_ocean(:delete, "/account/keys/#{key_id}").to_return_json(status, { })
+    mock_digital_ocean(:delete, "/account/keys/#{key_id}").to_return_json(status, { })
   end
 
   def mock_do_ssh_key_gamocosm(status)
-    return mock_do_ssh_key_add().stub_do_ssh_key_add(status, 'gamocosm', Gamocosm.ssh_public_key.contents)
+    mock_do_ssh_key_add().stub_do_ssh_key_add(status, 'gamocosm', Gamocosm.ssh_public_key.contents)
   end
 
   def mock_do_droplets_list(status, droplets)
-    return mock_digital_ocean(:get, '/droplets')
+    mock_digital_ocean(:get, '/droplets')
       .to_return_json(status, { droplets: droplets, meta: { total: droplets.length } })
       .stub_do_list
   end
 
   def mock_do_images_list(status, images)
-    return mock_digital_ocean(:get, '/images')
+    mock_digital_ocean(:get, '/images')
       .to_return_json(status, { images: images, meta: { total: images.length } })
       .stub_do_list
   end
 
   def mock_do_ssh_keys_list(status, ssh_keys)
-    return mock_digital_ocean(:get, '/account/keys')
+    mock_digital_ocean(:get, '/account/keys')
       .to_return_json(status, { ssh_keys: ssh_keys, meta: { total: ssh_keys.length } })
       .stub_do_list
   end
 
   def mock_mcsw_stop(status, mc)
-    return mock_mcsw(:post, mc, :stop).to_return_json(status, { })
+    mock_mcsw(:post, mc, :stop).to_return_json(status, { })
   end
 
   def mock_mcsw_backup(status, mc)
-    return mock_mcsw(:post, mc, :backup).to_return_json(status, { })
+    mock_mcsw(:post, mc, :backup).to_return_json(status, { })
   end
 
   # WebMock helpers just urls
   def mock_do_droplet_action(droplet_id)
-    return mock_digital_ocean(:post, "/droplets/#{droplet_id}/actions")
+    mock_digital_ocean(:post, "/droplets/#{droplet_id}/actions")
   end
 
   def mock_do_droplet_action_show(droplet_id, action_id)
-    return mock_digital_ocean(:get, "/droplets/#{droplet_id}/actions/#{action_id}")
+    mock_digital_ocean(:get, "/droplets/#{droplet_id}/actions/#{action_id}")
   end
 
   def mock_do_ssh_key_add()
-    return mock_digital_ocean(:post, '/account/keys')
+    mock_digital_ocean(:post, '/account/keys')
   end
 
   def mock_do_ssh_key_show(key_id)
-    return mock_digital_ocean(:get, "/account/keys/#{key_id}")
+    mock_digital_ocean(:get, "/account/keys/#{key_id}")
   end
 
   def mock_do_droplet_show(remote_id)
-    return mock_digital_ocean(:get, "/droplets/#{remote_id}")
+    mock_digital_ocean(:get, "/droplets/#{remote_id}")
   end
 
   def mock_do_droplet_create()
@@ -161,54 +161,54 @@ class ActiveSupport::TestCase
   end
 
   def mock_mcsw_start(mc)
-    return mock_mcsw(:post, mc, :start)
+    mock_mcsw(:post, mc, :start)
   end
 
   def mock_mcsw_pid(mc)
-    return mock_mcsw(:get, mc, :pid)
+    mock_mcsw(:get, mc, :pid)
   end
 
   def mock_mcsw_exec(mc)
-    return mock_mcsw(:post, mc, :exec)
+    mock_mcsw(:post, mc, :exec)
   end
 
   def mock_mcsw_properties_fetch(mc)
-    return mock_mcsw(:get, mc, :minecraft_properties)
+    mock_mcsw(:get, mc, :minecraft_properties)
   end
 
   def mock_mcsw_properties_update(mc)
-    return mock_mcsw(:post, mc, :minecraft_properties)
+    mock_mcsw(:post, mc, :minecraft_properties)
   end
 end
 
 class WebMock::RequestStub
   def to_return_json(status, res)
-    return self.to_return({ status: status, body: res.to_json, headers: { 'Content-Type' => 'application/json' } })
+    self.to_return({ status: status, body: res.to_json, headers: { 'Content-Type' => 'application/json' } })
   end
 
   def with_body_hash_including(req)
-    return self.with(body: WebMock::API.hash_including(req))
+    self.with(body: WebMock::API.hash_including(req))
   end
 
   def times_only(n)
-    return self.times(n).to_raise(RuntimeError)
+    self.times(n).to_raise(RuntimeError)
   end
 
   def stub_do_list
-    return self.with({ query: WebMock::API.hash_including({
+    self.with({ query: WebMock::API.hash_including({
       page: '1',
       per_page: '20',
     }) })
   end
 
   def stub_do_droplet_action(status, action)
-    return self.with_body_hash_including({
+    self.with_body_hash_including({
       type: action,
     }).to_return_json(status, { action: { id: 1 } })
   end
 
   def stub_do_droplet_action_show(status, remote_status)
-    return self.to_return_json(status, {
+    self.to_return_json(status, {
       action: {
         status: remote_status
       }
@@ -216,7 +216,7 @@ class WebMock::RequestStub
   end
 
   def stub_do_droplet_show(status, remote_status, opts = { })
-    return self.to_return_json(status, {
+    self.to_return_json(status, {
       droplet: {
         id: 1,
         networks: { v4: [{ ip_address: '127.0.0.1', type: 'public' }] },
@@ -227,7 +227,7 @@ class WebMock::RequestStub
   end
 
   def stub_do_droplet_create(status, name, size, region, image)
-    return self.with_body_hash_including({
+    self.with_body_hash_including({
       name: "#{name}.#{Gamocosm::USER_SERVERS_DOMAIN}",
       size: size,
       region: region,
@@ -237,7 +237,7 @@ class WebMock::RequestStub
   end
 
   def stub_do_ssh_key_show(status, name, public_key)
-    return self.to_return_json(status, {
+    self.to_return_json(status, {
       ssh_key: {
         id: 1,
         name: name,
@@ -247,43 +247,43 @@ class WebMock::RequestStub
   end
 
   def stub_do_ssh_key_add(status, name, public_key)
-    return self.with_body_hash_including({
+    self.with_body_hash_including({
       name: name,
       public_key: public_key,
     }).stub_do_ssh_key_show(status, name, public_key)
   end
 
   def stub_cf_response(status, success, result)
-    return self.to_return_json(status, {
+    self.to_return_json(status, {
       success: success,
       result: result,
     })
   end
 
   def stub_mcsw_pid(status, pid, opts = { })
-    return self.to_return_json(status, { pid: pid }.merge(opts))
+    self.to_return_json(status, { pid: pid }.merge(opts))
   end
 
   def stub_mcsw_start(status, ram)
-    return self.with_body_hash_including({
+    self.with_body_hash_including({
       ram: "#{ram}M",
     }).stub_mcsw_pid(status, 1)
   end
 
   def stub_mcsw_exec(status, command)
-    return self.with_body_hash_including({
+    self.with_body_hash_including({
       command: command,
     }).to_return_json(status, { })
   end
 
   def stub_mcsw_properties_fetch(status, properties)
-    return self.to_return_json(status, {
+    self.to_return_json(status, {
       properties: Minecraft::Properties::DEFAULT_PROPERTIES.merge(properties),
     })
   end
 
   def stub_mcsw_properties_update(status, properties)
-    return self.with_body_hash_including({ properties: properties }).stub_mcsw_properties_fetch(status, properties)
+    self.with_body_hash_including({ properties: properties }).stub_mcsw_properties_fetch(status, properties)
   end
 end
 
@@ -299,7 +299,7 @@ if !test_have_user_server?
 
     def test(command, args = [])
       Rails.logger.info "SSHKit mocking test: #{command} #{args.join(' ')}"
-      return true
+      true
     end
 
     def within(directory, &block)

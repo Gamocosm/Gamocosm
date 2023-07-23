@@ -240,7 +240,7 @@ module DigitalOcean
           @regions = res.select { |x| x.available }
         end
       end
-      return @regions
+      @regions
     end
 
     def size_list
@@ -253,7 +253,7 @@ module DigitalOcean
           @sizes = res
         end
       end
-      return @sizes
+      @sizes
     end
 
     def region_find(slug)
@@ -262,7 +262,7 @@ module DigitalOcean
           return x
         end
       end
-      return nil
+      nil
     end
 
     def size_find(slug)
@@ -276,7 +276,7 @@ module DigitalOcean
           return x
         end
       end
-      return nil
+      nil
     end
 
     def volume_list

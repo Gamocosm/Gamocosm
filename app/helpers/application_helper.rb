@@ -30,7 +30,7 @@ module ApplicationHelper
   end
 
   def pluralize_with_count(n, str)
-    return n == 1 ? "1 #{str}" : "#{n} #{str.pluralize(n)}"
+    n == 1 ? "1 #{str}" : "#{n} #{str.pluralize(n)}"
   end
 
   def render_digital_ocean_referral_link(format, text, link_no_ref = nil)
@@ -40,7 +40,7 @@ module ApplicationHelper
     else
       link = "#{link_no_ref}?refcode=758af342c81e"
     end
-    return (format % [
+    (format % [
       link_to(text, link, data: { toggle: 'tooltip' }, title: 'Literally $200 credit for the first 2 months (as of 2023 July 16)'),
       link_to('no referral', link_no_ref),
     ]).html_safe
@@ -53,7 +53,7 @@ module ApplicationHelper
     if server.remote.exists? && server.remote.ip_address
       return "#{server.host_name} (or #{server.remote.ip_address})"
     end
-    return fallback || "#{server.host_name} (Not running)"
+    fallback || "#{server.host_name} (Not running)"
   end
 
   def render_server_status(server)
@@ -66,7 +66,7 @@ module ApplicationHelper
     if server.running?
       return 'Active'
     end
-    return 'Not running'
+    'Not running'
   end
 
   def git_head_link

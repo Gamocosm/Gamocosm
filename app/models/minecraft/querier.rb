@@ -18,7 +18,7 @@ class Minecraft::Querier
       socket.read_nonblock(256)
     end
     challenge = data.ascii[5...-1].to_i
-    return challenge
+    challenge
   end
 
   def read_all(tries = 4)
@@ -50,7 +50,7 @@ class Minecraft::Querier
 
   def self.create_packet(id, session, data)
     # 8 bit signed, 32 bit unsigned big endian
-    return MAGIC.ascii + [id].pack('c').ascii + [session].pack('N').ascii + data.ascii
+    MAGIC.ascii + [id].pack('c').ascii + [session].pack('N').ascii + data.ascii
   end
 
   def read_num_players
@@ -58,7 +58,7 @@ class Minecraft::Querier
     if data.error?
       return data
     end
-    return data[3].to_i
+    data[3].to_i
   end
 
 end

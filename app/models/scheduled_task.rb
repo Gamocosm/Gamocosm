@@ -51,7 +51,7 @@ class ScheduledTask < ActiveRecord::Base
     h_12 = h_24 % 12
     ampm = h_24 < 12 ? 'am' : 'pm'
     d = hours / 24 % 7
-    return "#{DAYS_OF_WEEK_INVERSE[d]} #{h_12 == 0 ? 12 : h_12}:#{m.to_s.rjust(2, '0')} #{ampm} #{action}"
+    "#{DAYS_OF_WEEK_INVERSE[d]} #{h_12 == 0 ? 12 : h_12}:#{m.to_s.rjust(2, '0')} #{ampm} #{action}"
   end
 
   def self.parse(str, server)
@@ -65,7 +65,7 @@ class ScheduledTask < ActiveRecord::Base
         xs.push(x)
       end
     end
-    return xs
+    xs
   end
 
   def self.parse_line(line, server)
@@ -100,11 +100,11 @@ class ScheduledTask < ActiveRecord::Base
         action: action,
       })
     end
-    return "Bad schedule item format \"#{line}\"".error!(nil)
+    "Bad schedule item format \"#{line}\"".error!(nil)
   end
 
   def self.server_time_string
-    return DateTime.now.in_time_zone(Gamocosm::TIMEZONE).strftime('%-I:%M %P (%H:%M) %Z')
+    DateTime.now.in_time_zone(Gamocosm::TIMEZONE).strftime('%-I:%M %P (%H:%M) %Z')
   end
 
   class Partition
@@ -126,7 +126,7 @@ class ScheduledTask < ActiveRecord::Base
 
     def self.calculate(day, hour, minute, ampm, delta)
       x = ((day * 24) + (hour) + (ampm * 12) - (delta)) % (7 * 24)
-      return x * 100 + minute
+      x * 100 + minute
     end
 
     def valid?
@@ -136,20 +136,20 @@ class ScheduledTask < ActiveRecord::Base
     # convers 60+ minutes to hour
     def self.fix(x)
       y = x % 100
-      return (x / 100 + y / 60) * 100 + y % 60
+      (x / 100 + y / 60) * 100 + y % 60
     end
 
     # difference in minutes
     def self.diff(x, y)
-      return x / 100 * 60 + x % 100 % 60 - (y / 100 * 60 + y % 100 % 60)
+      x / 100 * 60 + x % 100 % 60 - (y / 100 * 60 + y % 100 % 60)
     end
 
     def self.server_current
-      return self.from_datetime(DateTime.current)
+      self.from_datetime(DateTime.current)
     end
 
     def self.from_datetime(x)
-      return Partition.new(Partition.calculate((x.wday - 1) % 7, x.hour, x.minute, 0, 0))
+      Partition.new(Partition.calculate((x.wday - 1) % 7, x.hour, x.minute, 0, 0))
     end
   end
 end

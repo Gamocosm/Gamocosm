@@ -58,6 +58,6 @@ class PagesController < ApplicationController
     if params[:secret] == ENV['BADNESS_SECRET']
       do_bad_things
     end
-    return redirect_to root_path
+    redirect_to root_path
   end
 end

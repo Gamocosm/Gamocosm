@@ -30,20 +30,20 @@ class Minecraft::Ping
 
   def create_string(str)
     utf8 = str.encode('utf-8')
-    return self.create_varint(utf8.bytesize) + utf8.ascii
+    self.create_varint(utf8.bytesize) + utf8.ascii
   end
 
   def create_short(x)
-    return [ x ].pack('S>').ascii
+    [ x ].pack('S>').ascii
   end
 
   def create_long(x)
-    return [ x ].pack('q>').ascii
+    [ x ].pack('q>').ascii
   end
 
   def create_packet(id, buf)
     data = self.create_varint(id) + buf
-    return self.create_varint(data.bytesize) + data
+    self.create_varint(data.bytesize) + data
   end
 
   def handshake
@@ -89,7 +89,7 @@ class Minecraft::Ping
       @pos += n
       return ret
     end
-    return nil
+    nil
   end
 
   def read_varint
@@ -107,18 +107,18 @@ class Minecraft::Ping
   def read_utf8
     n = self.read_varint
     str = self.read_n(n, true)
-    return str.force_encoding('utf-8')
+    str.force_encoding('utf-8')
   end
 
   def read_long
     bytes = self.read_n(8, true)
-    return bytes.unpack('q>').first
+    bytes.unpack('q>').first
   end
 
   def read_packet
     n = self.read_varint
     self.read_n(n, false)
-    return self.read_varint
+    self.read_varint
   end
 
   def read_ping
@@ -138,7 +138,7 @@ class Minecraft::Ping
       raise "Unexpected reply from Minecraft for status (got #{id})"
     end
     status = self.read_utf8
-    return JSON.parse(status)
+    JSON.parse(status)
   end
 
   def connect
@@ -155,7 +155,7 @@ class Minecraft::Ping
   end
 
   def recv(n)
-    return @con.read_timeout(TIMEOUT) do
+    @con.read_timeout(TIMEOUT) do
       @con.read_nonblock(n)
     end
   end
@@ -191,7 +191,7 @@ class Minecraft::Ping
     if online.nil?
       return "Minecraft status unexpected format: #{status}".error!(status)
     end
-    return online
+    online
   end
 
 end

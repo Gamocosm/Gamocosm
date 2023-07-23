@@ -45,7 +45,7 @@ class ServersController < ApplicationController
   def create
     begin
       @server = current_user.servers.create!(server_params)
-      return redirect_to server_path(@server), flash: { success: 'You made a new server! Start it to play' }
+      redirect_to server_path(@server), flash: { success: 'You made a new server! Start it to play' }
     rescue
       @server = Server.new(server_params)
       # run validations for error messages
@@ -54,7 +54,7 @@ class ServersController < ApplicationController
       @do_sizes = Gamocosm.digital_ocean.size_list
       flash[:error] = 'Something went wrong. Please try again'
       load_new
-      return render :new
+      render :new
     end
   end
 
@@ -95,7 +95,7 @@ class ServersController < ApplicationController
       @server_tab = :ftp_ssh
     end
     flash[:error] = 'Something went wrong. Please try again'
-    return render :show
+    render :show
   end
 
   def destroy
@@ -111,12 +111,12 @@ class ServersController < ApplicationController
       return redirect_to server_path(@server), flash: { error: "Unable to delete server: #{error}" }
     end
     @server.delete
-    return redirect_to servers_path, flash: { success: 'Server is deleting' }
+    redirect_to servers_path, flash: { success: 'Server is deleting' }
   end
 
   def delete
     @server = find_server_only_owner(params[:id])
-    return render :delete
+    render :delete
   end
 
   def start
@@ -130,7 +130,7 @@ class ServersController < ApplicationController
     @server.user.invalidate_digital_ocean_cache_droplets
     @server.user.invalidate_digital_ocean_cache_volumes
     @server.user.invalidate_digital_ocean_cache_snapshots
-    return redirect_to server_path(@server)
+    redirect_to server_path(@server)
   end
 
   def stop
@@ -141,7 +141,7 @@ class ServersController < ApplicationController
     else
       flash[:success] = 'Server stopping'
     end
-    return redirect_to server_path(@server)
+    redirect_to server_path(@server)
   end
 
   def reboot
@@ -152,7 +152,7 @@ class ServersController < ApplicationController
     else
       flash[:success] = 'Server is rebooting'
     end
-    return redirect_to server_path(@server)
+    redirect_to server_path(@server)
   end
 
   def resume
@@ -163,7 +163,7 @@ class ServersController < ApplicationController
     else
       flash[:success] = 'Server resumed'
     end
-    return redirect_to server_path(@server)
+    redirect_to server_path(@server)
   end
 
   def pause
@@ -174,7 +174,7 @@ class ServersController < ApplicationController
     else
       flash[:success] = 'Server paused'
     end
-    return redirect_to server_path(@server)
+    redirect_to server_path(@server)
   end
 
   def backup
@@ -185,7 +185,7 @@ class ServersController < ApplicationController
     else
       flash[:success] = 'World backed up remotely on server'
     end
-    return redirect_to server_path(@server)
+    redirect_to server_path(@server)
   end
 
   def download
@@ -194,7 +194,7 @@ class ServersController < ApplicationController
     if error
       return redirect_to server_path(@server), flash: { error: "Unable to download world: #{error}. Please contact the server admin about this" }
     end
-    return redirect_to @server.minecraft.world_download_url, allow_other_host: true
+    redirect_to @server.minecraft.world_download_url, allow_other_host: true
   end
 
   def command
@@ -204,7 +204,7 @@ class ServersController < ApplicationController
     if error
       return redirect_to server_path(@server), flash: { error: "Unable to send command to Minecraft: #{error}. Please contact the server admin about this" }
     end
-    return redirect_to server_path(@server), flash: { success: 'Command sent' }
+    redirect_to server_path(@server), flash: { success: 'Command sent' }
   end
 
   def update_properties
@@ -216,7 +216,7 @@ class ServersController < ApplicationController
     if res.error?
       return redirect_to server_path(@server), flash: { error: "Unable to update Minecraft properties: #{res}. Please contact the server admin about this" }
     end
-    return redirect_to server_path(@server), flash: { success: 'Minecraft properties updated' }
+    redirect_to server_path(@server), flash: { success: 'Minecraft properties updated' }
   end
 
   def add_friend
@@ -233,7 +233,7 @@ class ServersController < ApplicationController
       return redirect_to server_path(@server), notice: "User #{email} is already on this server"
     end
     @server.friends << friend
-    return redirect_to server_path(@server), flash: { success: "User #{email} added to the server" }
+    redirect_to server_path(@server), flash: { success: "User #{email} added to the server" }
   end
 
   def remove_friend
@@ -244,7 +244,7 @@ class ServersController < ApplicationController
       return redirect_to server_path(@server), flash: { error: "User #{email} does not exist" }
     end
     @server.friends.delete(friend)
-    return redirect_to server_path(@server), flash: { success: "User #{email} removed from the server" }
+    redirect_to server_path(@server), flash: { success: "User #{email} removed from the server" }
   end
 
   def autoshutdown_enable
@@ -253,19 +253,19 @@ class ServersController < ApplicationController
     if @server.remote.exists?
       AutoshutdownMinecraftWorker.perform_in(AutoshutdownMinecraftWorker::CHECK_INTERVAL, @server.id)
     end
-    return redirect_to server_path(@server), flash: { success: 'Autoshutdown enabled' }
+    redirect_to server_path(@server), flash: { success: 'Autoshutdown enabled' }
   end
 
   def autoshutdown_disable
     @server = find_server_only_owner(params[:id])
     @server.minecraft.update_columns(autoshutdown_enabled: false)
-    return redirect_to server_path(@server), flash: { success: 'Autoshutdown disabled' }
+    redirect_to server_path(@server), flash: { success: 'Autoshutdown disabled' }
   end
 
   def clear_logs
     @server = find_server_only_owner(params[:id])
     @server.logs.delete_all
-    return redirect_to server_path(@server), flash: { success: 'Server logs cleared' }
+    redirect_to server_path(@server), flash: { success: 'Server logs cleared' }
   end
 
   def api_status
@@ -303,7 +303,7 @@ class ServersController < ApplicationController
     server[0].user.invalidate_digital_ocean_cache_droplets
     server[0].user.invalidate_digital_ocean_cache_volumes
     server[0].user.invalidate_digital_ocean_cache_snapshots
-    return render json: {
+    render json: {
       error: err,
     }
   end
@@ -317,7 +317,7 @@ class ServersController < ApplicationController
       return
     end
     err = server[0].stop
-    return render json: {
+    render json: {
       error: err,
     }
   end
@@ -331,7 +331,7 @@ class ServersController < ApplicationController
       return
     end
     err = server[0].reboot
-    return render json: {
+    render json: {
       error: err,
     }
   end
@@ -345,7 +345,7 @@ class ServersController < ApplicationController
       return
     end
     err = server[0].minecraft.pause
-    return render json: {
+    render json: {
       error: err,
     }
   end
@@ -359,7 +359,7 @@ class ServersController < ApplicationController
       return
     end
     err = server[0].minecraft.resume
-    return render json: {
+    render json: {
       error: err,
     }
   end
@@ -373,7 +373,7 @@ class ServersController < ApplicationController
       return
     end
     err = server[0].minecraft.backup
-    return render json: {
+    render json: {
       error: err,
     }
   end
@@ -387,7 +387,7 @@ class ServersController < ApplicationController
       return
     end
     err = server[0].minecraft.exec(server[0].user, params[:command])
-    return render json: {
+    render json: {
       error: err,
     }
   end
@@ -403,7 +403,7 @@ class ServersController < ApplicationController
     if error
       return redirect_to servers_path, flash: { error: error }
     end
-    return redirect_to servers_path, flash: { notice: 'Deleted droplet on Digital Ocean' }
+    redirect_to servers_path, flash: { notice: 'Deleted droplet on Digital Ocean' }
   end
 
   def show_digital_ocean_images
@@ -417,7 +417,7 @@ class ServersController < ApplicationController
     if error
       return redirect_to servers_path, flash: { error: error }
     end
-    return redirect_to servers_path, flash: { notice: 'Deleted snapshot on Digital Ocean' }
+    redirect_to servers_path, flash: { notice: 'Deleted snapshot on Digital Ocean' }
   end
 
   def show_digital_ocean_ssh_keys
@@ -433,7 +433,7 @@ class ServersController < ApplicationController
     if ssh_key.error?
       f = { error: ssh_key }
     end
-    return redirect_back fallback_location: servers_path, flash: f
+    redirect_back fallback_location: servers_path, flash: f
   end
 
   def destroy_digital_ocean_ssh_key
@@ -443,12 +443,12 @@ class ServersController < ApplicationController
     if error
       f = { error: error }
     end
-    return redirect_back fallback_location: servers_path, flash: f
+    redirect_back fallback_location: servers_path, flash: f
   end
 
   def refresh_digital_ocean_cache
     current_user.invalidate
-    return redirect_to servers_path, flash: { success: 'Cache refreshed' }
+    redirect_to servers_path, flash: { success: 'Cache refreshed' }
   end
 
   def find_server(id)
@@ -472,7 +472,7 @@ class ServersController < ApplicationController
   end
 
   def server_params
-    return params.require(:server).permit(
+    params.require(:server).permit(
       :name,
       :remote_region_slug,
       :remote_size_slug,
@@ -481,7 +481,7 @@ class ServersController < ApplicationController
   end
 
   def minecraft_properties_params
-    return params.require(:minecraft_properties).permit(:allow_flight,
+    params.require(:minecraft_properties).permit(:allow_flight,
       :allow_nether,
       :announce_player_achievements,
       :difficulty,
@@ -509,11 +509,11 @@ class ServersController < ApplicationController
   end
 
   def server_friend_params
-    return params.require(:server_friend).permit(:email)
+    params.require(:server_friend).permit(:email)
   end
 
   def server_advanced_params
-    return params.require(:server).permit(
+    params.require(:server).permit(
       :ssh_port,
       :setup_stage,
       :pending_operation,
@@ -527,11 +527,11 @@ class ServersController < ApplicationController
   end
 
   def server_ssh_keys_params
-    return params.require(:server).permit(:ssh_keys)
+    params.require(:server).permit(:ssh_keys)
   end
 
   def server_schedule_params
-    return params.require(:server).permit(
+    params.require(:server).permit(
       :timezone_delta,
       :schedule_text,
       minecraft_attributes: [:autoshutdown_minutes],
@@ -539,6 +539,6 @@ class ServersController < ApplicationController
   end
 
   def minecraft_command_params
-    return params.require(:command).permit(:data)
+    params.require(:command).permit(:data)
   end
 end

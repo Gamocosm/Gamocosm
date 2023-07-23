@@ -94,7 +94,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
     assert_not_nil flash[:success]
-    return server
+    server
   end
 
   def delete_server(server)

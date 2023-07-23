@@ -70,12 +70,12 @@ class CloudFlare::Client
         req.options.open_timeout = HTTP_REQUEST_TIMEOUT
         req.options.timeout = HTTP_REQUEST_TIMEOUT
       end
-      return parse_response(res)
+      parse_response(res)
     rescue Faraday::Error => e
       msg = "CloudFlare API network exception: #{e}."
       Rails.logger.error msg
       Rails.logger.error e.backtrace.join("\n")
-      return msg.error! e
+      msg.error! e
     end
   end
 
@@ -88,12 +88,12 @@ class CloudFlare::Client
         req.options.timeout = HTTP_REQUEST_TIMEOUT
         req.body = params.to_json
       end
-      return parse_response(res)
+      parse_response(res)
     rescue Faraday::Error => e
       msg = "CloudFlare API network exception: #{e}."
       Rails.logger.error msg
       Rails.logger.error e.backtrace.join("\n")
-      return msg.error! e
+      msg.error! e
     end
   end
 
@@ -105,12 +105,12 @@ class CloudFlare::Client
         req.options.open_timeout = HTTP_REQUEST_TIMEOUT
         req.options.timeout = HTTP_REQUEST_TIMEOUT
       end
-      return parse_response(res)
+      parse_response(res)
     rescue Faraday::Error => e
       msg = "CloudFlare API network exception: #{e}."
       Rails.logger.error msg
       Rails.logger.error e.backtrace.join("\n")
-      return msg.error! e
+      msg.error! e
     end
   end
 
@@ -125,7 +125,7 @@ class CloudFlare::Client
       Rails.logger.error msg
       return msg.error! res
     end
-    return res.body['result']
+    res.body['result']
   end
 
 end

@@ -24,15 +24,15 @@ class Volume < ApplicationRecord
   end
 
   def volume?
-    return self.status == 'volume'
+    self.status == 'volume'
   end
 
   def snapshot?
-    return self.status == 'snapshot'
+    self.status == 'snapshot'
   end
 
   def remote_exists?
-    return !self.remote_id.nil?
+    !self.remote_id.nil?
   end
 
   def remote
@@ -45,7 +45,7 @@ class Volume < ApplicationRecord
     if @remote.nil?
       @remote = self.user.digital_ocean.volume_show(self.remote_id)
     end
-    return @remote
+    @remote
   end
 
   def remote_snapshot
@@ -58,7 +58,7 @@ class Volume < ApplicationRecord
     if @remote_snapshot.nil?
       @remote_snapshot = self.user.digital_ocean.snapshot_show(self.remote_id)
     end
-    return @remote_snapshot
+    @remote_snapshot
   end
 
   def vivify!
@@ -91,7 +91,7 @@ class Volume < ApplicationRecord
     if self.snapshot?
       return 'Volume is already a snapshot.'
     end
-    return nil
+    nil
   end
 
   def reload?
@@ -101,7 +101,7 @@ class Volume < ApplicationRecord
     if self.volume?
       return 'Volume is already active.'
     end
-    return nil
+    nil
   end
 
   def suspend!
@@ -119,7 +119,7 @@ class Volume < ApplicationRecord
     if res.error?
       return res
     end
-    return nil
+    nil
   end
 
   def reload!
@@ -137,7 +137,7 @@ class Volume < ApplicationRecord
     if res.error?
       return res
     end
-    return nil
+    nil
   end
 
   def remote_delete
@@ -164,14 +164,14 @@ class Volume < ApplicationRecord
   end
 
   def do_name
-    return 'gamocosm-' + self.name
+    'gamocosm-' + self.name
   end
 
   def mount_path
-    return "/mnt/#{self.do_name.gsub('-', '_')}"
+    "/mnt/#{self.do_name.gsub('-', '_')}"
   end
 
   def device_path
-    return "/dev/disk/by-id/scsi-0DO_Volume_#{self.do_name}"
+    "/dev/disk/by-id/scsi-0DO_Volume_#{self.do_name}"
   end
 end

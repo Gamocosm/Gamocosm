@@ -14,10 +14,10 @@ class ServerLog < ActiveRecord::Base
   belongs_to :server
 
   def when
-    return created_at.in_time_zone(Gamocosm::TIMEZONE).strftime('%Y %b %-d (%H:%M:%S %Z)')
+    created_at.in_time_zone(Gamocosm::TIMEZONE).strftime('%Y %b %-d (%H:%M:%S %Z)')
   end
 
   def to_s
-    return "{ log #{id}: #{message} }"
+    "{ log #{id}: #{message} }"
   end
 end

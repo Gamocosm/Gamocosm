@@ -91,7 +91,7 @@ class Minecraft::QueryServer
   end
 
   def handle_packet_challenge(session_id, data)
-    return Minecraft::Querier.create_packet(Minecraft::Querier::PACKET_TYPE_CHALLENGE, session_id, "#{regenerate_challenge_token}\0")[2..-1]
+    Minecraft::Querier.create_packet(Minecraft::Querier::PACKET_TYPE_CHALLENGE, session_id, "#{regenerate_challenge_token}\0")[2..-1]
   end
 
   def handle_packet_query(session_id, data)
@@ -101,7 +101,7 @@ class Minecraft::QueryServer
       log "Bad challenge #{supplied_challenge}."
       return nil
     end
-    return Minecraft::Querier.create_packet(Minecraft::Querier::PACKET_TYPE_QUERY, session_id, [
+    Minecraft::Querier.create_packet(Minecraft::Querier::PACKET_TYPE_QUERY, session_id, [
       'motd',
       'gametype',
       'map',

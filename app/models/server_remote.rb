@@ -6,7 +6,7 @@ class ServerRemote
   end
 
   def exists?
-    return !@server.remote_id.nil?
+    !@server.remote_id.nil?
   end
 
   def sync
@@ -72,7 +72,7 @@ class ServerRemote
     if action.nil?
       return 'Unable to get droplet-create action from Digital Ocean'.error! nil
     end
-    return action
+    action
   end
 
   def shutdown
@@ -96,7 +96,7 @@ class ServerRemote
       return res
     end
     @server.update_columns(remote_id: nil)
-    return nil
+    nil
   end
 
   def snapshot
@@ -111,6 +111,6 @@ class ServerRemote
     if res.error?
       return "Error destroying snapshot on Digital Ocean: #{res}"
     end
-    return nil
+    nil
   end
 end

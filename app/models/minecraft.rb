@@ -37,7 +37,7 @@ class Minecraft < ActiveRecord::Base
   end
 
   def flavour_info
-    return Gamocosm::MINECRAFT_FLAVOURS[self.flavour]
+    Gamocosm::MINECRAFT_FLAVOURS[self.flavour]
   end
 
   def node
@@ -46,7 +46,7 @@ class Minecraft < ActiveRecord::Base
         @node = Minecraft::Node.new(self, server.remote.ip_address)
       end
     end
-    return @node
+    @node
   end
 
   def properties
@@ -61,18 +61,18 @@ class Minecraft < ActiveRecord::Base
         end
       end
     end
-    return @properties
+    @properties
   end
 
   def world_download_url
     if server.running?
       return "http://#{Gamocosm::MCSW_USERNAME}:#{mcsw_password}@#{server.remote.ip_address}:#{Minecraft::Node::MCSW_PORT}/download_world"
     end
-    return nil
+    nil
   end
 
   def running?
-    return server.running? && !node.error? && node.pid > 0
+    server.running? && !node.error? && node.pid > 0
   end
 
   def resume
@@ -80,7 +80,7 @@ class Minecraft < ActiveRecord::Base
     if error
       return error
     end
-    return node.resume
+    node.resume
   end
 
   def pause
@@ -91,7 +91,7 @@ class Minecraft < ActiveRecord::Base
       end
       return error
     end
-    return node.pause
+    node.pause
   end
 
   def exec(current_user, command)
@@ -99,7 +99,7 @@ class Minecraft < ActiveRecord::Base
     if error
       return error
     end
-    return node.exec(command)
+    node.exec(command)
   end
 
   def backup
@@ -107,7 +107,7 @@ class Minecraft < ActiveRecord::Base
     if error
       return error
     end
-    return node.backup
+    node.backup
   end
 
   def resume?
@@ -120,7 +120,7 @@ class Minecraft < ActiveRecord::Base
     if node.pid > 0
       return 'Minecraft already running'
     end
-    return nil
+    nil
   end
 
   def pause?
@@ -133,7 +133,7 @@ class Minecraft < ActiveRecord::Base
     if !(node.pid > 0)
       return 'Minecraft not running'
     end
-    return nil
+    nil
   end
 
   def exec?(current_user)
@@ -150,7 +150,7 @@ class Minecraft < ActiveRecord::Base
     if !(node.pid > 0)
       return 'Minecraft not running'
     end
-    return nil
+    nil
   end
 
   def backup?
@@ -163,7 +163,7 @@ class Minecraft < ActiveRecord::Base
     if node.pid > 0
       return 'Minecraft is running'
     end
-    return nil
+    nil
   end
 
   def download?

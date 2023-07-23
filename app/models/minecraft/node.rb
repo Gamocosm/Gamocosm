@@ -19,7 +19,7 @@ class Minecraft::Node
   end
 
   def error?
-    return pid.error?
+    pid.error?
   end
 
   def num_players
@@ -40,7 +40,7 @@ class Minecraft::Node
       return n
     end
     errors.push(n)
-    return "Could not query Minecraft: #{errors}".error!(errors)
+    "Could not query Minecraft: #{errors}".error!(errors)
   end
 
   def pid
@@ -132,12 +132,12 @@ class Minecraft::Node
         req.options.open_timeout = HTTP_REQUEST_TIMEOUT
         req.options.timeout = HTTP_REQUEST_TIMEOUT
       end
-      return parse_response(res, endpoint)
+      parse_response(res, endpoint)
     rescue Faraday::Error => e
       msg = "MCSW API network exception: #{e}"
       Rails.logger.error msg
       Rails.logger.error e.backtrace.join("\n")
-      return msg.error! e
+      msg.error! e
     end
   end
 
@@ -150,12 +150,12 @@ class Minecraft::Node
         req.headers['Content-Type'] = 'application/json'
         req.body = data.to_json
       end
-      return parse_response(res, endpoint)
+      parse_response(res, endpoint)
     rescue Faraday::Error => e
       msg = "MCSW API network exception: #{e}"
       Rails.logger.error msg
       Rails.logger.error e.backtrace.join("\n")
-      return msg.error! e
+      msg.error! e
     end
   end
 
@@ -168,6 +168,6 @@ class Minecraft::Node
       msg = "MCSW API error: action #{endpoint} response status not OK, was #{res.body['status']}, #{res.body}"
       return msg.error! res
     end
-    return res.body
+    res.body
   end
 end

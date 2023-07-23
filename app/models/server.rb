@@ -63,7 +63,7 @@ class Server < ActiveRecord::Base
   end
 
   def schedule_text
-    return self.scheduled_tasks.map { |x| x.to_user_string }.join("\n")
+    self.scheduled_tasks.map { |x| x.to_user_string }.join("\n")
   end
 
   def parse_and_save_schedule(text)
@@ -79,11 +79,11 @@ class Server < ActiveRecord::Base
         return false
       end
     end
-    return true
+    true
   end
 
   def host_name
-    return "#{self.domain}.#{Gamocosm::USER_SERVERS_DOMAIN}"
+    "#{self.domain}.#{Gamocosm::USER_SERVERS_DOMAIN}"
   end
 
   def ram
@@ -92,22 +92,22 @@ class Server < ActiveRecord::Base
       log("Unknown Digital Ocean size slug #{remote_size_slug}; only starting server with 1 GB of RAM")
       return 1024
     end
-    return size.memory
+    size.memory
   end
 
   def remote
     if @remote.nil?
       @remote = ServerRemote.new(self)
     end
-    return @remote
+    @remote
   end
 
   def done_setup?
-    return setup_stage >= num_setup_stages
+    setup_stage >= num_setup_stages
   end
 
   def num_setup_stages
-    return 5
+    5
   end
 
   def reset_state
@@ -115,18 +115,18 @@ class Server < ActiveRecord::Base
   end
 
   def running?
-    return remote.exists? && !remote.error? && remote.status == 'active'
+    remote.exists? && !remote.error? && remote.status == 'active'
   end
 
   def owner?(someone)
     if new_record?
       return true
     end
-    return someone.id == user_id
+    someone.id == user_id
   end
 
   def friend?(someone)
-    return friends.exists?(someone.id)
+    friends.exists?(someone.id)
   end
 
   def log(message)
@@ -143,11 +143,11 @@ class Server < ActiveRecord::Base
     if ip_address.error?
       return ip_address
     end
-    return Gamocosm.cloudflare.dns_add(domain, ip_address)
+    Gamocosm.cloudflare.dns_add(domain, ip_address)
   end
 
   def remove_domain
-    return Gamocosm.cloudflare.dns_delete(domain)
+    Gamocosm.cloudflare.dns_delete(domain)
   end
 
   def start?
@@ -157,7 +157,7 @@ class Server < ActiveRecord::Base
     if busy?
       return 'Server is busy'
     end
-    return nil
+    nil
   end
 
   def stop?
@@ -167,7 +167,7 @@ class Server < ActiveRecord::Base
     if busy?
       return 'Server is busy'
     end
-    return nil
+    nil
   end
 
   def reboot?
@@ -177,7 +177,7 @@ class Server < ActiveRecord::Base
     if busy?
       return 'Server is busy'
     end
-    return nil
+    nil
   end
 
   def start
@@ -191,7 +191,7 @@ class Server < ActiveRecord::Base
     end
     WaitForStartingServerWorker.perform_in(32.seconds, id, action.id)
     self.update_columns(pending_operation: 'starting')
-    return nil
+    nil
   end
 
   def stop
@@ -228,7 +228,7 @@ class Server < ActiveRecord::Base
     end
     self.update_columns(pending_operation: 'stopping')
     WaitForStoppingServerWorker.perform_in(16.seconds, id, action.id)
-    return nil
+    nil
   end
 
   def reboot
@@ -242,7 +242,7 @@ class Server < ActiveRecord::Base
     end
     self.update_columns(pending_operation: 'rebooting')
     WaitForStartingServerWorker.perform_in(4.seconds, id, action.id)
-    return nil
+    nil
   end
 
   def busy?
@@ -253,6 +253,6 @@ class Server < ActiveRecord::Base
       end
       return true
     end
-    return false
+    false
   end
 end

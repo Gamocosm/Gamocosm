@@ -100,7 +100,7 @@ class VolumesController < ApplicationController
     end
     @volume.user.invalidate_digital_ocean_cache_volumes
     @volume.user.invalidate_digital_ocean_cache_snapshots
-    return redirect_to volume_path(@volume), flash: f
+    redirect_to volume_path(@volume), flash: f
   end
 
   def reload
@@ -111,7 +111,7 @@ class VolumesController < ApplicationController
     end
     @volume.user.invalidate_digital_ocean_cache_volumes
     @volume.user.invalidate_digital_ocean_cache_snapshots
-    return redirect_to volume_path(@volume), flash: f
+    redirect_to volume_path(@volume), flash: f
   end
 
   def show_digital_ocean_volumes
@@ -125,7 +125,7 @@ class VolumesController < ApplicationController
     if error
       return redirect_to volumes_path, flash: { error: error }
     end
-    return redirect_to volumes_path, flash: { notice: 'Deleted volume on Digital Ocean' }
+    redirect_to volumes_path, flash: { notice: 'Deleted volume on Digital Ocean' }
   end
 
   def show_digital_ocean_snapshots
@@ -139,7 +139,7 @@ class VolumesController < ApplicationController
     if error
       return redirect_to volumes_path, flash: { error: error }
     end
-    return redirect_to volumes_path, flash: { notice: 'Deleted snapshot on Digital Ocean' }
+    redirect_to volumes_path, flash: { notice: 'Deleted snapshot on Digital Ocean' }
   end
 
   private

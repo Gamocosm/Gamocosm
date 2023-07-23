@@ -43,7 +43,7 @@ module Gamocosm
     if @digital_ocean.nil?
       @digital_ocean = DigitalOcean::Connection.new(DIGITAL_OCEAN_API_KEY)
     end
-    return @digital_ocean
+    @digital_ocean
   end
 
   def self.cloudflare
@@ -57,7 +57,7 @@ module Gamocosm
       fingerprint = Digest::MD5.hexdigest(Base64.decode64(contents.split(/\s+/m)[1])).scan(/../).join(':')
       @ssh_public_key = Struct.new(:contents, :fingerprint).new(contents, fingerprint)
     end
-    return @ssh_public_key
+    @ssh_public_key
   end
 
   class Application < Rails::Application

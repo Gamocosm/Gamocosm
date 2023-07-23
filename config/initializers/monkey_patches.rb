@@ -5,13 +5,13 @@ class Object
 
   def silence(&block)
     begin
-      return block.call
+      block.call
     rescue => e
       msg = "Badness in #{self.class.name}: #{e}"
       Rails.logger.error msg
       Rails.logger.error e.backtrace.join("\n")
       ExceptionNotifier.notify_exception(e)
-      return msg.error! e
+      msg.error! e
     end
   end
 end
@@ -86,7 +86,7 @@ class String
 
   def clean
     s = self.strip
-    return s.blank? ? nil : s.downcase
+    s.blank? ? nil : s.downcase
   end
 
   def ascii
