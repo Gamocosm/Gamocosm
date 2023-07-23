@@ -34,15 +34,15 @@ podman create \
 podman create \
 	--name gamocosm-dns --network gamocosm-network \
 	--env-file gamocosm.env \
-	--publish 127.0.0.1:5353:53/tcp \
-	--publish 127.0.0.1:5353:53/udp \
+	--publish 127.0.0.1:5353:5353/tcp \
+	--publish 127.0.0.1:5353:5353/udp \
 	gamocosm-image:latest \
 	rails runner scripts/dns.rb
 
 rm -rf /usr/share/gamocosm/public
 podman cp gamocosm-puma:/gamocosm/public/. /usr/share/gamocosm/public
 
-podman image prune --all --force
+podman image prune --force
 
 pushd /etc/systemd/system
 podman generate systemd --name --restart-policy always --restart-sec 8 --files gamocosm-puma

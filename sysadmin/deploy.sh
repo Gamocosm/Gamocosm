@@ -62,8 +62,8 @@ echo 'Installing podman for containers...'
 dnf -y install podman
 echo 'Installing nginx and related tools...'
 dnf -y install nginx certbot certbot-nginx
-echo 'Installing miscellaneous tools (semanage, audit2allow)...'
-dnf -y install policycoreutils-python-utils
+echo 'Installing miscellaneous tools (semanage, audit2allow, ncat)...'
+dnf -y install policycoreutils-python-utils nmap-ncat
 
 echo 'Setting up dotfiles...'
 git clone https://github.com/Raekye/dotfiles.git ~/dotfiles
@@ -93,7 +93,15 @@ pushd gamocosm
 ln -s "$(pwd)/sysadmin/nginx.conf" /etc/nginx/conf.d/gamocosm.conf
 ln -s "$(pwd)/sysadmin/daily.service" /etc/systemd/system/gamocosm-daily.service
 ln -s "$(pwd)/sysadmin/daily.timer" /etc/systemd/system/gamocosm-daily.timer
+ln -s "$(pwd)/sysadmin/dns-tcp.service" /etc/systemd/system/gamocosm-dns-tcp.service
+ln -s "$(pwd)/sysadmin/dns-udp.service" /etc/systemd/system/gamocosm-dns-udp.service
 ln -s "$(pwd)/sysadmin/backup.sh" /usr/local/bin/gamocosm-backup
+
+firewall-offline-cmd --add-forward-port=port=53:toport=5354:proto=udp
+firewall-offline-cmd --add-forward-port=port=53:toport=5354:proto=tcp
+
+systemctl enable --now gamocosm-dns-tcp
+systemctl enable --now gamocosm-dns-udp
 
 if [ -z "$RESTORE_DIR" ]; then
 	cp template.env gamocosm.env

@@ -13,7 +13,7 @@ RubyDNS::run_server(INTERFACES) do
     server = Server.find_by_domain(domain)
     if !server.nil?
       ip_address = server.remote.ip_address
-      if !ip_address.error?
+      if !ip_address.nil? && !ip_address.error?
         transaction.respond!(ip_address)
       else
         false

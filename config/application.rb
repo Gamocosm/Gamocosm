@@ -36,7 +36,7 @@ module Gamocosm
   MINECRAFT_FLAVOURS_GIT_URL = 'https://github.com/Gamocosm/gamocosm-minecraft-flavours.git'
   MCSW_GIT_URL = 'https://github.com/Gamocosm/minecraft-server_wrapper.git'
   MCSW_USERNAME = 'gamocosm-mothership'
-  USER_SERVERS_DOMAIN = 'gamocosm.com'
+  USER_SERVERS_DOMAIN = 'users.gamocosm.com'
   DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-38-x64'
   SSH_PRIVATE_KEY_PATH = 'id_gamocosm'
 

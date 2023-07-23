@@ -7,6 +7,7 @@ redis_config = {
   host: Gamocosm::SIDEKIQ_REDIS_HOST,
   port: Gamocosm::SIDEKIQ_REDIS_PORT,
   db: (Rails.env.production? ? 4 : (Rails.env.development? ? 1 : 2)),
+  read_timeout: 7,
 }
 Sidekiq.configure_client do |config|
   config.redis = redis_config
