@@ -16,6 +16,10 @@ Style/RescueStandardError:
   EnforcedStyle: implicit
 Style/PerlBackrefs:
   Enabled: false
+Style/BlockComments:
+  Enabled: false
+Style/RedundantBegin:
+  Enabled: false
 Lint/AmbiguousRegexpLiteral:
   Enabled: false
 Layout/FirstHashElementIndentation:
