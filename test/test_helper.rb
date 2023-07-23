@@ -106,7 +106,7 @@ class ActiveSupport::TestCase
   end
 
   def mock_do_ssh_key_gamocosm(status)
-    mock_do_ssh_key_add().stub_do_ssh_key_add(status, 'gamocosm', Gamocosm.ssh_public_key.contents)
+    mock_do_ssh_key_add.stub_do_ssh_key_add(status, 'gamocosm', Gamocosm.ssh_public_key.contents)
   end
 
   def mock_do_droplets_list(status, droplets)

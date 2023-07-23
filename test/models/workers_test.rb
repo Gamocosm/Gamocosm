@@ -508,7 +508,7 @@ class WorkersTest < ActiveSupport::TestCase
     @server.update_columns(remote_id: nil)
     mock_do_ssh_keys_list(200, []).times_only(1)
     mock_do_ssh_key_gamocosm(200)
-    mock_do_droplet_create().stub_do_droplet_create(202, @server.domain, @server.remote_size_slug, @server.remote_region_slug, Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
+    mock_do_droplet_create.stub_do_droplet_create(202, @server.domain, @server.remote_size_slug, @server.remote_region_slug, Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
     mock_do_droplet_actions_list(200, 1)
     begin
       @server.scheduled_tasks.create!({

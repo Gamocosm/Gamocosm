@@ -111,7 +111,7 @@ class ServersControllerTest < ActionController::TestCase
     @server.update_columns(remote_snapshot_id: nil)
     mock_do_ssh_keys_list(200, []).times_only(1)
     mock_do_ssh_key_gamocosm(200)
-    mock_do_droplet_create().stub_do_droplet_create(202, @server.domain, @server.remote_size_slug, @server.remote_region_slug, Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
+    mock_do_droplet_create.stub_do_droplet_create(202, @server.domain, @server.remote_size_slug, @server.remote_region_slug, Gamocosm::DIGITAL_OCEAN_BASE_IMAGE_SLUG)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'new').times(1).stub_do_droplet_show(200, 'active')
     mock_do_droplet_actions_list(200, 1)
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 1)
@@ -507,7 +507,7 @@ class ServersControllerTest < ActionController::TestCase
   end
 
   test 'add digital ocean ssh key' do
-    mock_do_ssh_key_add().stub_do_ssh_key_add(200, 'me', 'a b c')
+    mock_do_ssh_key_add.stub_do_ssh_key_add(200, 'me', 'a b c')
     sign_in @owner
     request.host = 'example.com'
     request.env['HTTP_REFERER'] = server_path(@server)
@@ -536,7 +536,7 @@ class ServersControllerTest < ActionController::TestCase
 
   test 'add/destroy digital ocean ssh key no referer' do
     mock_do_base(200)
-    mock_do_ssh_key_add().stub_do_ssh_key_add(200, 'me', 'a b c')
+    mock_do_ssh_key_add.stub_do_ssh_key_add(200, 'me', 'a b c')
     mock_do_ssh_key_delete(204, 1)
     sign_in @owner
     post :add_digital_ocean_ssh_key, params: {
