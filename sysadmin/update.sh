@@ -22,14 +22,14 @@ podman create \
 	--secret gamocosm-ssh-key,type=mount,target=/gamocosm/id_gamocosm,mode=0400 \
 	--publish 127.0.0.1:9293:9292/tcp \
 	gamocosm-image:latest \
-	puma --config config/puma.rb
+	bundle exec puma --config config/puma.rb
 
 podman create \
 	--name gamocosm-sidekiq --network gamocosm-network \
 	--env-file gamocosm.env \
 	--secret gamocosm-ssh-key,type=mount,target=/gamocosm/id_gamocosm,mode=0400 \
 	gamocosm-image:latest \
-	sidekiq --config config/sidekiq.yml
+	bundle exec sidekiq --config config/sidekiq.yml
 
 podman create \
 	--name gamocosm-dns --network gamocosm-network \
@@ -37,7 +37,7 @@ podman create \
 	--publish 127.0.0.1:5353:5353/tcp \
 	--publish 127.0.0.1:5353:5353/udp \
 	gamocosm-image:latest \
-	rails runner scripts/dns.rb
+	bundle exec rails runner scripts/dns.rb
 
 rm -rf /usr/share/gamocosm/public
 podman cp gamocosm-puma:/gamocosm/public/. /usr/share/gamocosm/public

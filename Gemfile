@@ -58,6 +58,7 @@ gem 'droplet_kit', git: 'https://github.com/Gamocosm/droplet_kit'
 gem 'puma'
 gem 'redis'
 gem 'hiredis'
+gem 'connection_pool'
 gem 'rubydns'
 group :development do
     gem 'annotate'

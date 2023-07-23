@@ -4,10 +4,9 @@
 # - https://github.com/redis/redis-rb
 # - https://github.com/sidekiq/sidekiq/wiki/Logging
 redis_config = {
-  host: Gamocosm::SIDEKIQ_REDIS_HOST,
-  port: Gamocosm::SIDEKIQ_REDIS_PORT,
-  db: (Rails.env.production? ? 4 : (Rails.env.development? ? 1 : 2)),
-  read_timeout: 7,
+  host: Gamocosm::REDIS_HOST,
+  port: Gamocosm::REDIS_PORT,
+  db: 4 + (Rails.env.production? ? 3 : (Rails.env.development? ? 1 : 2)),
 }
 Sidekiq.configure_client do |config|
   config.redis = redis_config

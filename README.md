@@ -61,8 +61,6 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 1. Create your environment file: `cp template.env gamocosm.env`.
 1. Make your environment file only readable (and writable) by the file owner (you): `chown 600 gamocosm.env`
 1. Update the config in `gamocosm.env`. See below for documentation.
-
-	In particular, if you are following these instructions to setup a development environment, you will want to change `DATABASE_HOST` and `SIDEKIQ_REDIS_HOST` both to `localhost`.
 1. Load environment variables: `source load_env.sh`. You will also need to do this in every new shell you run ruby/rails in.
 1. Install `podman` (or `docker`): `(sudo) dnf install podman`.
 1. Create the database container: `podman create --name gamocosm-database --env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" --publish 127.0.0.1:5432:5432 docker.io/postgres:14.5`.
@@ -74,19 +72,27 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 1. Optional: open the console: `bundle exec rails c`.
 
 ### Environment File
-- `DATABASE_HOST`: May be a directory (for a Unix domain socket), or an IP/hostname (for a TCP connection). See below for more information.
-- `DATABASE_PORT`: Required even for Unix domain sockets. The default should work on Fedora provided you didn't change the postgresql settings.
-- `DATABASE_USER`: Hmmmm.
-- `DATABASE_PASSWORD`: Hmmmm.
-- `DIGITAL_OCEAN_API_KEY`: Your Digital Ocean API token.
-- `SIDEKIQ_REDIS_HOST`: You can leave this as the default.
-- `SIDEKIQ_REDIS_PORT`: You can leave this as the default.
+- `DATABASE_HOST`:
+	May be a directory (for a Unix domain socket), or an IP/hostname (for a TCP connection). See below for more information.
+	When using containers as described above, the default value of `localhost` corresponds to the `127.0.0.1` passed to `--publish`.
+- `DATABASE_PORT`:
+	Required even for Unix domain sockets. The default should work provided you didn't change the postgresql settings.
+- `DATABASE_USER`:
+	Hmmmm.
+- `DATABASE_PASSWORD`:
+	Hmmmm.
+- `DIGITAL_OCEAN_API_KEY`:
+	Your Digital Ocean API token.
+	This key is added to the dummy user in development (see [`db/seeds.rb`][db-seeds]) - it's probably convenient for it to have write access.
+	For the test environment, it can be anything (but still needs to be set) - Gamocosm tests "mock" HTTP requests so it won't actually contact Digital Ocean.
+	For production, this key can be read only - it is (just) used to list regions and droplet sizes.
+- `REDIS_HOST`:
+	When using containers as described above, the default value of `localhost` corresponds to the `127.0.0.1` passed to `--publish`.
+- `REDIS_PORT`: You can leave this as the default.
 - `SIDEKIQ_ADMIN_USERNAME`: HTTP basic auth for Sidekiq web interface.
 - `SIDEKIQ_ADMIN_PASSWORD`: See previous.
-- `DEVISE_SECRET_KEY`: Only test, production.
+- `DEVISE_SECRET_KEY`: Only production.
 - `MAIL_SERVER_*`: See [action mailer configuration][rails-action-mailer] in the Rails guide.
-- `CACHE_REDIS_HOST`: Caching for production. Is disabled/not used in development and test environments (see `config/environments/development.rb` and `config/environments/test.rb`).
-- `CACHE_REDIS_PORT`: See previous.
 - `SECRET_KEY_BASE`: Only production.
 - `DEVELOPER_EMAILS`: Comma separated list of emails to send exceptions to.
 - `BADNESS_SECRET`: Secret to protect `/badness` endpoint.
@@ -181,7 +187,7 @@ Hmmmm.
 	- `String#error!` returns an `Error` object; `Error#to_s` is overridden so the error message can be shown to the user, or the error data (`Error#data`) can be further inspected for handling
 - You can use `.error?` to check if a return value is an error. `Error#error?` is overriden to return `true`
 - This class and these methods are defined in `config/initializers/monkey_patches.rb`
-- Throw exceptions in "exceptional cases", when something is unexpected (e.g. bad user input *is* expected) or can't be handled without "blowing up"
+- Throw exceptions in "exceptional cases", when something is unexpected (e.g. bad user input _is_ expected) or can't be handled without "blowing up"
 
 #### Important checks
 - `server.remote.exists?`: `!server.remote_id.nil?`
@@ -255,6 +261,7 @@ Example: `TEST_DOCKER=true ./tests.sh`
 [mcsw]: https://github.com/Gamocosm/minecraft-server_wrapper
 [minecraft-flavours]: https://github.com/Gamocosm/gamocosm-minecraft-flavours
 [wiki-different-versions]: https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft
+[db-seeds]: https://github.com/Gamocosm/Gamocosm/blob/master/db/seeds.rb
 
 [rbenv]: https://github.com/rbenv/rbenv
 [ruby-build]: https://github.com/rbenv/ruby-build

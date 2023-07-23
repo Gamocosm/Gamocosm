@@ -122,20 +122,15 @@ podman create \
 	"docker.io/postgres:$POSTGRESQL_VERSION"
 
 podman create \
-	--name "$SIDEKIQ_REDIS_HOST" --network gamocosm-network \
-	"docker.io/redis:$REDIS_VERSION"
-
-podman create \
-	--name "$CACHE_REDIS_HOST" --network gamocosm-network \
+	--name "$REDIS_HOST" --network gamocosm-network \
 	"docker.io/redis:$REDIS_VERSION"
 
 pushd /etc/systemd/system
 podman generate systemd --name --restart-policy always --restart-sec 8 --files "$DATABASE_HOST"
-podman generate systemd --name --restart-policy always --restart-sec 8 --files "$SIDEKIQ_REDIS_HOST"
-podman generate systemd --name --restart-policy always --restart-sec 8 --files "$CACHE_REDIS_HOST"
+podman generate systemd --name --restart-policy always --restart-sec 8 --files "$REDIS_HOST"
 popd
 
-systemctl enable --now "container-$DATABASE_HOST" "container-$SIDEKIQ_REDIS_HOST" "container-$CACHE_REDIS_HOST"
+systemctl enable --now "container-$DATABASE_HOST" "container-$REDIS_HOST"
 
 podman secret create gamocosm-ssh-key ~/.ssh/id_ed25519
 

@@ -324,6 +324,7 @@ DEPENDENCIES
   annotate
   bcrypt_pbkdf
   bootstrap-sass
+  connection_pool
   dalli
   devise
   droplet_kit!

@@ -8,12 +8,10 @@ Bundler.require(*Rails.groups)
 
 module Gamocosm
   DIGITAL_OCEAN_API_KEY = ENV['DIGITAL_OCEAN_API_KEY']
-  SIDEKIQ_REDIS_HOST = ENV['SIDEKIQ_REDIS_HOST']
-  SIDEKIQ_REDIS_PORT = ENV['SIDEKIQ_REDIS_PORT']
   SIDEKIQ_ADMIN_USERNAME = ENV['SIDEKIQ_ADMIN_USERNAME']
   SIDEKIQ_ADMIN_PASSWORD = ENV['SIDEKIQ_ADMIN_PASSWORD']
-  CACHE_REDIS_HOST = ENV['CACHE_REDIS_HOST']
-  CACHE_REDIS_PORT = ENV['CACHE_REDIS_PORT']
+  REDIS_HOST = ENV['REDIS_HOST']
+  REDIS_PORT = ENV['REDIS_PORT']
 
   GIT_HEAD = ENV.fetch('GIT_HEAD', 'HEAD').strip
   GIT_HEAD_DATE = Time.at(ENV.fetch('GIT_HEAD_TIMESTAMP', Time.now.to_i).to_i).strftime('%Y %b %-d %H:%M %Z')
@@ -80,13 +78,12 @@ module Gamocosm
     # it seems even if you set this, DateTime#strftime's '%Z' format still shows a numeric timezone unless you use DateTime#in_time_zone
     config.time_zone = TIMEZONE
     config.cache_store = :redis_cache_store, {
-      host: Gamocosm::CACHE_REDIS_HOST,
-      port: Gamocosm::CACHE_REDIS_PORT,
-      db: (Rails.env.production? ? 4 : (Rails.env.development? ? 1 : 2)),
+      host: Gamocosm::REDIS_HOST,
+      port: Gamocosm::REDIS_PORT,
+      db: (Rails.env.production? ? 3 : (Rails.env.development? ? 1 : 2)),
       pool_size: 4,
       expires_in: 24.hours,
     }
-    #config.cache_store = :mem_cache_store, 'localhost', { namespace: "gamocosm-#{Rails.env}", expires_in: 24.hours, compress: true }
     #config.exceptions_app = self.routes
     config.action_mailer.delivery_method = :smtp
     config.action_mailer.smtp_settings = {
