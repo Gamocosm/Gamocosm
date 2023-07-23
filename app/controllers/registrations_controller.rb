@@ -5,7 +5,6 @@ class RegistrationsController < Devise::RegistrationsController
   end
 
   private
-
   def sign_up_params
     params.require(:user).permit(:email, :password, :password_confirmation, :current_password, :digital_ocean_api_key)
   end

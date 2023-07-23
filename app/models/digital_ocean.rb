@@ -28,7 +28,7 @@ module DigitalOcean
       { price_hourly: 0.2381, price_monthly: 160.0, cpu: 8, disk: 160, memory: 16_384, name: '16GB', slug: '16gb' },
       { price_hourly: 0.47619, price_monthly: 320.0, cpu: 12, disk: 320, memory: 32_768, name: '32GB', slug: '32gb' },
       { price_hourly: 0.71429, price_monthly: 480.0, cpu: 16, disk: 480, memory: 49_152, name: '48GB', slug: '48gb' },
-      { price_hourly: 0.95238, price_monthly: 640.0, cpu: 20, disk: 640, memory: 65_536, name: '64GB', slug: '64gb' }
+      { price_hourly: 0.95238, price_monthly: 640.0, cpu: 20, disk: 640, memory: 65_536, name: '64GB', slug: '64gb' },
     ].map do |x|
       Size.new(x[:slug], x[:name], x[:memory], x[:disk], x[:cpu], x[:price_hourly], x[:price_monthly])
     end

@@ -21,7 +21,7 @@ module ApplicationHelper
     content_for :meta_keywords, words.join(', ')
   end
 
-  def inline_svg(filename, options={})
+  def inline_svg(filename, options = {})
     file = File.read(Rails.root.join('app', 'assets', 'images', filename))
     doc = Nokogiri::HTML::DocumentFragment.parse file
     svg = doc.at_css('svg')
