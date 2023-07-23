@@ -433,8 +433,8 @@ class ServersControllerTest < ActionController::TestCase
     assert_redirected_to new_user_session_path
   end
 
-  def view_server(server, advanced_tab = { })
-    mock_mcsw_properties_fetch(server.minecraft).stub_mcsw_properties_fetch(200, { }).times_only(1)
+  def view_server(server, advanced_tab = {})
+    mock_mcsw_properties_fetch(server.minecraft).stub_mcsw_properties_fetch(200, {}).times_only(1)
     get :show, params: { id: server.id }
     assert_response :success
     advanced_tab.each do |k, v|

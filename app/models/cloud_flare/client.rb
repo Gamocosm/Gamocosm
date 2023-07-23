@@ -23,7 +23,7 @@ class CloudFlare::Client
       records = []
       res.each do |x|
         if x['type'] == 'A'
-          records.push({ id: x['id'], name: x['name'], content: x['content']})
+          records.push({ id: x['id'], name: x['name'], content: x['content'] })
         end
       end
       return records

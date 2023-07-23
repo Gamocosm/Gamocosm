@@ -94,15 +94,15 @@ class ActiveSupport::TestCase
   end
 
   def mock_do_droplet_delete(status, droplet_id)
-    mock_digital_ocean(:delete, "/droplets/#{droplet_id}").to_return_json(status, { })
+    mock_digital_ocean(:delete, "/droplets/#{droplet_id}").to_return_json(status, {})
   end
 
-  def mock_do_image_delete(status, image_id, data = { })
+  def mock_do_image_delete(status, image_id, data = {})
     mock_digital_ocean(:delete, "/images/#{image_id}").to_return_json(status, data)
   end
 
   def mock_do_ssh_key_delete(status, key_id)
-    mock_digital_ocean(:delete, "/account/keys/#{key_id}").to_return_json(status, { })
+    mock_digital_ocean(:delete, "/account/keys/#{key_id}").to_return_json(status, {})
   end
 
   def mock_do_ssh_key_gamocosm(status)
@@ -128,11 +128,11 @@ class ActiveSupport::TestCase
   end
 
   def mock_mcsw_stop(status, mc)
-    mock_mcsw(:post, mc, :stop).to_return_json(status, { })
+    mock_mcsw(:post, mc, :stop).to_return_json(status, {})
   end
 
   def mock_mcsw_backup(status, mc)
-    mock_mcsw(:post, mc, :backup).to_return_json(status, { })
+    mock_mcsw(:post, mc, :backup).to_return_json(status, {})
   end
 
   # WebMock helpers just urls
@@ -215,7 +215,7 @@ class WebMock::RequestStub
     })
   end
 
-  def stub_do_droplet_show(status, remote_status, opts = { })
+  def stub_do_droplet_show(status, remote_status, opts = {})
     self.to_return_json(status, {
       droplet: {
         id: 1,
@@ -260,7 +260,7 @@ class WebMock::RequestStub
     })
   end
 
-  def stub_mcsw_pid(status, pid, opts = { })
+  def stub_mcsw_pid(status, pid, opts = {})
     self.to_return_json(status, { pid: pid }.merge(opts))
   end
 
@@ -273,7 +273,7 @@ class WebMock::RequestStub
   def stub_mcsw_exec(status, command)
     self.with_body_hash_including({
       command: command,
-    }).to_return_json(status, { })
+    }).to_return_json(status, {})
   end
 
   def stub_mcsw_properties_fetch(status, properties)
@@ -291,7 +291,7 @@ if !test_have_user_server?
   # reference SetupServerWorker so it loads before we patch it
   SetupServerWorker
   class SetupServerWorker
-    def on(hosts, options = { }, &block)
+    def on(hosts, options = {}, &block)
       Rails.logger.info "SSHKit mocking on: #{hosts}..."
       block.call
       Rails.logger.info "SSHKit mocking on: #{hosts}, done."
