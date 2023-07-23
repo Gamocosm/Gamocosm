@@ -83,9 +83,6 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 - `SIDEKIQ_REDIS_PORT`: You can leave this as the default.
 - `SIDEKIQ_ADMIN_USERNAME`: HTTP basic auth for Sidekiq web interface.
 - `SIDEKIQ_ADMIN_PASSWORD`: See previous.
-- `CLOUDFLARE_API_TOKEN`: Hmmm.
-- `CLOUDFLARE_EMAIL`: Hmmm.
-- `CLOUDFLARE_ZONE`: Shown on the bottom right of CloudFlare's control panel for the domain.
 - `DEVISE_SECRET_KEY`: Only test, production.
 - `MAIL_SERVER_*`: See [action mailer configuration][rails-action-mailer] in the Rails guide.
 - `CACHE_REDIS_HOST`: Caching for production. Is disabled/not used in development and test environments (see `config/environments/development.rb` and `config/environments/test.rb`).
@@ -168,7 +165,6 @@ Hmmmm.
 
 #### Data
 - Gamocosm has a lot of infrastructure:
-	- CloudFlare DNS API
 	- Digital Ocean API
 	- Digital Ocean servers/droplets
 	- Minecraft and the server wrapper

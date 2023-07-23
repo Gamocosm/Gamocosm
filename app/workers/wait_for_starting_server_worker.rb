@@ -30,7 +30,6 @@ class WaitForStartingServerWorker
         server.reset_state
         return
       end
-      server.refresh_domain
       if !event.done?
         if times >= 64
           server.log('Digital Ocean took too long to start server. Aborting')

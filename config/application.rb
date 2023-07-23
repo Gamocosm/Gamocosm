@@ -14,9 +14,6 @@ module Gamocosm
   SIDEKIQ_ADMIN_PASSWORD = ENV['SIDEKIQ_ADMIN_PASSWORD']
   CACHE_REDIS_HOST = ENV['CACHE_REDIS_HOST']
   CACHE_REDIS_PORT = ENV['CACHE_REDIS_PORT']
-  CLOUDFLARE_API_TOKEN = ENV['CLOUDFLARE_API_TOKEN']
-  CLOUDFLARE_EMAIL = ENV['CLOUDFLARE_EMAIL']
-  CLOUDFLARE_ZONE = ENV['CLOUDFLARE_ZONE']
 
   GIT_HEAD = ENV.fetch('GIT_HEAD', 'HEAD').strip
   GIT_HEAD_DATE = Time.at(ENV.fetch('GIT_HEAD_TIMESTAMP', Time.now.to_i).to_i).strftime('%Y %b %-d %H:%M %Z')
@@ -51,12 +48,8 @@ module Gamocosm
     return @digital_ocean
   end
 
-  @cloudflare = nil
   def self.cloudflare
-    if @cloudflare.nil?
-      @cloudflare = CloudFlare::Client.new(CLOUDFLARE_EMAIL, CLOUDFLARE_API_TOKEN, USER_SERVERS_DOMAIN, CLOUDFLARE_ZONE)
-    end
-    return @cloudflare
+    nil
   end
 
   @ssh_public_key = nil

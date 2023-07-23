@@ -100,7 +100,6 @@ class ServersController < ApplicationController
 
   def destroy
     @server = find_server_only_owner(params[:id])
-    @server.remove_domain
     if !@server.preserve_snapshot
       error = @server.remote.destroy_saved_snapshot
       if error

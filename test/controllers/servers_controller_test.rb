@@ -66,7 +66,6 @@ class ServersControllerTest < ActionController::TestCase
       assert_redirected_to server_path(s2)
       assert_not_nil flash[:success], 'No new server message'
       s2.update_columns(remote_id: 1)
-      mock_cf_dns_list(200, true, [], s2.domain)
       delete :destroy, params: { id: s2.id }
       assert_redirected_to servers_path
       assert_equal 'Server is deleting', flash[:success], 'Server delete not success'

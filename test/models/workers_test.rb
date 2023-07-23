@@ -39,7 +39,6 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'wait for starting server worker too many tries' do
-    mock_cf_domain(@server.domain, 64)
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'in-progress').times_only(64)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(64)
     WaitForStartingServerWorker.perform_in(0.seconds, @server.id, 1)
@@ -87,7 +86,6 @@ class WorkersTest < ActiveSupport::TestCase
   end
 
   test 'wait for starting server worker remote in bad state after event' do
-    mock_cf_domain(@server.domain, 64)
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'off').times_only(1)
     mock_do_droplet_action_show(1, 1).stub_do_droplet_action_show(200, 'completed').times_only(1)
     WaitForStartingServerWorker.perform_in(0.seconds, @server.id, 1)

@@ -20,7 +20,6 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
     login_user('test@test.com', '1234test')
     server = create_server('test2', 'vanilla_java8/1.7.10', 'nyc3', '512mb')
 
-    mock_cf_domain(server.domain, 2)
     mock_mcsw_stop(200, server.minecraft)
 
     start_server(server, { motd: 'A Minecraft Server' })

@@ -68,19 +68,6 @@ class ActiveSupport::TestCase
     return stub
   end
 
-  def mock_cloudflare(verb, path = '', query = nil)
-    if query.nil?
-      query = ''
-    else
-      query = '?' + query.map { |k, v| "#{k}=#{v}" }.join('&')
-    end
-    if !path.empty?
-      path = '/' + path
-    end
-    return stub_request(verb, File.join(CloudFlare::Client::CLOUDFLARE_API_URL, "zones/#{Gamocosm::CLOUDFLARE_ZONE}/dns_records") + path)
-      .with({ query: hash_including({ }) })
-  end
-
   def mock_mcsw(verb, minecraft, endpoint)
     return stub_request(verb, "http://127.0.0.1:#{Minecraft::Node::MCSW_PORT}/#{endpoint}").with(basic_auth: [ Gamocosm::MCSW_USERNAME, minecraft.mcsw_password ])
   end
@@ -140,26 +127,6 @@ class ActiveSupport::TestCase
       .stub_do_list
   end
 
-  def mock_cf_dns_list(status, success, recs, domain = nil)
-    ret = nil
-    if domain.nil?
-      ret = mock_cloudflare(:get)
-    else
-      ret = mock_cloudflare(:get, '', {
-        name: "#{domain}.#{Gamocosm::USER_SERVERS_DOMAIN}",
-      })
-    end
-    return ret.stub_cf_response(status, success, recs)
-  end
-
-  def mock_cf_dns_add(status, success, name, content)
-    return mock_cloudflare(:post).stub_cf_response(status, success, { })
-  end
-
-  def mock_cf_dns_delete(status, success, id)
-    return mock_cloudflare(:delete, id.to_s).stub_cf_response(status, success, { })
-  end
-
   def mock_mcsw_stop(status, mc)
     return mock_mcsw(:post, mc, :stop).to_return_json(status, { })
   end
@@ -211,26 +178,6 @@ class ActiveSupport::TestCase
 
   def mock_mcsw_properties_update(mc)
     return mock_mcsw(:post, mc, :minecraft_properties)
-  end
-
-  # Other helpers
-  def mock_cf_domain(domain_name, times)
-=begin
-    mock_cloudflare.stub_cf_dns_list(200, 'success', []).times(1)
-      .stub_cf_dns_list(200, 'success', [
-        { rec_id: 1, display_name: domain_name, type: 'A' },
-      ]).times_only(times)
-    mock_cloudflare.stub_cf_dns_add(200, 'success', domain_name, 'localhost').times_only(1)
-    mock_cloudflare.stub_cf_dns_edit(200, 'success', 1, domain_name, 'localhost').times_only(times - 1)
-    mock_cloudflare.stub_cf_dns_delete(200, 'success', 1).times_only(1)
-=end
-    mock_cf_dns_list(200, true, [{
-      id: 1,
-      type: 'A',
-      name: domain_name,
-    }]).times(1)
-    mock_cf_dns_add(200, true, domain_name, 'localhost').times_only(1)
-    mock_cf_dns_delete(200, true, 1).times_only(1)
   end
 end
 

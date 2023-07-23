@@ -45,31 +45,6 @@ class ServerTest < ActiveSupport::TestCase
     assert_equal old_size, @server.remote_size_slug, 'Server size slug should not have saved'
   end
 
-  test 'refresh domain' do
-    mock_do_droplet_show(1).stub_do_droplet_show(200, 'active').times_only(1)
-    mock_cf_dns_list(200, true, [], @server.domain).times_only(1)
-    mock_cf_dns_add(200, true, @server.domain, 'localhost').times_only(1)
-    begin
-      @server.update_columns(remote_id: 1)
-      x = @server.refresh_domain
-      assert_nil x, "Failed to refresh server domain: #{x}"
-    ensure
-      @server.update_columns(remote_id: nil)
-    end
-  end
-
-  test 'refresh domain remote error' do
-    mock_do_droplet_show(1).stub_do_droplet_show(400, 'active').times_only(1)
-    begin
-      @server.update_columns(remote_id: 1)
-      res = @server.refresh_domain
-      assert res.error?, 'Should have error refreshing domain'
-      assert_match /Digital Ocean API HTTP response status not ok: 400: /, res.msg, 'Should have error about Digital Ocean request'
-    ensure
-      @server.update_columns(remote_id: nil)
-    end
-  end
-
   test 'stop already off server' do
     mock_do_droplet_action(1).stub_do_droplet_action(422, 'shutdown').times_only(1)
     mock_do_droplet_action(1).stub_do_droplet_action(200, 'snapshot').times_only(1)
