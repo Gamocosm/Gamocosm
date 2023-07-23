@@ -61,10 +61,10 @@ gem 'hiredis'
 gem 'connection_pool'
 gem 'rubydns'
 group :development do
-    gem 'annotate'
+  gem 'annotate'
     gem 'listen'
 end
 group :test do
-    gem 'simplecov'
+  gem 'simplecov'
     gem 'webmock'
 end

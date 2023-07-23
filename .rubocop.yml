@@ -14,6 +14,8 @@ Style/WhileUntilModifier:
   Enabled: false
 Style/RescueStandardError:
   EnforcedStyle: implicit
+Style/PerlBackrefs:
+  Enabled: false
 Lint/AmbiguousRegexpLiteral:
   Enabled: false
 Layout/FirstHashElementIndentation:
@@ -26,3 +28,7 @@ Layout/EmptyLineAfterGuardClause:
   Enabled: false
 Layout/LineLength:
   Max: 160
+Layout/ArgumentAlignment:
+  EnforcedStyle: with_fixed_indentation
+Bundler/OrderedGems:
+  Enabled: false
