@@ -104,14 +104,14 @@ module DigitalOcean
 
     def droplet_show(id)
       silence_digital_ocean_api do
-        res = @con.droplets.find(id: id)
+        res = @con.droplets.find(id:)
         self.class.droplet_from_response(res)
       end
     end
 
     def droplet_action_list(id)
       silence_digital_ocean_api do
-        res = @con.droplets.actions(id: id)
+        res = @con.droplets.actions(id:)
         res.map { |x| self.class.action_from_response(x) }.sort { |a, b| a.id <=> b.id }
       end
     end
@@ -119,12 +119,12 @@ module DigitalOcean
     def droplet_create(name, region, size, image, ssh_keys, volumes)
       silence_digital_ocean_api do
         droplet = DropletKit::Droplet.new(
-          name: name,
-          region: region,
-          size: size,
-          image: image,
-          ssh_keys: ssh_keys,
-          volumes: volumes,
+          name:,
+          region:,
+          size:,
+          image:,
+          ssh_keys:,
+          volumes:,
         )
         res = @con.droplets.create(droplet)
         self.class.droplet_from_response(res)
@@ -133,14 +133,14 @@ module DigitalOcean
 
     def droplet_snapshot(id, name)
       silence_digital_ocean_api do
-        action = @con.droplet_actions.snapshot(droplet_id: id, name: name)
+        action = @con.droplet_actions.snapshot(droplet_id: id, name:)
         self.class.action_from_response(action)
       end
     end
 
     def droplet_delete(id)
       silence_digital_ocean_api(true) do
-        @con.droplets.delete(id: id)
+        @con.droplets.delete(id:)
         nil
       end
     end
@@ -161,7 +161,7 @@ module DigitalOcean
 
     def droplet_action_show(droplet_id, action_id)
       silence_digital_ocean_api do
-        action = @con.droplet_actions.find(droplet_id: droplet_id, id: action_id)
+        action = @con.droplet_actions.find(droplet_id:, id: action_id)
         self.class.action_from_response(action)
       end
     end
@@ -175,7 +175,7 @@ module DigitalOcean
 
     def image_delete(id)
       silence_digital_ocean_api(true) do
-        @con.images.delete(id: id)
+        @con.images.delete(id:)
         nil
       end
     end
@@ -189,7 +189,7 @@ module DigitalOcean
 
     def ssh_key_show(id)
       silence_digital_ocean_api do
-        res = @con.ssh_keys.find(id: id)
+        res = @con.ssh_keys.find(id:)
         self.class.ssh_key_from_response(res)
       end
     end
@@ -197,8 +197,8 @@ module DigitalOcean
     def ssh_key_create(name, public_key)
       silence_digital_ocean_api do
         key = DropletKit::SSHKey.new(
-          name: name,
-          public_key: public_key,
+          name:,
+          public_key:,
         )
         res = @con.ssh_keys.create(key)
         self.class.ssh_key_from_response(res)
@@ -207,7 +207,7 @@ module DigitalOcean
 
     def ssh_key_delete(id)
       silence_digital_ocean_api(true) do
-        @con.ssh_keys.delete(id: id)
+        @con.ssh_keys.delete(id:)
         nil
       end
     end
@@ -288,7 +288,7 @@ module DigitalOcean
 
     def volume_show(id)
       silence_digital_ocean_api do
-        res = @con.volumes.find(id: id)
+        res = @con.volumes.find(id:)
         self.class.volume_from_response(res)
       end
     end
@@ -296,9 +296,9 @@ module DigitalOcean
     def volume_create(name, size, region, snapshot_id)
       silence_digital_ocean_api do
         args = {
-          name: name,
+          name:,
           size_gigabytes: size,
-          region: region,
+          region:,
         }
         if snapshot_id.nil?
           args[:filesystem_type] = 'ext4'
@@ -313,14 +313,14 @@ module DigitalOcean
 
     def volume_delete(id)
       silence_digital_ocean_api(true) do
-        @con.volumes.delete(id: id)
+        @con.volumes.delete(id:)
         nil
       end
     end
 
     def volume_snapshot(id, name)
       silence_digital_ocean_api do
-        res = @con.volumes.create_snapshot(id: id, name: name)
+        res = @con.volumes.create_snapshot(id:, name:)
         self.class.snapshot_from_response(res)
       end
     end
@@ -334,14 +334,14 @@ module DigitalOcean
 
     def snapshot_show(id)
       silence_digital_ocean_api do
-        res = @con.snapshots.find(id: id)
+        res = @con.snapshots.find(id:)
         self.class.snapshot_from_response(res)
       end
     end
 
     def snapshot_delete(id)
       silence_digital_ocean_api(true) do
-        @con.snapshots.delete(id: id)
+        @con.snapshots.delete(id:)
         nil
       end
     end

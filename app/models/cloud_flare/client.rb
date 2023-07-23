@@ -33,7 +33,7 @@ class CloudFlare::Client
   def dns_add(name, ip)
     silence do
       self.dns_delete(name)
-      res = do_post("zones/#{@zone}/dns_records", { type: 'A', name: name, content: ip, ttl: 120 })
+      res = do_post("zones/#{@zone}/dns_records", { type: 'A', name:, content: ip, ttl: 120 })
       return res.error? ? res : nil
     end
   end

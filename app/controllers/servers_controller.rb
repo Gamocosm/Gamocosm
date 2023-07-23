@@ -283,11 +283,11 @@ class ServersController < ApplicationController
     download = server[0].minecraft.world_download_url
     render json: {
       server: active,
-      status: status,
-      minecraft: minecraft,
-      ip: ip,
+      status:,
+      minecraft:,
+      ip:,
       domain: server[0].host_name,
-      download: download,
+      download:,
     }
   end
 
@@ -401,7 +401,7 @@ class ServersController < ApplicationController
     error = current_user.digital_ocean.droplet_delete(params[:id])
     current_user.invalidate_digital_ocean_cache_droplets
     if error
-      return redirect_to servers_path, flash: { error: error }
+      return redirect_to servers_path, flash: { error: }
     end
     redirect_to servers_path, flash: { notice: 'Deleted droplet on Digital Ocean' }
   end
@@ -415,7 +415,7 @@ class ServersController < ApplicationController
     error = current_user.digital_ocean.image_delete(params[:id])
     current_user.invalidate_digital_ocean_cache_images
     if error
-      return redirect_to servers_path, flash: { error: error }
+      return redirect_to servers_path, flash: { error: }
     end
     redirect_to servers_path, flash: { notice: 'Deleted snapshot on Digital Ocean' }
   end
@@ -441,7 +441,7 @@ class ServersController < ApplicationController
     current_user.invalidate_digital_ocean_cache_ssh_keys
     f = { success: 'Deleted SSH public key from Digital Ocean' }
     if error
-      f = { error: error }
+      f = { error: }
     end
     redirect_back fallback_location: servers_path, flash: f
   end

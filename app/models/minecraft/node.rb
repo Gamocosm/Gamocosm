@@ -82,7 +82,7 @@ class Minecraft::Node
 
   def exec(command)
     silence do
-      res = do_post(:exec, { command: command })
+      res = do_post(:exec, { command: })
       if res.error?
         return res
       end

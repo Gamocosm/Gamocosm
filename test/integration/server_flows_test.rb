@@ -80,16 +80,16 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
     old_servers_count = Server.count
     post create_servers_path, params: {
       server: {
-        name: name,
-        remote_region_slug: remote_region_slug,
-        remote_size_slug: remote_size_slug,
+        name:,
+        remote_region_slug:,
+        remote_size_slug:,
         minecraft_attributes: {
-          flavour: flavour,
+          flavour:,
         },
       },
     }
     assert_equal old_servers_count + 1, Server.count
-    server = Server.find_by(name: name)
+    server = Server.find_by(name:)
     assert_redirected_to server_path(server)
     follow_redirect!
     assert_response :success
@@ -149,7 +149,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
   def login_user(email, password)
     mock_do_droplets_list(200, []).times_only(1)
     mock_do_images_list(200, []).times_only(1)
-    post user_session_path, params: { user: { email: email, password: password } }
+    post user_session_path, params: { user: { email:, password: } }
     assert_redirected_to servers_path
     follow_redirect!
     assert_response :success

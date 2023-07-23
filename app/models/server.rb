@@ -131,7 +131,7 @@ class Server < ActiveRecord::Base
 
   def log(message)
     where = caller[0].split(':')
-    logs.create(message: message, debuginfo: Pathname.new(where[0]).relative_path_from(Rails.root).to_s + ':' + where.drop(1).join(':'))
+    logs.create(message:, debuginfo: Pathname.new(where[0]).relative_path_from(Rails.root).to_s + ':' + where.drop(1).join(':'))
   end
 
   def log_test(message)

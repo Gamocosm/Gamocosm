@@ -111,19 +111,19 @@ class ActiveSupport::TestCase
 
   def mock_do_droplets_list(status, droplets)
     mock_digital_ocean(:get, '/droplets')
-      .to_return_json(status, { droplets: droplets, meta: { total: droplets.length } })
+      .to_return_json(status, { droplets:, meta: { total: droplets.length } })
       .stub_do_list
   end
 
   def mock_do_images_list(status, images)
     mock_digital_ocean(:get, '/images')
-      .to_return_json(status, { images: images, meta: { total: images.length } })
+      .to_return_json(status, { images:, meta: { total: images.length } })
       .stub_do_list
   end
 
   def mock_do_ssh_keys_list(status, ssh_keys)
     mock_digital_ocean(:get, '/account/keys')
-      .to_return_json(status, { ssh_keys: ssh_keys, meta: { total: ssh_keys.length } })
+      .to_return_json(status, { ssh_keys:, meta: { total: ssh_keys.length } })
       .stub_do_list
   end
 
@@ -183,7 +183,7 @@ end
 
 class WebMock::RequestStub
   def to_return_json(status, res)
-    self.to_return({ status: status, body: res.to_json, headers: { 'Content-Type' => 'application/json' } })
+    self.to_return({ status:, body: res.to_json, headers: { 'Content-Type' => 'application/json' } })
   end
 
   def with_body_hash_including(req)
@@ -229,9 +229,9 @@ class WebMock::RequestStub
   def stub_do_droplet_create(status, name, size, region, image)
     self.with_body_hash_including({
       name: "#{name}.#{Gamocosm::USER_SERVERS_DOMAIN}",
-      size: size,
-      region: region,
-      image: image,
+      size:,
+      region:,
+      image:,
       ssh_keys: [ 1 ],
     }).stub_do_droplet_show(status, 'new')
   end
@@ -240,28 +240,28 @@ class WebMock::RequestStub
     self.to_return_json(status, {
       ssh_key: {
         id: 1,
-        name: name,
-        public_key: public_key,
+        name:,
+        public_key:,
       },
     })
   end
 
   def stub_do_ssh_key_add(status, name, public_key)
     self.with_body_hash_including({
-      name: name,
-      public_key: public_key,
+      name:,
+      public_key:,
     }).stub_do_ssh_key_show(status, name, public_key)
   end
 
   def stub_cf_response(status, success, result)
     self.to_return_json(status, {
-      success: success,
-      result: result,
+      success:,
+      result:,
     })
   end
 
   def stub_mcsw_pid(status, pid, opts = {})
-    self.to_return_json(status, { pid: pid }.merge(opts))
+    self.to_return_json(status, { pid: }.merge(opts))
   end
 
   def stub_mcsw_start(status, ram)
@@ -272,7 +272,7 @@ class WebMock::RequestStub
 
   def stub_mcsw_exec(status, command)
     self.with_body_hash_including({
-      command: command,
+      command:,
     }).to_return_json(status, {})
   end
 
@@ -283,7 +283,7 @@ class WebMock::RequestStub
   end
 
   def stub_mcsw_properties_update(status, properties)
-    self.with_body_hash_including({ properties: properties }).stub_mcsw_properties_fetch(status, properties)
+    self.with_body_hash_including({ properties: }).stub_mcsw_properties_fetch(status, properties)
   end
 end
 

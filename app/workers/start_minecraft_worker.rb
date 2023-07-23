@@ -5,7 +5,7 @@ class StartMinecraftWorker
   def perform(server_id)
     logger.info "Running #{self.class.name} with server_id #{server_id}"
     # see AutoshutdownMinecraftWorker for explanation of the next two lines
-    minecraft = Minecraft.find_by!(server_id: server_id)
+    minecraft = Minecraft.find_by!(server_id:)
     server = minecraft.server
     begin
       if !server.remote.exists?

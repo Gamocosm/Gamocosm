@@ -95,9 +95,9 @@ class ScheduledTask < ActiveRecord::Base
         return "Bad action \"#{$5}\"".error!(nil)
       end
       return ScheduledTask.new({
-        server: server,
+        server:,
         partition: Partition.calculate(day, hour, minute, ampm, server.timezone_delta),
-        action: action,
+        action:,
       })
     end
     "Bad schedule item format \"#{line}\"".error!(nil)
