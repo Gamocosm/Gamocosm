@@ -12,6 +12,8 @@ jobs:
           echo "COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN" >> gamocosm.env
           echo "SECRET_KEY_BASE=$(openssl rand -hex 64)" >> gamocosm.env
           echo "RAILS_ENV=test" >> gamocosm.env
+          echo "DATABASE_HOST=gamocosm-database" >> gamocosm.env
+          echo "REDIS_HOST=gamocosm-redis" >> gamocosm.env
 
           source gamocosm.env
 
@@ -24,7 +26,7 @@ jobs:
           docker network create gamocosm-network
 
           docker run --rm --network gamocosm-network --detach --name "$DATABASE_HOST" --env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" docker.io/postgres:14.5
-          docker run --rm --network gamocosm-network --detach --name "$SIDEKIQ_REDIS_HOST" docker.io/redis:7.0.4
+          docker run --rm --network gamocosm-network --detach --name "$REDIS_HOST" docker.io/redis:7.0.4
 
           docker run --rm --network gamocosm-network --env-file gamocosm.env gamocosm-image rails db:setup
 

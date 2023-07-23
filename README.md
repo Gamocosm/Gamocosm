@@ -64,8 +64,8 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 1. Load environment variables: `source load_env.sh`. You will also need to do this in every new shell you run ruby/rails in.
 1. Install `podman` (or `docker`): `(sudo) dnf install podman`.
 1. Create the database container: `podman create --name gamocosm-database --env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" --publish 127.0.0.1:5432:5432 docker.io/postgres:14.5`.
-1. Create the Redis container for Sidekiq: `podman create --name gamocosm-sidekiq-redis --publish 127.0.0.1:6379:6379 docker.io/redis:7.0.4`.
-1. Start the containers: `podman start gamocosm-database gamocosm-sidekiq-redis`.
+1. Create the Redis container: `podman create --name gamocosm-redis --publish 127.0.0.1:6379:6379 docker.io/redis:7.0.4`.
+1. Start the containers: `podman start gamocosm-database gamocosm-redis`.
 1. Setup the database: `bundle exec rails db:setup`.
 1. Start the server: `bundle exec rails s` (defaults to `localhost` in development; use `--binding 0.0.0.0` to listen on all interfaces).
 1. Start the Sidekiq worker: `bundle exec sidekiq`.
