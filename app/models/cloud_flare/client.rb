@@ -15,7 +15,7 @@ class CloudFlare::Client
 
   def dns_list(name)
     silence do
-      res = do_get("zones/#{@zone}/dns_records", name == nil ? {} : { name: "#{name}.#{Gamocosm::USER_SERVERS_DOMAIN}" })
+      res = do_get("zones/#{@zone}/dns_records", name.nil? ? {} : { name: "#{name}.#{Gamocosm::USER_SERVERS_DOMAIN}" })
       if res.error?
         return res
       end

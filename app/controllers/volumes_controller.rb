@@ -143,12 +143,12 @@ class VolumesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
+  # Use callbacks to share common setup or constraints between actions.
   def set_volume
     @volume = Volume.find(params[:id])
   end
 
-    # Only allow a list of trusted parameters through.
+  # Only allow a list of trusted parameters through.
   def volume_params
     params.require(:volume).permit(:name, :status, :remote_id, :remote_size_gb, :remote_region_slug, :server_id)
   end

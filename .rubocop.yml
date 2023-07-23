@@ -2,6 +2,8 @@ Style/TrailingCommaInArrayLiteral:
   EnforcedStyleForMultiline: consistent_comma
 Style/TrailingCommaInHashLiteral:
   EnforcedStyleForMultiline: consistent_comma
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: consistent_comma
 Style/NegatedIf:
   Enabled: false
 Style/RedundantSelf:
@@ -29,6 +31,8 @@ Style/NegatedWhile:
 Style/IfInsideElse:
   Enabled: false
 Style/SoleNestedConditional:
+  Enabled: false
+Style/SymbolArray:
   Enabled: false
 Lint/AmbiguousRegexpLiteral:
   Enabled: false
