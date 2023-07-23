@@ -238,7 +238,7 @@ class ServersControllerTest < ActionController::TestCase
       setup_stage: 5,
       remote_size_slug: '1gb',
       remote_region_slug: ' nyc3 ',
-    } }
+    }, }
     assert_redirected_to server_path(@server)
     # updated, trimmed values
     view_server @server, {
@@ -250,7 +250,7 @@ class ServersControllerTest < ActionController::TestCase
       setup_stage: 0,
       remote_size_slug: ' 512mb ',
       remote_region_slug: 'nyc3',
-    } }
+    }, }
     assert_redirected_to server_path(@server)
     # reset values
     view_server @server, {
@@ -261,7 +261,7 @@ class ServersControllerTest < ActionController::TestCase
     put :update, params: { id: @server.id, server: {
       size_slug: ' ',
       remote_region_slug: "\n",
-    } }
+    }, }
     assert_response :success
     # required values
     assert_not_nil flash[:error], 'Advanced tab bad form, no error message'
@@ -328,7 +328,7 @@ class ServersControllerTest < ActionController::TestCase
             autoshutdown_minutes: 16,
           },
           schedule_text: 'saturday 10:00 am start',
-        }
+        },
       }
       assert_redirected_to server_path(@server)
       view_server @server
@@ -413,7 +413,7 @@ class ServersControllerTest < ActionController::TestCase
         setup_stage: 5,
         remote_size_slug: '1gb',
         remote_region_slug: ' nyc3 ',
-      } }
+      }, }
     end
     assert_raises(ActionController::RoutingError) do
       put :update, params: { id: @server.id, server: { ssh_keys: '123' } }

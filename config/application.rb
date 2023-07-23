@@ -93,7 +93,7 @@ module Gamocosm
       user_name: ENV['MAIL_SERVER_USERNAME'],
       password: ENV['MAIL_SERVER_PASSWORD'],
       authentication: 'plain',
-      enable_starttls_auto: true
+      enable_starttls_auto: true,
     }
     config.i18n.fallbacks = [ :en ]
   end

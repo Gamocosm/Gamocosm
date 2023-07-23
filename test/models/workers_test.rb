@@ -514,7 +514,7 @@ class WorkersTest < ActiveSupport::TestCase
       @server.scheduled_tasks.create!({
         server: @server,
         partition: 0,
-        action: 'start'
+        action: 'start',
       })
       ScheduledTaskWorker.perform_in(0.seconds, 0)
       ScheduledTaskWorker.perform_one
@@ -531,7 +531,7 @@ class WorkersTest < ActiveSupport::TestCase
       @server.scheduled_tasks.create!({
         server: @server,
         partition: 0,
-        action: 'stop'
+        action: 'stop',
       })
       ScheduledTaskWorker.perform_in(0.seconds, 0)
       ScheduledTaskWorker.perform_one

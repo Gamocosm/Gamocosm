@@ -25,7 +25,7 @@ class Minecraft::Properties
     'spawn-monsters' => 'true',
     'spawn-npcs' => true,
     'spawn-protection' => '16',
-    'white-list' => 'false'
+    'white-list' => 'false',
   }
 
   attr_accessor :allow_flight,

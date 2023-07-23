@@ -210,8 +210,8 @@ class WebMock::RequestStub
   def stub_do_droplet_action_show(status, remote_status)
     self.to_return_json(status, {
       action: {
-        status: remote_status
-      }
+        status: remote_status,
+      },
     })
   end
 
