@@ -1,1 +1,1 @@
-json.partial! "volumes/volume", volume: @volume
+json.partial! 'volumes/volume', volume: @volume

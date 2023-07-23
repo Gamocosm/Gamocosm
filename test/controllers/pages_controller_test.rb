@@ -3,12 +3,12 @@ require 'test_helper'
 class PagesControllerTest < ActionController::TestCase
   include Devise::Test::ControllerHelpers
 
-  test "front page does not crash :)" do
+  test 'front page does not crash :)' do
     get :landing
     assert_response :success
   end
 
-  test "demo page" do
+  test 'demo page' do
     get :demo
     assert_response :success
     # TODO: commented out until demo page ready
@@ -18,7 +18,7 @@ class PagesControllerTest < ActionController::TestCase
     assert_select '.panel-title', 'Send Command to Server'
   end
 
-  test "basically static pages" do
+  test 'basically static pages' do
     mock_do_base(200)
     get :about
     assert_response :success

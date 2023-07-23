@@ -13,7 +13,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
   def teardown
   end
 
-  test "a lot of things (\"test everything\" - so it goes)" do
+  test 'a lot of things ("test everything" - so it goes)' do
     mock_do_base(200)
     mock_do_ssh_keys_list(200, []).times_only(1)
 
