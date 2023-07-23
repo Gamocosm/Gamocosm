@@ -22,7 +22,7 @@ class Minecraft::QueryServer
   def regenerate_challenge_token
     if (Time.new - @challenge_token_time).to_i > 30
       @challenge_token_time = Time.new
-      @challenge_token = rand(2 ** 32 - 1)
+      @challenge_token = rand(2**32 - 1)
     end
     @challenge_token
   end

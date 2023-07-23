@@ -7,7 +7,7 @@ class ServersControllerTest < ActionController::TestCase
     @owner = User.find(1)
     @friend = User.find(2)
     @other = User.find(3)
-    @server= Server.first
+    @server = Server.first
     @server.logs.delete_all
     @server.update_columns(remote_id: nil, pending_operation: nil, setup_stage: 0)
   end
