@@ -20,6 +20,7 @@ module Mock
     def initialize(server)
       super(server)
     end
+
     def sync
       @data ||= DigitalOcean::Droplet.new(1, nil, nil, nil, 'active', [], '12.34.56.78')
     end
@@ -29,6 +30,7 @@ module Mock
     def pid
       1
     end
+
     def properties
       ::Minecraft::Properties::DEFAULT_PROPERTIES
     end

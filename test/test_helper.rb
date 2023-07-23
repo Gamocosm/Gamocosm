@@ -296,18 +296,22 @@ if !test_have_user_server?
       block.call
       Rails.logger.info "SSHKit mocking on: #{hosts}, done."
     end
+
     def test(command, args = [])
       Rails.logger.info "SSHKit mocking test: #{command} #{args.join(' ')}"
       return true
     end
+
     def within(directory, &block)
       Rails.logger.info "SSHKit mocking within: #{directory}..."
       block.call
       Rails.logger.info "SSHKit mocking within: #{directory}, done."
     end
+
     def execute(*args)
       Rails.logger.info "SSHKit mocking command: #{args.join(' ')}"
     end
+
     def with(environment, &block)
       Rails.logger.info "SSHKit mocking with: #{environment}..."
       block.call

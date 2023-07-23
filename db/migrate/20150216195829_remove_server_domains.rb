@@ -9,6 +9,7 @@ class RemoveServerDomains < ActiveRecord::Migration
     add_index :minecrafts, :domain, { unique: true }
     drop_table :server_domains
   end
+
   def down
     create_table :server_domains do |t|
       t.integer :server_id, { null: false }

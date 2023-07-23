@@ -12,6 +12,7 @@ module DigitalOcean
     def done?
       status == 'completed'
     end
+
     def failed?
       status == 'errored'
     end
@@ -34,6 +35,7 @@ module DigitalOcean
     def price
       "#{(price_hourly * 100).round(1)} cents/hour"
     end
+
     def descriptor
       "#{name} at #{price} (up to $#{price_monthly}/month)"
     end

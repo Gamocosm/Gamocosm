@@ -66,6 +66,7 @@ class MoveServersFieldsToMinecrafts < ActiveRecord::Migration
     remove_column :minecrafts, :autoshutdown_last_check
     remove_column :minecrafts, :autoshutdown_last_successful
   end
+
   def down
     add_column :servers, :remote_id, :integer
     add_column :servers, :do_region_slug, :string

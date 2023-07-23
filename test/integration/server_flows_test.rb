@@ -59,6 +59,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
     wait_for_starting_server server
     view_server(server, properties)
   end
+
 =begin
   def stop_server(minecraft)
     get stop_server_path(server)
@@ -161,6 +162,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
   end
+
 =begin
   def signup_user(email, password)
     post user_registration_path, { user: { email: email, password: password, password_confirmation: password } }

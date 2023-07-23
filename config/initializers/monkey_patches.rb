@@ -2,6 +2,7 @@ class Object
   def error?
     false
   end
+
   def silence(&block)
     begin
       return block.call
@@ -35,6 +36,7 @@ class IO
     end
     raise 'Should not reach here'
   end
+
   def write_timeout(timeout, &block)
     begin
       return block.call
@@ -61,9 +63,11 @@ class Error
     @data = data
     @msg = msg
   end
+
   def error?
     true
   end
+
   def to_s
     msg
   end
@@ -79,10 +83,12 @@ class String
   def error!(data)
     Error.new(data, self)
   end
+
   def clean
     s = self.strip
     return s.blank? ? nil : s.downcase
   end
+
   def ascii
     self.force_encoding('ascii-8bit')
   end
