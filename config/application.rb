@@ -7,6 +7,8 @@ require 'rails/all'
 Bundler.require(*Rails.groups)
 require 'exception_notification/rails'
 
+require_relative 'monkey_patches'
+
 module Gamocosm
   DIGITAL_OCEAN_API_KEY = ENV['DIGITAL_OCEAN_API_KEY']
   REDIS_HOST = ENV['REDIS_HOST']
