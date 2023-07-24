@@ -1,7 +1,7 @@
 class UserMailer < ActionMailer::Base
   helper :application
 
-  default from: 'Gamocosm Mailer <no-reply@gamocosm.com>'
+  default from: Gamocosm::MAILER
 
   def autoshutdown_error_email(server)
     @user = server.user

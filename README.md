@@ -95,7 +95,7 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 - `MAIL_SERVER_*`: See [action mailer configuration][rails-action-mailer] in the Rails guide.
 - `SECRET_KEY_BASE`: Only production.
 - `DEVELOPER_EMAILS`: Comma separated list of emails to send exceptions to.
-- `BADNESS_SECRET`: Secret to protect `/badness` endpoint.
+- `BADNESS_SECRET`: Secret to test `/badness` endpoint.
 
 ### Database configuration
 **Database configuration is greatly simplified if you use a container image as described above.

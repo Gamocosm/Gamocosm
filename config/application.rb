@@ -5,6 +5,7 @@ require 'rails/all'
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
+require 'exception_notification/rails'
 
 module Gamocosm
   DIGITAL_OCEAN_API_KEY = ENV['DIGITAL_OCEAN_API_KEY']
@@ -34,6 +35,8 @@ module Gamocosm
   USER_SERVERS_DOMAIN = 'users.gamocosm.com'
   DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-38-x64'
   SSH_PRIVATE_KEY_PATH = 'id_gamocosm'
+
+  MAILER = 'Gamocosm Mailer <no-reply@gamocosm.com>'
 
   # see ActiveSupport::TimeZone
   TIMEZONE = 'Pacific Time (US & Canada)'
@@ -85,16 +88,18 @@ module Gamocosm
       expires_in: 24.hours,
     }
     #config.exceptions_app = self.routes
-    config.action_mailer.delivery_method = :smtp
-    config.action_mailer.smtp_settings = {
-      address: ENV['MAIL_SERVER_ADDRESS'],
-      port: ENV['MAIL_SERVER_PORT'],
-      domain: ENV['MAIL_SERVER_DOMAIN'],
-      user_name: ENV['MAIL_SERVER_USERNAME'],
-      password: ENV['MAIL_SERVER_PASSWORD'],
-      authentication: 'plain',
-      enable_starttls_auto: true,
-    }
+    if !ENV['MAIL_SERVER_ADDRESS'].blank?
+      config.action_mailer.delivery_method = :smtp
+      config.action_mailer.smtp_settings = {
+        address: ENV['MAIL_SERVER_ADDRESS'],
+        port: ENV['MAIL_SERVER_PORT'],
+        domain: ENV['MAIL_SERVER_DOMAIN'],
+        user_name: ENV['MAIL_SERVER_USERNAME'],
+        password: ENV['MAIL_SERVER_PASSWORD'],
+        authentication: :plain,
+        tls: true,
+      }
+    end
     config.i18n.fallbacks = [:en]
   end
 end

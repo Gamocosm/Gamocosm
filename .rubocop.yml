@@ -52,3 +52,5 @@ Layout/EmptyLinesAroundAccessModifier:
   EnforcedStyle: only_before
 Bundler/OrderedGems:
   Enabled: false
+Metrics/BlockLength:
+  Max: 200
