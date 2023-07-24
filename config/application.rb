@@ -9,8 +9,6 @@ require 'exception_notification/rails'
 
 module Gamocosm
   DIGITAL_OCEAN_API_KEY = ENV['DIGITAL_OCEAN_API_KEY']
-  SIDEKIQ_ADMIN_USERNAME = ENV['SIDEKIQ_ADMIN_USERNAME']
-  SIDEKIQ_ADMIN_PASSWORD = ENV['SIDEKIQ_ADMIN_PASSWORD']
   REDIS_HOST = ENV['REDIS_HOST']
   REDIS_PORT = ENV['REDIS_PORT']
 
@@ -83,7 +81,7 @@ module Gamocosm
     config.cache_store = :redis_cache_store, {
       host: Gamocosm::REDIS_HOST,
       port: Gamocosm::REDIS_PORT,
-      db: (Rails.env.production? ? 3 : (Rails.env.development? ? 1 : 2)),
+      db: 1 + Rails.env.index,
       pool_size: 4,
       expires_in: 24.hours,
     }

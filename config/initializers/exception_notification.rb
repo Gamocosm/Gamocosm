@@ -23,7 +23,7 @@ ExceptionNotification.configure do |config|
 
   # Email notifier sends notifications by email.
   config.add_notifier :email, {
-    email_prefix: '[Gamocosm Error]',
+    email_prefix: '[Gamocosm Error] ',
     sender_address: Gamocosm::MAILER,
     exception_recipients: ENV.fetch('DEVELOPER_EMAILS', '').split(','),
   }

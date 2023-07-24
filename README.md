@@ -89,11 +89,11 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 - `REDIS_HOST`:
 	When using containers as described above, the default value of `localhost` corresponds to the `127.0.0.1` passed to `--publish`.
 - `REDIS_PORT`: You can leave this as the default.
-- `SIDEKIQ_ADMIN_USERNAME`: HTTP basic auth for Sidekiq web interface.
-- `SIDEKIQ_ADMIN_PASSWORD`: See previous.
 - `DEVISE_SECRET_KEY`: Only production.
 - `MAIL_SERVER_*`: See [action mailer configuration][rails-action-mailer] in the Rails guide.
 - `SECRET_KEY_BASE`: Only production.
+- `SIDEKIQ_USERNAME`: Only production - HTTP basic auth for Sidekiq web interface.
+- `SIDEKIQ_PASSWORD`: See previous.
 - `DEVELOPER_EMAILS`: Comma separated list of emails to send exceptions to.
 - `BADNESS_SECRET`: Secret to test `/badness` endpoint.
 

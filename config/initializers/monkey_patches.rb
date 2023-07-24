@@ -93,3 +93,15 @@ class String
     self.force_encoding('ascii-8bit')
   end
 end
+
+class ActiveSupport::EnvironmentInquirer
+  def index
+    if self.production?
+      3
+    elsif self.test?
+      2
+    else
+      1
+    end
+  end
+end
