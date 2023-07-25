@@ -80,6 +80,10 @@ module ApplicationHelper
     end
   end
 
+  def blog_link
+    'https://gamocosm.com/blog/'
+  end
+
   def issues_link
     'https://github.com/Gamocosm/Gamocosm/issues'
   end

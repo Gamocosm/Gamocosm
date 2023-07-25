@@ -18,6 +18,7 @@
 #  remote_snapshot_id :integer
 #  timezone_delta     :integer          default(0), not null
 #  api_key            :string           not null
+#  preserve_snapshot  :boolean          default(FALSE), not null
 #
 
 class Server < ActiveRecord::Base

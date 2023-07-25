@@ -9,6 +9,7 @@ COPY Gemfile Gemfile.lock ./
 
 RUN bundle install
 
+# https://guides.rubyonrails.org/getting_started.html#creating-the-blog-application
 COPY app app
 COPY bin bin
 COPY config config
@@ -17,8 +18,10 @@ COPY lib lib
 COPY public public
 COPY scripts scripts
 COPY test test
+COPY vendor vendor
 
 COPY config.ru Rakefile ./
 COPY LICENSE README.md ./
 
+# https://github.com/rails/rails/pull/46760
 RUN SECRET_KEY_BASE=1 rails assets:precompile

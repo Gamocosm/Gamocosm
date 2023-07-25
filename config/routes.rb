@@ -13,8 +13,6 @@ Rails.application.routes.draw do
   match '/422', to: 'pages#unacceptable', via: :all
   match '/500', to: 'pages#internal_error', via: :all
 
-  match '/blog' => redirect('https://gamocosm.com/blog/'), as: :blog, via: :get
-
   scope '/digital_ocean' do
     get '/setup', to: 'pages#digital_ocean_setup', as: :digital_ocean_setup
 
@@ -37,7 +35,7 @@ Rails.application.routes.draw do
     Sidekiq::Web.use Rack::Auth::Basic do |username, password|
       # Protect against timing attacks:
       # - See https://codahale.com/a-lesson-in-timing-attacks/
-      # - See https://thisdata.com/blog/timing-attacks-against-string-comparison/
+      # - See https://thisdata.com/blog/timing-attacks-against-string-comparison/
       # - Use & (do not use &&) so that it doesn't short circuit.
       # - Use digests to stop length information leaking (see also ActiveSupport::SecurityUtils.variable_size_secure_compare)
       ActiveSupport::SecurityUtils.secure_compare(::Digest::SHA256.hexdigest(username), ::Digest::SHA256.hexdigest(ENV['SIDEKIQ_USERNAME'])) &

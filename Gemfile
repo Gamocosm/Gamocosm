@@ -20,9 +20,6 @@ gem 'importmap-rails'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-# Use unicorn as the app server
-# gem 'unicorn'
-
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
@@ -62,7 +59,7 @@ group :development do
   # https://guides.rubyonrails.org/configuring.html#config-file-watcher
   gem 'listen'
 
-  gem 'annotate'
+  gem 'annotate', require: false
 end
 group :test do
   gem 'simplecov'

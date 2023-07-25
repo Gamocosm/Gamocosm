@@ -56,6 +56,8 @@ Metrics/BlockLength:
   Max: 200
 Metrics/MethodLength:
   Max: 100
+Metrics/ClassLength:
+  Max: 200
 Style/Documentation:
   Enabled: false
 Style/FrozenStringLiteralComment:
