@@ -7,22 +7,12 @@ gem 'sprockets-rails'
 # Use postgresql as the database for Active Record
 gem 'pg'
 # Use SCSS for stylesheets
-gem 'sass-rails'
-# Use Uglifier as compressor for JavaScript assets
-#gem 'uglifier', '>= 1.3.0'
-# Use CoffeeScript for .js.coffee assets and views
-#gem 'coffee-rails', '>= 4.0.0'
-# See https://github.com/sstephenson/execjs#readme for more supported runtimes
-# gem 'therubyracer',  platforms: :ruby
+gem 'sassc-rails'
+# Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
+gem 'importmap-rails'
 
-# Use jquery as the JavaScript library
-gem 'jquery-rails'
-# Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
-#gem 'turbolinks'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder'
-# bundle exec rake doc:rails generates the API under doc/api.
-#gem 'sdoc', '>= 0.4.0',          group: :doc
+#gem 'jbuilder'
 
 # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
 #gem 'spring',        group: :development
@@ -40,28 +30,39 @@ gem 'jbuilder'
 # gem 'debugger', group: [:development, :test]
 
 # Custom
-gem 'devise'
-gem 'sidekiq'
-gem 'bootstrap-sass'
-gem 'faraday'
-gem 'faraday_middleware'
-gem 'font-awesome-sass'
-gem 'simple_form'
-gem 'sshkit'
-gem 'x25519'
-gem 'ed25519'
-gem 'bcrypt_pbkdf'
-gem 'dalli'
-gem 'exception_notification'
-gem 'droplet_kit', git: 'https://github.com/Gamocosm/droplet_kit'
 gem 'puma'
+gem 'sidekiq'
+
+gem 'exception_notification'
+
 gem 'redis'
 gem 'hiredis'
 gem 'connection_pool'
+
+gem 'devise'
+gem 'faraday'
+gem 'faraday_middleware'
+gem 'simple_form'
+gem 'droplet_kit', git: 'https://github.com/Gamocosm/droplet_kit'
+
+gem 'sshkit'
+# https://github.com/net-ssh/net-ssh
+gem 'bcrypt_pbkdf'
+gem 'x25519'
+gem 'ed25519'
+
+# Gamocosm user servers domain DNS.
 gem 'rubydns'
+
+# CSS styles; pin to exact version. Used with rails sprockets.
+gem 'bootstrap-sass', '~> 3.4.1'
+gem 'font-awesome-sass', '~> 6.4.0'
+
 group :development do
-  gem 'annotate'
+  # https://guides.rubyonrails.org/configuring.html#config-file-watcher
   gem 'listen'
+
+  gem 'annotate'
 end
 group :test do
   gem 'simplecov'

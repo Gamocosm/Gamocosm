@@ -52,3 +52,5 @@ systemctl daemon-reload
 systemctl start container-gamocosm-puma container-gamocosm-sidekiq container-gamocosm-dns
 
 systemctl restart nginx
+
+curl https://gamocosm.com > /dev/null

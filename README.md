@@ -211,15 +211,15 @@ Hmmmm.
 - 'Aborting' should always be followed by `server.reset_state` and `return`
 
 #### Other useful stuff
-- Development/test user (from `db/seed.rb`): email "test@test.com", password "1234test", has the Digital Ocean api token from `env.sh`
-	- the current tests don't use this, and mock all HTTP requests/responses
+- Development/test user (created by [`db/seeds.rb`][db-seeds]) has the Digital Ocean api token from `env.sh`
+	- The tests don't actually use this; the tests mock all HTTP requests/responses
 - The Sidekiq web interface is mounted at `/sidekiq`
 - Sidekiq doesn't automatically reload source files when you edit them. You must restart it for changes to take effect
-- New Relic RPM is available in developer mode at `/newrelic`
 - Run the console: `bundle exec rails c`
 - Reset the database: `bundle exec rake db:reset`
 - Reset Sidekiq jobs: `Sidekiq::Queue.new.each { |job| job.delete }` in the rails console
 - Reset Sidekiq stats: `Sidekiq::Stats.new.reset` in the rails console
+- Start `ScheduledTaskWorker`: `ScheduledTaskWorker.perform_in(0.seconds, 0)` - it will automatically reschedule itself for the next interval
 - The deployment scripts and configuration are in the `sysadmin/` directory
 - List of `rake db` commands: [Stack Overflow][rake-db-commands]
 

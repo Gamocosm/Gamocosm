@@ -54,3 +54,9 @@ Bundler/OrderedGems:
   Enabled: false
 Metrics/BlockLength:
   Max: 200
+Metrics/MethodLength:
+  Max: 100
+Style/Documentation:
+  Enabled: false
+Style/FrozenStringLiteralComment:
+  Enabled: false
