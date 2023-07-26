@@ -7,7 +7,7 @@ set -ex
 POSTGRESQL_VERSION=14.5
 REDIS_VERSION=7.0.4
 
-TIMEZONE=America/New_York
+TIME_ZONE=America/New_York
 
 function release {
 	read -p "Hit enter to continue (exit to return to script)... "
@@ -49,7 +49,7 @@ if [ ! -z "$RESTORE_DIR" ]; then
 fi
 
 echo 'Setting the timezone...'
-timedatectl set-timezone "$TIMEZONE"
+timedatectl set-timezone "$TIME_ZONE"
 
 echo 'Updating the system...'
 #dnf -y upgrade > >(tee dnf-upgrade.stdout.log) 2> >(tee dnf-upgrade.stderr.log)

@@ -14,7 +14,7 @@ class ServerLog < ActiveRecord::Base
   belongs_to :server
 
   def when
-    created_at.in_time_zone(Gamocosm::TIMEZONE).strftime('%Y %b %-d (%H:%M:%S %Z)')
+    created_at.in_time_zone(Gamocosm::TIME_ZONE).strftime('%Y %b %-d (%H:%M:%S %Z)')
   end
 
   def to_s

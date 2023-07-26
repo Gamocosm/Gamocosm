@@ -10,12 +10,27 @@ require 'exception_notification/rails'
 require_relative 'monkey_patches'
 
 module Gamocosm
+  # see ActiveSupport::TimeZone
+  TIME_ZONE = 'Pacific Time (US & Canada)'
+  TIME_FORMAT = '%Y %b %-d %H:%M %Z'
+
+  MAILER = 'Gamocosm Mailer <no-reply@gamocosm.com>'
+  USER_SERVERS_DOMAIN = 'users.gamocosm.com'
+
+  SSH_PRIVATE_KEY_PATH = 'id_gamocosm'
+
+  DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-38-x64'
+
+  MINECRAFT_FLAVOURS_GIT_URL = 'https://github.com/Gamocosm/gamocosm-minecraft-flavours.git'
+  MCSW_GIT_URL = 'https://github.com/Gamocosm/minecraft-server_wrapper.git'
+  MCSW_USERNAME = 'gamocosm-mothership'
+
+  GIT_HEAD = ENV.fetch('GIT_HEAD', 'HEAD').strip
+  GIT_HEAD_DATE = Time.at(ENV.fetch('GIT_HEAD_TIMESTAMP', Time.now.to_i).to_i).in_time_zone(TIME_ZONE).strftime(TIME_FORMAT)
+
   DIGITAL_OCEAN_API_KEY = ENV['DIGITAL_OCEAN_API_KEY']
   REDIS_HOST = ENV['REDIS_HOST']
   REDIS_PORT = ENV['REDIS_PORT']
-
-  GIT_HEAD = ENV.fetch('GIT_HEAD', 'HEAD').strip
-  GIT_HEAD_DATE = Time.at(ENV.fetch('GIT_HEAD_TIMESTAMP', Time.now.to_i).to_i).strftime('%Y %b %-d %H:%M %Z')
 
   MINECRAFT_FLAVOURS = YAML.load_file(File.expand_path('config/minecraft_flavours.yml', Rails.root)).inject({}, &lambda do |a, x|
     x.second['versions'].each do |v|
@@ -29,17 +44,6 @@ module Gamocosm
     end
     a
   end)
-  MINECRAFT_FLAVOURS_GIT_URL = 'https://github.com/Gamocosm/gamocosm-minecraft-flavours.git'
-  MCSW_GIT_URL = 'https://github.com/Gamocosm/minecraft-server_wrapper.git'
-  MCSW_USERNAME = 'gamocosm-mothership'
-  USER_SERVERS_DOMAIN = 'users.gamocosm.com'
-  DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-38-x64'
-  SSH_PRIVATE_KEY_PATH = 'id_gamocosm'
-
-  MAILER = 'Gamocosm Mailer <no-reply@gamocosm.com>'
-
-  # see ActiveSupport::TimeZone
-  TIMEZONE = 'Pacific Time (US & Canada)'
 
   @digital_ocean = nil
   def self.digital_ocean
@@ -79,7 +83,7 @@ module Gamocosm
 
     # Custom
     # it seems even if you set this, DateTime#strftime's '%Z' format still shows a numeric timezone unless you use DateTime#in_time_zone
-    config.time_zone = TIMEZONE
+    config.time_zone = TIME_ZONE
     config.cache_store = :redis_cache_store, {
       host: Gamocosm::REDIS_HOST,
       port: Gamocosm::REDIS_PORT,

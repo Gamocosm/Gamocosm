@@ -5,11 +5,9 @@ require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require File.expand_path('test/fixtures/seeds.rb', Rails.root)
 require 'sidekiq/testing'
-#Sidekiq::Testing.fake!
 require 'webmock/minitest'
 
-#Sidekiq::Logging.logger = Rails.logger
-Sidekiq.logger.level = Logger::WARN
+Sidekiq.logger.level = :fatal
 
 def test_have_user_server?
   ENV['TEST_DOCKER'] == 'true'

@@ -1,0 +1,6 @@
+EnabledDefaultLinters: true
+linters:
+  SpaceIndentation:
+    enabled: false
+  SelfClosingTag:
+    enforced_style: 'always'

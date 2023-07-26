@@ -104,7 +104,7 @@ class ScheduledTask < ActiveRecord::Base
   end
 
   def self.server_time_string
-    DateTime.now.in_time_zone(Gamocosm::TIMEZONE).strftime('%-I:%M %P (%H:%M) %Z')
+    DateTime.now.in_time_zone(Gamocosm::TIME_ZONE).strftime('%-I:%M %P (%H:%M) %Z')
   end
 
   class Partition

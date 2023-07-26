@@ -154,17 +154,8 @@ Example: `local postgres,gamocosm_development,gamocosm_test,gamocosm_production 
 You will have to restart postgresql (`(sudo) systemctl restart postgresql`) for the changes to take effect.
 
 ### Directory hierarchy
-- `app`: main source code
-- `bin`: rails stuff, don't touch
-- `config`: rails app configuration
-- `db`: rails app database stuff (schema, migrations, seeds)
-- `lib`: rails stuff, don't touch
-- `log`: 'nuff said
-- `public`: static files
-- `sysadmin`: stuff for the Gamocosm server (you can run your own server! This is a true open source project)
-- `test-docker`: use docker container to test most of `app/workers/setup_server_worker.rb` (more below)
-- `test`: pooteeweet
-- `vendor`: rails stuff, don't touch
+- [Documentation for Rails directories][rails-directory-hierarchy].
+- `sysadmin`: stuff for the Gamocosm server (you can run your own server! This is a true open source project).
 
 ### Technical details
 Hmmmm.
@@ -222,12 +213,18 @@ Hmmmm.
 - Start `ScheduledTaskWorker`: `ScheduledTaskWorker.perform_in(0.seconds, 0)` - it will automatically reschedule itself for the next interval
 - The deployment scripts and configuration are in the `sysadmin/` directory
 - List of `rake db` commands: [Stack Overflow][rake-db-commands]
+- [Rails extensions to common classes][rails-active-support-extensions]
+- [Rails configuration][rails-configuration]
 
 ## Tests
 - `bundle exec rails test`
 - tests use WebMock to mock http requests (no external requests)
 - `RAILS_ENV=test bundle exec rails <s|c>` to run the server or console (respectively) in test mode
 - Note: the test server, unlike the dev server, does not automatically reload source files when you change them
+- [Rails test runner][rails-test-runner]:
+	- Run a specific file: `bundle exec rails test path/to/file.rb`
+	- Run a specific test (by line number): `bundle exec rails test path/to/file.rb:123`
+	- Run a specific test (by name): `bundle exec rails test path/to/file.rb --name my_test`
 
 ### More testing by simulating a user server with Docker
 _**Note**: this section is out of date._
@@ -288,3 +285,7 @@ Example: `TEST_DOCKER=true ./tests.sh`
 [rake-db-commands]: http://stackoverflow.com/questions/10301794/
 [rails-action-mailer]: http://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-configuration
 [podman-dangling-images]: https://github.com/containers/podman/issues/7889
+[rails-test-runner]: https://guides.rubyonrails.org/testing.html#the-rails-test-runner
+[rails-directory-hierarchy]: https://guides.rubyonrails.org/getting_started.html#creating-the-blog-application
+[rails-active-support-extensions]: https://guides.rubyonrails.org/active_support_core_extensions.html
+[rails-configuration]: https://guides.rubyonrails.org/configuring.html
