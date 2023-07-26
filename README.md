@@ -32,24 +32,52 @@ Note that it is still recommended to run the development Rails server and Sideki
 I use [Podman][podman] instead of Docker, but,
 at least for these development instructions, they should work by simply replacing `podman` with `docker`.
 
+The steps marked with "directory sensitive" should be run from inside the root of the Gamocosm repository.
+
+#### Container Setup
+1. Install Podman: `sudo dnf install podman`.
+1. Create the database container:
+	`podman create --name gamocosm-database --env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" --publish 127.0.0.1:5432:5432 docker.io/postgres:14.5`.
+1. Create the Redis container:
+	`podman create --name gamocosm-redis --publish 127.0.0.1:6379:6379 docker.io/redis:7.0.4`.
+1. Start the containers:
+	`podman start gamocosm-database gamocosm-redis`.
+
+#### Ruby Setup
+I recommend using [rbenv][rbenv] to manage Ruby installations.
+
 1. Install dependencies to build Ruby - this depends on your system.
-	For a Fedora 36 Server image, the following was sufficient for me: `sudo dnf install openssl-devel perl zlib-devel`.
-1. Install [rbenv][rbenv] and [ruby-build][ruby-build]. Read their docs for up to date instructions. But as of 2022 August 28:
+	For a Fedora 36 Server image, the following was sufficient for me:
+	`sudo dnf install openssl-devel perl zlib-devel`.
+1. Install [rbenv][rbenv] and [ruby-build][ruby-build].
+	Read their docs for up to date instructions.
+	But, as of 2022 August 28:
 	- Run `git clone https://github.com/rbenv/rbenv.git ~/.rbenv`.
 	- Add `$HOME/.rbenv/bin` to your `$PATH`, usually done in `~/.bashrc`.
 
 		On recent versions of Fedora, `~/.bashrc` sources any files in the directory `~/.bashrc.d` (if it exists), so you don't have to edit `.bashrc` directly.
 		(To create the directory, run `mkdir ~/.bashrc.d`.)
 		For example, run ` echo 'PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc.d/rbenv` (you can replace `~/.bashrc.d/rbenv` with `~/.bashrc` to modify `.bashrc` directly).
-	- Additionally, add `eval "$(rbenv init - bash)"` to your shell: `echo 'eval "$(rbenv init - bash)"' >> ~/.bashrc.d/rbenv` (again, you may choose to modify `.bashrc` directly).
+	- Additionally, add `eval "$(rbenv init - bash)"` to your shell:
+		`echo 'eval "$(rbenv init - bash)"' >> ~/.bashrc.d/rbenv` (again, you may choose to modify `.bashrc` directly).
 	- Restart (close and reopen) your shell for the changes to take effect.
-	- Create the plugins directory for rbenv: `mkdir ~/.rbenv/plugins`.
-	- Get ruby-build: `git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build`.
-	- Check that ruby-build has been installed correctly: `rbenv install --list`.
-1. Install Ruby 3.1.2: `rbenv install` inside this project root directory (it reads `.ruby-version`).
-1. Check that `ruby -v` inside this project gives you version 3.1.2.
-1. Install dependencies to build gems: `sudo dnf install libpq-devel`.
-1. Install gem dependencies: `bundle install`.
+	- Create the plugins directory for rbenv:
+		`mkdir ~/.rbenv/plugins`.
+	- Get ruby-build:
+		`git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build`.
+	- Check that ruby-build has been installed correctly:
+		`rbenv install --list`.
+1. (directory sensitive) Install Ruby 3.1.2:
+	`rbenv install` (it reads `.ruby-version`).
+1. (directory sensitive) Check that `ruby -v` gives you version 3.1.2.
+1. Install dependencies to build gems:
+	`sudo dnf install libpq-devel`.
+1. (directory sensitive) Install gem dependencies:
+	`bundle install`.
+
+#### Gamocosm Setup
+All the commands in this section are "directory sensitive" (should be run in the project root).
+
 1. Generate SSH keys; Gamocosm expects a passphraseless `id_gamocosm` private key in the project root.
 
 	Typically, a passphrase is used to encrypt private keys on the local filesystem, and you would be interactively prompted to provide the passphrase when using the key.
@@ -62,26 +90,40 @@ at least for these development instructions, they should work by simply replacin
 	To generate a new passphraseless key, run: `ssh-keygen -t ed25519 -f id_gamocosm -N ''`.
 
 	You can use this key directly with `ssh -i id_gamocosm` (e.g. if you need to connect to a server directly).
-	The file `id_gamocosm` is ignored in Gamocosm's `.gitignore` so you don't have to worry about accidentally committing it.
-1. Create your environment file: `cp template.env gamocosm.env`.
-1. Make your environment file only readable (and writable) by the file owner (you): `chown 600 gamocosm.env`
-1. Update the config in `gamocosm.env`. See below for documentation.
-1. Load environment variables: `source load_env.sh`. You will also need to do this in every new shell you run ruby/rails in.
-1. Install `podman`: `sudo dnf install podman`.
-1. Create the database container: `podman create --name gamocosm-database --env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" --publish 127.0.0.1:5432:5432 docker.io/postgres:14.5`.
-1. Create the Redis container: `podman create --name gamocosm-redis --publish 127.0.0.1:6379:6379 docker.io/redis:7.0.4`.
-1. Start the containers: `podman start gamocosm-database gamocosm-redis`.
-1. Setup the database: `bundle exec rails db:setup`.
-1. Start the server: `bundle exec rails s` (defaults to `localhost` in development; use `--binding 0.0.0.0` to listen on all interfaces).
-1. Start the Sidekiq worker: `bundle exec sidekiq`.
-1. Optional: open the console: `bundle exec rails c`.
+	The files `id_gamocosm` and `id_gamocosm.pub` are ignored in Gamocosm's `.gitignore`,
+	so you don't have to worry about accidentally committing them.
+1. Create your environment file:
+	`cp template.env gamocosm.env`.
+1. Make your environment file only readable (and writable) by the file owner (you):
+	`chown 600 gamocosm.env`.
+1. Update the config in `gamocosm.env`.
+	See below for documentation.
+1. Load environment variables:
+	`source load_env.sh`.
+
+	You will need to do this in every new shell you run ruby/rails in.
+1. Setup the database:
+	`bundle exec rails db:setup`.
+1. Start the server:
+	`bundle exec rails s` (defaults to `localhost` in development; use `--binding 0.0.0.0` to listen on all interfaces).
+1. Start the Sidekiq worker:
+	`bundle exec sidekiq`.
+1. (Optional) Open the console:
+	`bundle exec rails c`.
+
+_**Note**: most `bundle exec ...` commands will work without `bundle exec` (e.g. just `rails c` or `sidekiq`) -
+as long as you don't have other projects using `rbenv`,
+and the same version of Ruby (3.1.2),
+and the same gem(s),
+but different versions of those gems._
 
 ### Environment File
 - `DATABASE_HOST`:
-	May be an absolute path (for a Unix domain socket), or an IP/hostname (for a TCP connection) ([PostgreSQL docs][postgresql-docs-host])
-	When using containers as described above, the default value of `localhost` corresponds to the `127.0.0.1` passed to `--publish`.
+	May be an absolute path (for a Unix domain socket), or an IP/hostname (for a TCP connection) ([PostgreSQL docs][postgresql-docs-host]).
+	When using containers as described above, the default value of `localhost` in `template.env` corresponds to the `127.0.0.1` passed to `--publish` in `podman create`.
 - `DATABASE_PORT`:
-	Required even for Unix domain sockets. The default should work provided you didn't change the PostgreSQL settings.
+	Required even for Unix domain sockets.
+	The default should work provided you didn't change the PostgreSQL settings.
 - `DATABASE_USER`:
 	Hmmmm.
 - `DATABASE_PASSWORD`:
@@ -93,17 +135,125 @@ at least for these development instructions, they should work by simply replacin
 	Gamocosm tests "mock" HTTP requests so it won't actually contact Digital Ocean.
 	For production, this key can be read only - it is (just) used to list regions and droplet sizes.
 - `REDIS_HOST`:
-	When using containers as described above, the default value of `localhost` corresponds to the `127.0.0.1` passed to `--publish`.
-- `REDIS_PORT`: You can leave this as the default.
-- `DEVISE_SECRET_KEY`: Only production.
-- `MAIL_SERVER_*`: See [action mailer configuration][rails-action-mailer] in the Rails guide.
-- `SECRET_KEY_BASE`: Only production.
-- `SIDEKIQ_USERNAME`: Only production - HTTP basic auth for Sidekiq web interface.
-- `SIDEKIQ_PASSWORD`: See previous.
-- `DEVELOPER_EMAILS`: Comma separated list of emails to send exceptions to.
-- `BADNESS_SECRET`: Secret to test `/badness` endpoint.
+	When using containers as described above, the default value of `localhost` in `template.env` corresponds to the `127.0.0.1` passed to `--publish` in `podman create`.
+- `REDIS_PORT`:
+	You can leave this as the default.
+- `MAIL_SERVER_*`:
+	See [action mailer configuration][rails-action-mailer] in the Rails guide.
+- `SECRET_KEY_BASE`:
+	Only production.
+- `SIDEKIQ_USERNAME`:
+	Only production - HTTP basic auth for Sidekiq web interface.
+- `SIDEKIQ_PASSWORD`:
+	See previous.
+- `DEVELOPER_EMAILS`:
+	Comma separated list of emails to send exceptions to.
+- `BADNESS_SECRET`:
+	Secret to test `/badness` endpoint.
 
-### Database configuration
+## Testing
+- `bundle exec rails test`
+- tests use WebMock to mock http requests (no external requests)
+- `RAILS_ENV=test bundle exec rails <s|c>` to run the server or console (respectively) in test mode
+- Note: the test server, unlike the dev server, does not automatically reload source files when you change them
+- [Rails test runner][rails-test-runner]:
+	- Run a specific file: `bundle exec rails test path/to/file.rb`
+	- Run a specific test (by line number): `bundle exec rails test path/to/file.rb:123`
+	- Run a specific test (by name): `bundle exec rails test path/to/file.rb --name my_test`
+
+### Simulating a User Server with Containers
+In the test environment, Gamocosm doesn't make external HTTP requests; it mocks the API responses from Digital Ocean.
+Without a server to connect to, Gamocosm can't run `SetupServerWorker` or `AutoshutdownMinecraftWorker`.
+
+The script `test_with_container.sh` runs a container (based on an image built from `tests.Containerfile`)
+that simulates a newly created server on Digital Ocean.
+Arguments to this script are passed along to `rails test`.
+
+The script takes care of building the image, starting the container, running the tests, and cleaning up the container.
+
+This script has only been tested with Podman on Fedora; I'm not sure if it works with Docker on Ubuntu systems.
+
+## Technical Details
+Hmmmm.
+
+### Directory Hierarchy
+- [Documentation for Rails directories][rails-directory-hierarchy].
+- `sysadmin`: stuff for the Gamocosm server (you can run your own server! This is a true open source project).
+
+### Data
+- Gamocosm has a lot of infrastructure:
+	- Digital Ocean API
+	- Digital Ocean servers/droplets
+	- Minecraft and the server wrapper
+	- Gamocosm Rails server
+	- Gamocosm Sidekiq background workers
+- Avoid state and duplicating data (less chance of corruption, logic easier to debug than data)
+- Idempotency is good
+
+### Error Handling
+- Methods that "do things" should return nil on success, or an object on error
+- Methods that "return things" should use `String#error!` to mark a return value is an error
+	- This method takes 1 argument: a data object (can be `nil`)
+	- e.g. `'API response code not 200'.error!(res)`
+	- `String#error!` returns an `Error` object; `Error#to_s` is overridden so the error message can be shown to the user, or the error data (`Error#data`) can be further inspected for handling
+- You can use `.error?` to check if a return value is an error. `Error#error?` is overriden to return `true`
+- This class and these methods are defined in `config/initializers/monkey_patches.rb`
+- Throw exceptions in "exceptional cases", when something is unexpected (e.g. bad user input _is_ expected) or can't be handled without "blowing up"
+
+### Important Checks
+- `server.remote.exists?`: `!server.remote_id.nil?`
+- `server.remote.error?`: whether there was an error or not retrieving info about a droplet from Digital Ocean
+	- true if the user is missing his Digital Ocean API token, or if it's invalid
+	- false if `!server.remote.exists?`
+	- don't need to check this before `server.remote` actions (e.g. `server.remote.create`)
+- `server.running?`: `server.remote.exists? && !server.remote.error? && server.remote.status == 'active'`
+- `user.digital_ocean.nil?`: Digital Ocean API token missing
+- `minecraft.node.error?`: error communicating with Minecraft wrapper on server
+- `minecraft.running?`: `server.running? && !node.error? && node.pid > 0` (notice symmetry with `server.running?`)
+
+### Background Workers
+- Idempotent
+- Keep blocks inside timeouts as simple as possible, cleanup outside of timeout, try to stick to plain old datatypes
+	- Use `ActiveRecord::Base.connection_pool.with_connection do |conn|` if threads (e.g. timeout) access the database
+- Run finite amount of times (keep track of how many times looped)
+- Reset the state of the server if anything goes wrong (any exit points)
+- Check that the remote exists and is not errored
+- Log errors to user minecraft server, include 'Aborting' when not finishing
+- 'Aborting' should always be followed by `server.reset_state` and `return`
+
+### Other Useful Stuff
+- Development/test user (created by [`db/seeds.rb`][db-seeds]) has the Digital Ocean api token from `env.sh`
+	- The tests don't actually use this; the tests mock all HTTP requests/responses
+- The Sidekiq web interface is mounted at `/sidekiq`
+- Sidekiq doesn't automatically reload source files when you edit them. You must restart it for changes to take effect
+- Run the console: `bundle exec rails c`
+- Reset the database: `bundle exec rake db:reset`
+- Reset Sidekiq jobs: `Sidekiq::Queue.new.each { |job| job.delete }` in the rails console
+- Reset Sidekiq stats: `Sidekiq::Stats.new.reset` in the rails console
+- Start `ScheduledTaskWorker`: `ScheduledTaskWorker.perform_in(0.seconds, 0)` - it will automatically reschedule itself for the next interval
+- The deployment scripts and configuration are in the `sysadmin/` directory
+- List of `rake db` commands: [Stack Overflow][rake-db-commands]
+- [Rails extensions to common classes][rails-active-support-extensions]
+- [Rails configuration][rails-configuration]
+
+## Credits
+- Special thanks to [geetfun][geetfun] who helped with the original development
+- Special thanks to [binary-koan][binary-koan] ([Jono Mingard][jono-mingard]) for designing the new theme! Looks awesome!
+- [SuperMarioBro][super-mario-bro] for helping iron out some initial bugs, adding support for more Minecraft flavours
+- [bearbin][bearbin] for helping iron out some initial bugs
+- [chiisana][chiisana] for feedback and other ideas, resources
+- [KayoticSully][kayotic-sully] for planning and development on the server wrapper API
+- [Jadorel][jadorel] for feedback and helping iron out some bugs
+- [Ajusa][ajusa] for helping with some bugs
+
+## Appendix
+### Notes
+- If `podman build` gets interrupted, you may be left with dangling images: [relevant GitHub issue][podman-dangling-images].
+	The solution is to run `buildah rm --all`
+	(may need to be installed separately, e.g. `sudo dnf install buildah`)
+	(followed by `podman image prune`).
+
+### Database Configuration
 **Database configuration is greatly simplified if you use a container image as described above.
 However, the following information remains for reference, if you want to run PostgreSQL directly on your system.**
 
@@ -168,107 +318,6 @@ add the following under the line that looks like `# TYPE DATABASE USER ADDRESS M
 
 Example: `local postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm md5`.
 You will have to restart PostgreSQL (`sudo systemctl restart postgresql`) for the changes to take effect.
-
-### Directory hierarchy
-- [Documentation for Rails directories][rails-directory-hierarchy].
-- `sysadmin`: stuff for the Gamocosm server (you can run your own server! This is a true open source project).
-
-### Technical details
-Hmmmm.
-
-#### Data
-- Gamocosm has a lot of infrastructure:
-	- Digital Ocean API
-	- Digital Ocean servers/droplets
-	- Minecraft and the server wrapper
-	- Gamocosm Rails server
-	- Gamocosm Sidekiq background workers
-- Avoid state and duplicating data (less chance of corruption, logic easier to debug than data)
-- Idempotency is good
-
-#### Error handling
-- Methods that "do things" should return nil on success, or an object on error
-- Methods that "return things" should use `String#error!` to mark a return value is an error
-	- This method takes 1 argument: a data object (can be `nil`)
-	- e.g. `'API response code not 200'.error!(res)`
-	- `String#error!` returns an `Error` object; `Error#to_s` is overridden so the error message can be shown to the user, or the error data (`Error#data`) can be further inspected for handling
-- You can use `.error?` to check if a return value is an error. `Error#error?` is overriden to return `true`
-- This class and these methods are defined in `config/initializers/monkey_patches.rb`
-- Throw exceptions in "exceptional cases", when something is unexpected (e.g. bad user input _is_ expected) or can't be handled without "blowing up"
-
-#### Important checks
-- `server.remote.exists?`: `!server.remote_id.nil?`
-- `server.remote.error?`: whether there was an error or not retrieving info about a droplet from Digital Ocean
-	- true if the user is missing his Digital Ocean API token, or if it's invalid
-	- false if `!server.remote.exists?`
-	- don't need to check this before `server.remote` actions (e.g. `server.remote.create`)
-- `server.running?`: `server.remote.exists? && !server.remote.error? && server.remote.status == 'active'`
-- `user.digital_ocean.nil?`: Digital Ocean API token missing
-- `minecraft.node.error?`: error communicating with Minecraft wrapper on server
-- `minecraft.running?`: `server.running? && !node.error? && node.pid > 0` (notice symmetry with `server.running?`)
-
-#### Background workers
-- Idempotent
-- Keep blocks inside timeouts as simple as possible, cleanup outside of timeout, try to stick to plain old datatypes
-	- Use `ActiveRecord::Base.connection_pool.with_connection do |conn|` if threads (e.g. timeout) access the database
-- Run finite amount of times (keep track of how many times looped)
-- Reset the state of the server if anything goes wrong (any exit points)
-- Check that the remote exists and is not errored
-- Log errors to user minecraft server, include 'Aborting' when not finishing
-- 'Aborting' should always be followed by `server.reset_state` and `return`
-
-#### Other useful stuff
-- Development/test user (created by [`db/seeds.rb`][db-seeds]) has the Digital Ocean api token from `env.sh`
-	- The tests don't actually use this; the tests mock all HTTP requests/responses
-- The Sidekiq web interface is mounted at `/sidekiq`
-- Sidekiq doesn't automatically reload source files when you edit them. You must restart it for changes to take effect
-- Run the console: `bundle exec rails c`
-- Reset the database: `bundle exec rake db:reset`
-- Reset Sidekiq jobs: `Sidekiq::Queue.new.each { |job| job.delete }` in the rails console
-- Reset Sidekiq stats: `Sidekiq::Stats.new.reset` in the rails console
-- Start `ScheduledTaskWorker`: `ScheduledTaskWorker.perform_in(0.seconds, 0)` - it will automatically reschedule itself for the next interval
-- The deployment scripts and configuration are in the `sysadmin/` directory
-- List of `rake db` commands: [Stack Overflow][rake-db-commands]
-- [Rails extensions to common classes][rails-active-support-extensions]
-- [Rails configuration][rails-configuration]
-
-## Tests
-- `bundle exec rails test`
-- tests use WebMock to mock http requests (no external requests)
-- `RAILS_ENV=test bundle exec rails <s|c>` to run the server or console (respectively) in test mode
-- Note: the test server, unlike the dev server, does not automatically reload source files when you change them
-- [Rails test runner][rails-test-runner]:
-	- Run a specific file: `bundle exec rails test path/to/file.rb`
-	- Run a specific test (by line number): `bundle exec rails test path/to/file.rb:123`
-	- Run a specific test (by name): `bundle exec rails test path/to/file.rb --name my_test`
-
-### Simulating a User Server with Containers
-In the test environment, Gamocosm doesn't make external HTTP requests; it mocks the API responses from Digital Ocean.
-Without a server to connect to, Gamocosm can't run `SetupServerWorker` or `AutoshutdownMinecraftWorker`.
-
-The script `test_with_container.sh` runs a container (based on an image built from `tests.Containerfile`)
-that simulates a newly created server on Digital Ocean.
-Arguments to this script are passed along to `rails test`.
-
-The script takes care of building the image, starting the container, running the tests, and cleaning up the container.
-
-This script has only been tested with Podman on Fedora; I'm not sure if it works with Docker on Ubuntu systems.
-
-## Notes
-- If `podman build` gets interrupted, you may be left with dangling images: [relevant GitHub issue][podman-dangling-images].
-	The solution is to run `buildah rm --all`
-	(may need to be installed separately, e.g. `sudo dnf install buildah`)
-	(followed by `podman image prune`).
-
-### Credits
-- Special thanks to [geetfun][geetfun] who helped with the original development
-- Special thanks to [binary-koan][binary-koan] ([Jono Mingard][jono-mingard]) for designing the new theme! Looks awesome!
-- [SuperMarioBro][super-mario-bro] for helping iron out some initial bugs, adding support for more Minecraft flavours
-- [bearbin][bearbin] for helping iron out some initial bugs
-- [chiisana][chiisana] for feedback and other ideas, resources
-- [KayoticSully][kayotic-sully] for planning and development on the server wrapper API
-- [Jadorel][jadorel] for feedback and helping iron out some bugs
-- [Ajusa][ajusa] for helping with some bugs
 
 [circleci]: https://circleci.com/gh/Gamocosm/Gamocosm
 [coveralls]: https://coveralls.io/github/Gamocosm/Gamocosm?branch=master

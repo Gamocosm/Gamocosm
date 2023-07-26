@@ -4,3 +4,4 @@
 # - `puma --help`
 
 workers 2
+preload_app!

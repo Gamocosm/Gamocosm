@@ -1,2 +1,3 @@
+# https://github.com/sidekiq/sidekiq/wiki/Advanced-Options
 production:
   concurrency: 4
