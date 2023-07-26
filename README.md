@@ -23,12 +23,17 @@ Pull requests are welcome!
 ### Setting Up Your Development Environment
 You should have a Unix/Linux system.
 The following instructions were made for Fedora 36 Server, but the steps should be similar on other distributions.
+The instructions assume you are executing commands as an unprivileged user;
+the sample commands include `sudo` if and only if `root` privileges are necessary.
+
 As of 2022 August 28, deployment and CI have been changed to use containers.
-For development, containers are more convenient for the PostgreSQL and Redis processes (as they are simply processes/services that aren't "changing"),
-but it is still recommended to run the development Rails and Sidekiq server "locally".
+For development, it is also recommended to use containers, but only for the PostgreSQL database and Redis store (as they are "static services").
+Note that it is still recommended to run the development Rails server and Sidekiq workers "on the host".
+I use [Podman][podman] instead of Docker, but,
+at least for these development instructions, they should work by simply replacing `podman` with `docker`.
 
 1. Install dependencies to build Ruby - this depends on your system.
-	For a Fedora 36 Server image, the following was sufficient for me: `(sudo) dnf install openssl-devel perl zlib-devel`.
+	For a Fedora 36 Server image, the following was sufficient for me: `sudo dnf install openssl-devel perl zlib-devel`.
 1. Install [rbenv][rbenv] and [ruby-build][ruby-build]. Read their docs for up to date instructions. But as of 2022 August 28:
 	- Run `git clone https://github.com/rbenv/rbenv.git ~/.rbenv`.
 	- Add `$HOME/.rbenv/bin` to your `$PATH`, usually done in `~/.bashrc`.
@@ -43,7 +48,7 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 	- Check that ruby-build has been installed correctly: `rbenv install --list`.
 1. Install Ruby 3.1.2: `rbenv install` inside this project root directory (it reads `.ruby-version`).
 1. Check that `ruby -v` inside this project gives you version 3.1.2.
-1. Install dependencies to build gems: `(sudo) dnf install libpq-devel`.
+1. Install dependencies to build gems: `sudo dnf install libpq-devel`.
 1. Install gem dependencies: `bundle install`.
 1. Generate SSH keys; Gamocosm expects a passphraseless `id_gamocosm` private key in the project root.
 
@@ -62,7 +67,7 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 1. Make your environment file only readable (and writable) by the file owner (you): `chown 600 gamocosm.env`
 1. Update the config in `gamocosm.env`. See below for documentation.
 1. Load environment variables: `source load_env.sh`. You will also need to do this in every new shell you run ruby/rails in.
-1. Install `podman` (or `docker`): `(sudo) dnf install podman`.
+1. Install `podman`: `sudo dnf install podman`.
 1. Create the database container: `podman create --name gamocosm-database --env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" --publish 127.0.0.1:5432:5432 docker.io/postgres:14.5`.
 1. Create the Redis container: `podman create --name gamocosm-redis --publish 127.0.0.1:6379:6379 docker.io/redis:7.0.4`.
 1. Start the containers: `podman start gamocosm-database gamocosm-redis`.
@@ -73,10 +78,10 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 
 ### Environment File
 - `DATABASE_HOST`:
-	May be a directory (for a Unix domain socket), or an IP/hostname (for a TCP connection). See below for more information.
+	May be an absolute path (for a Unix domain socket), or an IP/hostname (for a TCP connection) ([PostgreSQL docs][postgresql-docs-host])
 	When using containers as described above, the default value of `localhost` corresponds to the `127.0.0.1` passed to `--publish`.
 - `DATABASE_PORT`:
-	Required even for Unix domain sockets. The default should work provided you didn't change the postgresql settings.
+	Required even for Unix domain sockets. The default should work provided you didn't change the PostgreSQL settings.
 - `DATABASE_USER`:
 	Hmmmm.
 - `DATABASE_PASSWORD`:
@@ -84,7 +89,8 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 - `DIGITAL_OCEAN_API_KEY`:
 	Your Digital Ocean API token.
 	This key is added to the dummy user in development (see [`db/seeds.rb`][db-seeds]) - it's probably convenient for it to have write access.
-	For the test environment, it can be anything (but still needs to be set) - Gamocosm tests "mock" HTTP requests so it won't actually contact Digital Ocean.
+	For the test environment, it can be anything (but still needs to be set) -
+	Gamocosm tests "mock" HTTP requests so it won't actually contact Digital Ocean.
 	For production, this key can be read only - it is (just) used to list regions and droplet sizes.
 - `REDIS_HOST`:
 	When using containers as described above, the default value of `localhost` corresponds to the `127.0.0.1` passed to `--publish`.
@@ -101,32 +107,39 @@ but it is still recommended to run the development Rails and Sidekiq server "loc
 **Database configuration is greatly simplified if you use a container image as described above.
 However, the following information remains for reference, if you want to run PostgreSQL directly on your system.**
 
-Locate your postgres data directory.
+Locate your PostgreSQL data directory.
 On Fedora this is `/var/lib/pgsql/data/`.
 
 #### Connection
-Locate `postgresql.conf` in your postgres data directory.
+Locate `postgresql.conf` in your PostgreSQL data directory.
 The convention is that commented out settings represent the default values.
 For a Unix domain socket connection, `DATABASE_HOST` should be one of the values of `unix_socket_directories`.
 In general, the default is `/tmp`.
 On Fedora, the default includes both `/tmp` and `/var/run/postgresql`.
 For a TCP connection, `DATABASE_HOST` should be one of the values of `listen_addresses` (default `localhost`).
-The value `localhost` should work if you're running postgresql locally.
+The value `localhost` should work if you're running PostgreSQL locally.
 Your `DATABASE_PORT` should be the value of `port` in this file (default `5432`).
 
-You can read more about connecting to postgresql at [PostgreSQL's docs][postgresql-docs-connecting].
+You can read more about connecting to PostgreSQL at [PostgreSQL's docs][postgresql-docs-connecting].
 
 #### Authentication
-Locate `pg_hba.conf` in your postgres data directory.
-This file tells postgresql how to authenticate users. Read about it on the [PostgreSQL docs][postgresql-docs-pg-hba].
+Locate `pg_hba.conf` in your PostgreSQL data directory.
+This file tells PostgreSQL how to authenticate users.
+Read about it on the [PostgreSQL docs][postgresql-docs-pg-hba].
 The Rails config `config/database.yml` reads from the environment variables which you should have set in and loaded from `gamocosm.env` via `source load_env.sh`.
-The postgres user you use must be a postgres superuser, as rails needs to enable the uuid extension.
-To create a postgres user "gamocosm":
 
-- Switch to the `postgres` user: `(sudo) su --login postgres`.
+_**Note**: in the past, the database user needed to be a [PostgreSQL superuser][postgresql-docs-roles] to enable the [uuid extension][postgresql-docs-uuid].
+However, as of PostgreSQL 13, it seems that it should nolonger be necessary?_
+
+> This module is considered “trusted”, that is, it can be installed by non-superusers who have CREATE privilege on the current database.
+
+To create a PostgreSQL user `gamocosm`:
+
+- Switch to the `postgres` user (on the OS): `sudo su --login postgres`.
 - Run `createuser --createdb --pwprompt --superuser gamocosm` (`createuser --help` for more info).
 
-Depending on what method you want to use, in `pg_hba.conf` add the following under the line that looks like `# TYPE DATABASE USER ADDRESS METHOD`.
+Depending on what method you want to use, in `pg_hba.conf`,
+add the following under the line that looks like `# TYPE DATABASE USER ADDRESS METHOD`.
 
 - Type
 	- `local` (Unix domain socket) or `host` (TCP connection)
@@ -137,21 +150,24 @@ Depending on what method you want to use, in `pg_hba.conf` add the following und
 	- `gamocosm`
 - Address
 	- Leave blank for `local` type
-	- Localhost is `127.0.0.1/32` in ipv4 and `::1/128` in ipv6. My system used ipv6 (postgres did not match the entry when I entered localhost ipv4)
+	- `localhost` is `127.0.0.1/32` in ipv4 and `::1/128` in ipv6.
+		My system used ipv6 (PostgreSQL did not match the entry when I entered `localhost`).
 - Method
-	- trust
-		- Easiest, but least secure. Typically ok on development machines. Blindly trusts the user
-	- peer
-		- Checks if the postgresql user matches the operating system user
-		- Since `config/database.yml` specifies the database user to be "gamocosm", using this method is more troublesome, at least in development, because you have to either change that to your OS username and create a postgresql user with your username, or create a new OS account called "gamocosm" and a postgresql user "gamocosm"
-	- ident
-		- Same as `peer` but for network connections
+	- `trust`
+		- Easiest, but least secure. Typically ok on development machines. Blindly trusts the user.
+	- `peer`
+		- Checks if the PostgreSQL user matches the operating system user.
+		- Since `config/database.yml` specifies the database user to be `gamocosm`,
+			it would only work if you developed on an OS account named `gamocosm` as well.
+	- `ident`
+		- Same as `peer` but for network connections, using the [Ident protocol][wikipedia-ident-protocol]
+			(I once tried to get this protocol working and it made no sense to me).
 	- md5
-		- Client supplies an MD5-encrypted password
-		- This is the recommended method
+		- Client supplies an MD5-encrypted password.
+		- This is the recommended method.
 
 Example: `local postgres,gamocosm_development,gamocosm_test,gamocosm_production gamocosm md5`.
-You will have to restart postgresql (`(sudo) systemctl restart postgresql`) for the changes to take effect.
+You will have to restart PostgreSQL (`sudo systemctl restart postgresql`) for the changes to take effect.
 
 ### Directory hierarchy
 - [Documentation for Rails directories][rails-directory-hierarchy].
@@ -226,24 +242,22 @@ Hmmmm.
 	- Run a specific test (by line number): `bundle exec rails test path/to/file.rb:123`
 	- Run a specific test (by name): `bundle exec rails test path/to/file.rb --name my_test`
 
-### More testing by simulating a user server with Docker
-_**Note**: this section is out of date._
+### Simulating a User Server with Containers
+In the test environment, Gamocosm doesn't make external HTTP requests; it mocks the API responses from Digital Ocean.
+Without a server to connect to, Gamocosm can't run `SetupServerWorker` or `AutoshutdownMinecraftWorker`.
 
-Without a server to connect to, Gamocosm can't try SetupServerWorker or AutoshutdownMinecraftWorker.
-"test-docker/" contains a Dockerfile for building a basic Fedora container with an SSH server (simulating a bare Digital Ocean server).
-If you set `$TEST_DOCKER` to "true", the tests will assume there is a running Docker Gamocosm container to connect to.
+The script `test_with_container.sh` runs a container (based on an image built from `tests.Containerfile`)
+that simulates a newly created server on Digital Ocean.
+Arguments to this script are passed along to `rails test`.
 
-`tests.sh` will build the image, start the container, and delete the container for you if you specify to use Docker.
-Otherwise, it will run the tests normally (equivalent to `bundle exec rails test`).
-You should have non-root access to Docker.
-You could also manage Docker yourself; you can look at the `tests.sh` file for reference.
+The script takes care of building the image, starting the container, running the tests, and cleaning up the container.
 
-Example: `TEST_DOCKER=true ./tests.sh`
+This script has only been tested with Podman on Fedora; I'm not sure if it works with Docker on Ubuntu systems.
 
 ## Notes
 - If `podman build` gets interrupted, you may be left with dangling images: [relevant GitHub issue][podman-dangling-images].
 	The solution is to run `buildah rm --all`
-	(may need to be installed separately, e.g. `(sudo) dnf install buildah`)
+	(may need to be installed separately, e.g. `sudo dnf install buildah`)
 	(followed by `podman image prune`).
 
 ### Credits
@@ -269,8 +283,14 @@ Example: `TEST_DOCKER=true ./tests.sh`
 [rbenv]: https://github.com/rbenv/rbenv
 [ruby-build]: https://github.com/rbenv/ruby-build
 
+[podman]: https://podman.io/
+
+[postgresql-docs-host]: https://www.postgresql.org/docs/14/libpq-connect.html#LIBPQ-CONNECT-HOST
 [postgresql-docs-connecting]: https://www.postgresql.org/docs/14/runtime-config-connection.html
 [postgresql-docs-pg-hba]: https://www.postgresql.org/docs/14/auth-pg-hba-conf.html
+[postgresql-docs-roles]: https://www.postgresql.org/docs/14/role-attributes.html
+[postgresql-docs-uuid]: https://www.postgresql.org/docs/14/uuid-ossp.html
+[wikipedia-ident-protocol]: https://en.wikipedia.org/wiki/Ident_protocol
 
 [geetfun]: https://github.com/geetfun
 [binary-koan]: https://github.com/binary-koan

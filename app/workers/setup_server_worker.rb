@@ -40,7 +40,7 @@ class SetupServerWorker
       end
       # see https://github.com/capistrano/sshkit/blob/master/lib/sshkit/host.rb
       host = SSHKit::Host.new(server.remote.ip_address)
-      host.port = !server.done_setup? ? 22 : server.ssh_port
+      host.port = !server.done_setup? ? (!Rails.env.test? ? 22 : 2022) : server.ssh_port
       host.user = 'root'
       # see https://net-ssh.github.io/net-ssh/Net/SSH.html
       host.ssh_options = {

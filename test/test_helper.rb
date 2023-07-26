@@ -10,7 +10,7 @@ require 'webmock/minitest'
 Sidekiq.logger.level = :fatal
 
 def test_have_user_server?
-  ENV['TEST_DOCKER'] == 'true'
+  ENV['TEST_WITH_CONTAINER'] == 'true'
 end
 
 class ActiveSupport::TestCase
