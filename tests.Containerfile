@@ -19,6 +19,7 @@ RUN ln -s /usr/bin/true /usr/local/bin/passwd
 RUN ln -s /usr/bin/true /usr/local/bin/chattr
 # swapon exists but doesn't seem work inside a container ("swapon failed: Operation not permitted")...
 RUN ln -s /usr/bin/true /usr/local/bin/swapon
+# These commands also don't work inside a container...
 RUN ln -s /usr/bin/true /usr/local/bin/firewall-cmd
 RUN ln -s /usr/bin/true /usr/local/bin/semodule
 RUN ln -s /usr/bin/true /usr/local/bin/semanage

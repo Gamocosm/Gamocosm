@@ -53,10 +53,6 @@ module Gamocosm
     @digital_ocean
   end
 
-  def self.cloudflare
-    nil
-  end
-
   @ssh_public_key = nil
   def self.ssh_public_key
     if @ssh_public_key.nil?

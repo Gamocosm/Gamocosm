@@ -139,18 +139,6 @@ class Server < ActiveRecord::Base
     log(message)
   end
 
-  def refresh_domain
-    ip_address = remote.ip_address
-    if ip_address.error?
-      return ip_address
-    end
-    Gamocosm.cloudflare.dns_add(domain, ip_address)
-  end
-
-  def remove_domain
-    Gamocosm.cloudflare.dns_delete(domain)
-  end
-
   def start?
     if remote.exists?
       return 'Server already started'

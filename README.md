@@ -152,14 +152,16 @@ but different versions of those gems._
 	Secret to test `/badness` endpoint.
 
 ## Testing
-- `bundle exec rails test`
-- tests use WebMock to mock http requests (no external requests)
-- `RAILS_ENV=test bundle exec rails <s|c>` to run the server or console (respectively) in test mode
-- Note: the test server, unlike the dev server, does not automatically reload source files when you change them
-- [Rails test runner][rails-test-runner]:
+- `bundle exec rails test` runs the test suite.
+	[The CI runs the tests just like this][circleci-config].
+	For more options, see [Rails documentation for the test runner][rails-test-runner].
 	- Run a specific file: `bundle exec rails test path/to/file.rb`
 	- Run a specific test (by line number): `bundle exec rails test path/to/file.rb:123`
 	- Run a specific test (by name): `bundle exec rails test path/to/file.rb --name my_test`
+- In the test environment, Gamocosm doesn't actually make external HTTP requests; it mocks the requests and responses using [WebMock][webmock].
+	So, you don't need a Digital Ocean account or valid API key to run the tests.
+- `RAILS_ENV=test bundle exec rails <s|c>` to run the server or console (respectively) to inspect the test environment.
+	- _Note: in the test environment, unlike development, the server does not automatically reload source files when you change them._
 
 ### Simulating a User Server with Containers
 In the test environment, Gamocosm doesn't make external HTTP requests; it mocks the API responses from Digital Ocean.
@@ -328,6 +330,7 @@ You will have to restart PostgreSQL (`sudo systemctl restart postgresql`) for th
 [minecraft-flavours]: https://github.com/Gamocosm/gamocosm-minecraft-flavours
 [wiki-different-versions]: https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft
 [db-seeds]: https://github.com/Gamocosm/Gamocosm/blob/master/db/seeds.rb
+[circleci-config]: https://github.com/Gamocosm/Gamocosm/blob/master/.circleci/config.yml
 
 [rbenv]: https://github.com/rbenv/rbenv
 [ruby-build]: https://github.com/rbenv/ruby-build
@@ -340,6 +343,8 @@ You will have to restart PostgreSQL (`sudo systemctl restart postgresql`) for th
 [postgresql-docs-roles]: https://www.postgresql.org/docs/14/role-attributes.html
 [postgresql-docs-uuid]: https://www.postgresql.org/docs/14/uuid-ossp.html
 [wikipedia-ident-protocol]: https://en.wikipedia.org/wiki/Ident_protocol
+
+[webmock]: https://github.com/bblimke/webmock
 
 [geetfun]: https://github.com/geetfun
 [binary-koan]: https://github.com/binary-koan

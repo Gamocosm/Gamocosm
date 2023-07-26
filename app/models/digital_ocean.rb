@@ -347,7 +347,8 @@ module DigitalOcean
     end
 
     def self.droplet_from_response(res)
-      Droplet.new(res.id,
+      Droplet.new(
+        res.id,
         res.name,
         res.created_at,
         res.memory,
