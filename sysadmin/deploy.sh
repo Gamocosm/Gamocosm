@@ -151,7 +151,7 @@ else
 	podman exec "$DATABASE_HOST" pg_restore gamocosm_production < "$DB_SCRIPT"
 fi
 
-./sysadmin/update.sh
+./sysadmin/update.sh --skip-load
 systemctl enable container-gamocosm-puma container-gamocosm-sidekiq
 
 systemctl enable --now gamocosm-daily.timer

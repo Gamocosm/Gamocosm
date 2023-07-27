@@ -2,18 +2,30 @@
 
 set -e
 
-echo 'Loading image...'
-zcat | podman image load
-echo 'Loaded image.'
+OLD_HASH="$(md5sum < "$0")"
+
+if [ "$1" == '--skip-load' ]; then
+	shift
+else
+	echo 'Loading image...'
+	zcat | podman image load
+	echo 'Loaded image.'
+fi
 
 cd "$(dirname "$0")"
 
 cd ..
 
-if [ -z "$1" ]; then
-	echo 'Skipping pulling from git.'
-elif [ "$1" == '--pull' ]; then
+if [ "$1" == '--pull' ]; then
+	shift
 	git pull origin master
+	NEW_HASH="$(md5sum < sysadmin/update.sh)"
+	if [ "$OLD_HASH" != "$NEW_HASH" ]; then
+		echo 'Update script changed; please rerun.'
+		exit 0
+	fi
+else
+	echo 'Skipping pulling from git.'
 fi
 
 echo 'Stopping services...'
@@ -22,6 +34,14 @@ systemctl stop container-gamocosm-puma container-gamocosm-sidekiq container-gamo
 podman rm --ignore gamocosm-puma
 podman rm --ignore gamocosm-sidekiq
 podman rm --ignore gamocosm-dns
+
+echo 'Running migrations...'
+podman run --rm \
+	--network gamocosm-network \
+	--env-file gamocosm.env \
+	--secret gamocosm-ssh-key,type=mount,target=/gamocosm/id_gamocosm,mode=0400 \
+	gamocosm-image:latest \
+	bundle exec rails db:migrate
 
 echo 'Creating containers...'
 podman create \
