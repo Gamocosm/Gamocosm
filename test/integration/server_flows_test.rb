@@ -1,12 +1,10 @@
 require 'test_helper'
 
 class ServerFlowsTest < ActionDispatch::IntegrationTest
-  def setup
+  setup do
     @user = User.find(1)
     Server.first.update_columns(remote_id: nil, pending_operation: nil)
   end
-
-  def teardown; end
 
   test 'a lot of things ("test everything" - so it goes)' do
     mock_do_base(200)

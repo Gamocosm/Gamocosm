@@ -5,7 +5,7 @@ WORKDIR /gamocosm
 ENV RAILS_ENV=production
 ENV RAILS_LOG_TO_STDOUT=1
 
-RUN bundle config set --local without development
+RUN bundle config set --local without development test
 
 COPY Gemfile Gemfile.lock ./
 

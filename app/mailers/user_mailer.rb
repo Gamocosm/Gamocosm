@@ -6,6 +6,6 @@ class UserMailer < ActionMailer::Base
   def autoshutdown_error_email(server)
     @user = server.user
     @server = server
-    mail(to: @user.email, subject: "Error trying to check/autoshutdown your server \"#{server.name}\"")
+    mail(to: @user.email, subject: "Could not check/autoshutdown your server '#{server.name}'.")
   end
 end

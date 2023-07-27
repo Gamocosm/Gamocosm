@@ -16,20 +16,18 @@
 #  created_at             :datetime
 #  updated_at             :datetime
 #  digital_ocean_api_key  :string(255)
+#  confirmation_token     :string
+#  confirmed_at           :datetime
+#  confirmation_sent_at   :datetime
+#  unconfirmed_email      :string
 #
 
 require 'test_helper'
 
 class UserTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
-
-  def setup
+  setup do
     @owner = User.find(1)
   end
-
-  def teardown; end
 
   test 'validate user' do
     a = User.new

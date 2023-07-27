@@ -2,6 +2,9 @@
 <% if @server.remote.error? %>
 	<%= render partial: 'invalid' %>
 <% end %>
+<% if !@server.user.confirmed? || @server.user.pending_reconfirmation? %>
+	<%= render partial: 'unconfirmed_email' %>
+<% end %>
 <div class="row">
 	<div class="col-sm-12">
 		<div class="page-header">

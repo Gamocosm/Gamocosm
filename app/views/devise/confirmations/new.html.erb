@@ -1,16 +1,29 @@
-<h2>Resend confirmation instructions</h2>
+<% title 'Resend confirmation instructions - Gamocosm' %>
+<div class="row">
 
-<%= simple_form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post }) do |f| %>
-  <%= f.error_notification %>
-  <%= f.full_error :confirmation_token %>
+	<div class="col-sm-6 col-sm-offset-3">
+		<div class="panel panel-default login-pane">
+			<div class="panel-header text-center">
+				<h2>Resend confirmation instructions</h2>
+			</div>
 
-  <div class="form-inputs">
-    <%= f.input :email, required: true, autofocus: true %>
-  </div>
+			<div class="panel-body">
+				<%= simple_form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post }) do |f| %>
+					<%= f.error_notification %>
+					<%= f.full_error :confirmation_token %>
 
-  <div class="form-actions">
-    <%= f.button :submit, "Resend confirmation instructions" %>
-  </div>
-<% end %>
+					<p class="form-inputs">
+						<%= f.input :email, required: true, autofocus: true %>
+					</p>
 
-<%= render "devise/shared/links" %>
+					<p class="form-actions text-center">
+						<%= f.button :submit, "Resend confirmation instructions", class: 'btn btn-lg btn-primary' %>
+					</p>
+				<% end %>
+				<hr />
+				<%= render "devise/shared/links" %>
+			</div>
+		</div>
+
+	</div>
+</div>

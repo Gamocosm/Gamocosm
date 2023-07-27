@@ -3,7 +3,7 @@ require 'test_helper'
 class DigitalOceanFlowsTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
-  def setup
+  setup do
     @owner = User.find(1)
     @friend = User.find(2)
     @server = Server.first

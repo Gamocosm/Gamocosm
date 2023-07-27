@@ -1,14 +1,14 @@
 require 'test_helper'
 
 class WorkersTest < ActiveSupport::TestCase
-  def setup
+  setup do
     @server = Server.first
     @server.logs.delete_all
     @server.minecraft.update_columns(autoshutdown_enabled: false)
     @server.update_columns(remote_id: 1, pending_operation: nil, remote_snapshot_id: nil)
   end
 
-  def teardown
+  teardown do
     Sidekiq::Worker.clear_all
   end
 

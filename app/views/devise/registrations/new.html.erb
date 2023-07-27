@@ -1,6 +1,6 @@
 <% title 'Sign Up - Gamocosm' %>
 <div class="row">
-	<div class="col-sm-4 col-sm-offset-4">
+	<div class="col-sm-6 col-sm-offset-3">
 		<div class="panel panel-default login-pane">
 			<div class="panel-header text-center">
 				<h2>Sign up</h2>
@@ -15,17 +15,18 @@
 						<%= f.input :password_confirmation, required: true %>
 					</p>
 
-					<p class="form-actions text-center">
-						<%= f.button :submit, "Sign up", class: "btn btn-lg btn-primary", onclick: 'return confirm("I have read and agree to the terms of service.")' %>
-					</p>
-
 					<p class="text-center">
 						<strong>By clicking 'Sign up', you agree to our <%= link_to 'Terms of Service', :tos %>.</strong>
 					</p>
+
+					<p class="form-actions text-center">
+						<%= f.button :submit, "Sign up", class: "btn btn-lg btn-primary", onclick: 'return confirm("I have read and agree to the terms of service.")' %>
+					</p>
 				<% end %>
+				<hr />
+				<%= render "devise/shared/links" %>
 			</div>
 		</div>
 
-		<%= render "devise/shared/links" %>
 	</div>
 </div>

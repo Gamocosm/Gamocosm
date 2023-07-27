@@ -1,5 +1,5 @@
-class APIController < ApplicationController
-  #skip_before_action :verify_authenticity_token
+class ApiController < ApplicationController
+  protect_from_forgery with: :null_session
   before_action :find_server
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
@@ -73,7 +73,7 @@ class APIController < ApplicationController
 
   private
   def find_server
-    @server = Server.find_by(id: params[:id], api_key: params[:key])
+    @server = Server.find_by!(id: params[:id], api_key: params[:key])
   end
 
   def not_found

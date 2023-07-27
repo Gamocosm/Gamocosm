@@ -244,4 +244,12 @@ class Server < ActiveRecord::Base
     end
     false
   end
+
+  def notify_autoshutdown_error
+    if self.user.confirmed?
+      UserMailer.autoshutdown_error_email(self).deliver_now
+    else
+      self.log "Server admin address '#{self.user.email}' is not confirmed; not sending email."
+    end
+  end
 end

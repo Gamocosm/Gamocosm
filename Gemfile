@@ -63,3 +63,7 @@ group :test do
   gem 'simplecov'
   gem 'webmock'
 end
+group :debugging, :optional do
+  # Interactive debugging.
+  gem 'pry-byebug'
+end

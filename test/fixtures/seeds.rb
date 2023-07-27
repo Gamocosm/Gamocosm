@@ -10,6 +10,7 @@ ActiveRecord::Base.connection.reset_pk_sequence!(:users)
   user.email = k
   user.password = v
   user.password_confirmation = user.password
+  user.confirmed_at = DateTime.now
   user.save!
 end
 

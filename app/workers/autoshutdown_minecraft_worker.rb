@@ -59,7 +59,7 @@ class AutoshutdownMinecraftWorker
       self.handle_success(server, num_players, last_check_successful, times)
     rescue => e
       server.log("Background job checking for autoshutdown failed: #{e}")
-      UserMailer.autoshutdown_error_email(server).deliver_now
+      server.notify_autoshutdown_error
       raise
     end
   rescue ActiveRecord::RecordNotFound => e
@@ -72,7 +72,7 @@ class AutoshutdownMinecraftWorker
       AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, false, 1)
     else
       if times == server.minecraft.autoshutdown_minutes
-        UserMailer.autoshutdown_error_email(server).deliver_now
+        server.notify_autoshutdown_error
       else
         AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, false, times + 1)
       end
@@ -91,7 +91,7 @@ class AutoshutdownMinecraftWorker
         error = server.stop
         if error
           server.log("In autoshutdown worker, unable to stop server: #{error}")
-          UserMailer.autoshutdown_error_email(server).deliver_now
+          server.notify_autoshutdown_error
         end
       else
         AutoshutdownMinecraftWorker.perform_in(CHECK_INTERVAL, server.id, true, times + 1)

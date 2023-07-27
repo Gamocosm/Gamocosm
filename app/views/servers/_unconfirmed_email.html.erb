@@ -1,0 +1,26 @@
+<div class="row">
+	<% if @server.owner?(current_user) %>
+		<div class="alert alert-warning">
+			<p>
+				Your email address is unconfirmed.
+			</p>
+			<p>
+				Gamocosm does not require you to confirm your email address;
+				however, for security reasons, it will not send email notifications to unconfirmed emails.
+			</p>
+			<p>
+				Additionally, <em>in the future</em>, Gamocosm may not give DNS responses for servers whose owners have not confirmed their emails.
+				<% if @server %>
+					(You wouldn't be able to use <%= @server.host_name %>.)
+				<% end %>
+			</p>
+			<p>
+				Lastly, it would be troublesome to recover or delete your account if you don't have an invalid email and lose your login credentials.
+			</p>
+			<p>
+				You can confirm your email address in your <%= link_to 'settings', edit_user_registration_path %>.
+			</p>
+		</div>
+		<%= render partial: 'layouts/components/waiting_confirmation' %>
+	<% end %>
+</div>

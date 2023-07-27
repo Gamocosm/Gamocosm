@@ -24,11 +24,7 @@
 require 'test_helper'
 
 class ServerTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
-
-  def setup
+  setup do
     @server = Server.first
     @server.update_columns(pending_operation: nil)
   end

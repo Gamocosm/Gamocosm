@@ -3,7 +3,7 @@ require 'test_helper'
 class ServersControllerTest < ActionController::TestCase
   include Devise::Test::ControllerHelpers
 
-  def setup
+  setup do
     @owner = User.find(1)
     @friend = User.find(2)
     @other = User.find(3)
@@ -11,8 +11,6 @@ class ServersControllerTest < ActionController::TestCase
     @server.logs.delete_all
     @server.update_columns(remote_id: nil, pending_operation: nil, setup_stage: 0)
   end
-
-  def teardown; end
 
   test 'servers page with digital ocean api token' do
     mock_do_base(200)

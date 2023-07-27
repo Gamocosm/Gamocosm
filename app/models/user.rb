@@ -16,13 +16,15 @@
 #  created_at             :datetime
 #  updated_at             :datetime
 #  digital_ocean_api_key  :string(255)
+#  confirmation_token     :string
+#  confirmed_at           :datetime
+#  confirmation_sent_at   :datetime
+#  unconfirmed_email      :string
 #
 
 class User < ActiveRecord::Base
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable and :omniauthable
-  devise :database_authenticatable, :registerable,
-    :recoverable, :rememberable, :trackable, :validatable
+  # https://github.com/heartcombo/devise
+  devise :database_authenticatable, :registerable, :recoverable, :rememberable, :trackable, :validatable, :confirmable
 
   has_many :servers, dependent: :destroy
   has_many :volumes, dependent: :destroy
@@ -210,5 +212,10 @@ class User < ActiveRecord::Base
       return res
     end
     res.id
+  end
+
+  protected
+  def confirmation_required?
+    false
   end
 end
