@@ -74,6 +74,8 @@ Rails.application.routes.draw do
     delete 'cache', to: '/servers#refresh_digital_ocean_cache', as: :refresh_cache
   end
 
+  get 'servers/new', to: 'servers#new', as: :new_server
+  post 'servers/new', to: 'servers#create', as: nil
   resources :servers, only: [:index, :show, :update, :destroy] do
     member do
       get 'confirm_delete'
@@ -110,8 +112,6 @@ Rails.application.routes.draw do
       end
     end
   end
-  get 'servers/new', to: 'servers#new', as: :new_server
-  post 'servers/new', to: 'servers#create', as: nil
 
   resources :volumes, only: [:index, :new, :show, :edit, :create, :update, :destroy] do
     member do

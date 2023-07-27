@@ -15,10 +15,8 @@
 
 <%= panel_with_heading 'Changing your server password' do %>
 	<ol>
-		<li>SSH into your server</li>
-		<li>Run <code>passwd</code></li>
-		<li>Enter your old and new password into the prompt</li>
-		<li>Exit (run <code>exit</code>)</li>
+		<li>SSH into your server, or use the <%= link_to 'web console', wiki_url('Web-Console') %> (and go to the terminal).</li>
+		<li>Run <code>passwd</code> and follow the prompts.</li>
 	</ol>
 <% end %>
 

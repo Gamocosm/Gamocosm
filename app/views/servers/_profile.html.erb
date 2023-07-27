@@ -5,13 +5,14 @@
 				<div class="input-group">
 					<input class="form-control" type="text" readonly value="<%= @server.host_name %>" data-toggle="tooltip" title="If you cannot connect with this domain, try using the IP address directly." />
 					<div class="input-group-addon">
-						<div role="button" data-toggle="tooltip" title="Copy to clipboard." onclick="navigator.clipboard.writeText('<%= "#{@server.host_name}" %>');">
+						<div role="button" data-toggle="tooltip" title="Copy to clipboard." onclick="navigator.clipboard.writeText('<%= @server.host_name %>');">
 							<span class="fa fa-clipboard"></span>
 						</div>
 					</div>
 				</div>
 			</div>
 			<% if @server.remote.exists? && @server.remote.ip_address %>
+
 				<div class="form-group">
 					<div class="input-group">
 						<input class="form-control" type="text" readonly value="<%= @server.remote.ip_address %>" />
@@ -33,17 +34,30 @@
 		<%= panel_with_heading 'Web Console' do %>
 			<div class="form-group">
 				<div class="input-group">
-					<input class="form-control" type="text" readonly value="https://<%= @server.host_name %>:9090" data-toggle="tooltip" title="For security reasons, you will have to copy and enter this URL into your browser directly." />
+					<input class="form-control" type="text" readonly value="https://<%= @server.host_name %>:9090" data-toggle="tooltip" title="You might need to paste this manually." />
 					<div class="input-group-addon">
 						<div role="button" data-toggle="tooltip" title="Copy to clipboard." onclick="navigator.clipboard.writeText('https://<%= @server.host_name %>:9090');">
 							<span class="fa fa-clipboard"></span>
 						</div>
 					</div>
+					<div class="input-group-addon">
+						<div role="button" data-toggle="tooltip" title="Open&nbsp;link.">
+							<a href="https://<%= @server.host_name %>:9090"><span class="fa fa-link"></span></a>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div>
-				Use your SSH/FTP credentials to login. <%= link_to 'Read more', wiki_url('Web-Console') %>.
+				<%= modal_trigger('Browser showing a security warning?', 'gamocosm-web-console-warning') %>
+				<br />
+				Use your SSH/FTP credentials to login.
+				<br />
+				<%= link_to 'Read more about this web console.', wiki_url('Web-Console') %>
 			</div>
+			<%= modal_dialog '"Warning: Potential Security Risk Ahead"', 'gamocosm-web-console-warning' do %>
+				It is expected that your browser gives a security warning; your server doesn't have any certificates signed by any authority.
+				On Firefox, it looks like "<strong>Warning: Potential Security Risk Ahead</strong>"; you can safely click "Advanced" and "Accept the Risk and Continue".
+			<% end %>
 		<% end %>
 	</div>
 </div>

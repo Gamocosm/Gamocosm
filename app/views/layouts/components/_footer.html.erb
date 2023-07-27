@@ -29,7 +29,7 @@
 					<li><b>Miscellaneous</b></li>
 					<li><%= link_to 'Source Code', source_url %></li>
 					<li><%= link_to 'Terms of Service', tos_path %></li>
-					<li><a href="#" data-toggle="modal" data-target="#gamocosm-cookies-alert">Cookies and Data</a></li>
+					<li><%= modal_trigger 'Cookies and Data', 'gamocosm-cookies-and-data' %></li>
 				</ul>
 			</div>
 		</div>
@@ -47,3 +47,10 @@
 		</div>
 	</div>
 </footer>
+<%= modal_dialog 'Cookies and Data on Gamocosm', 'gamocosm-cookies-and-data' do %>
+	<ul>
+		<li>Gamocosm only uses cookies when strictly necessary (e.g. for remembering login status).</li>
+		<li>Gamocosm does not do any tracking, analytics, marketing, etc.</li>
+		<li>If you delete your account in <%= link_to 'your settings', edit_user_registration_path %>, all your data is permanently deleted.</li>
+	</ul>
+<% end %>

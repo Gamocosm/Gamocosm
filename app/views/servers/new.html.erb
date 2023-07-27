@@ -11,7 +11,7 @@
 			<strong>If you are not a server admin, you can ignore this.</strong>
 			See the <%= link_to 'Digital Ocean documentation', digital_ocean_api_setup_url %> for instructions on creating an API token.
 		<% else %>
-			<%= simple_form_for @server do |f| %>
+			<%= simple_form_for @server, url: new_server_path do |f| %>
 				<%= f.input :name, input_html: { size: 32 }, required: true %>
 				<%= f.input :remote_size_slug, collection: @do_sizes.collect { |x| [x.descriptor, x.slug] }, as: :select, include_blank: true, label: 'Size' %>
 				<%= f.input :remote_region_slug, collection: @do_regions.collect { |x| [x.name, x.slug] }, as: :select, include_blank: true, label: 'Region' %>

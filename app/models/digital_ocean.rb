@@ -1,3 +1,6 @@
+# Re-indent in vim with `gg=G`
+# rubocop --autocorrect --only Style/HashSyntax,Style/StringLiterals,Layout/SpaceInsideHashLiteralBraces,Style/TrailingCommaInArrayLiteral app/models/digital_ocean.rb
+
 module DigitalOcean
   class Droplet < Struct.new(:id, :name, :created_at, :memory, :status, :snapshot_ids, :ipv4)
   end
@@ -18,39 +21,50 @@ module DigitalOcean
     end
   end
 
-  class Size < Struct.new(:slug, :name, :memory, :disk, :cpu, :price_hourly, :price_monthly)
-    DEFAULT_SIZES = [
-      { price_hourly: 0.00744, price_monthly: 5.0, cpu: 1, disk: 20, memory: 512, name: '512MB', slug: '512mb' },
-      { price_hourly: 0.01488, price_monthly: 10.0, cpu: 1, disk: 30, memory: 1024, name: '1GB', slug: '1gb' },
-      { price_hourly: 0.02976, price_monthly: 20.0, cpu: 2, disk: 40, memory: 2048, name: '2GB', slug: '2gb' },
-      { price_hourly: 0.05952, price_monthly: 40.0, cpu: 2, disk: 60, memory: 4096, name: '4GB', slug: '4gb' },
-      { price_hourly: 0.11905, price_monthly: 80.0, cpu: 4, disk: 80, memory: 8192, name: '8GB', slug: '8gb' },
-      { price_hourly: 0.2381, price_monthly: 160.0, cpu: 8, disk: 160, memory: 16_384, name: '16GB', slug: '16gb' },
-      { price_hourly: 0.47619, price_monthly: 320.0, cpu: 12, disk: 320, memory: 32_768, name: '32GB', slug: '32gb' },
-      { price_hourly: 0.71429, price_monthly: 480.0, cpu: 16, disk: 480, memory: 49_152, name: '48GB', slug: '48gb' },
-      { price_hourly: 0.95238, price_monthly: 640.0, cpu: 20, disk: 640, memory: 65_536, name: '64GB', slug: '64gb' },
-    ].map do |x|
-      Size.new(x[:slug], x[:name], x[:memory], x[:disk], x[:cpu], x[:price_hourly], x[:price_monthly])
-    end
+  class Size < Struct.new(:slug, :name, :memory, :disk, :cpu, :price_hourly, :price_monthly, :description)
+    # Run `Gamocosm.digital_ocean.size_list_uncached.map(&:to_h)` to generate this list.
+    DEFAULT_SIZES = [{ slug: 's-1vcpu-1gb', name: 'S-1VCPU-1GB', memory: 1024, disk: 25, cpu: 1, price_hourly: 0.00893, price_monthly: 6.0, description: 'Basic' },
+                     { slug: 's-1vcpu-1gb-amd', name: 'S-1VCPU-1GB-AMD', memory: 1024, disk: 25, cpu: 1, price_hourly: 0.01042, price_monthly: 7.0, description: 'Basic AMD' },
+                     { slug: 's-1vcpu-1gb-intel', name: 'S-1VCPU-1GB-INTEL', memory: 1024, disk: 25, cpu: 1, price_hourly: 0.01042, price_monthly: 7.0, description: 'Basic Intel' },
+                     { slug: 's-1vcpu-2gb', name: 'S-1VCPU-2GB', memory: 2048, disk: 50, cpu: 1, price_hourly: 0.01786, price_monthly: 12.0, description: 'Basic' },
+                     { slug: 's-1vcpu-2gb-amd', name: 'S-1VCPU-2GB-AMD', memory: 2048, disk: 50, cpu: 1, price_hourly: 0.02083, price_monthly: 14.0, description: 'Basic AMD' },
+                     { slug: 's-1vcpu-2gb-intel', name: 'S-1VCPU-2GB-INTEL', memory: 2048, disk: 50, cpu: 1, price_hourly: 0.02083, price_monthly: 14.0, description: 'Basic Intel' },
+                     { slug: 's-2vcpu-2gb', name: 'S-2VCPU-2GB', memory: 2048, disk: 60, cpu: 2, price_hourly: 0.02679, price_monthly: 18.0, description: 'Basic' },
+                     { slug: 's-2vcpu-2gb-amd', name: 'S-2VCPU-2GB-AMD', memory: 2048, disk: 60, cpu: 2, price_hourly: 0.03125, price_monthly: 21.0, description: 'Basic AMD' },
+                     { slug: 's-2vcpu-2gb-intel', name: 'S-2VCPU-2GB-INTEL', memory: 2048, disk: 60, cpu: 2, price_hourly: 0.03125, price_monthly: 21.0, description: 'Basic Intel' },
+                     { slug: 's-2vcpu-4gb', name: 'S-2VCPU-4GB', memory: 4096, disk: 80, cpu: 2, price_hourly: 0.03571, price_monthly: 24.0, description: 'Basic' },
+                     { slug: 's-2vcpu-4gb-amd', name: 'S-2VCPU-4GB-AMD', memory: 4096, disk: 80, cpu: 2, price_hourly: 0.04167, price_monthly: 28.0, description: 'Basic AMD' },
+                     { slug: 's-2vcpu-4gb-intel', name: 'S-2VCPU-4GB-INTEL', memory: 4096, disk: 80, cpu: 2, price_hourly: 0.04167, price_monthly: 28.0, description: 'Basic Intel' },
+                     { slug: 'c-2', name: 'C-2', memory: 4096, disk: 25, cpu: 2, price_hourly: 0.0625, price_monthly: 42.0, description: 'CPU-Optimized' },
+                     { slug: 'c2-2vcpu-4gb', name: 'C2-2VCPU-4GB', memory: 4096, disk: 50, cpu: 2, price_hourly: 0.06994, price_monthly: 47.0, description: 'CPU-Optimized 2x SSD' },
+                     { slug: 's-4vcpu-8gb', name: 'S-4VCPU-8GB', memory: 8192, disk: 160, cpu: 4, price_hourly: 0.07143, price_monthly: 48.0, description: 'Basic' },]
+      .map do |x|
+        Size.new(x[:slug], x[:name], x[:memory], x[:disk], x[:cpu], x[:price_hourly], x[:price_monthly])
+      end
+
     def price
       "#{(price_hourly * 100).round(1)} cents/hour"
     end
 
     def descriptor
-      "#{name} at #{price} (up to $#{price_monthly}/month)"
+      "#{description} (CPUs: #{cpu}, Memory: #{memory / 1024} GB, Disk: #{disk} GB) at #{price} (#{slug})"
     end
   end
 
   class Region < Struct.new(:slug, :name, :available)
-    DEFAULT_REGIONS = [
-      { name: 'New York 3', slug: 'nyc3' },
-      { name: 'Amsterdam 3', slug: 'ams3' },
-      { name: 'New York 2', slug: 'nyc2' },
-      { name: 'Amsterdam 2', slug: 'ams2' },
-      { name: 'San Francisco 1', slug: 'sfo1' },
-      { name: 'London 1', slug: 'lon1' },
-      { name: 'Singapore 1', slug: 'sgp1' },
-    ].map { |x| Region.new(x[:slug], x[:name], true) }
+    # Run `Gamocosm.digital_ocean.region_list_uncached.map(&:to_h)` to generate this list.
+    DEFAULT_REGIONS = [{ slug: 'ams3', name: 'Amsterdam 3', available: true },
+                       { slug: 'blr1', name: 'Bangalore 1', available: true },
+                       { slug: 'fra1', name: 'Frankfurt 1', available: true },
+                       { slug: 'lon1', name: 'London 1', available: true },
+                       { slug: 'nyc1', name: 'New York 1', available: true },
+                       { slug: 'nyc3', name: 'New York 3', available: true },
+                       { slug: 'sfo2', name: 'San Francisco 2', available: true },
+                       { slug: 'sfo3', name: 'San Francisco 3', available: true },
+                       { slug: 'sgp1', name: 'Singapore 1', available: true },
+                       { slug: 'syd1', name: 'Sydney 1', available: true },
+                       { slug: 'tor1', name: 'Toronto 1', available: true },]
+      .map { |x| Region.new(x[:slug], x[:name], true) }
   end
 
   class Volume < Struct.new(:id, :name, :created_at, :size, :region)
@@ -215,18 +229,25 @@ module DigitalOcean
     def region_list_uncached
       silence_digital_ocean_api do
         res = @con.regions.all
-        res.map { |x| self.class.region_from_response(x) }.sort do |a, b|
-          a_tier = a.slug[-1].to_i
-          b_tier = b.slug[-1].to_i
-          a_tier == b_tier ? a.slug <=> b.slug : b_tier <=> a_tier
-        end
+        arr = res.map { |x| self.class.region_from_response(x) }
+        arr.select!(&:available)
+        arr.sort_by!(&:slug)
+        arr
       end
     end
 
     def size_list_uncached
       silence_digital_ocean_api do
         res = @con.sizes.all
-        res.map { |x| self.class.size_from_response(x) }.select { |x| ['s', 'c'].include?(x.slug[0]) }
+        arr = res.map { |x| self.class.size_from_response(x) }
+        # Fedora image needs at least 15 GB
+        arr.select! { |x| x.disk > 15 }
+        # We're in the 21st century
+        arr.select! { |x| x.memory >= 1024 }
+        # No fat cats here
+        arr.select! { |x| x.price_monthly < 100 }
+        arr.sort_by!(&:price_monthly)
+        arr
       end
     end
 
@@ -237,7 +258,7 @@ module DigitalOcean
           Rails.logger.error "Unable to get Digital Ocean regions in #{self.class}: #{res}"
           @regions = DigitalOcean::Region::DEFAULT_REGIONS
         else
-          @regions = res.select { |x| x.available }
+          @regions = res
         end
       end
       @regions
@@ -371,7 +392,7 @@ module DigitalOcean
     end
 
     def self.size_from_response(res)
-      Size.new(res.slug, res.slug.upcase, res.memory, res.disk, res.vcpus, res.price_hourly, res.price_monthly)
+      Size.new(res.slug, res.slug.upcase, res.memory, res.disk, res.vcpus, res.price_hourly, res.price_monthly, res.description)
     end
 
     def self.region_from_response(res)

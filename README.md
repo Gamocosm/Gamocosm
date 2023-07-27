@@ -114,7 +114,7 @@ All the commands in this section are "directory sensitive" (should be run in the
 	so you don't have to worry about accidentally committing them.
 1. Create your environment file:
 	`cp template.env gamocosm.env`.
-1. Make your environment file only readable (and writable) by the file owner (you):
+1. Make your environment file readable (and writable) by the file owner (you) only:
 	`chown 600 gamocosm.env`.
 1. Update the config in `gamocosm.env`.
 	See below for documentation.

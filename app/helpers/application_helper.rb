@@ -12,6 +12,34 @@ module ApplicationHelper
     result.html_safe
   end
 
+  def modal_dialog(title, id, &block)
+    content_tag :div, id:, class: 'modal fade', tabindex: '-1', role: 'dialog' do
+      content_tag :div, class: 'modal-dialog', role: 'document' do
+        content_tag :div, class: 'modal-content' do
+          header = content_tag :div, class: 'modal-header' do
+            close = '<button type="button" class="close" data-dismiss="modal">&times;</button>'.html_safe
+            title = content_tag :h4, title, class: 'modal-title'
+            close + title
+          end
+          body = content_tag :div, class: 'modal-body' do
+            yield
+          end
+          header + body
+        end
+      end
+    end.html_safe
+  end
+
+  def modal_trigger(text, id)
+    (content_tag :a, text, {
+      href: '#',
+      data: {
+        toggle: 'modal',
+        target: '#' + id,
+      },
+    }).html_safe
+  end
+
   def title(t)
     content_for :title, t
   end
