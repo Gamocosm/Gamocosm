@@ -21,7 +21,7 @@ class DigitalOceanTest < ActiveSupport::TestCase
     #assert_match 'Digital Ocean API network exception: execution expired', res.msg
     assert_match /execution expired/, res.msg
     res = @con.size_list
-    assert_equal DigitalOcean::Size::DEFAULT_SIZES, res
+    assert_equal DigitalOcean::DEFAULT_SIZES, res
   end
 
   test 'region list' do
@@ -30,7 +30,7 @@ class DigitalOceanTest < ActiveSupport::TestCase
     assert res.error?
     assert_match /Digital Ocean API HTTP response status not ok: 400: /, res.msg
     res = @con.region_list
-    assert_equal DigitalOcean::Region::DEFAULT_REGIONS, res
+    assert_equal DigitalOcean::DEFAULT_REGIONS, res
   end
 
   test 'region find' do

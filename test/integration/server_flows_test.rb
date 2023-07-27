@@ -13,7 +13,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
     mock_do_ssh_keys_list(200, []).times_only(1)
 
     login_user('test@test.com', '1234test')
-    server = create_server('test2', 'vanilla_java8/1.7.10', 'nyc3', '512mb')
+    server = create_server('test2', 'vanilla_java8/1.7.10', 'nyc3', 's-1vcpu-1gb')
 
     mock_mcsw_stop(200, server.minecraft)
 

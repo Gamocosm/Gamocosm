@@ -74,10 +74,10 @@ class ActiveSupport::TestCase
     DigitalOcean::Connection
     mock_digital_ocean(:get, '/sizes')
       .stub_do_list
-      .to_return_json(status, { sizes: DigitalOcean::Size::DEFAULT_SIZES })
+      .to_return_json(status, { sizes: DigitalOcean::DEFAULT_SIZES })
     mock_digital_ocean(:get, '/regions')
       .stub_do_list
-      .to_return_json(status, { regions: DigitalOcean::Region::DEFAULT_REGIONS })
+      .to_return_json(status, { regions: DigitalOcean::DEFAULT_REGIONS })
   end
 
   def mock_do_droplet_actions_list(status, droplet_id)
@@ -247,13 +247,6 @@ class WebMock::RequestStub
       name:,
       public_key:,
     }).stub_do_ssh_key_show(status, name, public_key)
-  end
-
-  def stub_cf_response(status, success, result)
-    self.to_return_json(status, {
-      success:,
-      result:,
-    })
   end
 
   def stub_mcsw_pid(status, pid, opts = {})

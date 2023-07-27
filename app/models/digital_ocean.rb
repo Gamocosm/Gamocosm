@@ -1,17 +1,11 @@
-# Re-indent in vim with `gg=G`
-# rubocop --autocorrect --only Style/HashSyntax,Style/StringLiterals,Layout/SpaceInsideHashLiteralBraces,Style/TrailingCommaInArrayLiteral app/models/digital_ocean.rb
-
 module DigitalOcean
-  class Droplet < Struct.new(:id, :name, :created_at, :memory, :status, :snapshot_ids, :ipv4)
-  end
+  Droplet = Struct.new(:id, :name, :created_at, :memory, :status, :snapshot_ids, :ipv4)
 
-  class Image < Struct.new(:id, :name, :created_at)
-  end
+  Image = Struct.new(:id, :name, :created_at)
 
-  class SSHKey < Struct.new(:id, :name, :fingerprint, :public_key)
-  end
+  SSHKey = Struct.new(:id, :name, :fingerprint, :public_key)
 
-  class Action < Struct.new(:id, :status)
+  Action = Struct.new(:id, :status) do
     def done?
       status == 'completed'
     end
@@ -21,27 +15,7 @@ module DigitalOcean
     end
   end
 
-  class Size < Struct.new(:slug, :name, :memory, :disk, :cpu, :price_hourly, :price_monthly, :description)
-    # Run `Gamocosm.digital_ocean.size_list_uncached.map(&:to_h)` to generate this list.
-    DEFAULT_SIZES = [{ slug: 's-1vcpu-1gb', name: 'S-1VCPU-1GB', memory: 1024, disk: 25, cpu: 1, price_hourly: 0.00893, price_monthly: 6.0, description: 'Basic' },
-                     { slug: 's-1vcpu-1gb-amd', name: 'S-1VCPU-1GB-AMD', memory: 1024, disk: 25, cpu: 1, price_hourly: 0.01042, price_monthly: 7.0, description: 'Basic AMD' },
-                     { slug: 's-1vcpu-1gb-intel', name: 'S-1VCPU-1GB-INTEL', memory: 1024, disk: 25, cpu: 1, price_hourly: 0.01042, price_monthly: 7.0, description: 'Basic Intel' },
-                     { slug: 's-1vcpu-2gb', name: 'S-1VCPU-2GB', memory: 2048, disk: 50, cpu: 1, price_hourly: 0.01786, price_monthly: 12.0, description: 'Basic' },
-                     { slug: 's-1vcpu-2gb-amd', name: 'S-1VCPU-2GB-AMD', memory: 2048, disk: 50, cpu: 1, price_hourly: 0.02083, price_monthly: 14.0, description: 'Basic AMD' },
-                     { slug: 's-1vcpu-2gb-intel', name: 'S-1VCPU-2GB-INTEL', memory: 2048, disk: 50, cpu: 1, price_hourly: 0.02083, price_monthly: 14.0, description: 'Basic Intel' },
-                     { slug: 's-2vcpu-2gb', name: 'S-2VCPU-2GB', memory: 2048, disk: 60, cpu: 2, price_hourly: 0.02679, price_monthly: 18.0, description: 'Basic' },
-                     { slug: 's-2vcpu-2gb-amd', name: 'S-2VCPU-2GB-AMD', memory: 2048, disk: 60, cpu: 2, price_hourly: 0.03125, price_monthly: 21.0, description: 'Basic AMD' },
-                     { slug: 's-2vcpu-2gb-intel', name: 'S-2VCPU-2GB-INTEL', memory: 2048, disk: 60, cpu: 2, price_hourly: 0.03125, price_monthly: 21.0, description: 'Basic Intel' },
-                     { slug: 's-2vcpu-4gb', name: 'S-2VCPU-4GB', memory: 4096, disk: 80, cpu: 2, price_hourly: 0.03571, price_monthly: 24.0, description: 'Basic' },
-                     { slug: 's-2vcpu-4gb-amd', name: 'S-2VCPU-4GB-AMD', memory: 4096, disk: 80, cpu: 2, price_hourly: 0.04167, price_monthly: 28.0, description: 'Basic AMD' },
-                     { slug: 's-2vcpu-4gb-intel', name: 'S-2VCPU-4GB-INTEL', memory: 4096, disk: 80, cpu: 2, price_hourly: 0.04167, price_monthly: 28.0, description: 'Basic Intel' },
-                     { slug: 'c-2', name: 'C-2', memory: 4096, disk: 25, cpu: 2, price_hourly: 0.0625, price_monthly: 42.0, description: 'CPU-Optimized' },
-                     { slug: 'c2-2vcpu-4gb', name: 'C2-2VCPU-4GB', memory: 4096, disk: 50, cpu: 2, price_hourly: 0.06994, price_monthly: 47.0, description: 'CPU-Optimized 2x SSD' },
-                     { slug: 's-4vcpu-8gb', name: 'S-4VCPU-8GB', memory: 8192, disk: 160, cpu: 4, price_hourly: 0.07143, price_monthly: 48.0, description: 'Basic' },]
-      .map do |x|
-        Size.new(x[:slug], x[:name], x[:memory], x[:disk], x[:cpu], x[:price_hourly], x[:price_monthly])
-      end
-
+  Size = Struct.new(:slug, :name, :memory, :disk, :cpu, :price_hourly, :price_monthly, :description) do
     def price
       "#{(price_hourly * 100).round(1)} cents/hour"
     end
@@ -51,27 +25,16 @@ module DigitalOcean
     end
   end
 
-  class Region < Struct.new(:slug, :name, :available)
-    # Run `Gamocosm.digital_ocean.region_list_uncached.map(&:to_h)` to generate this list.
-    DEFAULT_REGIONS = [{ slug: 'ams3', name: 'Amsterdam 3', available: true },
-                       { slug: 'blr1', name: 'Bangalore 1', available: true },
-                       { slug: 'fra1', name: 'Frankfurt 1', available: true },
-                       { slug: 'lon1', name: 'London 1', available: true },
-                       { slug: 'nyc1', name: 'New York 1', available: true },
-                       { slug: 'nyc3', name: 'New York 3', available: true },
-                       { slug: 'sfo2', name: 'San Francisco 2', available: true },
-                       { slug: 'sfo3', name: 'San Francisco 3', available: true },
-                       { slug: 'sgp1', name: 'Singapore 1', available: true },
-                       { slug: 'syd1', name: 'Sydney 1', available: true },
-                       { slug: 'tor1', name: 'Toronto 1', available: true },]
-      .map { |x| Region.new(x[:slug], x[:name], true) }
-  end
+  Region = Struct.new(:slug, :name, :available)
 
-  class Volume < Struct.new(:id, :name, :created_at, :size, :region)
-  end
+  Volume = Struct.new(:id, :name, :created_at, :size_gb, :region)
 
-  class Snapshot < Struct.new(:id, :name, :created_at, :min_disk_size, :regions)
-  end
+  Snapshot = Struct.new(:id, :name, :created_at, :min_disk_size, :regions)
+
+  DEFAULTS = JSON.load_file(File.expand_path('config/digital_ocean_defaults.json', Rails.root), symbolize_names: true)
+
+  DEFAULT_REGIONS = DEFAULTS[:regions].map { |x| Region.new(*x) }
+  DEFAULT_SIZES = DEFAULTS[:sizes].map { |x| Size.new(*x) }
 
   class Connection
     attr_reader :con
@@ -256,7 +219,7 @@ module DigitalOcean
         res = region_list_uncached
         if res.error?
           Rails.logger.error "Unable to get Digital Ocean regions in #{self.class}: #{res}"
-          @regions = DigitalOcean::Region::DEFAULT_REGIONS
+          @regions = DigitalOcean::DEFAULT_REGIONS
         else
           @regions = res
         end
@@ -269,7 +232,7 @@ module DigitalOcean
         res = size_list_uncached
         if res.error?
           Rails.logger.error "Unable to get Digital Ocean sizes in #{self.class}: #{res}"
-          @sizes = DigitalOcean::Size::DEFAULT_SIZES
+          @sizes = DigitalOcean::DEFAULT_SIZES
         else
           @sizes = res
         end
@@ -278,26 +241,11 @@ module DigitalOcean
     end
 
     def region_find(slug)
-      for x in region_list
-        if x.slug == slug
-          return x
-        end
-      end
-      nil
+      region_list.select { |x| x.slug == slug }.first
     end
 
     def size_find(slug)
-      for x in size_list
-        if x.slug == slug
-          return x
-        end
-      end
-      for x in Size::DEFAULT_SIZES
-        if x.slug == slug
-          return x
-        end
-      end
-      nil
+      size_list.select { |x| x.slug == slug }.first
     end
 
     def volume_list

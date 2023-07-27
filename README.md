@@ -180,6 +180,8 @@ but different versions of those gems._
 	- Run a specific test (by name): `bundle exec rails test path/to/file.rb --name my_test`
 - In the test environment, Gamocosm doesn't actually make external HTTP requests; it mocks the requests and responses using [WebMock][webmock].
 	So, you don't need a Digital Ocean account or valid API key to run the tests.
+- Unfortunately, not all the tests are idempotent; one failing test may leave data in the database that causes subsequent tests to fail.
+	You can pass `--fail-fast` to the test runner to stop at the first failing test.
 - `RAILS_ENV=test bundle exec rails <s|c>` to run the server or console (respectively) to inspect the test environment.
 	- _Note: in the test environment, unlike development, the server does not automatically reload source files when you change them._
 

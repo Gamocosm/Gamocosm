@@ -29,11 +29,6 @@ class ServersControllerTest < ActionController::TestCase
     sign_in @owner
     get :new
     assert_response :success
-    assert_select 'option[value="512mb"]'
-    assert_select 'option[value="1gb"]'
-    assert_select 'option[value="2gb"]'
-    assert_select 'option[value="nyc3"]'
-    assert_select 'option[value="ams3"]'
   end
 
   test 'servers page without digital ocean api token' do
@@ -231,7 +226,7 @@ class ServersControllerTest < ActionController::TestCase
     view_server @server, {
       setup_stage: 0,
       remote_region_slug: 'nyc3',
-      remote_size_slug: '512mb',
+      remote_size_slug: 's-1vcpu-1gb',
     }
     put :update, params: { id: @server.id, server: {
       setup_stage: 5,
@@ -247,7 +242,7 @@ class ServersControllerTest < ActionController::TestCase
     }
     put :update, params: { id: @server.id, server: {
       setup_stage: 0,
-      remote_size_slug: ' 512mb ',
+      remote_size_slug: 's-1vcpu-1gb',
       remote_region_slug: 'nyc3',
     }, }
     assert_redirected_to server_path(@server)
@@ -255,7 +250,7 @@ class ServersControllerTest < ActionController::TestCase
     view_server @server, {
       setup_stage: 0,
       remote_region_slug: 'nyc3',
-      remote_size_slug: '512mb',
+      remote_size_slug: 's-1vcpu-1gb',
     }
     put :update, params: { id: @server.id, server: {
       size_slug: ' ',

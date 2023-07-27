@@ -20,7 +20,7 @@ s = Server.new
 s.name = 'test'
 s.user = user
 s.remote_region_slug = 'nyc3'
-s.remote_size_slug = '512mb'
+s.remote_size_slug = 's-1vcpu-1gb'
 
 mc = Minecraft.new
 mc.flavour = Gamocosm::MINECRAFT_FLAVOURS.first[0]

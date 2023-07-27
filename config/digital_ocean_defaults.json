@@ -1,0 +1,291 @@
+{
+  "regions": [
+    [
+      "ams3",
+      "Amsterdam 3",
+      true
+    ],
+    [
+      "blr1",
+      "Bangalore 1",
+      true
+    ],
+    [
+      "fra1",
+      "Frankfurt 1",
+      true
+    ],
+    [
+      "lon1",
+      "London 1",
+      true
+    ],
+    [
+      "nyc1",
+      "New York 1",
+      true
+    ],
+    [
+      "nyc3",
+      "New York 3",
+      true
+    ],
+    [
+      "sfo2",
+      "San Francisco 2",
+      true
+    ],
+    [
+      "sfo3",
+      "San Francisco 3",
+      true
+    ],
+    [
+      "sgp1",
+      "Singapore 1",
+      true
+    ],
+    [
+      "syd1",
+      "Sydney 1",
+      true
+    ],
+    [
+      "tor1",
+      "Toronto 1",
+      true
+    ]
+  ],
+  "sizes": [
+    [
+      "s-1vcpu-1gb",
+      "S-1VCPU-1GB",
+      1024,
+      25,
+      1,
+      0.00893,
+      6.0,
+      "Basic"
+    ],
+    [
+      "s-1vcpu-1gb-amd",
+      "S-1VCPU-1GB-AMD",
+      1024,
+      25,
+      1,
+      0.01042,
+      7.0,
+      "Basic AMD"
+    ],
+    [
+      "s-1vcpu-1gb-intel",
+      "S-1VCPU-1GB-INTEL",
+      1024,
+      25,
+      1,
+      0.01042,
+      7.0,
+      "Basic Intel"
+    ],
+    [
+      "s-1vcpu-2gb",
+      "S-1VCPU-2GB",
+      2048,
+      50,
+      1,
+      0.01786,
+      12.0,
+      "Basic"
+    ],
+    [
+      "s-1vcpu-2gb-amd",
+      "S-1VCPU-2GB-AMD",
+      2048,
+      50,
+      1,
+      0.02083,
+      14.0,
+      "Basic AMD"
+    ],
+    [
+      "s-1vcpu-2gb-intel",
+      "S-1VCPU-2GB-INTEL",
+      2048,
+      50,
+      1,
+      0.02083,
+      14.0,
+      "Basic Intel"
+    ],
+    [
+      "s-2vcpu-2gb",
+      "S-2VCPU-2GB",
+      2048,
+      60,
+      2,
+      0.02679,
+      18.0,
+      "Basic"
+    ],
+    [
+      "s-2vcpu-2gb-amd",
+      "S-2VCPU-2GB-AMD",
+      2048,
+      60,
+      2,
+      0.03125,
+      21.0,
+      "Basic AMD"
+    ],
+    [
+      "s-2vcpu-2gb-intel",
+      "S-2VCPU-2GB-INTEL",
+      2048,
+      60,
+      2,
+      0.03125,
+      21.0,
+      "Basic Intel"
+    ],
+    [
+      "s-2vcpu-4gb",
+      "S-2VCPU-4GB",
+      4096,
+      80,
+      2,
+      0.03571,
+      24.0,
+      "Basic"
+    ],
+    [
+      "s-2vcpu-4gb-amd",
+      "S-2VCPU-4GB-AMD",
+      4096,
+      80,
+      2,
+      0.04167,
+      28.0,
+      "Basic AMD"
+    ],
+    [
+      "s-2vcpu-4gb-intel",
+      "S-2VCPU-4GB-INTEL",
+      4096,
+      80,
+      2,
+      0.04167,
+      28.0,
+      "Basic Intel"
+    ],
+    [
+      "c-2",
+      "C-2",
+      4096,
+      25,
+      2,
+      0.0625,
+      42.0,
+      "CPU-Optimized"
+    ],
+    [
+      "c2-2vcpu-4gb",
+      "C2-2VCPU-4GB",
+      4096,
+      50,
+      2,
+      0.06994,
+      47.0,
+      "CPU-Optimized 2x SSD"
+    ],
+    [
+      "s-4vcpu-8gb",
+      "S-4VCPU-8GB",
+      8192,
+      160,
+      4,
+      0.07143,
+      48.0,
+      "Basic"
+    ],
+    [
+      "s-4vcpu-8gb-amd",
+      "S-4VCPU-8GB-AMD",
+      8192,
+      160,
+      4,
+      0.08333,
+      56.0,
+      "Basic AMD"
+    ],
+    [
+      "s-4vcpu-8gb-intel",
+      "S-4VCPU-8GB-INTEL",
+      8192,
+      160,
+      4,
+      0.08333,
+      56.0,
+      "Basic Intel"
+    ],
+    [
+      "g-2vcpu-8gb",
+      "G-2VCPU-8GB",
+      8192,
+      25,
+      2,
+      0.09375,
+      63.0,
+      "General Purpose"
+    ],
+    [
+      "gd-2vcpu-8gb",
+      "GD-2VCPU-8GB",
+      8192,
+      50,
+      2,
+      0.10119,
+      68.0,
+      "General Purpose 2x SSD"
+    ],
+    [
+      "m-2vcpu-16gb",
+      "M-2VCPU-16GB",
+      16384,
+      50,
+      2,
+      0.125,
+      84.0,
+      "Memory-Optimized"
+    ],
+    [
+      "c-4",
+      "C-4",
+      8192,
+      50,
+      4,
+      0.125,
+      84.0,
+      "CPU-Optimized"
+    ],
+    [
+      "c2-4vcpu-8gb",
+      "C2-4VCPU-8GB",
+      8192,
+      100,
+      4,
+      0.13988,
+      94.0,
+      "CPU-Optimized 2x SSD"
+    ],
+    [
+      "s-8vcpu-16gb",
+      "S-8VCPU-16GB",
+      16384,
+      320,
+      8,
+      0.14286,
+      96.0,
+      "Basic"
+    ]
+  ]
+}
