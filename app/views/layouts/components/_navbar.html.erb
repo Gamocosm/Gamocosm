@@ -13,8 +13,8 @@
     <div class="collapse navbar-collapse" id="navbar-collapse-0">
       <ul class="nav navbar-nav">
         <li><%= link_to 'About', about_path %></li>
-        <li><%= link_to 'Wiki', wiki_link %></li>
-        <li><%= link_to 'Blog and Updates', blog_link %></li>
+        <li><%= link_to 'Wiki', wiki_url %></li>
+        <li><%= link_to 'Blog and Updates', blog_url %></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <% if begin user_signed_in? rescue false end %>

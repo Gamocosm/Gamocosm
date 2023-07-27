@@ -78,9 +78,6 @@ GEM
       tzinfo (~> 2.0)
     addressable (2.8.4)
       public_suffix (>= 2.0.2, < 6.0)
-    annotate (3.2.0)
-      activerecord (>= 3.2, < 8.0)
-      rake (>= 10.4, < 14.0)
     async (2.6.2)
       console (~> 1.10)
       fiber-annotation
@@ -168,7 +165,7 @@ GEM
     importmap-rails (1.2.1)
       actionpack (>= 6.0.0)
       railties (>= 6.0.0)
-    io-event (1.2.2)
+    io-event (1.2.3)
     kartograph (0.2.8)
     listen (3.8.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
@@ -314,7 +311,6 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  annotate
   bcrypt_pbkdf
   bootstrap-sass (~> 3.4.1)
   connection_pool

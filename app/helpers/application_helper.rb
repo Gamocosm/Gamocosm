@@ -67,48 +67,4 @@ module ApplicationHelper
     end
     'Not running'
   end
-
-  def git_head_link
-    "https://github.com/Gamocosm/Gamocosm/tree/#{Gamocosm::GIT_HEAD}"
-  end
-
-  def wiki_link(page = nil)
-    if page.nil?
-      'https://github.com/Gamocosm/Gamocosm/wiki'
-    else
-      "https://github.com/Gamocosm/Gamocosm/wiki/#{page}"
-    end
-  end
-
-  def blog_link
-    'https://gamocosm.com/blog/'
-  end
-
-  def issues_link
-    'https://github.com/Gamocosm/Gamocosm/issues'
-  end
-
-  def source_link
-    'https://github.com/Gamocosm/Gamocosm'
-  end
-
-  def license_link
-    'https://github.com/Gamocosm/Gamocosm/blob/master/LICENSE'
-  end
-
-  def cuberite_website_link
-    'https://cuberite.org'
-  end
-
-  def gitter_lobby_link
-    'https://gitter.im/gamocosm/Lobby'
-  end
-
-  def digital_ocean_control_panel_link
-    'https://cloud.digitalocean.com'
-  end
-
-  def digital_ocean_status_link
-    'https://status.digitalocean.com'
-  end
 end

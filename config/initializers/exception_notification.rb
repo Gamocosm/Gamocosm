@@ -22,11 +22,14 @@ ExceptionNotification.configure do |config|
   # Notifiers =================================================================
 
   # Email notifier sends notifications by email.
-  config.add_notifier :email, {
-    email_prefix: '[Gamocosm Error] ',
-    sender_address: Gamocosm::MAILER,
-    exception_recipients: ENV.fetch('DEVELOPER_EMAILS', '').split(','),
-  }
+  exception_recipients = ENV.fetch('DEVELOPER_EMAILS', '').split(',')
+  if !exception_recipients.empty?
+    config.add_notifier :email, {
+      email_prefix: '[Gamocosm Error] ',
+      sender_address: Gamocosm::MAILER,
+      exception_recipients:,
+    }
+  end
 
   # Campfire notifier sends notifications to your Campfire room. Requires 'tinder' gem.
   # config.add_notifier :campfire, {

@@ -16,7 +16,7 @@
 				<td><%= x.name %></td>
 				<td class="text-right"><%= x.id %></td>
 				<td>
-					<%= link_to 'Delete', destroy_digital_ocean_ssh_key_path(id: x.id), method: :delete, class: 'btn btn-default pull-right', data: { confirm: 'Are you sure you want to delete this SSH key from Digital Ocean?' } %>
+					<%= link_to 'Delete', digital_ocean_ssh_key_path(x.id), method: :delete, class: 'btn btn-default pull-right', data: { confirm: 'Are you sure you want to delete this SSH key from Digital Ocean?' } %>
 				</td>
 			</tr>
 		<% end %>

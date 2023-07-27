@@ -3,32 +3,126 @@ require 'sidekiq/web'
 Rails.application.routes.draw do
   root to: 'pages#landing'
 
-  get '/about', to: 'pages#about', as: :about
-  get '/tos', to: 'pages#tos', as: :tos
-  get '/demo', to: 'pages#demo', as: :demo
+  get 'about', to: 'pages#about', as: :about
+  get 'tos', to: 'pages#tos', as: :tos
 
-  get '/badness/:secret', to: 'pages#badness'
+  post 'badness/:secret', to: 'pages#badness'
 
-  match '/404', to: 'pages#not_found', via: :all
-  match '/422', to: 'pages#unacceptable', via: :all
-  match '/500', to: 'pages#internal_error', via: :all
+  match '404', to: 'pages#not_found', via: :all
+  match '422', to: 'pages#unacceptable', via: :all
+  match '500', to: 'pages#internal_error', via: :all
 
-  scope '/digital_ocean' do
-    get '/setup', to: 'pages#digital_ocean_setup', as: :digital_ocean_setup
-
-    get 'droplets', to: 'servers#show_digital_ocean_droplets', as: :show_digital_ocean_droplets
-    delete 'droplets/:id', to: 'servers#destroy_digital_ocean_droplet', as: :destroy_digital_ocean_droplet
-    get 'images', to: 'servers#show_digital_ocean_images', as: :show_digital_ocean_images
-    delete 'images/:id', to: 'servers#destroy_digital_ocean_image', as: :destroy_digital_ocean_image
-    get 'ssh_keys', to: 'servers#show_digital_ocean_ssh_keys', as: :show_digital_ocean_ssh_keys
-    post 'ssh_keys', to: 'servers#add_digital_ocean_ssh_key', as: :add_digital_ocean_ssh_key
-    delete 'ssh_keys/:id', to: 'servers#destroy_digital_ocean_ssh_key', as: :destroy_digital_ocean_ssh_key
-    get 'volumes', to: 'volumes#show_digital_ocean_volumes', as: :show_digital_ocean_volumes
-    delete 'volumes/:id', to: 'volumes#destroy_digital_ocean_volume', as: :destroy_digital_ocean_volume
-    get 'snapshots', to: 'volumes#show_digital_ocean_snapshots', as: :show_digital_ocean_snapshots
-    delete 'snapshots/:id', to: 'volumes#destroy_digital_ocean_snapshot', as: :destroy_digital_ocean_snapshot
-    delete 'cache', to: 'servers#refresh_digital_ocean_cache', as: :refresh_digital_ocean_cache
+  direct :git_head do
+    "https://github.com/Gamocosm/Gamocosm/tree/#{Gamocosm::GIT_HEAD}"
   end
+
+  direct :blog do
+    'https://gamocosm.com/blog/'
+  end
+
+  direct :wiki do |page|
+    if page.blank?
+      'https://github.com/Gamocosm/Gamocosm/wiki'
+    else
+      "https://github.com/Gamocosm/Gamocosm/wiki/#{page}"
+    end
+  end
+
+  direct :issues do
+    'https://github.com/Gamocosm/Gamocosm/issues'
+  end
+
+  direct :source do
+    'https://github.com/Gamocosm/Gamocosm'
+  end
+
+  direct :license do
+    'https://github.com/Gamocosm/Gamocosm/blob/master/LICENSE'
+  end
+
+  direct :cuberite_website do
+    'https://cuberite.org'
+  end
+
+  direct :gitter_lobby do
+    'https://gitter.im/gamocosm/Lobby'
+  end
+
+  direct :digital_ocean_control_panel do
+    'https://cloud.digitalocean.com'
+  end
+
+  direct :digital_ocean_status do
+    'https://status.digitalocean.com'
+  end
+
+  direct :digital_ocean_api_setup do
+    'https://docs.digitalocean.com/reference/api/create-personal-access-token/'
+  end
+
+  namespace :digital_ocean do
+    resources :droplets, only: [:index, :destroy]
+
+    resources :images, only: [:index, :destroy]
+
+    resources :ssh_keys, only: [:index, :create, :destroy]
+
+    resources :volumes, only: [:index, :destroy]
+
+    resources :snapshots, only: [:index, :destroy]
+
+    delete 'cache', to: '/servers#refresh_digital_ocean_cache', as: :refresh_cache
+  end
+
+  resources :servers, only: [:index, :show, :update, :destroy] do
+    member do
+      get 'confirm_delete'
+
+      post 'start'
+      post 'stop'
+      post 'reboot'
+
+      post 'pause'
+      post 'resume'
+      post 'command'
+      post 'backup'
+      get 'download'
+
+      put 'update_properties'
+
+      post 'add_friend'
+      post 'remove_friend'
+
+      post 'autoshutdown_enable'
+      post 'autoshutdown_disable'
+
+      delete 'clear_logs'
+
+      scope path: 'api/:key', as: :api, controller: :api do
+        get 'status'
+        post 'start'
+        post 'stop'
+        post 'reboot'
+        post 'pause'
+        post 'resume'
+        post 'backup'
+        post 'exec'
+      end
+    end
+  end
+  get 'servers/new', to: 'servers#new', as: :new_server
+  post 'servers/new', to: 'servers#create', as: nil
+
+  resources :volumes, only: [:index, :new, :show, :edit, :create, :update, :destroy] do
+    member do
+      get 'confirm_delete'
+      post 'suspend'
+      post 'reload'
+    end
+  end
+
+  # https://www.rubydoc.info/github/heartcombo/devise/main/ActionDispatch/Routing/Mapper%3Adevise_for
+  devise_for :users, controllers: { registrations: :registrations }
 
   # https://github.com/sidekiq/sidekiq/wiki/Monitoring#rails-http-basic-auth-from-routes
   if Rails.env.production?
@@ -43,47 +137,6 @@ Rails.application.routes.draw do
     end
   end
   mount Sidekiq::Web => '/sidekiq'
-
-  devise_for :users, controllers: { registrations: 'registrations' }
-
-  resources :servers, path: '/servers' do
-    collection do
-      post 'new', to: 'servers#create', as: :create
-    end
-    member do
-      get 'delete'
-      get 'start'
-      get 'stop'
-      get 'pause'
-      get 'resume'
-      get 'backup'
-      get 'download'
-      get 'reboot'
-      put 'update_properties'
-      post 'add_friend'
-      post 'remove_friend'
-      post 'command'
-      get 'autoshutdown_enable'
-      get 'autoshutdown_disable'
-      get 'clear_logs'
-      get 'api/:key/status', to: 'servers#api_status', as: :api_status
-      post 'api/:key/start', to: 'servers#api_start', as: :api_start
-      post 'api/:key/stop', to: 'servers#api_stop', as: :api_stop
-      post 'api/:key/reboot', to: 'servers#api_reboot', as: :api_reboot
-      post 'api/:key/pause', to: 'servers#api_pause', as: :api_pause
-      post 'api/:key/resume', to: 'servers#api_resume', as: :api_resume
-      post 'api/:key/backup', to: 'servers#api_backup', as: :api_backup
-      post 'api/:key/exec', to: 'servers#api_exec', as: :api_exec
-    end
-  end
-
-  resources :volumes do
-    member do
-      get 'delete'
-      get 'suspend'
-      get 'reload'
-    end
-  end
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

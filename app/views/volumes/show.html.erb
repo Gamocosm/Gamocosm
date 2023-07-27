@@ -113,7 +113,7 @@
 			<% end %>
 		</span>
 		<span class="info-box pull-right">
-			<%= link_to 'Delete', delete_volume_path(@volume), class: 'btn btn-danger', data: { confirm: 'Are you sure you want to delete this volume forever? (A really long time!)' } %>
+			<%= link_to 'Delete', volume_path(@volume), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure you want to delete this volume forever? (A really long time!)' } %>
 		</span>
 		<br />
 		<br />
@@ -131,7 +131,7 @@
 					Attaching a volume to an existing server is not recommended unless you know what you are doing.
 				</li>
 				<li>
-					Read more on the <%= link_to 'wiki', wiki_link('Using-Digital-Ocean-Volumes') %>.
+					Read more on the <%= link_to 'wiki', wiki_url('Using-Digital-Ocean-Volumes') %>.
 				</li>
 			</ul>
 		<% end %>

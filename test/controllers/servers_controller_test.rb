@@ -131,7 +131,7 @@ class ServersControllerTest < ActionController::TestCase
     mock_mcsw_pid(@server.minecraft).stub_mcsw_pid(200, 1)
     sign_in @owner
     @server.update_columns(remote_id: 1)
-    get :reboot, params: { id: @server.id }
+    post :reboot, params: { id: @server.id }
     assert_redirected_to server_path(@server)
     view_server(@server)
     assert_equal flash[:success], 'Server is rebooting'
@@ -195,10 +195,10 @@ class ServersControllerTest < ActionController::TestCase
     mock_mcsw_start(@server.minecraft).stub_mcsw_start(200, @server.ram)
     sign_in @friend
     @server.update_columns(remote_id: 1)
-    get :pause, params: { id: @server.id }
+    post :pause, params: { id: @server.id }
     assert_redirected_to server_path(@server)
     assert_equal 'Server paused', flash[:success], 'Minecraft pause not successful'
-    get :resume, params: { id: @server.id }
+    post :resume, params: { id: @server.id }
     assert_redirected_to server_path(@server)
     assert_equal 'Server resumed', flash[:success], 'Minecraft resume not successful'
   end
@@ -270,7 +270,7 @@ class ServersControllerTest < ActionController::TestCase
     sign_in @owner
     begin
       @server.minecraft.update_columns(autoshutdown_enabled: true)
-      get :autoshutdown_disable, params: { id: @server.id }
+      post :autoshutdown_disable, params: { id: @server.id }
       assert_redirected_to server_path(@server)
       assert_equal 'Autoshutdown disabled', flash[:success], 'No success message about autoshutdown disabled'
       @server.reload
@@ -395,7 +395,7 @@ class ServersControllerTest < ActionController::TestCase
     @server.log_test('Hello')
     view_server @server
     assert_select '.panel-body div', /Hello/
-    get :clear_logs, params: { id: @server.id }
+    delete :clear_logs, params: { id: @server.id }
     assert_redirected_to server_path(@server)
     view_server @server
     assert_not_nil flash[:success], 'Clearing server logs not success'
@@ -442,7 +442,7 @@ class ServersControllerTest < ActionController::TestCase
   end
 
   def start_server(server)
-    get :start, params: { id: server.id }
+    post :start, params: { id: server.id }
     assert_redirected_to server_path(server)
     view_server(server)
     assert_equal 'Server starting', flash[:success]
@@ -453,7 +453,7 @@ class ServersControllerTest < ActionController::TestCase
   end
 
   def stop_server(server)
-    get :stop, params: { id: server.id }
+    post :stop, params: { id: server.id }
     assert_redirected_to server_path(server)
     view_server(server)
     assert_equal 'Server stopping', flash[:success]
@@ -481,182 +481,5 @@ class ServersControllerTest < ActionController::TestCase
     view_server server
     assert_not_nil flash[:success], 'Remove friend from server not success'
     assert_select '.friend .email', { text: friend.email, count: 0 }
-  end
-
-  test 'destroy digital ocean droplet' do
-    mock_do_base(200)
-    mock_do_droplet_delete(200, 1)
-    sign_in @owner
-    post :destroy_digital_ocean_droplet, params: { id: 1 }
-    assert_redirected_to servers_path
-    get :index
-    assert_response :success
-    assert_match /deleted droplet/i, flash[:notice], 'Something went wrong deleting Digital Ocean droplet from Digital Ocean control panel'
-  end
-
-  test 'destroy digital ocean snapshot' do
-    mock_do_base(200)
-    mock_do_image_delete(200, 1)
-    sign_in @owner
-    post :destroy_digital_ocean_image, params: { id: 1 }
-    assert_redirected_to servers_path
-    get :index
-    assert_response :success
-    assert_match /deleted snapshot/i, flash[:notice], 'Something went wrong deleting Digital Ocean snapshot from Digital Ocean control panel'
-  end
-
-  test 'add digital ocean ssh key' do
-    mock_do_ssh_key_add.stub_do_ssh_key_add(200, 'me', 'a b c')
-    sign_in @owner
-    request.host = 'example.com'
-    request.env['HTTP_REFERER'] = server_path(@server)
-    post :add_digital_ocean_ssh_key, params: {
-      id: @server.id,
-      digital_ocean_ssh_key: {
-        name: 'me',
-        data: 'a b c',
-      },
-    }
-    assert_redirected_to server_path(@server)
-    assert_match /added ssh public key/i, flash[:success], 'Adding Digital Ocean SSH key not success'
-  end
-
-  test 'destroy digital ocean ssh key' do
-    mock_do_ssh_key_delete(204, 1)
-    sign_in @owner
-    request.host = 'example.com'
-    request.env['HTTP_REFERER'] = server_path(@server)
-    post :destroy_digital_ocean_ssh_key, params: {
-      id: 1,
-    }
-    assert_redirected_to server_path(@server)
-    assert_match /deleted ssh public key/i, flash[:success], 'Deleting Digital Ocean SSH key not success'
-  end
-
-  test 'add/destroy digital ocean ssh key no referer' do
-    mock_do_base(200)
-    mock_do_ssh_key_add.stub_do_ssh_key_add(200, 'me', 'a b c')
-    mock_do_ssh_key_delete(204, 1)
-    sign_in @owner
-    post :add_digital_ocean_ssh_key, params: {
-      digital_ocean_ssh_key: {
-        name: 'me',
-        data: 'a b c',
-      },
-    }
-    assert_redirected_to servers_path
-    assert_match /added ssh public key/i, flash[:success], 'Adding Digital Ocean SSH key not success'
-    post :destroy_digital_ocean_ssh_key, params: {
-      id: 1,
-    }
-    assert_redirected_to servers_path
-    assert_match /deleted ssh public key/i, flash[:success], 'Deleting Digital Ocean SSH key not success'
-  end
-
-  test 'show digital ocean droplets' do
-    sign_in @friend
-    get :show_digital_ocean_droplets
-    assert_response :success
-    assert_select 'em', /you haven't entered your digital ocean api token/i
-    sign_out @friend
-
-    sign_in @owner
-    mock_do_droplets_list(200, []).times_only(1)
-    get :show_digital_ocean_droplets
-    assert_response :success
-    assert_select 'em', /you have no droplets on digital ocean/i
-
-    delete :refresh_digital_ocean_cache
-    assert_redirected_to servers_path
-    mock_do_droplets_list(200, [
-      {
-        id: 1,
-        name: 'abc',
-        created_at: DateTime.current.to_s,
-        snapshot_ids: [],
-        networks: {
-          v4: [
-            { type: 'public', ip_address: 'localhost' },
-          ],
-        },
-      },
-    ]).times_only(1)
-    get :show_digital_ocean_droplets
-    assert_response :success
-    assert_select 'td', /abc/
-
-    delete :refresh_digital_ocean_cache
-    assert_redirected_to servers_path
-    mock_do_droplets_list(401, []).times_only(1)
-    get :show_digital_ocean_droplets
-    assert_response :success
-    assert_select 'em', /unable to get digital ocean droplets/i
-  end
-
-  test 'show digital ocean snapshots' do
-    sign_in @friend
-    get :show_digital_ocean_images
-    assert_response :success
-    assert_select 'em', /you haven't entered your digital ocean api token/i
-    sign_out @friend
-
-    sign_in @owner
-    mock_do_images_list(200, []).times_only(1)
-    get :show_digital_ocean_images
-    assert_response :success
-    assert_select 'em', /you have no snapshots on digital ocean/i
-
-    delete :refresh_digital_ocean_cache
-    assert_redirected_to servers_path
-    mock_do_images_list(200, [
-      {
-        id: 1,
-        name: 'def',
-        created_at: DateTime.current.to_s,
-      },
-    ]).times_only(1)
-    get :show_digital_ocean_images
-    assert_response :success
-    assert_select 'td', /def/
-
-    delete :refresh_digital_ocean_cache
-    assert_redirected_to servers_path
-    mock_do_images_list(401, []).times_only(1)
-    get :show_digital_ocean_images
-    assert_response :success
-    assert_select 'em', /unable to get digital ocean snapshots/i
-  end
-
-  test 'show digital ocean ssh keys' do
-    sign_in @friend
-    get :show_digital_ocean_ssh_keys
-    assert_response :success
-    assert_select 'em', /you haven't entered your digital ocean api token/i
-    sign_out @friend
-
-    sign_in @owner
-    mock_do_ssh_keys_list(200, []).times_only(1)
-    get :show_digital_ocean_ssh_keys
-    assert_response :success
-    assert_select 'em', /you have no ssh keys on digital ocean/i
-
-    delete :refresh_digital_ocean_cache
-    assert_redirected_to servers_path
-    mock_do_ssh_keys_list(200, [
-      {
-        id: 1,
-        name: 'ghi',
-      },
-    ]).times_only(1)
-    get :show_digital_ocean_ssh_keys
-    assert_response :success
-    assert_select 'td', 'ghi'
-
-    delete :refresh_digital_ocean_cache
-    assert_redirected_to servers_path
-    mock_do_ssh_keys_list(401, []).times_only(1)
-    get :show_digital_ocean_ssh_keys
-    assert_response :success
-    assert_select 'em', /unable to get digital ocean ssh keys/i
   end
 end

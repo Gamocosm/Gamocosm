@@ -58,8 +58,6 @@ gem 'font-awesome-sass', '~> 6.4.0'
 group :development do
   # https://guides.rubyonrails.org/configuring.html#config-file-watcher
   gem 'listen'
-
-  gem 'annotate', require: false
 end
 group :test do
   gem 'simplecov'

@@ -7,8 +7,6 @@ require File.expand_path('test/fixtures/seeds.rb', Rails.root)
 require 'sidekiq/testing'
 require 'webmock/minitest'
 
-Sidekiq.logger.level = :fatal
-
 def test_have_user_server?
   ENV['TEST_WITH_CONTAINER'] == 'true'
 end

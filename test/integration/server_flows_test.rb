@@ -1,10 +1,6 @@
 require 'test_helper'
 
 class ServerFlowsTest < ActionDispatch::IntegrationTest
-  # test "the truth" do
-  #   assert true
-  # end
-
   def setup
     @user = User.find(1)
     Server.first.update_columns(remote_id: nil, pending_operation: nil)
@@ -42,7 +38,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
     mock_do_droplet_show(1).stub_do_droplet_show(200, 'new').times_only(1)
     mock_do_ssh_key_gamocosm(200).times_only(1)
 
-    get start_server_path(server)
+    post start_server_path(server)
     assert_redirected_to server_path(server)
     follow_redirect!
     assert_response :success
@@ -61,7 +57,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
 
 =begin
   def stop_server(minecraft)
-    get stop_server_path(server)
+    post stop_server_path(server)
     assert_redirected_to server_path(server)
     follow_redirect!
     assert_response :success
@@ -77,7 +73,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
 =end
   def create_server(name, flavour, remote_region_slug, remote_size_slug)
     old_servers_count = Server.count
-    post create_servers_path, params: {
+    post new_server_path, params: {
       server: {
         name:,
         remote_region_slug:,
@@ -173,7 +169,7 @@ class ServerFlowsTest < ActionDispatch::IntegrationTest
 =end
   def enable_autoshutdown_server(server)
     mock_mcsw_properties_fetch(server.minecraft).stub_mcsw_properties_fetch(200, {}).times_only(1)
-    get autoshutdown_enable_server_path(server)
+    post autoshutdown_enable_server_path(server)
     assert_redirected_to server_path(server)
     follow_redirect!
     assert_response :success

@@ -1,10 +1,10 @@
 <%= panel_with_heading 'Schedule' do %>
-	<%= simple_form_for @server, (@demo.nil? ? { url: server_path(@server), method: :put } : { html: { onsubmit: 'return false;' } }) do |f| %>
+	<%= simple_form_for @server, url: server_path(@server), method: :put do |f| %>
 		<p>
 			You can setup a schedule to start/stop a server at different days of the week.
 			Autoshutdown also works with the schedule.
 			This feature is in beta!
-			Things may break, and if they do it'd be greatly appreciated if you <%= link_to 'submitted an issue', issues_link %> with as many details as possible.
+			Things may break, and if they do it'd be greatly appreciated if you <%= link_to 'submitted an issue', issues_url %> with as many details as possible.
 			Remember to backup your server locally!
 		</p>
 		<br />

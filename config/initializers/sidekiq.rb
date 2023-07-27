@@ -9,6 +9,9 @@ redis_config = {
   db: 4 + Rails.env.index,
 }
 Sidekiq.configure_client do |config|
+  if Rails.env.test?
+    config.logger.level = :fatal
+  end
   config.redis = redis_config
 end
 Sidekiq.configure_server do |config|

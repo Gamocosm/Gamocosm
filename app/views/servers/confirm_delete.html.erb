@@ -45,7 +45,7 @@
 		<% if !@server.volume.nil? %>
 			<p>
 			The volume <strong><%= link_to @server.volume.name, volume_path(@server.volume) %></strong> is attached to this server.
-				<% if @server.volume.remote_exists?  %>
+				<% if @server.volume.remote_exists? %>
 					Note that:
 					<ul>
 						<li>

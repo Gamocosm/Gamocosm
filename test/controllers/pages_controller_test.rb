@@ -8,23 +8,11 @@ class PagesControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test 'demo page' do
-    get :demo
-    assert_response :success
-    # TODO: commented out until demo page ready
-    #assert_select '.panel-body', /Active/
-    assert_select '.panel-body', /abcdefgh/
-    assert_select '.panel-body', /12\.34\.56\.78/
-    assert_select '.panel-title', 'Send Command to Server'
-  end
-
   test 'basically static pages' do
     mock_do_base(200)
     get :about
     assert_response :success
     get :tos
-    assert_response :success
-    get :digital_ocean_setup
     assert_response :success
     get :not_found
     assert_response 404

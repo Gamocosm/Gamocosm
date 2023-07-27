@@ -8,7 +8,7 @@
 			Gamocosm is free and open-source software.
 			Gamocosm is free in that it <a href="https://www.gnu.org/philosophy/free-sw.html">respects your freedom and the community</a>.
 			Gamocosm doesn't accept payment, hosts no ads, and doesn't track any user data (it only stores what it directly needs to use).
-			Read our <%= link_to 'Security and Privacy', wiki_link('Security-and-Privacy') %> wiki page.
+			Read our <%= link_to 'Security and Privacy', wiki_url('Security-and-Privacy') %> wiki page.
 		</p>
 		<p>
 			I don't make any money off of Gamocosm.
@@ -28,9 +28,9 @@
 	<div class="col-sm-6">
 		<h2>Contact</h2>
 		<ul>
-			<li>Submit an issue on <%= link_to 'GitHub', issues_link %></li>
+			<li>Submit an issue on <%= link_to 'GitHub', issues_url %></li>
 			<li>
-				<%= link_to 'Gitter chat', gitter_lobby_link %>
+				<%= link_to 'Gitter chat', gitter_lobby_url %>
 				(you can also join <code>#gamocosm_Lobby</code> on the <code>gitter.im</code> homeserver using any <a href="https://matrix.org">Matrix</a> client).
 				This is the preferred method of contacting me.
 			</li>
@@ -44,7 +44,7 @@
 	</div>
 	<div class="col-sm-6">
 		<h2>Source</h2>
-		<p>The source code is on <%= link_to 'GitHub', source_link %>. Feel free to fork and send a pull request!</p>
+		<p>The source code is on <%= link_to 'GitHub', source_url %>. Feel free to fork and send a pull request!</p>
 	</div>
 </div>
 <div class="row">
@@ -70,7 +70,7 @@
 			<dd>
 				<p>Gamocosm sets up your server.
 				Digital Ocean provides a bare linux server, so you/Gamocosm needs to install and configure it to be a ready, secure Minecraft server.
-				If you're interested, check this <%= link_to 'wiki page', wiki_link('Additional-Info-for-Server-Admins') %> for more info on the setup.</p>
+				If you're interested, check this <%= link_to 'wiki page', wiki_url('Additional-Info-for-Server-Admins') %> for more info on the setup.</p>
 
 				<p><strong>Secondly, Digital Ocean continues charging you when you <em>just</em> stop a server</strong>, because its resources are still allocated.
 				When you turn off a server on Gamocosm, it snapshots (backs up), and destroys your server.
@@ -84,7 +84,7 @@
 			<dt>Anything else I should know?</dt>
 			<dd>
 				Gamocosm just automates the general process of running Minecraft on a cloud server - you have <em>full access</em> to a Linux machine; you can do whatever you want with it!
-				You can <%= link_to 'SSH, FTP', wiki_link('FTP-and-SSH') %>, install mods, and even use entirely <%= link_to 'custom servers', wiki_link('Installing-different-versions-of-Minecraft') %>!
+				You can <%= link_to 'SSH, FTP', wiki_url('FTP-and-SSH') %>, install mods, and even use entirely <%= link_to 'custom servers', wiki_url('Installing-different-versions-of-Minecraft') %>!
 			</dd>
 		</dl>
 	</div>
@@ -95,9 +95,9 @@
 		<dl class="faq">
 			<dt>There's a bug!</dt>
 			<dd>Do one of the following:<ul>
-				<li>Check the <%= link_to 'Troubleshooting page', wiki_link('Troubleshooting') %> on the wiki</li>
-				<li>File an <%= link_to 'issue on GitHub', issues_link %></li>
-				<li>Ask a question on <%= link_to 'Gitter chat', gitter_lobby_link %></li>
+				<li>Check the <%= link_to 'Troubleshooting page', wiki_url('Troubleshooting') %> on the wiki</li>
+				<li>File an <%= link_to 'issue on GitHub', issues_url %></li>
+				<li>Ask a question on <%= link_to 'Gitter chat', gitter_lobby_url %></li>
 			</ul></dd>
 
 			<dt>Why does it take so long to start/stop a server?</dt>
@@ -134,13 +134,13 @@
 			and keep your own local backups</dd>
 
 			<dt>How do I FTP or SSH?</dt>
-			<dd>See this <%= link_to 'wiki page', wiki_link('FTP-and-SSH') %>.</dd>
+			<dd>See this <%= link_to 'wiki page', wiki_url('FTP-and-SSH') %>.</dd>
 
 			<dt>How do I run different Minecraft versions, modded, or custom servers (e.g. Bukkit, Forge, Cuberite)?</dt>
-			<dd>See this <%= link_to 'wiki page', wiki_link('Installing-different-versions-of-Minecraft') %>.</dd>
+			<dd>See this <%= link_to 'wiki page', wiki_url('Installing-different-versions-of-Minecraft') %>.</dd>
 
-			<dt>Why/how do I set up Gamocosm with Digital Ocean?</dt>
-			<dd>See <%= link_to 'this page', digital_ocean_setup_path %>.</dd>
+			<dt>How do I get my Digital Ocean API token?</dt>
+			<dd>See the <%= link_to 'Digital Ocean documentation', digital_ocean_api_setup_url %>.</dd>
 
 			<dt>How do I resize a server?</dt>
 			<dd>

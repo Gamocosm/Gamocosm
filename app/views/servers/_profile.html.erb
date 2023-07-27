@@ -42,7 +42,7 @@
 				</div>
 			</div>
 			<div>
-				Use your SSH/FTP credentials to login. <%= link_to 'Read more', wiki_link('Web-Console') %>.
+				Use your SSH/FTP credentials to login. <%= link_to 'Read more', wiki_url('Web-Console') %>.
 			</div>
 		<% end %>
 	</div>
@@ -51,7 +51,7 @@
 	<div class="row">
 		<div class="col-sm-12">
 			<%= panel_with_heading 'Send Command to Server' do %>
-				<%= simple_form_for :command, (@demo.nil? ? { url: command_server_path(@server) } : { html: { onsubmit: 'return false;' } }) do |f| %>
+				<%= simple_form_for :command, url: command_server_path(@server) do |f| %>
 					<%= f.input :data, as: :string %>
 					<%= f.button :submit, 'Send', class: 'btn btn-success' %>
 				<% end %>
@@ -71,7 +71,7 @@
 					</ul>
 				<% end %>
 
-				<%= form_for :server_friend, (@demo.nil? ? { url: add_friend_server_path(@server), method: :post } : { html: { onsubmit: 'return false;' } }) do |f| %>
+				<%= form_for :server_friend, url: add_friend_server_path(@server) do |f| %>
 					<%= f.label :email, "Friend's email", class: "sr-only" %>
 					<div class="input-group">
 						<%= f.text_field :email, placeholder: "Friend's email", class: "form-control" %>
@@ -104,14 +104,10 @@
 					</p>
 				<% end %>
 
-				<% if @demo.nil? %>
-					<% if @server.minecraft.autoshutdown_enabled %>
-						<%= link_to 'Disable', autoshutdown_disable_server_path(@server), class: 'btn btn-default' %>
-					<% else %>
-						<%= link_to 'Enable', autoshutdown_enable_server_path(@server), class: 'btn btn-success' %>
-					<% end %>
+				<% if @server.minecraft.autoshutdown_enabled %>
+					<%= link_to 'Disable', autoshutdown_disable_server_path(@server), method: :post, class: 'btn btn-default' %>
 				<% else %>
-					<a class="btn btn-success">Disable</a>
+					<%= link_to 'Enable', autoshutdown_enable_server_path(@server), method: :post, class: 'btn btn-success' %>
 				<% end %>
 			<% end %>
 		</div>

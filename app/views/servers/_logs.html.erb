@@ -22,7 +22,7 @@
 						</div></p>
 					<% end %>
 					<% if @server.owner?(current_user) %>
-						<%= link_to 'Clear', clear_logs_server_path(@server), class: 'btn btn-default pull-right' %>
+						<%= link_to 'Clear', clear_logs_server_path(@server), method: :delete, class: 'btn btn-default pull-right' %>
 					<% end %>
 				<% end %>
 			</div>

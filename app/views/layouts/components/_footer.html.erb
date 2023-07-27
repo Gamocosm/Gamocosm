@@ -5,30 +5,31 @@
 				<ul>
 					<li><b><%= link_to 'Home', root_url %></b></li>
 					<li><%= link_to 'About', about_path %></li>
-					<li><%= link_to 'Wiki', wiki_link %></li>
-					<li><%= link_to 'Blog and Updates', blog_link %></li>
+					<li><%= link_to 'Wiki', wiki_url %></li>
+					<li><%= link_to 'Blog and Updates', blog_url %></li>
 				</ul>
 			</div>
 			<div class="col-sm-3 text-muted">
 				<ul>
 					<li><b>Contact</b></li>
-					<li><%= link_to 'GitHub Issues', issues_link %></li>
-					<li><%= link_to 'Gitter Chat', gitter_lobby_link %></li>
+					<li><%= link_to 'GitHub Issues', issues_url %></li>
+					<li><%= link_to 'Gitter Chat', gitter_lobby_url %></li>
 				</ul>
 			</div>
 			<div class="col-sm-3 text-muted">
 				<ul>
-					<li><b>Digital Ocean</b></li>
-					<li><%= render_digital_ocean_referral_link('%s (%s)', 'Website') %></li>
+					<li><b><%= render_digital_ocean_referral_link('%s (%s)', 'Digital Ocean') %></b></li>
 					<li><%= render_digital_ocean_referral_link('%s (%s)', 'Pricing', 'https://www.digitalocean.com/pricing/') %></li>
-					<li><%= link_to 'Setup', digital_ocean_setup_path %></li>
+					<li><%= link_to 'Control Panel', digital_ocean_control_panel_url %></li>
+					<li><%= link_to 'Status', digital_ocean_status_url %></li>
 				</ul>
 			</div>
 			<div class="col-sm-3 text-muted">
 				<ul>
 					<li><b>Miscellaneous</b></li>
-					<li><%= link_to 'Source Code', source_link %></li>
+					<li><%= link_to 'Source Code', source_url %></li>
 					<li><%= link_to 'Terms of Service', tos_path %></li>
+					<li><a href="#" data-toggle="modal" data-target="#gamocosm-cookies-alert">Cookies and Data</a></li>
 				</ul>
 			</div>
 		</div>
@@ -38,7 +39,7 @@
 				<p class="copyright text-muted small">
 					Design by <a href="https://mingard.link">Jono Mingard</a>.
 					<br />
-					Server running commit <%= link_to Gamocosm::GIT_HEAD, git_head_link %> from <%= Gamocosm::GIT_HEAD_DATE %>.
+					Server running commit <%= link_to Gamocosm::GIT_HEAD, git_head_url %> from <%= Gamocosm::GIT_HEAD_DATE %>.
 					<br />
 					Copyright Gamocosm 2014 - <%= Date.today.year %>. All Rights Reserved.
 				</p>

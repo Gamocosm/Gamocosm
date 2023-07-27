@@ -1,6 +1,6 @@
 FROM docker.io/fedora:38
 
-WORKDIR /gamocosm
+WORKDIR /root
 
 RUN dnf -y upgrade
 RUN dnf -y install vim tmux git

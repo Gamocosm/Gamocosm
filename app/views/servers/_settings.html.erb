@@ -4,7 +4,7 @@
 	<% elsif @server.minecraft.properties.error? %>
 		<p>Error getting Minecraft properties: <%= @server.minecraft.properties %></p>
 	<% else %>
-		<%= simple_form_for @server.minecraft.properties, (@demo.nil? ? { url: update_properties_server_path(@server), method: :put } : { url: root_url, html: { onsubmit: 'return false;' } }) do |f| %>
+		<%= simple_form_for @server.minecraft.properties, url: update_properties_server_path(@server), method: :put do |f| %>
 			<%= panel_with_heading 'Minecraft Properties' do %>
 				<%= f.input :allow_flight %>
 				<%= f.input :allow_nether %>

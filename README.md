@@ -55,18 +55,38 @@ I recommend using [rbenv][rbenv] to manage Ruby installations.
 	- Run `git clone https://github.com/rbenv/rbenv.git ~/.rbenv`.
 	- Add `$HOME/.rbenv/bin` to your `$PATH`, usually done in `~/.bashrc`.
 
-		On recent versions of Fedora, `~/.bashrc` sources any files in the directory `~/.bashrc.d` (if it exists), so you don't have to edit `.bashrc` directly.
-		(To create the directory, run `mkdir ~/.bashrc.d`.)
-		For example, run ` echo 'PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc.d/rbenv` (you can replace `~/.bashrc.d/rbenv` with `~/.bashrc` to modify `.bashrc` directly).
-	- Additionally, add `eval "$(rbenv init - bash)"` to your shell:
-		`echo 'eval "$(rbenv init - bash)"' >> ~/.bashrc.d/rbenv` (again, you may choose to modify `.bashrc` directly).
+		On recent versions of Fedora, `~/.bashrc` sources any files in the directory `~/.bashrc.d` (if it exists),
+		which is more modular than editing `.bashrc` directly.
+		It would look something like the following in your `~/.bashrc`.
+
+		```
+		# User specific aliases and functions
+		if [ -d ~/.bashrc.d ]; then
+			for rc in ~/.bashrc.d/*; do
+				if [ -f "$rc" ]; then
+					. "$rc"
+				fi
+			done
+		fi
+
+		unset rc
+		```
+
+		Assuming you have/use this setup, to proceed with the rbenv installation:
+
+		- Create the directory (without failing if it already exists):
+			`mkdir -p ~/.bashrc.d`.
+		- Create a configuration/initialization file:
+			`echo 'PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc.d/rbenv`.
+	- Additionally, ensure that rbenv gets autoloaded into any new shells:
+		`echo 'eval "$(rbenv init - bash)"' >> ~/.bashrc.d/rbenv` (assuming you're following the modular convention).
 	- Restart (close and reopen) your shell for the changes to take effect.
 	- Create the plugins directory for rbenv:
 		`mkdir ~/.rbenv/plugins`.
 	- Get ruby-build:
 		`git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build`.
 	- Check that ruby-build has been installed correctly:
-		`rbenv install --list`.
+		`rbenv install --list` (lists stable ruby versions).
 1. (directory sensitive) Install Ruby 3.1.2:
 	`rbenv install` (it reads `.ruby-version`).
 1. (directory sensitive) Check that `ruby -v` gives you version 3.1.2.

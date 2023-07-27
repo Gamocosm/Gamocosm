@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title><%= content_for?(:title) ? yield(:title) : 'Gamocosm' %></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <% if content_for?(:meta_description) %><meta name="description" content="<%= yield(:meta_description) %>" /><% end %>
-  <% if content_for?(:meta_keywords) %><meta name="keywords" content="<%= yield(:meta_keywords) %>" /><% end %>
-  <%= favicon_link_tag 'favicon.ico' %>
-  <%= stylesheet_link_tag    'application', media: 'all' %>
+	<meta charset="utf-8" />
+	<title><%= content_for?(:title) ? yield(:title) : 'Gamocosm' %></title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<% if content_for?(:meta_description) %><meta name="description" content="<%= yield(:meta_description) %>" /><% end %>
+	<% if content_for?(:meta_keywords) %><meta name="keywords" content="<%= yield(:meta_keywords) %>" /><% end %>
+	<%= favicon_link_tag 'favicon.ico' %>
+	<%= stylesheet_link_tag		'application', media: 'all' %>
 
-  <%= stylesheet_link_tag '//fonts.googleapis.com/css?family=Bungee|Libre+Franklin:400,600' %>
-  <%= csrf_meta_tags %>
-  <%= yield :head %>
-  <%= javascript_importmap_tags %>
+	<%= stylesheet_link_tag '//fonts.googleapis.com/css?family=Bungee|Libre+Franklin:400,600' %>
+	<%= csrf_meta_tags %>
+	<%= yield :head %>
+	<%= javascript_importmap_tags %>
 </head>
 <body>
 
-  <%= render partial: 'layouts/components/navbar' %>
-  <%= render partial: 'layouts/components/flash' %>
-  <% if @nocontainer.nil? %>
-    <div class="container"><%= yield %></div>
-  <% else %>
-    <%= yield %>
-  <% end %>
-  <%= render partial: 'layouts/components/footer' %>
+	<%= render partial: 'layouts/components/navbar' %>
+	<%= render partial: 'layouts/components/flash' %>
+	<%= render partial: 'layouts/components/cookies' %>
+	<% if @nocontainer.nil? %>
+		<div class="container"><%= yield %></div>
+	<% else %>
+		<%= yield %>
+	<% end %>
+	<%= render partial: 'layouts/components/footer' %>
 
 </body>
 </html>

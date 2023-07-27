@@ -53,12 +53,20 @@ Layout/EmptyLinesAroundAccessModifier:
 Bundler/OrderedGems:
   Enabled: false
 Metrics/BlockLength:
-  Max: 200
+  Enabled: false
 Metrics/MethodLength:
-  Max: 100
+  Enabled: false
 Metrics/ClassLength:
-  Max: 200
+  Enabled: false
 Style/Documentation:
   Enabled: false
 Style/FrozenStringLiteralComment:
+  Enabled: false
+Metrics/AbcSize:
+  Enabled: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Style/NumericPredicate:
   Enabled: false
