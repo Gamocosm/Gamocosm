@@ -1,6 +1,6 @@
 <%= simple_form_for @server, url: server_path(@server), method: :put do |f| %>
 	<%= panel_with_heading 'Advanced Configuration' do %>
-		View the documentation for these fields on the <%= link_to 'wiki', wiki_url('Server-advanced-tab-documentation') %>.
+		View the documentation for these fields on the <%= link_to 'wiki', wiki_url('Server-Advanced-Tab-Documentation') %>.
 		<br /><br />
 		<%= f.input :ssh_port, label: 'SSH port' %>
 		<%= f.input :pending_operation %>

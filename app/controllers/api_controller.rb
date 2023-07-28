@@ -4,17 +4,17 @@ class ApiController < ApplicationController
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
   def status
-    active = server.running?
-    status = server.pending_operation
-    minecraft = server.minecraft.running?
-    ip = server.remote.exists? ? server.remote.ip_address : nil
-    download = server.minecraft.world_download_url
+    active = @server.running?
+    status = @server.pending_operation
+    minecraft = @server.minecraft.running?
+    ip = @server.remote.exists? ? @server.remote.ip_address : nil
+    download = @server.minecraft.world_download_url
     render json: {
       server: active,
       status:,
       minecraft:,
       ip:,
-      domain: server.host_name,
+      domain: @server.host_name,
       download:,
     }
   end

@@ -13,14 +13,24 @@
 				<% if @server.logs.count == 0 %>
 					<em>No messages</em>
 				<% else %>
-					<% @server.logs.order('created_at DESC').each do |x| %>
-						<p><div>
-							<%= x.when %>
-							<div class="pull-right"><%= x.debuginfo %></div>
-							<br />
-							<%= x.message %>
-						</div></p>
-					<% end %>
+					<table class="table table-striped">
+						<tbody>
+							<% @server.logs.order('created_at DESC').each do |x| %>
+								<tr>
+									<td>
+										<div>
+											<%= x.when %>
+											<div class="pull-right"><%= x.debuginfo %></div>
+											<br />
+										</div>
+										<p>
+											<%= x.message %>
+										</p>
+									</td>
+								</tr>
+							<% end %>
+						</tbody>
+					</table>
 					<% if @server.owner?(current_user) %>
 						<%= link_to 'Clear', clear_logs_server_path(@server), method: :delete, class: 'btn btn-default pull-right' %>
 					<% end %>

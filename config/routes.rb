@@ -6,7 +6,7 @@ Rails.application.routes.draw do
   get 'about', to: 'pages#about', as: :about
   get 'tos', to: 'pages#tos', as: :tos
 
-  post 'badness/:secret', to: 'pages#badness'
+  get 'badness/:secret', to: 'pages#badness'
 
   match '404', to: 'pages#not_found', via: :all
   match '422', to: 'pages#unacceptable', via: :all

@@ -21,7 +21,11 @@ podman run --detach --rm --name gamocosm_test \
 	--publish 127.0.0.1:25565:25565 \
 	gamocosm-test:latest
 
-trap finally exit
+if [ "$1" == '--no-clean' ]; then
+	shift
+else
+	trap finally exit
+fi
 
 echo 'Testing...'
 TEST_WITH_CONTAINER=true bundle exec rails test "$@"

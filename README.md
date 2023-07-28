@@ -221,7 +221,7 @@ Hmmmm.
 	- e.g. `'API response code not 200'.error!(res)`
 	- `String#error!` returns an `Error` object; `Error#to_s` is overridden so the error message can be shown to the user, or the error data (`Error#data`) can be further inspected for handling
 - You can use `.error?` to check if a return value is an error. `Error#error?` is overriden to return `true`
-- This class and these methods are defined in `config/initializers/monkey_patches.rb`
+- This class and these methods are defined in `config/monkey_patches.rb`
 - Throw exceptions in "exceptional cases", when something is unexpected (e.g. bad user input _is_ expected) or can't be handled without "blowing up"
 
 ### Important Checks
@@ -246,19 +246,18 @@ Hmmmm.
 - 'Aborting' should always be followed by `server.reset_state` and `return`
 
 ### Other Useful Stuff
-- Development/test user (created by [`db/seeds.rb`][db-seeds]) has the Digital Ocean api token from `env.sh`
-	- The tests don't actually use this; the tests mock all HTTP requests/responses
-- The Sidekiq web interface is mounted at `/sidekiq`
-- Sidekiq doesn't automatically reload source files when you edit them. You must restart it for changes to take effect
-- Run the console: `bundle exec rails c`
-- Reset the database: `bundle exec rake db:reset`
-- Reset Sidekiq jobs: `Sidekiq::Queue.new.each { |job| job.delete }` in the rails console
-- Reset Sidekiq stats: `Sidekiq::Stats.new.reset` in the rails console
-- Start `ScheduledTaskWorker`: `ScheduledTaskWorker.perform_in(0.seconds, 0)` - it will automatically reschedule itself for the next interval
-- The deployment scripts and configuration are in the `sysadmin/` directory
-- List of `rake db` commands: [Stack Overflow][rake-db-commands]
-- [Rails extensions to common classes][rails-active-support-extensions]
-- [Rails configuration][rails-configuration]
+- Development user (created by [`db/seeds.rb`][db-seeds]) has the Digital Ocean api token from `env.sh`.
+- The Sidekiq web interface is mounted at `/sidekiq`.
+- Sidekiq doesn't automatically reload source files when you edit them. You must restart it for changes to take effect.
+- Run the console: `bundle exec rails c`.
+- Reset the database: `bundle exec rake db:reset`.
+- Reset Sidekiq jobs: `Sidekiq::Queue.new.each { |job| job.delete }` in the rails console.
+- Reset Sidekiq stats: `Sidekiq::Stats.new.reset` in the rails console.
+- Start `ScheduledTaskWorker`: `ScheduledTaskWorker.perform_in(0.seconds, 0)` - it will automatically reschedule itself for the next interval.
+- The deployment scripts and configuration are in the `sysadmin/` directory.
+- List of `rake db` commands: [Stack Overflow][rake-db-commands].
+- [Rails extensions to common classes][rails-active-support-extensions].
+- [Rails configuration][rails-configuration].
 
 ## Credits
 - Special thanks to [geetfun][geetfun] who helped with the original development
@@ -350,7 +349,7 @@ You will have to restart PostgreSQL (`sudo systemctl restart postgresql`) for th
 [wiki]: https://github.com/Gamocosm/Gamocosm/wiki
 [mcsw]: https://github.com/Gamocosm/minecraft-server_wrapper
 [minecraft-flavours]: https://github.com/Gamocosm/gamocosm-minecraft-flavours
-[wiki-different-versions]: https://github.com/Gamocosm/Gamocosm/wiki/Installing-different-versions-of-Minecraft
+[wiki-different-versions]: https://github.com/Gamocosm/Gamocosm/wiki/Installing-Different-Versions-of-Minecraft
 [db-seeds]: https://github.com/Gamocosm/Gamocosm/blob/master/db/seeds.rb
 [circleci-config]: https://github.com/Gamocosm/Gamocosm/blob/master/.circleci/config.yml
 
