@@ -1,11 +1,12 @@
-<% if current_user.pending_reconfirmation? %>
+<% if resource.pending_reconfirmation? %>
 	<div class="alert alert-warning">
-		Currently waiting for confirmation for: <%= current_user.unconfirmed_email %>.
+		Currently waiting for confirmation for: <%= resource.unconfirmed_email %>.
 		<%= link_to 'Resend email.', new_user_confirmation_path %>
+		Note: until you confirm this email, you should still log in with <%= resource.email %>.
 	</div>
-<% elsif !current_user.confirmed? %>
+<% elsif !resource.confirmed? %>
 	<div class="alert alert-warning">
-		Currently waiting for confirmation for: <%= current_user.email %>.
+		Currently waiting for confirmation for: <%= resource.email %>.
 		<%= link_to 'Resend email.', new_user_confirmation_path %>
 	</div>
 <% end %>

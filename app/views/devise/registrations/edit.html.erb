@@ -9,7 +9,7 @@
 <div class="row">
 	<h2>Edit <%= resource_name.to_s.humanize %></h2>
 
-	<%= render partial: 'layouts/components/waiting_confirmation' %>
+	<%= render partial: 'layouts/components/waiting_confirmation', locals: { resource: } %>
 
 	<%= simple_form_for resource, as: resource_name, url: registration_path(resource_name), method: :put do |f| %>
 		<%= f.error_notification %>

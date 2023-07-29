@@ -4,9 +4,7 @@ module ApplicationHelper
       inner_html = content_tag :div, class: 'panel-heading' do
         content_tag :h3, title, class: 'panel-title'
       end
-      inner_html += content_tag :div, class: 'panel-body' do
-        yield
-      end
+      inner_html += content_tag :div, class: 'panel-body', &block
       inner_html
     end
     result.html_safe
@@ -21,9 +19,7 @@ module ApplicationHelper
             title = content_tag :h4, title, class: 'modal-title'
             close + title
           end
-          body = content_tag :div, class: 'modal-body' do
-            yield
-          end
+          body = content_tag :div, class: 'modal-body', &block
           header + body
         end
       end
@@ -35,7 +31,7 @@ module ApplicationHelper
       href: '#',
       data: {
         toggle: 'modal',
-        target: '#' + id,
+        target: "##{id}",
       },
     }).html_safe
   end

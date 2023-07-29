@@ -1,26 +1,27 @@
 <div class="row">
-	<% if @server.owner?(current_user) %>
+	<% if @server.nil? || @server.owner?(current_user) %>
 		<div class="alert alert-warning">
 			<p>
 				Your email address is unconfirmed.
 			</p>
 			<p>
-				Gamocosm does not require you to confirm your email address;
-				however, for security reasons, it will not send email notifications to unconfirmed emails.
+				Gamocosm does not require a confirmed email address.
+				However, for security reasons, it will not send email notifications to unconfirmed emails.
+				Currently, aside from account-related actions, Gamocosm would only try to send you an email if it fails to autoshutdown your server.
 			</p>
 			<p>
-				Additionally, <em>in the future</em>, Gamocosm may not give DNS responses for servers whose owners have not confirmed their emails.
+				<em>in the future</em>, Gamocosm may not give DNS responses for servers whose owners have not confirmed their emails.
 				<% if @server %>
-					(You wouldn't be able to use <%= @server.host_name %>.)
+					In other words, you wouldn't be able to use <%= @server.host_name %>.
 				<% end %>
 			</p>
 			<p>
-				Lastly, it would be troublesome to recover or delete your account if you don't have an invalid email and lose your login credentials.
+				Lastly, it would be troublesome to recover or delete your account if you don't have a valid email and lose your login credentials.
 			</p>
 			<p>
-				You can confirm your email address in your <%= link_to 'settings', edit_user_registration_path %>.
+				You can see more details in <%= link_to 'your settings', edit_user_registration_path %>.
 			</p>
 		</div>
-		<%= render partial: 'layouts/components/waiting_confirmation' %>
+		<%= render partial: 'layouts/components/waiting_confirmation', locals: { resource: current_user } %>
 	<% end %>
 </div>

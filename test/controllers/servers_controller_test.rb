@@ -387,7 +387,7 @@ class ServersControllerTest < ActionController::TestCase
     assert_select '.panel-body em', 'No messages'
     @server.log_test('Hello')
     view_server @server
-    assert_select '.panel-body div', /Hello/
+    assert_select '.panel-body td', /Hello/
     delete :clear_logs, params: { id: @server.id }
     assert_redirected_to server_path(@server)
     view_server @server

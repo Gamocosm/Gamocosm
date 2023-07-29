@@ -7,7 +7,7 @@
 	<% if content_for?(:meta_description) %><meta name="description" content="<%= yield(:meta_description) %>" /><% end %>
 	<% if content_for?(:meta_keywords) %><meta name="keywords" content="<%= yield(:meta_keywords) %>" /><% end %>
 	<%= favicon_link_tag 'favicon.ico' %>
-	<%= stylesheet_link_tag		'application', media: 'all' %>
+	<%= stylesheet_link_tag 'application', media: 'all' %>
 
 	<%= stylesheet_link_tag '//fonts.googleapis.com/css?family=Bungee|Libre+Franklin:400,600' %>
 	<%= csrf_meta_tags %>

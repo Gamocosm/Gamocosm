@@ -3,13 +3,10 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" href="#server_log_panel" aria-controls="server_log_panel" aria-expanded="false">
-						<span class="fa fa-sort"></span> Server Log (<%= @server.logs.size %>)
-					</a>
+					Server Log (<%= @server.logs.size %>)
 				</h4>
 			</div>
-
-			<div id="server_log_panel" class="panel-body <%= 'collapse' if !@server.busy? %>">
+			<div id="server_log_panel" class="panel-body">
 				<% if @server.logs.count == 0 %>
 					<em>No messages</em>
 				<% else %>
@@ -21,7 +18,6 @@
 										<div>
 											<%= x.when %>
 											<div class="pull-right"><%= x.debuginfo %></div>
-											<br />
 										</div>
 										<p>
 											<%= x.message %>
