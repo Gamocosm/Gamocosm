@@ -7,7 +7,7 @@ RestartSec=8
 Restart=always
 StandardOutput=journal
 StandardError=journal
-ExecStart=/usr/bin/ncat --listen --keep-open --udp 0.0.0.0 5354 --sh-exec 'ncat --udp 127.0.0.1 5353'
+ExecStart=/usr/bin/ncat --listen --keep-open --udp 0.0.0.0 5354 --sh-exec 'ncat --idle-timeout 5 --udp 127.0.0.1 5353'
 
 [Install]
 WantedBy=multi-user.target

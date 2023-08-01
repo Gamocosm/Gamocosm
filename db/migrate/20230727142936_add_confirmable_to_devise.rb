@@ -1,3 +1,4 @@
+# https://github.com/heartcombo/devise/wiki/How-To:-Add-:confirmable-to-Users
 class AddConfirmableToDevise < ActiveRecord::Migration[7.0]
   def up
     add_column :users, :confirmation_token, :string

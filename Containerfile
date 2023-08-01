@@ -11,16 +11,18 @@ COPY Gemfile Gemfile.lock ./
 
 RUN bundle install
 
-# https://guides.rubyonrails.org/getting_started.html#creating-the-blog-application
-COPY app app
+# Copy less-likely to change dirs first.
 COPY bin bin
-COPY config config
-COPY db db
 COPY lib lib
-COPY public public
-COPY scripts scripts
-COPY test test
 COPY vendor vendor
+
+COPY public public
+COPY test test
+
+COPY db db
+COPY scripts scripts
+COPY config config
+COPY app app
 
 COPY config.ru Rakefile ./
 COPY LICENSE README.md ./

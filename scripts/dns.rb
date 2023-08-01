@@ -16,8 +16,10 @@ RubyDNS.run_server(INTERFACES) do
       if !ip_address.nil? && !ip_address.error?
         transaction.respond!(ip_address)
       else
-        transaction.fail!(:NXDomain)
+        transaction.respond!('127.0.0.1')
       end
+    else
+      transaction.respond!('127.0.0.1')
     end
   end
 

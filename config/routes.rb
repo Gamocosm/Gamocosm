@@ -8,10 +8,6 @@ Rails.application.routes.draw do
 
   get 'badness/:secret', to: 'pages#badness'
 
-  match '404', to: 'pages#not_found', via: :all
-  match '422', to: 'pages#unacceptable', via: :all
-  match '500', to: 'pages#internal_error', via: :all
-
   direct :git_head do
     "https://github.com/Gamocosm/Gamocosm/tree/#{Gamocosm::GIT_HEAD}"
   end
@@ -137,6 +133,8 @@ Rails.application.routes.draw do
     end
   end
   mount Sidekiq::Web => '/sidekiq'
+
+  match '*unused', to: 'pages#not_found', via: :all
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
