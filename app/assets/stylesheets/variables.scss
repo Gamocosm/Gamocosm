@@ -21,8 +21,10 @@ $navbar-default-bg: white !default;
 $navbar-default-border: transparent !default;
 $navbar-default-brand-color: $brand-primary;
 
-.panel {
-  box-shadow: 0 0 3px #ddd;
-}
+$screen-sm-min: 768px;
+$screen-md-min: 992px;
+$screen-lg-min: 1200px;
+
+$grid-float-breakpoint: 0;
 
 @import "bootstrap/variables";

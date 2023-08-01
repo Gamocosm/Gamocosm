@@ -397,27 +397,22 @@ class ServersControllerTest < ActionController::TestCase
 
   test 'friend cannot delete, edit advanced tab, edit ssh keys' do
     sign_in @friend
-    assert_raises(ActionController::RoutingError) do
-      delete :destroy, params: { id: @server.id }
-    end
-    assert_raises(ActionController::RoutingError) do
-      put :update, params: { id: @server.id, server: {
-        setup_stage: 5,
-        remote_size_slug: '1gb',
-        remote_region_slug: ' nyc3 ',
-      }, }
-    end
-    assert_raises(ActionController::RoutingError) do
-      put :update, params: { id: @server.id, server: { ssh_keys: '123' } }
-    end
+    delete :destroy, params: { id: @server.id }
+    assert_response :missing
+    put :update, params: { id: @server.id, server: {
+      setup_stage: 5,
+      remote_size_slug: '1gb',
+      remote_region_slug: ' nyc3 ',
+    }, }
+    assert_response :missing
+    put :update, params: { id: @server.id, server: { ssh_keys: '123' } }
+    assert_response :missing
   end
 
   test 'other users see 404' do
     sign_in @other
-    assert_raises(ActionController::RoutingError) do
-      get :show, params: { id: @server.id }
-      assert_redirected_to new_user_session_path
-    end
+    get :show, params: { id: @server.id }
+    assert_response :missing
   end
 
   test 'outsiders redirected to login' do

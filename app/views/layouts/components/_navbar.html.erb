@@ -1,32 +1,32 @@
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-0">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <%= link_to root_url, class: 'navbar-brand' do %>
-        <%= inline_svg 'logo.svg' %> Gamocosm
-      <% end %>
-    </div>
-    <div class="collapse navbar-collapse" id="navbar-collapse-0">
-      <ul class="nav navbar-nav">
-        <li><%= link_to 'About', about_path %></li>
-        <li><%= link_to 'Wiki', wiki_url %></li>
-        <li><%= link_to 'Blog and Updates', blog_url %></li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <% if begin user_signed_in? rescue false end %>
-          <li><%= link_to 'Servers', servers_path %></li>
-          <li><%= link_to 'Volumes', volumes_path %></li>
-          <li><%= link_to 'Settings', edit_user_registration_path %></li>
-          <li><%= link_to 'Logout', destroy_user_session_path, method: :delete %></li>
-        <% else %>
-          <li><%= link_to 'Sign up', new_user_registration_path %></li>
-          <li><%= link_to 'Login', new_user_session_path %></li>
-        <% end %>
-      </ul>
-    </div>
-  </div>
+	<div class="container">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-0">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<%= link_to root_url, class: 'navbar-brand' do %>
+				<%= inline_svg 'logo.svg' %> Gamocosm
+			<% end %>
+		</div>
+		<div class="collapse navbar-collapse" id="navbar-collapse-0">
+			<ul class="nav navbar-nav">
+				<li><%= link_to 'About', about_path %></li>
+				<li><%= link_to 'Wiki', wiki_url %></li>
+				<li><%= link_to 'Blog and Updates', blog_url %></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<% if begin user_signed_in? rescue false end %>
+					<li><%= link_to 'Servers', servers_path %></li>
+					<li><%= link_to 'Volumes', volumes_path %></li>
+					<li><%= link_to 'Settings', edit_user_registration_path %></li>
+					<li><%= link_to 'Logout', destroy_user_session_path, method: :delete %></li>
+				<% else %>
+					<li><%= link_to 'Sign up', new_user_registration_path %></li>
+					<li><%= link_to 'Login', new_user_session_path %></li>
+				<% end %>
+			</ul>
+		</div>
+	</div>
 </nav>

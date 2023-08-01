@@ -11,12 +11,14 @@
  * file per style scope.
  */
 
+// https://github.com/twbs/bootstrap-sass#sass-1
+
 @import "variables";
 
 @import "bootstrap";
 @import "font-awesome";
 
 @import "components/flash";
-@import "components/footer";
 @import "components/navbar";
+@import "components/footer";
 @import "main";

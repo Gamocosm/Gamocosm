@@ -1,10 +1,10 @@
 <tbody>
 	<% if @do_images.nil? %>
-		<tr><td><em>You haven't entered your Digital Ocean API token</em></td></tr>
+		<tr><td><em>You haven't entered your Digital Ocean API token.</em></td></tr>
 	<% elsif @do_images.error? %>
-		<tr><td><em>Unable to get Digital Ocean snapshots: <%= @do_images %></em></td></tr>
+		<tr><td><em>Unable to get Digital Ocean droplet snapshots: <%= @do_images %></em></td></tr>
 	<% elsif @do_images.empty? %>
-		<tr><td><em>You have no snapshots on Digital Ocean</em></td></tr>
+		<tr><td><em>You have no snapshots on Digital Ocean.</em></td></tr>
 	<% else %>
 		<tr>
 			<th>Name</th>

@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8" />
 	<title><%= content_for?(:title) ? yield(:title) : 'Gamocosm' %></title>
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="viewport" content="width=device-width" />
 	<% if content_for?(:meta_description) %><meta name="description" content="<%= yield(:meta_description) %>" /><% end %>
 	<% if content_for?(:meta_keywords) %><meta name="keywords" content="<%= yield(:meta_keywords) %>" /><% end %>
 	<%= favicon_link_tag 'favicon.ico' %>

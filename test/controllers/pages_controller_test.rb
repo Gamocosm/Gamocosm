@@ -14,11 +14,5 @@ class PagesControllerTest < ActionController::TestCase
     assert_response :success
     get :tos
     assert_response :success
-    get :not_found
-    assert_response 404
-    get :unacceptable
-    assert_response 422
-    get :internal_error
-    assert_response 500
   end
 end

@@ -145,7 +145,7 @@ class DigitalOceanFlowsTest < ActionDispatch::IntegrationTest
     mock_do_images_list(401, []).times_only(1)
     get digital_ocean_images_path
     assert_response :success
-    assert_select 'em', /unable to get digital ocean snapshots/i
+    assert_select 'em', /unable to get digital ocean droplet snapshots/i
   end
 
   test 'show digital ocean ssh keys' do

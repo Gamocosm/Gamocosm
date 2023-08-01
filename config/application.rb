@@ -9,6 +9,9 @@ require 'exception_notification/rails'
 
 require_relative 'monkey_patches'
 
+# Running puma in production gives warning...
+#SSHKit::Backend::Netssh.pool.idle_timeout = 0
+
 module Gamocosm
   # see ActiveSupport::TimeZone
   TIME_ZONE = 'Pacific Time (US & Canada)'

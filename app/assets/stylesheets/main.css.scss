@@ -1,13 +1,5 @@
 @import "variables";
 
-.navbar-brand {
-	font-family: $font-family-decorative;
-
-	svg {
-		fill: currentColor;
-	}
-}
-
 .page-header {
 	.basic-breadcrumb + h1 {
 		margin-top: 0;
@@ -149,6 +141,8 @@ img.img-thumbnail {
 }
 
 .panel {
+	box-shadow: 0 0 3px #ddd;
+
 	> .panel-heading {
 		border: none;
 	}
@@ -219,14 +213,6 @@ img.img-thumbnail {
 
 	input[type="checkbox"]:not(:checked) ~ .if-not-checked {
 		display: inline-block;
-	}
-}
-
-.login-pane {
-	margin-top: 50px;
-
-	.btn {
-		min-width: 70%;
 	}
 }
 
@@ -327,18 +313,4 @@ img.img-thumbnail {
 	.btn {
 		min-width: 70%;
 	}
-}
-
-.devise-links {
-	text-align: center;
-
-	> a {
-		display: inline-block;
-		margin-right: $padding-small-horizontal;
-	}
-
-	// > a:last-child {
-	// 	float: right;
-	// 	margin-right: 0;
-	// }
 }

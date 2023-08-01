@@ -128,7 +128,7 @@ class User < ActiveRecord::Base
     if @digital_ocean_images.nil?
       images = Rails.cache.read(self.digital_ocean_images_cache)
       if images.nil?
-        images = self.digital_ocean.image_list(true)
+        images = self.digital_ocean.image_list
         if !images.error?
           Rails.cache.write(self.digital_ocean_images_cache, images, expires_in: 24.hours)
         end

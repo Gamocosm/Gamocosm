@@ -1,10 +1,10 @@
 <tbody>
 	<% if @do_volumes.nil? %>
-		<tr><td><em>You haven't entered your Digital Ocean API token</em></td></tr>
+		<tr><td><em>You haven't entered your Digital Ocean API token.</em></td></tr>
 	<% elsif @do_volumes.error? %>
 		<tr><td><em>Unable to get Digital Ocean volumes: <%= @do_volumes %></em></td></tr>
 	<% elsif @do_volumes.empty? %>
-		<tr><td><em>You have no volumes on Digital Ocean</em></td></tr>
+		<tr><td><em>You have no volumes on Digital Ocean.</em></td></tr>
 	<% else %>
 		<tr>
 			<th>Name</th>

@@ -10,7 +10,7 @@ class PagesController < ApplicationController
   def tos; end
 
   def not_found
-    render '404', status: 404
+    render '404', status: 404, formats: :html
   end
 
   def badness

@@ -89,7 +89,9 @@ module DigitalOcean
     def droplet_action_list(id)
       silence_digital_ocean_api do
         res = @con.droplets.actions(id:)
-        res.map { |x| self.class.action_from_response(x) }.sort { |a, b| a.id <=> b.id }
+        arr = res.map { |x| self.class.action_from_response(x) }
+        arr.sort_by!(&:id)
+        arr
       end
     end
 
@@ -143,9 +145,9 @@ module DigitalOcean
       end
     end
 
-    def image_list(private_only = true)
+    def image_list
       silence_digital_ocean_api do
-        res = @con.images.all(private: private_only)
+        res = @con.images.all(private: true)
         res.map { |x| self.class.image_from_response(x) }
       end
     end
@@ -296,7 +298,7 @@ module DigitalOcean
 
     def snapshot_list
       silence_digital_ocean_api do
-        res = @con.snapshots.all
+        res = @con.snapshots.all(resource_type: 'volume')
         res.map { |x| self.class.snapshot_from_response(x) }
       end
     end
