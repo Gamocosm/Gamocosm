@@ -70,3 +70,5 @@ Metrics/CyclomaticComplexity:
   Enabled: false
 Style/NumericPredicate:
   Enabled: false
+Metrics/ParameterList:
+  Enabled: false

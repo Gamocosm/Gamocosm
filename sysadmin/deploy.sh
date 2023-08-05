@@ -96,6 +96,7 @@ git clone https://github.com/Gamocosm/Gamocosm.git gamocosm
 pushd gamocosm
 
 ln -s "$(pwd)/sysadmin/nginx.conf" /etc/nginx/conf.d/gamocosm.conf
+ln -s "$(pwd)/sysadmin/nginx-catchall.conf" /etc/nginx/conf.d/catchall.conf
 ln -s "$(pwd)/sysadmin/daily.service" /etc/systemd/system/gamocosm-daily.service
 ln -s "$(pwd)/sysadmin/daily.timer" /etc/systemd/system/gamocosm-daily.timer
 ln -s "$(pwd)/sysadmin/dns-tcp.service" /etc/systemd/system/gamocosm-dns-tcp.service
@@ -166,6 +167,10 @@ firewall-offline-cmd --add-service=https
 cp nginx.conf nginx.conf.vanilla
 echo "Comment out default server block in 'nginx.conf'."
 release
+
+mkdir keys
+cd keys
+openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout key.txt -out crt.pem
 
 systemctl enable --now nginx
 

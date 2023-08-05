@@ -1,3 +1,4 @@
+# https://docs.digitalocean.com/reference/api/api-reference/
 module DigitalOcean
   Droplet = Struct.new(:id, :name, :created_at, :memory, :status, :snapshot_ids, :ipv4)
 

@@ -1,4 +1,7 @@
 class PagesController < ApplicationController
+  # https://api.rubyonrails.org/classes/ActionController/RequestForgeryProtection/ClassMethods.html
+  skip_forgery_protection only: [:not_found]
+
   def landing
     @nocontainer = true
   end
