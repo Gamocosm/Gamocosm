@@ -69,8 +69,12 @@ podman create \
 	gamocosm-image:latest \
 	bundle exec rails runner scripts/dns.rb
 
-rm -rf /usr/share/gamocosm/public
-podman cp gamocosm-puma:/gamocosm/public/. /usr/share/gamocosm/public
+TMP_PUBLIC="$(mktemp --directory)"
+trap "rm -rf '$TMP_PUBLIC'" exit
+# The trailing dot on the source directory means "copy the contents of... into the destination directory".
+podman cp gamocosm-puma:/gamocosm/public/. "$TMP_PUBLIC"
+# The trailing slash on the source directory means "copy the contents of... into the destination directory".
+rsync -r "$TMP_PUBLIC/" /usr/share/gamocosm/public
 
 echo 'Pruning images...'
 podman image prune --force

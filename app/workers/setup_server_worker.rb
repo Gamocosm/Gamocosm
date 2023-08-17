@@ -157,15 +157,16 @@ class SetupServerWorker
 
             # setup swap
             if test '[ ! -f /swapfile ]'
+              # https://btrfs.readthedocs.io/en/latest/Swapfile.html
+              execute :truncate, '-s', '0', '/swapfile'
+              execute :chattr, '+C', '/swapfile'
+              execute :fallocate, '-l', '1G', '/swapfile'
+              execute :chmod, '0600', '/swapfile'
+              execute :mkswap, '/swapfile'
+              execute :swapon, '/swapfile'
               execute :echo, '/swapfile none swap defaults 0 0', '>>', '/etc/fstab'
+              execute :systemctl, 'daemon-reload'
             end
-            execute :rm, '-f', '/swapfile'
-            execute :touch, '/swapfile'
-            execute :chattr, '+C', '/swapfile'
-            execute :fallocate, '-l', '1G', '/swapfile'
-            execute :chmod, '600', '/swapfile'
-            execute :mkswap, '/swapfile'
-            execute :swapon, '--all'
 
             # install system packages
             execute :dnf, '-y', 'install', *SYSTEM_PACKAGES

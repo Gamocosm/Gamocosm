@@ -10,7 +10,7 @@ REDIS_VERSION=7.0.4
 TIME_ZONE=America/New_York
 
 function release {
-	read -p "Hit enter to continue (exit to return to script)... "
+	read -p 'Hit enter to continue (exit to return to script)... '
 	bash
 }
 
@@ -52,7 +52,7 @@ echo 'Setting the timezone...'
 timedatectl set-timezone "$TIME_ZONE"
 
 echo 'Updating the system...'
-#dnf -y upgrade > >(tee dnf-upgrade.stdout.log) 2> >(tee dnf-upgrade.stderr.log)
+dnf -y upgrade --refresh > >(tee dnf-upgrade.stdout.log) 2> >(tee dnf-upgrade.stderr.log)
 
 echo 'Installing basic tools...'
 dnf -y install vim tmux git htop
@@ -71,6 +71,7 @@ ln -s ~/dotfiles/vim ~/.vim
 ln -s ~/dotfiles/tmux ~/.tmux.conf
 ~/.vim/setup.sh
 
+echo 'Creating swapfile...'
 # https://btrfs.readthedocs.io/en/latest/Swapfile.html
 btrfs filesystem mkswap --size 1G /swapfile
 swapon /swapfile
@@ -86,6 +87,8 @@ else
 	ssh-keygen -y -f ~/.ssh/id_ed25519
 fi
 
+echo 'Creating some directories in advance...'
+mkdir "$HOME/backups"
 mkdir /usr/share/gamocosm
 mkdir /usr/share/gamocosm/public
 mkdir /usr/share/gamocosm/blog
@@ -95,21 +98,21 @@ git clone https://github.com/Gamocosm/Gamocosm.git gamocosm
 
 pushd gamocosm
 
-ln -s "$(pwd)/sysadmin/nginx.conf" /etc/nginx/conf.d/gamocosm.conf
-ln -s "$(pwd)/sysadmin/nginx-catchall.conf" /etc/nginx/conf.d/catchall.conf
+echo 'Copying nginx configuration...'
+cp "$(pwd)/sysadmin/nginx.conf" /etc/nginx/conf.d/gamocosm.conf
+cp "$(pwd)/sysadmin/nginx-catchall.conf" /etc/nginx/conf.d/catchall.conf
+
+echo 'Symlinking systemd units...'
 ln -s "$(pwd)/sysadmin/daily.service" /etc/systemd/system/gamocosm-daily.service
 ln -s "$(pwd)/sysadmin/daily.timer" /etc/systemd/system/gamocosm-daily.timer
 ln -s "$(pwd)/sysadmin/dns-tcp.service" /etc/systemd/system/gamocosm-dns-tcp.service
 ln -s "$(pwd)/sysadmin/dns-udp.service" /etc/systemd/system/gamocosm-dns-udp.service
+
+echo 'Symlinking local scripts...'
 ln -s "$(pwd)/sysadmin/backup.sh" /usr/local/bin/gamocosm-backup
 ln -s "$(pwd)/sysadmin/console.sh" /usr/local/bin/gamocosm-console
 
-firewall-offline-cmd --add-forward-port=port=53:toport=5354:proto=udp
-firewall-offline-cmd --add-forward-port=port=53:toport=5354:proto=tcp
-
-systemctl enable --now gamocosm-dns-tcp
-systemctl enable --now gamocosm-dns-udp
-
+echo 'Setting up gamocosm.env...'
 if [ -z "$RESTORE_DIR" ]; then
 	cp template.env gamocosm.env
 	echo "Please update 'gamocosm.env'."
@@ -141,8 +144,6 @@ systemctl enable --now "container-$DATABASE_HOST" "container-$REDIS_HOST"
 
 podman secret create gamocosm-ssh-key ~/.ssh/id_ed25519
 
-mkdir "$HOME/backups"
-
 podman build --tag gamocosm-image:latest .
 
 if [ -z "$RESTORE_DIR" ]; then
@@ -153,44 +154,44 @@ else
 fi
 
 ./sysadmin/update.sh --skip-load
+# update.sh already starts these following services.
 systemctl enable container-gamocosm-puma container-gamocosm-sidekiq
 
-systemctl enable --now gamocosm-daily.timer
-
 popd
 
-pushd /etc/nginx
-
-firewall-offline-cmd --add-service=http
-firewall-offline-cmd --add-service=https
-
-cp nginx.conf nginx.conf.vanilla
-echo "Comment out default server block in 'nginx.conf'."
-release
-
-mkdir keys
-cd keys
-openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout key.txt -out crt.pem
-
+echo 'Starting nginx...'
+nginx -t
 systemctl enable --now nginx
 
-popd
+echo 'Setting up TLS certificates...'
+certbot run --nginx
 
-echo 'Setup letsencrypt/certbot (`certbot run --nginx`).'
-release
+echo 'Enabling dns port proxying...'
+systemctl enable --now gamocosm-dns-tcp
+systemctl enable --now gamocosm-dns-udp
+
+echo 'Daily services...'
+# certbot-renew.{service,timer} is provided by the certbot package.
+systemctl enable --now certbot-renew.timer
+systemctl enable --now gamocosm-daily.timer
 
 echo 'Changing ssh port...'
-
-<< EOF cat > /etc/ssh/sshd_config.d/01-gamocosm.conf
+cat > /etc/ssh/sshd_config.d/01-gamocosm.conf << EOF
 Port $SSH_PORT
 PasswordAuthentication no
 EOF
 
 semanage port -a -t ssh_port_t -p tcp "$SSH_PORT"
-firewall-offline-cmd "--add-port=$SSH_PORT/tcp"
 
 echo 'Restarting ssh...'
 systemctl restart sshd
+
+echo 'Adding firewall rules...'
+firewall-offline-cmd --add-forward-port=port=53:toport=5354:proto=udp
+firewall-offline-cmd --add-forward-port=port=53:toport=5354:proto=tcp
+firewall-offline-cmd --add-service=http
+firewall-offline-cmd --add-service=https
+firewall-offline-cmd "--add-port=$SSH_PORT/tcp"
 
 echo 'Enabling firewall...'
 systemctl enable --now firewalld
