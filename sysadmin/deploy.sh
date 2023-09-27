@@ -98,10 +98,6 @@ git clone https://github.com/Gamocosm/Gamocosm.git gamocosm
 
 pushd gamocosm
 
-echo 'Copying nginx configuration...'
-cp "$(pwd)/sysadmin/nginx.conf" /etc/nginx/conf.d/gamocosm.conf
-cp "$(pwd)/sysadmin/nginx-catchall.conf" /etc/nginx/conf.d/catchall.conf
-
 echo 'Symlinking systemd units...'
 ln -s "$(pwd)/sysadmin/daily.service" /etc/systemd/system/gamocosm-daily.service
 ln -s "$(pwd)/sysadmin/daily.timer" /etc/systemd/system/gamocosm-daily.timer
@@ -159,6 +155,9 @@ systemctl enable container-gamocosm-puma container-gamocosm-sidekiq
 
 popd
 
+echo 'Copying main nginx configuration...'
+cp ~/gamocosm/sysadmin/nginx.conf /etc/nginx/conf.d/gamocosm.conf
+
 echo 'Starting nginx...'
 nginx -t
 systemctl enable --now nginx
@@ -166,13 +165,20 @@ systemctl enable --now nginx
 echo 'Setting up TLS certificates...'
 certbot run --nginx
 
+echo 'Copying catchall nginx configuration and restarting nginx...'
+# This must be done after running certbot and obtaining certificate;
+# see the comment in the following file(s) for more information.
+cp ~/gamocosm/sysadmin/nginx-catchall.conf /etc/nginx/conf.d/catchall.conf
+nginx -t
+systemctl restart nginx
+
 echo 'Enabling dns port proxying...'
 systemctl enable --now gamocosm-dns-tcp
 systemctl enable --now gamocosm-dns-udp
 
 echo 'Daily services...'
-# certbot-renew.{service,timer} is provided by the certbot package.
-systemctl enable --now certbot-renew.timer
+# certbot-renew.{service,timer} is provided by the certbot package and enabled by default.
+systemctl start certbot-renew.timer
 systemctl enable --now gamocosm-daily.timer
 
 echo 'Changing ssh port...'
