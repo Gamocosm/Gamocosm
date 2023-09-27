@@ -170,16 +170,18 @@ class Server < ActiveRecord::Base
   end
 
   def start
-    error = start?
-    if error
-      return error
+    self.with_lock do
+      error = start?
+      if error
+        return error
+      end
+      action = remote.create
+      if action.error?
+        return action
+      end
+      WaitForStartingServerWorker.perform_in(32.seconds, id, action.id)
+      self.update_columns(pending_operation: 'starting')
     end
-    action = remote.create
-    if action.error?
-      return action
-    end
-    WaitForStartingServerWorker.perform_in(32.seconds, id, action.id)
-    self.update_columns(pending_operation: 'starting')
     nil
   end
 
