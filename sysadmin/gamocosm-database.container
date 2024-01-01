@@ -1,0 +1,21 @@
+[Unit]
+Description=Gamocosm PostgreSQL Container
+After=local-fs.target
+
+[Container]
+Image=docker.io/postgres:14.5
+
+Network=gamocosm-network
+PublishPort=127.0.0.1:5432:5432
+
+Environment=POSTGRES_USER=gamocosm
+Secret=gamocosm-database-password,type=env,target=POSTGRES_PASSWORD
+
+Volume=gamocosm-database-volume:/var/lib/postgresql/data
+
+[Service]
+Restart=always
+RestartSec=8
+
+[Install]
+WantedBy=default.target

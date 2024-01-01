@@ -1,0 +1,19 @@
+[Unit]
+Description=Gamocosm Sidekiq Container
+After=local-fs.target
+
+[Container]
+Image=localhost/gamocosm-image:latest
+Exec=bundle exec sidekiq --config config/sidekiq.yml
+
+Network=gamocosm-network
+
+EnvironmentFile=%h/gamocosm/gamocosm.env
+Secret=gamocosm-ssh-key,type=mount,target=/gamocosm/id_gamocosm,mode=0400
+
+[Service]
+Restart=always
+RestartSec=8
+
+[Install]
+WantedBy=default.target

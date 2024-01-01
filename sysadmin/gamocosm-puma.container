@@ -1,0 +1,21 @@
+[Unit]
+Description=Gamocosm Puma Container
+After=local-fs.target
+
+[Container]
+Image=localhost/gamocosm-image:latest
+Exec=bundle exec puma --config config/puma.rb
+
+Network=gamocosm-network
+PublishPort=127.0.0.1:9293:9292/tcp
+
+EnvironmentFile=%h/gamocosm/gamocosm.env
+EnvironmentFile=%h/gamocosm/git.env
+Secret=gamocosm-ssh-key,type=mount,target=/gamocosm/id_gamocosm,mode=0400
+
+[Service]
+Restart=always
+RestartSec=8
+
+[Install]
+WantedBy=default.target

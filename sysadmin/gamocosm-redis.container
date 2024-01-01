@@ -1,0 +1,18 @@
+[Unit]
+Description=Gamocosm Redis Container
+After=local-fs.target
+
+[Container]
+Image=docker.io/redis:7.0.4
+
+Network=gamocosm-network
+PublishPort=127.0.0.1:6379:6379
+
+Volume=gamocosm-redis-volume:/data
+
+[Service]
+Restart=always
+RestartSec=8
+
+[Install]
+WantedBy=default.target

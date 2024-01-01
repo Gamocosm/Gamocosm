@@ -122,21 +122,27 @@ source gamocosm.env
 echo 'Creating containers...'
 podman network create gamocosm-network
 
-podman create \
-	--name "$DATABASE_HOST" --network gamocosm-network \
-	--env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" \
-	"docker.io/postgres:$POSTGRESQL_VERSION"
+pushd /etc/containers/systemd
 
-podman create \
-	--name "$REDIS_HOST" --network gamocosm-network \
-	"docker.io/redis:$REDIS_VERSION"
+ln -s ~/gamocosm/sysadmin/gamocosm-database.container
+mkdir gamocosm-database.container.d
+cat > gamocosm-database.container.d/50-hostname.conf << EOF
+[Container]
+HostName=$DATABASE_HOST
 
-pushd /etc/systemd/system
-podman generate systemd --name --restart-policy always --restart-sec 8 --files "$DATABASE_HOST"
-podman generate systemd --name --restart-policy always --restart-sec 8 --files "$REDIS_HOST"
+Environment=POSTGRES_USER='$DATABASE_USER' POSTGRES_PASSWORD='$DATABASE_PASSWORD'
+EOF
+
+ln -s ~/gamocosm/sysadmin/gamocosm-redis.container
+mkdir gamocosm-redis.container.d
+cat > gamocosm-redis.container.d/50-hostname.conf << EOF
+[Container]
+HostName=$REDIS_HOST
+EOF
+
 popd
 
-systemctl enable --now "container-$DATABASE_HOST" "container-$REDIS_HOST"
+systemctl enable --now "$DATABASE_HOST" "container-$REDIS_HOST"
 
 podman secret create gamocosm-ssh-key ~/.ssh/id_ed25519
 

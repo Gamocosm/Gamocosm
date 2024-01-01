@@ -1,0 +1,20 @@
+[Unit]
+Description=Gamocosm DNS Container
+After=local-fs.target
+
+[Container]
+Image=localhost/gamocosm-image:latest
+Exec=bundle exec rails runner scripts/dns.rb
+
+Network=gamocosm-network
+PublishPort=127.0.0.1:5353:5353/tcp
+PublishPort=127.0.0.1:5353:5353/udp
+
+EnvironmentFile=%h/gamocosm/gamocosm.env
+
+[Service]
+Restart=always
+RestartSec=8
+
+[Install]
+WantedBy=default.target

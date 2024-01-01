@@ -36,6 +36,8 @@
 
 # Custom
 gamocosm.env
+git.env
 id_gamocosm
 id_gamocosm.pub
 /coverage
+Session.vim

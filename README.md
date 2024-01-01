@@ -4,7 +4,7 @@ Gamocosm [![Build Status](https://circleci.com/gh/Gamocosm/Gamocosm.svg?style=sh
 Gamocosm makes it easy to run cloud Minecraft servers.
 Digital Ocean is used as the backend/hosting service, due to cost, reliability, and accessibility.
 Gamocosm works well for friends who play together, but not 24/7.
-Running a server 14 hours a week (2 hours every day) may cost 40 cents a month, instead of $5.
+Running a server 14 hours a week (2 hours every day) may cost 40 cents a month, instead of \$5.
 
 **This README is directed towards developers; if you are a user looking for more information, please check out the [wiki][wiki] or drop by [Gitter chat][gitter].**
 
@@ -34,14 +34,64 @@ at least for these development instructions, they should work by simply replacin
 
 The steps marked with "directory sensitive" should be run from inside the root of the Gamocosm repository.
 
+#### Configuration
+1. Create your environment file:
+	`cp template.env gamocosm.env`.
+1. Make your environment file readable (and writable) by the file owner (you) only:
+	`chown 600 gamocosm.env`.
+1. Update the config in `gamocosm.env`.
+	See "[Environment File](#environment-file)" below for documentation.
+1. Load environment variables:
+	`source load_env.sh`.
+
+	You will need to do this in every new shell you run ruby/rails in.
+
 #### Container Setup
 1. Install Podman: `sudo dnf install podman`.
+1. Ensure that your environment variables have been loaded as above.
 1. Create the database container:
-	`podman create --name gamocosm-database --env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" --publish 127.0.0.1:5432:5432 docker.io/postgres:14.5`.
+
+	```
+	podman create --name gamocosm-database --env "POSTGRES_USER=$DATABASE_USER" --env "POSTGRES_PASSWORD=$DATABASE_PASSWORD" --publish 127.0.0.1:5432:5432 docker.io/postgres:14.5
+	```
+
+	You may wish to add the following flag: `--volume gamocosm-database-volume:/var/lib/postgresql/data`;
+	[this will prevent Podman from using a randomly-generated name](https://docs.podman.io/en/latest/markdown/podman-create.1.html#volume-v-source-volume-host-dir-container-dir-options),
+	which can make debugging or moving things around later easier.
+	See [the Docker Hub page for Postgres](https://hub.docker.com/_/postgres/) (scroll down to `PGDATA`) for more information about persistent data with this Postgres image.
+
 1. Create the Redis container:
-	`podman create --name gamocosm-redis --publish 127.0.0.1:6379:6379 docker.io/redis:7.0.4`.
+
+	```
+	podman create --name gamocosm-redis --publish 127.0.0.1:6379:6379 docker.io/redis:7.0.4
+	```
+
+	You may wish to add the following flag: `--volume gamocosm-redis-volume:/data`, as above.
+	See [the Docker Hub page for Redis](https://hub.docker.com/_/redis/) (scroll down to "start with persistent storage") for more information about persistent data with this Redis image.
+
 1. Start the containers:
 	`podman start gamocosm-database gamocosm-redis`.
+
+As is, you'll have to start these containers manually each time you reboot your computer.
+You can automate starting Podman containers as "[quadlets](https://www.redhat.com/sysadmin/quadlet-podman)" using systemd.
+Example `gamocosm-database.container` and `gamocosm-redis.container` files are provided in Gamocosm's `sysadmin` folder.
+Unless you changed the default `DATABASE_USER` from `template.env`, you shouldn't need to edit these files.
+If you do need to edit them, systemd supports [drop-in configuration](https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html) (search for "drop-in").
+
+```
+# Store `DATABASE_PASSWORD` as a Podman secret.
+# Make sure you loaded your environment variables as above!
+printf "$DATABASE_SECRET" | podman secret create gamocosm-database-password
+
+# Copy the `.container` files to where systemd expects them.
+cp sysadmin/gamocosm-database.container sysadmin/gamocosm-redis.container ~/.config/containers/systemd/
+
+# Tell systemd to detect new files/changes.
+systemctl --user daemon-reload
+
+# Start the containers.
+systemctl --user start gamocosm-database gamocosm-redis
+```
 
 #### Ruby Setup
 I recommend using [rbenv][rbenv] to manage Ruby installations.
@@ -112,16 +162,6 @@ All the commands in this section are "directory sensitive" (should be run in the
 	You can use this key directly with `ssh -i id_gamocosm` (e.g. if you need to connect to a server directly).
 	The files `id_gamocosm` and `id_gamocosm.pub` are ignored in Gamocosm's `.gitignore`,
 	so you don't have to worry about accidentally committing them.
-1. Create your environment file:
-	`cp template.env gamocosm.env`.
-1. Make your environment file readable (and writable) by the file owner (you) only:
-	`chown 600 gamocosm.env`.
-1. Update the config in `gamocosm.env`.
-	See below for documentation.
-1. Load environment variables:
-	`source load_env.sh`.
-
-	You will need to do this in every new shell you run ruby/rails in.
 1. Setup the database:
 	`bundle exec rails db:setup`.
 1. Start the server:
