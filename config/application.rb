@@ -22,7 +22,7 @@ module Gamocosm
 
   SSH_PRIVATE_KEY_PATH = 'id_gamocosm'
 
-  DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-38-x64'
+  DIGITAL_OCEAN_BASE_IMAGE_SLUG = 'fedora-40-x64'
 
   MINECRAFT_FLAVOURS_GIT_URL = 'https://github.com/Gamocosm/gamocosm-minecraft-flavours.git'
   MCSW_GIT_URL = 'https://github.com/Gamocosm/minecraft-server_wrapper.git'
