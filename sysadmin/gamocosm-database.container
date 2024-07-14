@@ -6,6 +6,7 @@ After=local-fs.target
 Image=docker.io/postgres:14.5
 
 Network=gamocosm-network
+HostName=gamocosm-database
 PublishPort=127.0.0.1:5432:5432
 
 Environment=POSTGRES_USER=gamocosm

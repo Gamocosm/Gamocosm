@@ -140,6 +140,8 @@ cat > gamocosm-redis.container.d/50-hostname.conf << EOF
 HostName=$REDIS_HOST
 EOF
 
+systemctl daemon-reload
+
 popd
 
 systemctl enable --now "$DATABASE_HOST" "container-$REDIS_HOST"
@@ -156,8 +158,6 @@ else
 fi
 
 ./sysadmin/update.sh --skip-load
-# update.sh already starts these following services.
-systemctl enable container-gamocosm-puma container-gamocosm-sidekiq
 
 popd
 

@@ -6,6 +6,7 @@ After=local-fs.target
 Image=docker.io/redis:7.0.4
 
 Network=gamocosm-network
+HostName=gamocosm-redis
 PublishPort=127.0.0.1:6379:6379
 
 Volume=gamocosm-redis-volume:/data

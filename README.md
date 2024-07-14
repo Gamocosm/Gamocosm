@@ -81,7 +81,7 @@ If you do need to edit them, systemd supports [drop-in configuration](https://ww
 ```
 # Store `DATABASE_PASSWORD` as a Podman secret.
 # Make sure you loaded your environment variables as above!
-printf "$DATABASE_SECRET" | podman secret create gamocosm-database-password
+printf "$DATABASE_SECRET" | podman secret create gamocosm-database-password -
 
 # Copy the `.container` files to where systemd expects them.
 cp sysadmin/gamocosm-database.container sysadmin/gamocosm-redis.container ~/.config/containers/systemd/

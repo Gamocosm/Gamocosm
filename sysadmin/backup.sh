@@ -8,7 +8,7 @@ source gamocosm.env
 
 cd "/root/backups"
 
-podman exec "$DATABASE_HOST" \
+podman exec "systemd-$DATABASE_HOST" \
 	pg_dump --username "$DATABASE_USER" --format custom gamocosm_production \
 	> gamocosm-latest.dump
 
