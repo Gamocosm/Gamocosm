@@ -87,7 +87,7 @@ module Gamocosm
       host: Gamocosm::REDIS_HOST,
       port: Gamocosm::REDIS_PORT,
       db: 1 + Rails.env.index,
-      pool_size: 4,
+      #pool_size: 4,
       expires_in: 24.hours,
     }
     #config.exceptions_app = self.routes
