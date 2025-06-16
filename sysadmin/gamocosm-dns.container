@@ -8,7 +8,7 @@ Exec=bundle exec rails runner scripts/dns.rb
 
 Network=gamocosm-network
 PublishPort=127.0.0.1:5353:5353/tcp
-PublishPort=127.0.0.1:5353:5353/udp
+PublishPort=127.0.0.1:5352:5353/udp
 
 EnvironmentFile=%h/gamocosm/gamocosm.env
 
