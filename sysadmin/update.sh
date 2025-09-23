@@ -43,13 +43,10 @@ podman run --rm \
 	bundle exec rails db:migrate
 
 echo 'Getting public assets...'
-TMP_PUBLIC="tmp.public"
-trap "rm -rf '$TMP_PUBLIC'" exit
-mkdir "$TMP_PUBLIC"
-# The trailing dot on the source directory means "copy the contents of... into the destination directory".
-podman cp gamocosm-puma:/gamocosm/public/. "$TMP_PUBLIC"
-# The trailing slash on the source directory means "copy the contents of... into the destination directory".
-rsync -r "$TMP_PUBLIC/" /usr/share/gamocosm/public
+GAMOCOSM_IMAGE_MOUNT="$(podman image mount gamocosm-image)"
+trap 'podman image umount gamocosm-image' exit
+# The trailing slashes mean "copy the contents of the source to the contents of the destination".
+rsync --recursive --delete "$GAMOCOSM_IMAGE_MOUNT/gamocosm/public/" /usr/share/gamocosm/public/
 
 echo 'Pruning images...'
 podman image prune --force

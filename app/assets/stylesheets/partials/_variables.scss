@@ -4,14 +4,17 @@ $blue: #5596db;
 $yellow: #ffc83e;
 $red: #fa3b55;
 
+// Other
+$font-family-decorative: "Bungee", sans-serif;
+
+// Bootstrap.
 $brand-primary: $green;
 $brand-success: $green;
 $brand-info: $blue;
 $brand-warning: $yellow;
 $brand-danger: $red;
 
-$font-family-base: "Libre Franklin", "Helvetica Neue", Helvetica, sans-serif;
-$font-family-decorative: "Bungee", sans-serif;
+$font-family-base: ("Libre Franklin", "Helvetica Neue", Helvetica, sans-serif);
 $headings-font-weight: 600;
 
 $panel-default-border: #ddd;
@@ -27,4 +30,4 @@ $screen-lg-min: 1200px;
 
 $grid-float-breakpoint: 0;
 
-@import "bootstrap/variables";
+@forward "bootstrap/variables";

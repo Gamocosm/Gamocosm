@@ -1,0 +1,14 @@
+[Unit]
+Description=Gamocosm daily processes
+
+[Service]
+Type=oneshot
+StandardOutput=journal
+StandardError=journal
+ExecStart=/usr/local/bin/gamocosm-backup
+ExecStart=systemctl restart nginx
+ExecStart=systemctl restart gamocosm-puma
+ExecStart=systemctl restart gamocosm-sidekiq
+ExecStart=systemctl restart gamocosm-dns
+ExecStart=systemctl restart gamocosm-dns-udp gamocosm-dns-tcp
+ExecStart=curl --silent --show-error --output /dev/null https://gamocosm.com

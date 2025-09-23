@@ -1,4 +1,4 @@
-@import "variables";
+@use "partials/variables" as *;
 
 .page-header {
 	.basic-breadcrumb + h1 {

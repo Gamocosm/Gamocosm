@@ -94,19 +94,19 @@ mkdir /usr/share/gamocosm/public
 mkdir /usr/share/gamocosm/blog
 
 echo 'Cloning Gamocosm repository...'
-git clone https://github.com/Gamocosm/Gamocosm.git gamocosm
+git clone https://github.com/Gamocosm/Gamocosm.git /opt/gamocosm
 
-pushd gamocosm
+pushd /opt/gamocosm
 
 echo 'Symlinking systemd units...'
-ln -s "$(pwd)/sysadmin/daily.service" /etc/systemd/system/gamocosm-daily.service
-ln -s "$(pwd)/sysadmin/daily.timer" /etc/systemd/system/gamocosm-daily.timer
-ln -s "$(pwd)/sysadmin/dns-tcp.service" /etc/systemd/system/gamocosm-dns-tcp.service
-ln -s "$(pwd)/sysadmin/dns-udp.service" /etc/systemd/system/gamocosm-dns-udp.service
+ln -s /opt/sysadmin/gamocosm-daily.service /etc/systemd/system
+ln -s /opt/sysadmin/gamocosm-daily.timer /etc/systemd/system
+ln -s /opt/sysadmin/gamocosm-dns-tcp.service /etc/systemd/system
+ln -s /opt/sysadmin/gamocosm-dns-udp.service /etc/systemd/system
 
 echo 'Symlinking local scripts...'
-ln -s "$(pwd)/sysadmin/backup.sh" /usr/local/bin/gamocosm-backup
-ln -s "$(pwd)/sysadmin/console.sh" /usr/local/bin/gamocosm-console
+ln -s /opt/sysadmin/backup.sh /usr/local/bin/gamocosm-backup
+ln -s /opt/sysadmin/console.sh /usr/local/bin/gamocosm-console
 
 echo 'Setting up gamocosm.env...'
 if [ -z "$RESTORE_DIR" ]; then
@@ -124,7 +124,7 @@ podman network create gamocosm-network
 
 pushd /etc/containers/systemd
 
-ln -s ~/gamocosm/sysadmin/gamocosm-database.container
+ln -s /opt/gamocosm/sysadmin/gamocosm-database.container
 mkdir gamocosm-database.container.d
 cat > gamocosm-database.container.d/50-hostname.conf << EOF
 [Container]
@@ -133,7 +133,7 @@ HostName=$DATABASE_HOST
 Environment=POSTGRES_USER='$DATABASE_USER' POSTGRES_PASSWORD='$DATABASE_PASSWORD'
 EOF
 
-ln -s ~/gamocosm/sysadmin/gamocosm-redis.container
+ln -s /opt/gamocosm/sysadmin/gamocosm-redis.container
 mkdir gamocosm-redis.container.d
 cat > gamocosm-redis.container.d/50-hostname.conf << EOF
 [Container]
@@ -142,7 +142,7 @@ EOF
 
 systemctl daemon-reload
 
-popd
+popd # /etc/containers/systemd
 
 systemctl enable --now "$DATABASE_HOST" "container-$REDIS_HOST"
 
@@ -159,10 +159,10 @@ fi
 
 ./sysadmin/update.sh --skip-load
 
-popd
+popd # /opt/gamocosm
 
 echo 'Copying main nginx configuration...'
-cp ~/gamocosm/sysadmin/nginx.conf /etc/nginx/conf.d/gamocosm.conf
+cp /opt/gamocosm/sysadmin/nginx.conf /etc/nginx/conf.d/gamocosm.conf
 
 echo 'Starting nginx...'
 nginx -t
@@ -174,7 +174,7 @@ certbot run --nginx
 echo 'Copying catchall nginx configuration and restarting nginx...'
 # This must be done after running certbot and obtaining certificate;
 # see the comment in the following file(s) for more information.
-cp ~/gamocosm/sysadmin/nginx-catchall.conf /etc/nginx/conf.d/catchall.conf
+cp /opt/gamocosm/sysadmin/nginx-catchall.conf /etc/nginx/conf.d/catchall.conf
 nginx -t
 systemctl restart nginx
 
@@ -199,8 +199,8 @@ echo 'Restarting ssh...'
 systemctl restart sshd
 
 echo 'Adding firewall rules...'
-firewall-offline-cmd --add-forward-port=port=53:toport=5354:proto=udp
-firewall-offline-cmd --add-forward-port=port=53:toport=5354:proto=tcp
+firewall-offline-cmd --add-forward-port=port=53:toport=5303:proto=tcp
+firewall-offline-cmd --add-forward-port=port=53:toport=5304:proto=udp
 firewall-offline-cmd --add-service=http
 firewall-offline-cmd --add-service=https
 firewall-offline-cmd "--add-port=$SSH_PORT/tcp"

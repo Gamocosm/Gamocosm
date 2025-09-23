@@ -1,3 +1,5 @@
+@use "partials/variables" as *;
+
 body {
 	padding-top: $navbar-height;
 }

@@ -7,7 +7,9 @@ gem 'sprockets-rails'
 # Use postgresql as the database for Active Record
 gem 'pg'
 # Use SCSS for stylesheets
-gem 'sassc-rails'
+gem 'sassc-embedded'
+# https://github.com/sass/sassc-ruby/pull/233
+gem 'sassc', github: 'sass/sassc-ruby', ref: 'refs/pull/233/head'
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem 'importmap-rails'
 
@@ -50,6 +52,8 @@ gem 'ed25519'
 
 # Gamocosm user servers domain DNS.
 gem 'rubydns'
+# https://github.com/socketry/io-endpoint/pull/20
+gem 'io-endpoint', git: 'https://github.com/Raekye/io-endpoint'
 
 # CSS styles; pin to exact version. Used with rails sprockets.
 gem 'bootstrap-sass', '~> 3.4.1'

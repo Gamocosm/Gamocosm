@@ -11,14 +11,18 @@
  * file per style scope.
  */
 
-// https://github.com/twbs/bootstrap-sass#sass-1
+// https://sass-lang.com/guide/#partials
+// A Sass file named starting with an underscore is called a partial,
+// and won't be generated into a CSS file.
+// However, `link_directory` in `app/assets/config/manifest.js` will include top level files for processing.
 
-@import "variables";
+@use "partials/variables";
 
-@import "bootstrap";
-@import "font-awesome";
+@use "partials/bootstrap";
 
-@import "components/flash";
-@import "components/navbar";
-@import "components/footer";
-@import "main";
+@use "font-awesome";
+
+@use "components/flash";
+@use "components/navbar";
+@use "components/footer";
+@use "main";
