@@ -1,3 +1,5 @@
+# https://docs.rubocop.org/rubocop/cops.html
+
 Style/TrailingCommaInArrayLiteral:
   EnforcedStyleForMultiline: consistent_comma
 Style/TrailingCommaInHashLiteral:
