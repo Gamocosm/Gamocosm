@@ -9,7 +9,7 @@ gem 'pg'
 # Use SCSS for stylesheets
 gem 'sassc-embedded'
 # https://github.com/sass/sassc-ruby/pull/233
-gem 'sassc', github: 'sass/sassc-ruby', ref: 'refs/pull/233/head'
+# gem 'sassc', github: 'sass/sassc-ruby', ref: 'refs/pull/233/head'
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem 'importmap-rails'
 
@@ -49,6 +49,9 @@ gem 'sshkit'
 gem 'bcrypt_pbkdf'
 gem 'x25519'
 gem 'ed25519'
+
+# json 3 has changes incompatible with faraday 1.10
+gem 'json', '~> 2.0'
 
 # Gamocosm user servers domain DNS.
 gem 'rubydns'

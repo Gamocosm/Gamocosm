@@ -4,8 +4,11 @@ SimpleCov.start
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require File.expand_path('test/fixtures/seeds.rb', Rails.root)
-require 'sidekiq/testing'
+require 'sidekiq/api'
 require 'webmock/minitest'
+
+# https://github.com/sidekiq/sidekiq/wiki/Testing
+Sidekiq.testing!(:fake)
 
 def test_have_user_server?
   ENV['TEST_WITH_CONTAINER'] == 'true'
